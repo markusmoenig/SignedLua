@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  ShaderMania
+//  Signed
 //
 //  Created by Markus Moenig on 2/12/20.
 //

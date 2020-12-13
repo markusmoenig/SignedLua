@@ -1,6 +1,6 @@
 //
 //  Utils.swift
-//  ShaderMania
+//  Signed
 //
 //  Created by Markus Moenig on 25/8/20.
 //

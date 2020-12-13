@@ -1,6 +1,6 @@
 //
 //  Game.swift
-//  ShaderMania
+//  Signed
 //
 //  Created by Markus Moenig on 25/8/20.
 //
@@ -38,8 +38,6 @@ public class Game       : ObservableObject
     var gameScissorRect : MTLScissorRect? = nil
     
     var scriptEditor    : ScriptEditor? = nil
-
-    var shaderCompiler  : ShaderCompiler!
 
     var textureLoader   : MTKTextureLoader!
         
@@ -82,6 +80,9 @@ public class Game       : ObservableObject
 
     public init(_ frameworkId: String? = nil)
     {
+        let processInfo = ProcessInfo()
+        print("Cores", processInfo.activeProcessorCount)
+        
         self.frameworkId = frameworkId
         
         viewportSize = vector_uint2( 0, 0 )
@@ -96,9 +97,7 @@ public class Game       : ObservableObject
 
         assetFolder = AssetFolder()
         assetFolder.setup(self)
-        
-        shaderCompiler = ShaderCompiler(self)
-        
+                
         #if os(iOS)
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -135,8 +134,6 @@ public class Game       : ObservableObject
         
         view.platformInit()
         checkTexture()
-        
-        assetFolder.assetCompileAll()
     }
     
     public func load(_ data: Data)
@@ -253,7 +250,7 @@ public class Game       : ObservableObject
         if state == .Running {
             _Time.x += 1.0 / targetFPS
             _Frame += 1
-        }
+        }        
     }
     
     func startDrawing()
@@ -272,141 +269,6 @@ public class Game       : ObservableObject
             self.gameCmdQueue = nil
         }
         self.gameCmdBuffer = nil
-    }
-    
-    /// Create a preview for the current asset
-    func createPreview(_ asset: Asset, _ update: Bool = true)
-    {
-        if state == .Idle {
-            clearLocalAudio()
-            if asset.type == .Buffer || asset.type == .Shader {
-                updateOnce()
-            } else
-            if asset.type == .Shader {
-                if let shader = asset.shader {
-                    startDrawing()
-                    
-                    let rect = MMRect( 0, 0, self.texture!.width, self.texture!.height, scale: 1 )
-                    texture?.clear()
-                    texture?.drawShader(shader, rect)
-                    
-                    stopDrawing()
-                    updateOnce()
-                }
-            } else
-            if asset.type == .Audio {
-                do {
-                    let player = try AVAudioPlayer(data: asset.data[0])
-                    localAudioPlayers[asset.name] = player
-                    player.play()
-                } catch let error {
-                    print(error.localizedDescription)
-                }
-            } else if asset.type == .Image {
-                if asset.dataIndex < asset.data.count {
-                
-                    let data = asset.data[asset.dataIndex]
-                    
-                    let texOptions: [MTKTextureLoader.Option : Any] = [.generateMipmaps: false, .SRGB: false]
-                    if let texture  = try? textureLoader.newTexture(data: data, options: texOptions) {
-                        let texture2D = Texture2D(self, texture: texture)
-                        
-                        self.startDrawing()
-                        var options : [String:Any] = [:]
-                        options["texture"] = texture2D
-                        
-                        let width : Float = texture2D.width * Float(asset.dataScale)
-                        let height : Float = texture2D.height * Float(asset.dataScale)
-
-                        options["width"] = width
-                        options["height"] = height
-
-                        self.texture?.clear()
-                        self.texture?.drawTexture(options)
-                        self.stopDrawing()
-                        if update {
-                            self.updateOnce()
-                        }
-                                                                        
-                        if let scriptEditor = self.scriptEditor {
-                            let text = """
-
-                            Displaying image group \(asset.name) index \(asset.dataIndex) of \(asset.data.count)
-                            
-                            Image resolution \(Int(texture2D.width))x\(Int(texture2D.height))
-
-                            Preview resolution \(Int(width))x\(Int(height))
-
-                            Scale \(String(format: "%.02f", asset.dataScale))
-
-                            """
-                            scriptEditor.setAssetValue(asset, value: text)
-                        }
-                    }
-                }
-            } else if asset.type == .Texture {
-                checkTexture()
-                if asset.data.count == 0 {
-                    if let scriptEditor = self.scriptEditor {
-                        let text = """
-
-                        This texture will be automatically set to the output resolution.
-
-                        """
-                        scriptEditor.setAssetValue(asset, value: text)
-                        
-                        if update {
-                            startDrawing()
-                        }
-                        
-                        self.texture?.clear()
-
-                        if update {
-                            stopDrawing()
-                            updateOnce()
-                        }
-                    }
-                } else {
-                    let data = asset.data[0]
-                    
-                    let texOptions: [MTKTextureLoader.Option : Any] = [.generateMipmaps: false, .SRGB: false]
-                    if let texture  = try? textureLoader.newTexture(data: data, options: texOptions) {
-                        let texture2D = Texture2D(self, texture: texture)
-                        
-                        if update {
-                            startDrawing()
-                        }
-                        
-                        var options : [String:Any] = [:]
-                        options["texture"] = texture2D
-                        
-                        let width : Float = texture2D.width * Float(asset.dataScale)
-                        let height : Float = texture2D.height * Float(asset.dataScale)
-
-                        options["width"] = width
-                        options["height"] = height
-
-                        //self.texture?.clear()
-                        self.texture?.drawTexture(options)
-                        if update {
-                            stopDrawing()
-                            updateOnce()
-                        }
-                                                
-                        if let scriptEditor = self.scriptEditor {
-                            let text = """
-
-                            Displaying image for texture \(asset.name)
-                            
-                            Image resolution \(Int(texture2D.width)) x \(Int(texture2D.height))
-
-                            """
-                            scriptEditor.setAssetValue(asset, value: text)
-                        }
-                    }
-                }
-            }
-        }
     }
     
     /// Clears all local audio

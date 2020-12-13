@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Shared
+//  Signed
 //
 //  Created by Markus Moenig on 12/12/20.
 //
@@ -59,8 +59,10 @@ struct ContentView: View {
                 
                 // Game Controls
                 Button(action: {
-                    document.game.project!.setBytes()
-                    document.game.updateOnce()
+
+                    DispatchQueue.global(qos: .background).async {
+                        document.game.project!.setBytes(game: document.game)
+                    }
                 })
                 {
                     Label("Run", systemImage: "play.fill")

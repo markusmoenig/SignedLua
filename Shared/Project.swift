@@ -1,6 +1,6 @@
 //
 //  Project.swift
-//  ShaderMania
+//  Signed
 //
 //  Created by Markus Moenig on 19/11/20.
 //
@@ -64,7 +64,7 @@ class Project
             clear(black!)
         }
 
-        if let final = assetFolder.getAsset("Final", .Shader) {
+        if let final = assetFolder.getAsset("main", .Source) {
             size = viewSize
             
             if let customSize = final.size {
@@ -108,9 +108,9 @@ class Project
         return texture
     }
     
-    func setBytes()
+    func setBytes(game: Game)
     {
-        var texArray = Array<SIMD4<UInt8>>(repeating: SIMD4<UInt8>(0, 0, 0, 0), count: texture!.width * texture!.height)
+        var texArray = Array<SIMD4<UInt8>>(repeating: SIMD4<UInt8>(0, 0, 0, 0), count: texture!.width)
         
         let width: Float = Float(texture!.width)
         let height: Float = Float(texture!.height)
@@ -143,15 +143,26 @@ class Project
                     t += d
                 }
                 
-                texArray[w + h * texture!.width] = color
+                texArray[w] = color
+            }
+            
+            let region = MTLRegionMake2D(0, h, texture!.width, 1)
+            
+            texArray.withUnsafeMutableBytes { texArrayPtr in
+                texture!.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<UInt8>>.size * texture!.width))
+            }
+            
+            DispatchQueue.main.async {
+                game.updateOnce()
             }
         }
                 
+        /*
         let region = MTLRegionMake2D(0, 0, texture!.width, texture!.height)
         
         texArray.withUnsafeMutableBytes { texArrayPtr in
             texture!.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<UInt8>>.size * texture!.width))
-        }
+        }*/
     }
     
     // Create the camera dir, camera code is 3D, not really
@@ -183,86 +194,6 @@ class Project
         dir += vertical * (pixelSize.y * rand.y + uv.y)
 
         return simd_normalize( dir );
-    }
-    
-    /// Checks if all textures are loaded and makes sure they have the right size
-    func checkTextures(_ device: MTLDevice)
-    {
-        for asset in assetFolder!.assets {
-            if asset.type == .Texture {
-                if asset.data.count == 0 {
-                    // Empty Texture
-                    
-                    if textureCache[asset.id] == nil || textureCache[asset.id]!.width != size.x || textureCache[asset.id]!.height != size.y {
-                        if textureCache[asset.id] != nil {
-                            textureCache[asset.id]!.setPurgeableState(.empty)
-                            textureCache[asset.id] = nil
-                        }
-                        textureCache[asset.id] = allocateTexture(device, width: size.x, height: size.y)
-                        clear(textureCache[asset.id]!)
-                    }
-                } else {
-                    // Image Texture
-                    
-                    if textureLoader == nil {
-                        textureLoader = MTKTextureLoader(device: device)
-                    }
-                    
-                    if textureCache[asset.id] == nil {
-                        let texOptions: [MTKTextureLoader.Option : Any] = [.generateMipmaps: false, .SRGB: false]
-                        if let texture  = try? textureLoader?.newTexture(data: asset.data[0], options: texOptions) {
-                            textureCache[asset.id] = texture
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    func drawShader(_ asset: Asset,_ texture: MTLTexture, _ device: MTLDevice)
-    {
-        if asset.shader == nil {
-            print("no shader for \(asset.name)")
-            return
-        }
-        let rect = MMRect( 0, 0, Float(size.x), Float(size.y), scale: 1 )
-        
-        let vertexData = createVertexData(texture: texture, rect: rect)
-        
-        let renderPassDescriptor = MTLRenderPassDescriptor()
-        renderPassDescriptor.colorAttachments[0].texture = texture
-        renderPassDescriptor.colorAttachments[0].loadAction = .load
-        
-        let renderEncoder = commandBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-
-        var viewportSize = vector_uint2( UInt32(texture.width), UInt32(texture.height))
-
-        renderEncoder.setVertexBytes(vertexData, length: vertexData.count * MemoryLayout<Float>.stride, index: 0)
-        renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_uint2>.stride, index: 1)
-
-        var metalData = MetalData()
-        metalData.time = time
-        metalData.frame = frame
-        renderEncoder.setFragmentBytes(&metalData, length: MemoryLayout<MetalData>.stride, index: 0)
-        
-        for index in 1..<5 {
-            var hasBeenSet = false
-            
-            if let textureId = asset.slots[0] {
-                if let texture = textureCache[textureId] {
-                    renderEncoder.setFragmentTexture(texture, index: index)
-                    hasBeenSet = true
-                }
-            }
-            
-            if hasBeenSet == false {
-                renderEncoder.setFragmentTexture(black, index: index)
-            }
-        }
-
-        renderEncoder.setRenderPipelineState(asset.shader!.pipelineState)
-        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
-        renderEncoder.endEncoding()
     }
     
     func startDrawing(_ device: MTLDevice)

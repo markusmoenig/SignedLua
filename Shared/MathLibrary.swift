@@ -1,6 +1,6 @@
 //
 //  MathLibrary.swift
-//  ShaderMania
+//  Signed
 //
 //  Created by Markus Moenig on 29/8/20.
 //

@@ -1,18 +1,9 @@
 //
 //  WebEditor.swift
-//  ShaderMania
+//  Signed
 //
 //  Created by Markus Moenig on 25/8/20.
 //
-
-struct CompileError
-{
-    var asset           : Asset? = nil
-    var line            : Int32? = nil
-    var column          : Int32? = 0
-    var error           : String? = nil
-    var type            : String = "error"
-}
 
 #if !os(tvOS)
 
@@ -35,12 +26,13 @@ class ScriptEditor
         self.game = game
         self.colorScheme = colorScheme
         
-        if let asset = game.assetFolder.getAsset("Final", .Shader) {
+        if let asset = game.assetFolder.getAsset("main", .Source) {
             game.assetFolder.select(asset.id)
             createSession(asset)
-            setTheme(colorScheme)
         }
         
+        setTheme(colorScheme)
+
         createHelpSession()
     }
     
@@ -95,7 +87,7 @@ class ScriptEditor
             sessions += 1
         }
 
-        if asset.type == .Shader || asset.type == .Common || asset.type == .Buffer {
+        if asset.type == .Source {
             webView.evaluateJavaScript(
                 """
                 var \(asset.scriptName) = ace.createEditSession(`\(asset.value)`)
@@ -107,7 +99,7 @@ class ScriptEditor
                     }
              })
         } else
-        if asset.type == .Image || asset.type == .Audio || asset.type == .Texture {
+        if asset.type == .Image || asset.type == .Audio {
             webView.evaluateJavaScript(
                 """
                 var \(asset.scriptName) = ace.createEditSession(`\(asset.value)`)

@@ -1,6 +1,6 @@
 //
 //  Asset.swift
-//  ShaderMania
+//  Signed
 //
 //  Created by Markus Moenig on 26/8/20.
 //
@@ -44,16 +44,7 @@ class AssetFolder       : Codable
         }
         
         if let value = try? String(contentsOfFile: commonPath, encoding: String.Encoding.utf8) {
-            assets.append(Asset(type: .Common, name: "Common", value: value))
-        }
-        
-        guard let path = Bundle.main.path(forResource: "Shader", ofType: "", inDirectory: "Files/default") else {
-            return
-        }
-        
-        if let value = try? String(contentsOfFile: path, encoding: String.Encoding.utf8) {
-            assets.append(Asset(type: .Shader, name: "Final", value: value))
-            current = assets[0]
+            assets.append(Asset(type: .Source, name: "main", value: value))
         }
     }
     
@@ -67,34 +58,6 @@ class AssetFolder       : Codable
     {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(assets, forKey: .assets)
-    }
-    
-    func addBuffer(_ name: String)
-    {
-        guard let path = Bundle.main.path(forResource: "Shader", ofType: "", inDirectory: "Files/default") else {
-            return
-        }
-        
-        if let shaderTemplate = try? String(contentsOfFile: path, encoding: String.Encoding.utf8) {
-            let asset = Asset(type: .Buffer, name: name, value: shaderTemplate)
-            assets.append(asset)
-            select(asset.id)
-            game.scriptEditor?.createSession(asset)
-        }
-    }
-    
-    func addShader(_ name: String)
-    {
-        guard let path = Bundle.main.path(forResource: "Shader", ofType: "", inDirectory: "Files/default") else {
-            return
-        }
-        
-        if let shaderTemplate = try? String(contentsOfFile: path, encoding: String.Encoding.utf8) {
-            let asset = Asset(type: .Shader, name: name, value: shaderTemplate)
-            assets.append(asset)
-            select(asset.id)
-            game.scriptEditor?.createSession(asset)
-        }
     }
     
     func addImages(_ name: String, _ urls: [URL], existingAsset: Asset? = nil)
@@ -125,17 +88,6 @@ class AssetFolder       : Codable
             asset.data.append(imageData)
         }
         
-        select(asset.id)
-    }
-    
-    func addTexture(_ name: String)
-    {
-        let asset: Asset
-            
-        asset = Asset(type: .Texture, name: name)
-        assets.append(asset)
-        
-        game.scriptEditor?.createSession(asset)
         select(asset.id)
     }
     
@@ -175,7 +127,7 @@ class AssetFolder       : Codable
         }
     }
     
-    func getAsset(_ name: String,_ type: Asset.AssetType = .Shader) -> Asset?
+    func getAsset(_ name: String,_ type: Asset.AssetType = .Source) -> Asset?
     {
         for asset in assets {
             if asset.type == type && (asset.name == name || String(asset.name.split(separator: ".")[0]) == name) {
@@ -185,7 +137,7 @@ class AssetFolder       : Codable
         return nil
     }
     
-    func getAssetById(_ id: UUID,_ type: Asset.AssetType = .Shader) -> Asset?
+    func getAssetById(_ id: UUID,_ type: Asset.AssetType = .Source) -> Asset?
     {
         for asset in assets {
             if asset.type == type && asset.id == id {
@@ -223,14 +175,7 @@ class AssetFolder       : Codable
         for asset in assets {
             if asset.id == id {
                 asset.value = value
-                if game.state == .Idle {
-                    if asset.type == .Common {
-                        assetCompile(asset)
-                        //assetCompileAll()
-                    } else {
-                        assetCompile(asset)
-                    }
-                }
+                assetCompile(asset)
             }
         }
     }
@@ -238,7 +183,8 @@ class AssetFolder       : Codable
     /// Compiles the Buffer or Shader asset
     func assetCompile(_ asset: Asset)
     {
-        if asset.type == .Shader || asset.type == .Buffer || asset.type == .Common {
+        if asset.type == .Source {
+            /*
             game.shaderCompiler.compile(asset: asset, cb: { (shader, errors) in
                 if shader == nil {
                     if Thread.isMainThread {
@@ -265,6 +211,7 @@ class AssetFolder       : Codable
                     }
                 }
             })
+            */
         }
     }
     
@@ -284,43 +231,15 @@ class AssetFolder       : Codable
             select(assets[0].id)
         }
     }
-    
-    // Create a preview for the current asset
-    func createPreview()
-    {
-        if let asset = current {
-            if asset.type == .Shader {
-                self.game.createPreview(asset)
-            }
-        }
-    }
-    
-    func getSlotName(_ asset: Asset, _ index: Int) -> String {
-        if let uuid = asset.slots[index] {
-            if let textureAsset = getAssetById(uuid) {
-                return textureAsset.name
-            }
-        }
-        return "Black"
-    }
-    
-    func getOutputName(_ asset: Asset) -> String {
-        if let uuid = asset.output {
-            if let textureAsset = getAssetById(uuid) {
-                return textureAsset.name
-            }
-        }
-        return "None"
-    }
 }
 
 class Asset         : Codable, Equatable
 {
     enum AssetType  : Int, Codable {
-        case Buffer, Image, Shader, Audio, Texture, Common
+        case Source, Image, Audio
     }
     
-    var type        : AssetType = .Shader
+    var type        : AssetType = .Source
     var id          = UUID()
     
     var name        = ""
@@ -334,17 +253,12 @@ class Asset         : Codable, Equatable
 
     // For the script based assets
     var scriptName  = ""
-
-    // If this is a shader
-    var shader      : Shader? = nil
+    
+    // Compiled Graph
+    var graph       : GraphContext? = nil
 
     // If the asset has an error
     var hasError    : Bool = false
-    
-    // Texture In/Out
-    
-    var slots       : [Int: UUID] = [:]
-    var output      : UUID? = nil
 
     private enum CodingKeys: String, CodingKey {
         case type
@@ -353,8 +267,6 @@ class Asset         : Codable, Equatable
         case value
         case uuid
         case data
-        case slots
-        case output
     }
     
     init(type: AssetType, name: String, value: String = "", data: [Data] = [])
@@ -372,12 +284,6 @@ class Asset         : Codable, Equatable
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         value = try container.decode(String.self, forKey: .value)
-        if let slots = try container.decodeIfPresent([Int:UUID].self, forKey: .slots) {
-            self.slots = slots
-        }
-        if let output = try container.decodeIfPresent(UUID?.self, forKey: .output) {
-            self.output = output
-        }
         data = try container.decode([Data].self, forKey: .data)
     }
     
@@ -389,8 +295,6 @@ class Asset         : Codable, Equatable
         try container.encode(name, forKey: .name)
         try container.encode(value, forKey: .value)
         try container.encode(data, forKey: .data)
-        try container.encode(slots, forKey: .slots)
-        try container.encode(output, forKey: .output)
     }
     
     static func ==(lhs:Asset, rhs:Asset) -> Bool { // Implement Equatable

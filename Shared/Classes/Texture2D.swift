@@ -332,46 +332,6 @@ class Texture2D                 : NSObject
         }
     }
     
-    func drawShader(_ shader: Shader, _ rect: MMRect)
-    {
-        let vertexData = game.createVertexData(texture: self, rect: rect)
-        
-        let renderPassDescriptor = MTLRenderPassDescriptor()
-        renderPassDescriptor.colorAttachments[0].texture = texture
-        renderPassDescriptor.colorAttachments[0].loadAction = .load
-        
-        let renderEncoder = game.gameCmdBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-
-        renderEncoder.setVertexBytes(vertexData, length: vertexData.count * MemoryLayout<Float>.stride, index: 0)
-        renderEncoder.setVertexBytes(&game.viewportSize, length: MemoryLayout<vector_uint2>.stride, index: 1)
-
-        var metalData = MetalData()
-        metalData.time = game._Time.x;
-        renderEncoder.setFragmentBytes(&metalData, length: MemoryLayout<MetalData>.stride, index: 0)
-
-        renderEncoder.setRenderPipelineState(shader.pipelineState)
-        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
-        renderEncoder.endEncoding()
-    }
-    
-    func drawShader(_ object: [AnyHashable:Any])
-    {
-        if let shader = object["shader"] as? Shader, shader.isValid {
-            
-            let subRect : Rect2D?; if let v = object["subRect"] as? Rect2D { subRect = v } else { subRect = nil }
-            
-            let rect : MMRect
-
-            if let subRect = subRect {
-                rect = MMRect(subRect.x, subRect.y, subRect.width, subRect.height, scale: 1)
-            } else {
-                rect = MMRect( 0, 0, self.width, self.height, scale: game.scaleFactor )
-            }
-            
-            drawShader(shader, rect)
-        }
-    }
-    
     /// Draws the given text
     func drawText(_ options: [String:Any])
     {

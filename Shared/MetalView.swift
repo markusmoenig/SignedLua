@@ -1,6 +1,6 @@
 //
 //  MetalView.swift
-//  ShaderMania
+//  Signed
 //
 //  Created by Markus Moenig on 30/8/20.
 //

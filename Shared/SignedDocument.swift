@@ -1,6 +1,6 @@
 //
 //  SignedDocument.swift
-//  Shared
+//  Signed
 //
 //  Created by Markus Moenig on 12/12/20.
 //
