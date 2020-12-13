@@ -13,7 +13,6 @@ import simd
 class Project
 {
     var texture         : MTLTexture? = nil
-    var black           : MTLTexture? = nil
     var temp            : MTLTexture? = nil
 
     var commandQueue    : MTLCommandQueue? = nil
@@ -40,7 +39,6 @@ class Project
     }
     
     func clear() {
-        if black != nil { black!.setPurgeableState(.empty); black = nil }
         if texture != nil { texture!.setPurgeableState(.empty); texture = nil }
         if temp != nil { temp!.setPurgeableState(.empty); temp = nil }
 
@@ -59,15 +57,10 @@ class Project
 
         startDrawing(device)
 
-        if black == nil {
-            black = allocateTexture(device, width: 10, height: 10)
-            clear(black!)
-        }
-
-        if let final = assetFolder.getAsset("main", .Source) {
+        if let main = assetFolder.getAsset("main", .Source) {
             size = viewSize
             
-            if let customSize = final.size {
+            if let customSize = main.size {
                 size = customSize
             }
 
@@ -118,6 +111,14 @@ class Project
         let origin = float3(0,0,3)
         let lookAt = float3(0,0,0)
 
+        guard let main = game.assetFolder.getAsset("main", .Source) else {
+            return
+        }
+        
+        guard let context = main.graph else {
+            return
+        }
+
         for h in 0..<texture!.height {
             let fh : Float = Float(h) / height
             for w in 0..<texture!.width {
@@ -133,14 +134,17 @@ class Project
                 var t : Float = 0.001;
                 for _ in 0..<70
                 {
-                    let d = simd_length(origin - t * dir) - 1.0
+                    context.pos = origin - t * dir
+                    context.execute()
                     
-                    if abs(d) < (0.0001*t) {
+                    //context.dist = simd_length(context.pos) - 1.0
+                    
+                    if abs(context.dist) < (0.0001*t) {
                         
                         color = SIMD4<UInt8>(255, 255, 255, 255)
                         break
                     }
-                    t += d
+                    t += context.dist
                 }
                 
                 texArray[w] = color

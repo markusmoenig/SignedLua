@@ -77,6 +77,7 @@ public class Game       : ObservableObject
     var frameworkId     : String? = nil
     
     var project         : Project? = nil
+    var graphBuilder    : GraphBuilder!
 
     public init(_ frameworkId: String? = nil)
     {
@@ -97,6 +98,8 @@ public class Game       : ObservableObject
 
         assetFolder = AssetFolder()
         assetFolder.setup(self)
+        
+        graphBuilder = GraphBuilder(self)
                 
         #if os(iOS)
         do {

@@ -29,10 +29,9 @@ class ScriptEditor
         if let asset = game.assetFolder.getAsset("main", .Source) {
             game.assetFolder.select(asset.id)
             createSession(asset)
+            setTheme(colorScheme)
         }
         
-        setTheme(colorScheme)
-
         createHelpSession()
     }
     

@@ -28,32 +28,12 @@ class GraphNode {
     }
     
     /// Verify options
-    func verifyOptions(context: GraphContext, tree: GraphTree, error: inout CompileError) {
+    func verifyOptions(context: GraphContext, error: inout CompileError) {
     }
     
     /// Executes a node inside a behaviour tree
-    @discardableResult func execute(game: Game, context: GraphContext, tree: GraphTree?) -> Result
+    @discardableResult func execute(game: Game, context: GraphContext) -> Result
     {
-        return .Success
-    }
-}
-
-
-class GraphTree     : GraphNode
-{
-    var parameters  : [GraphVariable] = []
-
-    init(_ name: String)
-    {
-        super.init()
-        self.name = name
-    }
-    
-    @discardableResult override func execute(game: Game, context: GraphContext, tree: GraphTree?) -> Result
-    {
-        for leave in leaves {
-            leave.execute(game: game, context: context, tree: self)
-        }
         return .Success
     }
 }
@@ -72,13 +52,19 @@ class GraphVariable
 
 class GraphContext
 {
-    var trees               : [GraphTree] = []
+    var nodes               : [GraphNode] = []
+    
     var variables           : [GraphVariable] = []
     var failedAt            : [Int32] = []
     
     var lines               : [Int32:String] = [:]
         
     let game                : Game
+    
+    // SDF
+    
+    var pos                 : float3 = float3(0,0,0)
+    var dist                : Float = .greatestFiniteMagnitude
     
     init(_ game: Game)
     {
@@ -87,7 +73,7 @@ class GraphContext
     
     func clear()
     {
-        trees = []
+        nodes = []
         variables = []
         lines = [:]
     }
@@ -97,7 +83,7 @@ class GraphContext
         variables.append(GraphVariable(name, value))
     }
     
-    func getVariableValue(_ name: String, tree: GraphTree? = nil) -> Any?
+    func getVariableValue(_ name: String) -> Any?
     {
         // Globals
         if name == "Time" {
@@ -107,14 +93,6 @@ class GraphContext
             return game._Aspect
         }
         
-        // First check the optional tree parameters (if any) as they overrule the context variables
-        if let tree = tree {
-            for v in tree.parameters {
-                if v.name == name {
-                    return v.value
-                }
-            }
-        }
         // Check the context variables
         for v in variables {
             if v.name == name {
@@ -124,10 +102,10 @@ class GraphContext
         return nil
     }
     
-    func getTree(_ name: String) -> GraphTree?
+    func getNode(_ name: String) -> GraphNode?
     {
         // Check the context variables
-        for t in trees {
+        for t in nodes {
             if t.name == name {
                 return t
             }
@@ -140,25 +118,22 @@ class GraphContext
         failedAt.append(lineNr)
     }
     
-    @discardableResult func execute(name: String) -> GraphNode.Result
+    @discardableResult func execute() -> GraphNode.Result
     {
         failedAt = []
-        for tree in trees {
-            if tree.name == name {
-                tree.execute(game: game, context: self, tree: tree)
-                return .Success
-            }
+        for node in nodes {
+            node.execute(game: game, context: self)
         }
-        return .Failure
+        return .Success
     }
     
     func debug()
     {
-        for tree in trees {
-            print(tree.name, tree.leaves.count )
-            for l in tree.leaves {
+        for node in nodes {
+            print(node.name, node.leaves.count )
+            for l in node.leaves {
                 print("  \(l.name)", l.leaves.count)
-                for l in tree.leaves {
+                for l in node.leaves {
                     print("    \(l.name)", l.leaves.count)
                 }
             }

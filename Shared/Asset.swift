@@ -39,7 +39,7 @@ class AssetFolder       : Codable
     {
         self.game = game
         
-        guard let commonPath = Bundle.main.path(forResource: "Common", ofType: "", inDirectory: "Files/default") else {
+        guard let commonPath = Bundle.main.path(forResource: "main", ofType: "", inDirectory: "Files/default") else {
             return
         }
         
@@ -114,12 +114,30 @@ class AssetFolder       : Codable
     
     func select(_ id: UUID)
     {
+        if let current = current {
+            if current.type == .Source {
+                if game.graphBuilder.cursorTimer != nil {
+                    game.graphBuilder.stopTimer()
+                }
+                current.graph = nil
+            }
+        }
+
         for asset in assets {
             if asset.id == id {
                 if asset.scriptName.isEmpty {
                     game.scriptEditor?.createSession(asset)
                 }
                 game.scriptEditor?.setAssetSession(asset)
+                
+                if game.state == .Idle {
+                    assetCompile(asset)
+                    if asset.type == .Source {
+                        if game.graphBuilder.cursorTimer == nil {
+                            game.graphBuilder.startTimer(asset)
+                        }
+                    }
+                }
                 
                 current = asset
                 break
@@ -184,8 +202,10 @@ class AssetFolder       : Codable
     func assetCompile(_ asset: Asset)
     {
         if asset.type == .Source {
+            game.graphBuilder.compile(asset)
             /*
-            game.shaderCompiler.compile(asset: asset, cb: { (shader, errors) in
+
+            game.graphBuilder.compile(asset: asset, cb: { (shader, errors) in
                 if shader == nil {
                     if Thread.isMainThread {
                         self.game.scriptEditor?.setErrors(errors)
@@ -226,6 +246,9 @@ class AssetFolder       : Codable
     /// Safely removes an asset from the project
     func removeAsset(_ asset: Asset)
     {
+        if asset.type == .Source {
+            game.graphBuilder.stopTimer()
+        } else
         if let index = assets.firstIndex(of: asset) {
             assets.remove(at: index)
             select(assets[0].id)

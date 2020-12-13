@@ -35,6 +35,8 @@ class GraphBuilder
     
     var branches        : [GraphNodeItem] =
     [
+        GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return SDFSphereNode(options) }),
+
         /*
         BehaviorNodeItem("repeat", { (_ options: [String:Any]) -> BehaviorNode in return RepeatBranch(options) }),
         BehaviorNodeItem("sequence", { (_ options: [String:Any]) -> BehaviorNode in return SequenceBranch(options) }),
@@ -116,7 +118,7 @@ class GraphBuilder
         let ns = asset.value as NSString
         var lineNumber  : Int32 = 0
         
-        var currentTree     : GraphTree? = nil
+        //var currentTree     : GraphTree? = nil
         var currentBranch   : [GraphNode] = []
         var lastLevel       : Int = -1
 
@@ -173,7 +175,8 @@ class GraphBuilder
                 if arguments.count > 0 {
                     //print(level, arguments)
                     
-                    let cmd = arguments[0].trimmingCharacters(in: .whitespaces)
+                    //let cmd = arguments[0].trimmingCharacters(in: .whitespaces)
+                    /*
                     if cmd == "tree" {
                         if arguments.count >= 2 {
                             let name = arguments[1].trimmingCharacters(in: .whitespaces).replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
@@ -229,176 +232,173 @@ class GraphBuilder
                             } else { error.error = "Invalid name for tree '\(name)'" }
                         } else { error.error = "No name given for tree" }
                     } else {
-                        var rightValueArray : [String.SubSequence]
-                            
-                        if leftOfComment.firstIndex(of: "<") != nil {
-                            rightValueArray = leftOfComment.split(separator: "<")
-                        } else {
-                            rightValueArray = leftOfComment.split(separator: " ")
-                        }
+                    */
+                    var rightValueArray : [String.SubSequence]
                         
-                        if rightValueArray.count > 0 {
+                    if leftOfComment.firstIndex(of: "<") != nil {
+                        rightValueArray = leftOfComment.split(separator: "<")
+                    } else {
+                        rightValueArray = leftOfComment.split(separator: " ")
+                    }
+                    
+                    if rightValueArray.count > 0 {
+                        
+                        let possbibleCmd = String(rightValueArray[0]).trimmingCharacters(in: .whitespaces)
+                        
+                        if variableName == nil {
                             
-                            let possbibleCmd = String(rightValueArray[0]).trimmingCharacters(in: .whitespaces)
+                            var options : [String: String] = [:]
                             
-                            if variableName == nil {
-                                
-                                // Looking for branch
-                                for branch in self.branches {
-                                    if branch.name == possbibleCmd {
-                                        
-                                        // Build options
-                                        var nodeOptions : [String:String] = [:]
-                                        var no = leftOfComment.split(separator: " ")
-                                        no.removeFirst()
-                                        
-                                        for s in no {
-                                            let ss = String(s)
-                                            nodeOptions[ss] = ss
+                            // Fill in options
+                            rightValueArray.removeFirst()
+                            if rightValueArray.count == 1 && rightValueArray[0] == ">" {
+                                // Empty Arguments
+                            } else {
+                                while rightValueArray.count > 0 {
+                                    let array = rightValueArray[0].split(separator: ":")
+                                    //print("2", array)
+                                    rightValueArray.removeFirst()
+                                    if array.count == 2 {
+                                        let optionName = array[0].lowercased().trimmingCharacters(in: .whitespaces)
+                                        var values = array[1].trimmingCharacters(in: .whitespaces)
+                                        //print("option", optionName, "value", values)
+                                                                            
+                                        if values.count > 0 && values.last! != ">" {
+                                            createError("No closing '>' for option '\(optionName)'")
+                                        } else {
+                                            values = String(values.dropLast())
                                         }
+                                        options[optionName] = String(values)
+                                    } else { createError(); rightValueArray = [] }
+                                }
+                            }
+                            
+                            let nodeOptions = self.parser_processOptions(options, &error)
+                            
+                            // Looking for branch
+                            for branch in self.branches {
+                                if branch.name == possbibleCmd {
 
-                                        let newBranch = branch.createNode(nodeOptions)
-                                        newBranch.verifyOptions(context: asset.graph!, tree: currentTree!, error: &error)
-                                        if error.error == nil {
-                                            if currentBranch.count == 0 {
-                                                currentTree?.leaves.append(newBranch)
-                                                currentBranch.append(newBranch)
+                                    let newBranch = branch.createNode(nodeOptions)
+                                    newBranch.verifyOptions(context: asset.graph!, error: &error)
+                                    if error.error == nil {
+                                        
+                                        if level == 0 {
+                                            asset.graph!.nodes.append(newBranch)
+                                            currentBranch = []
+                                        }
+                                        
+                                        if currentBranch.count == 0 {
+                                            //currentTree?.leaves.append(newBranch)
+                                            currentBranch.append(newBranch)
+                                            
+                                            newBranch.lineNr = error.line!
+                                            asset.graph!.lines[error.line!] = newBranch.name
+                                        } else {
+                                            if let branch = currentBranch.last {
+                                                branch.leaves.append(newBranch)
                                                 
                                                 newBranch.lineNr = error.line!
                                                 asset.graph!.lines[error.line!] = newBranch.name
-                                            } else {
-                                                if let branch = currentBranch.last {
-                                                    branch.leaves.append(newBranch)
-                                                    
-                                                    newBranch.lineNr = error.line!
-                                                    asset.graph!.lines[error.line!] = newBranch.name
-                                                }
-                                                currentBranch.append(newBranch)
                                             }
-                                            processed = true
+                                            currentBranch.append(newBranch)
                                         }
+                                        processed = true
                                     }
                                 }
-                                
-                                if processed == false {
-                                    // Looking for leave
-                                    for leave in self.leaves {
-                                        if leave.name == possbibleCmd {
-                                            
-                                            var options : [String: String] = [:]
-                                            
-                                            // Fill in options
-                                            rightValueArray.removeFirst()
-                                            if rightValueArray.count == 1 && rightValueArray[0] == ">" {
-                                                // Empty Arguments
-                                            } else {
-                                                while rightValueArray.count > 0 {
-                                                    let array = rightValueArray[0].split(separator: ":")
-                                                    //print("2", array)
-                                                    rightValueArray.removeFirst()
-                                                    if array.count == 2 {
-                                                        let optionName = array[0].lowercased().trimmingCharacters(in: .whitespaces)
-                                                        var values = array[1].trimmingCharacters(in: .whitespaces)
-                                                        //print("option", optionName, "value", values)
-                                                                                            
-                                                        if values.count > 0 && values.last! != ">" {
-                                                            createError("No closing '>' for option '\(optionName)'")
-                                                        } else {
-                                                            values = String(values.dropLast())
-                                                        }
-                                                        options[optionName] = String(values)
-                                                    } else { createError(); rightValueArray = [] }
-                                                }
-                                            }
-                                            
-                                            let nodeOptions = self.parser_processOptions(options, &error)
-                                            if error.error == nil {
-                                                if let branch = currentBranch.last {
-                                                    let behaviorNode = leave.createNode(nodeOptions)
-                                                    behaviorNode.verifyOptions(context: asset.graph!, tree: currentTree!, error: &error)
-                                                    if error.error == nil {
-                                                        behaviorNode.lineNr = error.line!
-                                                        branch.leaves.append(behaviorNode)
-                                                        asset.graph!.lines[error.line!] = behaviorNode.name
-                                                        processed = true
-                                                    }
-                                                } else { createError("Leaf node without active branch") }
-                                            }
-                                        }
-                                    }
-                                }
-                            } else
-                            if rightValueArray.count > 1 {
-                                // Variable
-                                asset.graph!.lines[error.line!] = "Variable"
-                                let possibleVariableType = rightValueArray[0].trimmingCharacters(in: .whitespaces)
-                                if possibleVariableType == "Float4" {
-                                    rightValueArray.removeFirst()
-                                    let array = rightValueArray[0].split(separator: ",")
-                                    if array.count == 4 {
-                                        
-                                        let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
-                                        let y : Float; if let v = Float(array[1].trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
-                                        let z : Float; if let v = Float(array[2].trimmingCharacters(in: .whitespaces)) { z = v } else { z = 0 }
-                                        let w : Float; if let v = Float(array[3].dropLast().trimmingCharacters(in: .whitespaces)) { w = v } else { w = 0 }
-
-                                        let value = Float4(x, y, z, w)
-                                        asset.graph!.addVariable(variableName!, value)
-                                        processed = true
-                                    } else { createError() }
-                                } else
-                                if possibleVariableType == "Float3" {
-                                    rightValueArray.removeFirst()
-                                    let array = rightValueArray[0].split(separator: ",")
-                                    if array.count == 3 {
-                                        
-                                        let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
-                                        let y : Float; if let v = Float(array[1].trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
-                                        let z : Float; if let v = Float(array[2].trimmingCharacters(in: .whitespaces)) { z = v } else { z = 0 }
-
-                                        let value = Float3(x, y, z)
-                                        asset.graph!.addVariable(variableName!, value)
-                                        processed = true
-                                    } else { createError() }
-                                } else
-                                if possibleVariableType == "Float2" {
-                                    rightValueArray.removeFirst()
-                                    let array = rightValueArray[0].split(separator: ",")
-                                    if array.count == 2 {
-                                        
-                                        let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
-                                        let y : Float; if let v = Float(array[1].dropLast().trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
-
-                                        let value = Float2(x, y)
-                                        asset.graph!.addVariable(variableName!, value)
-                                        processed = true
-                                    } else { createError() }
-                                } else
-                                if possibleVariableType == "Float" {
-                                    rightValueArray.removeFirst()
-                                    let value : Float; if let v = Float(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces)) { value = v } else { value = 0 }
-                                    asset.graph!.addVariable(variableName!, Float1(value))
-                                    processed = true
-                                } else
-                                if possibleVariableType == "Int" {
-                                    rightValueArray.removeFirst()
-                                    let value : Int; if let v = Int(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces)) { value = v } else { value = 0 }
-                                    asset.graph!.addVariable(variableName!, Int1(value))
-                                    processed = true
-                                } else
-                                if possibleVariableType == "Bool" {
-                                    rightValueArray.removeFirst()
-                                    let value : Bool; if let v = Bool(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces)) { value = v } else { value = false }
-                                    asset.graph!.addVariable(variableName!, Bool1(value))
-                                    processed = true
-                                } else
-                                if possibleVariableType == "Text" {
-                                    rightValueArray.removeFirst()
-                                    let v = String(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces))
-                                    asset.graph!.addVariable(variableName!, TextRef(v))
-                                    processed = true
-                                } else { error.error = "Unrecognized Variable type '\(possbibleCmd)'" }
                             }
+                            
+                            if processed == false {
+                                // Looking for leave
+                                for leave in self.leaves {
+                                    if leave.name == possbibleCmd {
+                                        
+                                        if error.error == nil {
+                                            if let branch = currentBranch.last {
+                                                let behaviorNode = leave.createNode(nodeOptions)
+                                                behaviorNode.verifyOptions(context: asset.graph!, error: &error)
+                                                if error.error == nil {
+                                                    behaviorNode.lineNr = error.line!
+                                                    branch.leaves.append(behaviorNode)
+                                                    asset.graph!.lines[error.line!] = behaviorNode.name
+                                                    processed = true
+                                                }
+                                            } else { createError("Leaf node without active branch") }
+                                        }
+                                    }
+                                }
+                            }
+                        } else
+                        if rightValueArray.count > 1 {
+                            // Variable
+                            asset.graph!.lines[error.line!] = "Variable"
+                            let possibleVariableType = rightValueArray[0].trimmingCharacters(in: .whitespaces)
+                            if possibleVariableType == "Float4" {
+                                rightValueArray.removeFirst()
+                                let array = rightValueArray[0].split(separator: ",")
+                                if array.count == 4 {
+                                    
+                                    let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
+                                    let y : Float; if let v = Float(array[1].trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
+                                    let z : Float; if let v = Float(array[2].trimmingCharacters(in: .whitespaces)) { z = v } else { z = 0 }
+                                    let w : Float; if let v = Float(array[3].dropLast().trimmingCharacters(in: .whitespaces)) { w = v } else { w = 0 }
+
+                                    let value = Float4(x, y, z, w)
+                                    asset.graph!.addVariable(variableName!, value)
+                                    processed = true
+                                } else { createError() }
+                            } else
+                            if possibleVariableType == "Float3" {
+                                rightValueArray.removeFirst()
+                                let array = rightValueArray[0].split(separator: ",")
+                                if array.count == 3 {
+                                    
+                                    let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
+                                    let y : Float; if let v = Float(array[1].trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
+                                    let z : Float; if let v = Float(array[2].trimmingCharacters(in: .whitespaces)) { z = v } else { z = 0 }
+
+                                    let value = Float3(x, y, z)
+                                    asset.graph!.addVariable(variableName!, value)
+                                    processed = true
+                                } else { createError() }
+                            } else
+                            if possibleVariableType == "Float2" {
+                                rightValueArray.removeFirst()
+                                let array = rightValueArray[0].split(separator: ",")
+                                if array.count == 2 {
+                                    
+                                    let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
+                                    let y : Float; if let v = Float(array[1].dropLast().trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
+
+                                    let value = Float2(x, y)
+                                    asset.graph!.addVariable(variableName!, value)
+                                    processed = true
+                                } else { createError() }
+                            } else
+                            if possibleVariableType == "Float" {
+                                rightValueArray.removeFirst()
+                                let value : Float; if let v = Float(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces)) { value = v } else { value = 0 }
+                                asset.graph!.addVariable(variableName!, Float1(value))
+                                processed = true
+                            } else
+                            if possibleVariableType == "Int" {
+                                rightValueArray.removeFirst()
+                                let value : Int; if let v = Int(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces)) { value = v } else { value = 0 }
+                                asset.graph!.addVariable(variableName!, Int1(value))
+                                processed = true
+                            } else
+                            if possibleVariableType == "Bool" {
+                                rightValueArray.removeFirst()
+                                let value : Bool; if let v = Bool(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces)) { value = v } else { value = false }
+                                asset.graph!.addVariable(variableName!, Bool1(value))
+                                processed = true
+                            } else
+                            if possibleVariableType == "Text" {
+                                rightValueArray.removeFirst()
+                                let v = String(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces))
+                                asset.graph!.addVariable(variableName!, TextRef(v))
+                                processed = true
+                            } else { error.error = "Unrecognized Variable type '\(possbibleCmd)'" }
                         }
                     }
                 }

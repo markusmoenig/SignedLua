@@ -48,6 +48,10 @@
 		2B224FA92585EB7F00F32354 /* GraphBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FA72585EB7F00F32354 /* GraphBuilder.swift */; };
 		2B224FAF2585ED1100F32354 /* Graph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FAE2585ED1100F32354 /* Graph.swift */; };
 		2B224FB02585ED1100F32354 /* Graph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FAE2585ED1100F32354 /* Graph.swift */; };
+		2B224FB62586105200F32354 /* GraphBranchNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FB52586105200F32354 /* GraphBranchNodes.swift */; };
+		2B224FB72586105200F32354 /* GraphBranchNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FB52586105200F32354 /* GraphBranchNodes.swift */; };
+		2B224FBD258619E800F32354 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FBC258619E800F32354 /* Utilities.swift */; };
+		2B224FBE258619E800F32354 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FBC258619E800F32354 /* Utilities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -78,6 +82,8 @@
 		2B224F9F25844D6000F32354 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		2B224FA72585EB7F00F32354 /* GraphBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBuilder.swift; sourceTree = "<group>"; };
 		2B224FAE2585ED1100F32354 /* Graph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Graph.swift; sourceTree = "<group>"; };
+		2B224FB52586105200F32354 /* GraphBranchNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBranchNodes.swift; sourceTree = "<group>"; };
+		2B224FBC258619E800F32354 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,8 +133,10 @@
 				2B224F6A25844C1800F32354 /* Project.swift */,
 				2B224F6B25844C1800F32354 /* ScriptEditor.swift */,
 				2B224F6225844C1800F32354 /* Utils.swift */,
+				2B224FBC258619E800F32354 /* Utilities.swift */,
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FA72585EB7F00F32354 /* GraphBuilder.swift */,
+				2B224FB52586105200F32354 /* GraphBranchNodes.swift */,
 				2B224F8525844C2500F32354 /* Classes */,
 				2B224F9925844D0E00F32354 /* Files */,
 				2B224F302584485300F32354 /* Assets.xcassets */,
@@ -290,12 +298,14 @@
 				2B224F8B25844C3100F32354 /* Classes.swift in Sources */,
 				2B224F8125844C1900F32354 /* Metal.metal in Sources */,
 				2B224F412584485300F32354 /* SignedApp.swift in Sources */,
+				2B224FB62586105200F32354 /* GraphBranchNodes.swift in Sources */,
 				2B224F452584485300F32354 /* ContentView.swift in Sources */,
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
 				2B224F7F25844C1900F32354 /* ScriptEditor.swift in Sources */,
 				2B224F8D25844C3100F32354 /* Texture2D.swift in Sources */,
 				2B224F7B25844C1900F32354 /* File.swift in Sources */,
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
+				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
 				2B224F7D25844C1900F32354 /* Project.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -315,12 +325,14 @@
 				2B224F8C25844C3100F32354 /* Classes.swift in Sources */,
 				2B224F8225844C1900F32354 /* Metal.metal in Sources */,
 				2B224F422584485300F32354 /* SignedApp.swift in Sources */,
+				2B224FB72586105200F32354 /* GraphBranchNodes.swift in Sources */,
 				2B224F462584485300F32354 /* ContentView.swift in Sources */,
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,
 				2B224F8025844C1900F32354 /* ScriptEditor.swift in Sources */,
 				2B224F8E25844C3100F32354 /* Texture2D.swift in Sources */,
 				2B224F7C25844C1900F32354 /* File.swift in Sources */,
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,
+				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
 				2B224F7E25844C1900F32354 /* Project.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
