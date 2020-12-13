@@ -518,6 +518,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.signed;
 				PRODUCT_NAME = Signed;
 				SDKROOT = macosx;
+				SWIFT_DISABLE_SAFETY_CHECKS = NO;
+				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = on;
 				SWIFT_OBJC_BRIDGING_HEADER = Shared/Metal.h;
 				SWIFT_VERSION = 5.0;
 			};
@@ -543,6 +545,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.signed;
 				PRODUCT_NAME = Signed;
 				SDKROOT = macosx;
+				SWIFT_DISABLE_SAFETY_CHECKS = NO;
+				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = on;
 				SWIFT_OBJC_BRIDGING_HEADER = Shared/Metal.h;
 				SWIFT_VERSION = 5.0;
 			};

@@ -60,7 +60,7 @@ struct ContentView: View {
                 // Game Controls
                 Button(action: {
 
-                    DispatchQueue.global(qos: .background).async {
+                    DispatchQueue.global(qos: .userInitiated).async {
                         document.game.project!.setBytes(game: document.game)
                     }
                 })

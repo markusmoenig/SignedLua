@@ -5,10 +5,10 @@
 //  Created by Markus Moenig on 13/12/20.
 //
 
-import Foundation
+import MetalKit
 import simd
 
-class SDFSphereNode : GraphNode
+final class SDFSphereNode : GraphNode
 {
     var radius      : Float1 = Float1(1)
 
@@ -24,12 +24,12 @@ class SDFSphereNode : GraphNode
         }
     }
     
-    @discardableResult override func execute(game: Game, context: GraphContext) -> Result
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         context.dist = simd_length(context.pos) - radius.x
 
         for leave in leaves {
-            leave.execute(game: game, context: context)
+            leave.execute(context: context)
         }
         return .Success
     }

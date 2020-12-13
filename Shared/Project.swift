@@ -119,6 +119,7 @@ class Project
             return
         }
 
+        //DispatchQueue.concurrentPerform(iterations: texture!.height) { h in
         for h in 0..<texture!.height {
             let fh : Float = Float(h) / height
             for w in 0..<texture!.width {
@@ -135,8 +136,9 @@ class Project
                 for _ in 0..<70
                 {
                     context.pos = origin - t * dir
+                    context.dist = .greatestFiniteMagnitude
                     context.execute()
-                    
+
                     //context.dist = simd_length(context.pos) - 1.0
                     
                     if abs(context.dist) < (0.0001*t) {

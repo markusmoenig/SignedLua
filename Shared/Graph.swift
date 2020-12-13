@@ -32,7 +32,7 @@ class GraphNode {
     }
     
     /// Executes a node inside a behaviour tree
-    @discardableResult func execute(game: Game, context: GraphContext) -> Result
+    @discardableResult @inlinable public func execute(context: GraphContext) -> Result
     {
         return .Success
     }
@@ -50,8 +50,10 @@ class GraphVariable
     }
 }
 
-class GraphContext
+final class GraphContext
 {
+    var buffer              : Array<SIMD4<UInt8>>!
+    
     var nodes               : [GraphNode] = []
     
     var variables           : [GraphVariable] = []
@@ -118,11 +120,11 @@ class GraphContext
         failedAt.append(lineNr)
     }
     
-    @discardableResult func execute() -> GraphNode.Result
+    @discardableResult @inlinable public func execute() -> GraphNode.Result
     {
         failedAt = []
         for node in nodes {
-            node.execute(game: game, context: self)
+            node.execute(context: self)
         }
         return .Success
     }
