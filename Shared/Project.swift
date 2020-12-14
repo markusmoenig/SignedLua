@@ -117,36 +117,37 @@ class Project
             return
         }
         
-        let processInfo = ProcessInfo()
-        let cores = processInfo.activeProcessorCount
+        let cores = ProcessInfo().activeProcessorCount + 1
         
         //let width: Int = texture!.width
         let height: Int = texture!.height
 
         var lineCount : Int = 0
-        let chunkHeight : Int = height / cores
+        let chunkHeight : Int = height / cores + cores//Int(ceil(Float(height) / Float(cores)))
         
         print("Cores", cores, chunkHeight)
 
         startTime = Double(Date().timeIntervalSince1970)
         totalTime = 0
-        coresActive = cores
+        coresActive = 0
         
         semaphore = nil
         semaphore = DispatchSemaphore(value: 1)
 
         func startThread(_ chunk: SIMD4<Int>) {
-            
-            //let concurrentQueue = DispatchQueue(label: "com.test.concurrent", attributes: .concurrent)
+            //print("Chunk start", chunk.y, chunk.w)
+
+            coresActive += 1
             DispatchQueue.global(qos: .userInitiated).async {
-            //concurrentQueue.async {
                 self.renderChunk(context1: context, chunk: chunk)
             }
         }
 
         for _ in 0..<cores {
-            startThread(SIMD4<Int>(0, lineCount, 0, lineCount + chunkHeight))
-            lineCount += chunkHeight
+            if lineCount < height {
+                startThread(SIMD4<Int>(0, lineCount, 0, min(lineCount + chunkHeight, height)))
+                lineCount += chunkHeight
+            }
         }
     }
     
@@ -164,23 +165,20 @@ class Project
             return
         }
         
-        var asset = Asset(type: .Source, name: "", value: main.value, data: main.data)
+        let asset = Asset(type: .Source, name: "", value: main.value, data: main.data)
         context1.game.graphBuilder.compile(asset, silent: true)
         
         let context = asset.graph!
         
         context.camOrigin = float3(0,5,-5)
         context.camDir = float3(0,0,0)
-        
-        print("Chunk start", chunk.y, chunk.w)
-        
+                
         //DispatchQueue.concurrentPerform(iterations: texture!.height) { h in
         for h in chunk.y..<chunk.w {
             let fh : Float = Float(h) / height
             for w in 0..<widthInt {
                 
-                let AA : Int = 2
-                
+                let AA : Int = 1                
                 var tot = float4(0,0,0,0)
                 
                 for m in 0..<AA {
@@ -236,14 +234,15 @@ class Project
         
         coresActive -= 1
         if coresActive == 0 {
-            DispatchQueue.main.async {
+            
+            let chunkTime = Double(Date().timeIntervalSince1970) - startTime
+            totalTime += chunkTime
+            print("Chunktime", chunkTime, totalTime)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 context.game.updateOnce()
             }
         }
-        
-        let chunkTime = Double(Date().timeIntervalSince1970) - startTime
-        totalTime += chunkTime
-        print("Chunktime", chunkTime, totalTime)
     }
     
     /// Calculates the normal for the given hit position
