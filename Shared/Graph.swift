@@ -63,14 +63,23 @@ final class GraphContext
         
     let game                : Game
     
-    // SDF
+    var position            = float3(0,0,0)
     
-    var pos                 : float3 = float3(0,0,0)
-    var dist                : Float = .greatestFiniteMagnitude
+    var camOrigin           = float3(0,0,-5)
+    var camDir              = float3(0,0,0)
+    
+    // SDF Raymarching
+    
+    var rayPos              : float3 = float3(0,0,0)
+    var rayDist             : [Float] = []
+    var rayIndex            : Int = 0
     
     init(_ game: Game)
     {
         self.game = game
+        
+        rayDist.append(.greatestFiniteMagnitude)
+        rayDist.append(.greatestFiniteMagnitude)
     }
     
     func clear()
@@ -78,6 +87,24 @@ final class GraphContext
         nodes = []
         variables = []
         lines = [:]
+    }
+    
+    @inlinable public func reset(_ rayPos: float3 = float3(0,0,0))
+    {
+        self.rayPos = rayPos
+        rayDist[0] = .greatestFiniteMagnitude
+        rayDist[1] = .greatestFiniteMagnitude
+        rayIndex = 0
+        position = float3(0,0,0)
+    }
+    
+    @inlinable public func toggleRayIndex()
+    {
+        if rayIndex == 0 {
+            rayIndex = 1
+        } else {
+            rayIndex = 0
+        }
     }
     
     func addVariable(_ name: String,_ value: Any)

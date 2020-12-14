@@ -57,6 +57,13 @@ class Float3
         self.z = z
     }
     
+    init(_ o: Float3)
+    {
+        self.x = o.x
+        self.y = o.y
+        self.z = o.z
+    }
+    
     func toSIMD() -> SIMD3<Float>
     {
         return SIMD3<Float>(x, y, z)

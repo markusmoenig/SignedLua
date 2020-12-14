@@ -35,64 +35,14 @@ class GraphBuilder
     
     var branches        : [GraphNodeItem] =
     [
-        GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return SDFSphereNode(options) }),
-
-        /*
-        BehaviorNodeItem("repeat", { (_ options: [String:Any]) -> BehaviorNode in return RepeatBranch(options) }),
-        BehaviorNodeItem("sequence", { (_ options: [String:Any]) -> BehaviorNode in return SequenceBranch(options) }),
-        BehaviorNodeItem("selector", { (_ options: [String:Any]) -> BehaviorNode in return SelectorBranch(options) }),
-        BehaviorNodeItem("while", { (_ options: [String:Any]) -> BehaviorNode in return WhileBranch(options) }),*/
+        GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return SDFObject(options) }),
     ]
     
     var leaves          : [GraphNodeItem] =
     [
-        /*
-        BehaviorNodeItem("SetScene", { (_ options: [String:Any]) -> BehaviorNode in return SetScene(options) }),
-        BehaviorNodeItem("Call", { (_ options: [String:Any]) -> BehaviorNode in return Call(options) }),
-        BehaviorNodeItem("StartTimer", { (_ options: [String:Any]) -> BehaviorNode in return StartTimer(options) }),
-        BehaviorNodeItem("IsKeyDown", { (_ options: [String:Any]) -> BehaviorNode in return IsKeyDown(options) }),
-        BehaviorNodeItem("IsButtonDown", { (_ options: [String:Any]) -> BehaviorNode in return IsButtonDown(options) }),
-        BehaviorNodeItem("Swiped", { (_ options: [String:Any]) -> BehaviorNode in return Swiped(options) }),
-        BehaviorNodeItem("GetTouchPos", { (_ options: [String:Any]) -> BehaviorNode in return GetTouchPos(options) }),
-        BehaviorNodeItem("HasDoubleTap", { (_ options: [String:Any]) -> BehaviorNode in return HasDoubleTap(options) }),
-        BehaviorNodeItem("HasTouch", { (_ options: [String:Any]) -> BehaviorNode in return HasTouch(options) }),
-        BehaviorNodeItem("HasTap", { (_ options: [String:Any]) -> BehaviorNode in return HasTap(options) }),
-        BehaviorNodeItem("DistanceToShape", { (_ options: [String:Any]) -> BehaviorNode in return DistanceToShape(options) }),
-        BehaviorNodeItem("ShapeContactCount", { (_ options: [String:Any]) -> BehaviorNode in return ShapeContactCount(options) }),
-        BehaviorNodeItem("RandomColor", { (_ options: [String:Any]) -> BehaviorNode in return RandomColorNode(options) }),
-        BehaviorNodeItem("Random", { (_ options: [String:Any]) -> BehaviorNode in return RandomNode(options) }),
-        BehaviorNodeItem("Log", { (_ options: [String:Any]) -> BehaviorNode in return LogNode(options) }),
-
-        BehaviorNodeItem("PlayAudio", { (_ options: [String:Any]) -> BehaviorNode in return PlayAudioNode(options) }),
-
-        BehaviorNodeItem("Set", { (_ options: [String:Any]) -> BehaviorNode in return SetNode(options) }),
-        BehaviorNodeItem("IsVariable", { (_ options: [String:Any]) -> BehaviorNode in return IsVariable(options) }),
-        BehaviorNodeItem("IsComponent", { (_ options: [String:Any]) -> BehaviorNode in return IsComponent(options) }),
-
-        BehaviorNodeItem("CreateInstance2D", { (_ options: [String:Any]) -> BehaviorNode in return CreateInstance2D(options) }),
-        BehaviorNodeItem("DestroyInstance2D", { (_ options: [String:Any]) -> BehaviorNode in return DestroyInstance2D(options) }),
-        
-        BehaviorNodeItem("SetVisible", { (_ options: [String:Any]) -> BehaviorNode in return SetVisible(options) }),
-        BehaviorNodeItem("SetActive", { (_ options: [String:Any]) -> BehaviorNode in return SetActive(options) }),
-        BehaviorNodeItem("GetLinearVelocity2D", { (_ options: [String:Any]) -> BehaviorNode in return GetLinearVelocity2D(options) }),
-        BehaviorNodeItem("SetLinearVelocity2D", { (_ options: [String:Any]) -> BehaviorNode in return SetLinearVelocity2D(options) }),
-        BehaviorNodeItem("ApplyForce2D", { (_ options: [String:Any]) -> BehaviorNode in return ApplyForce2D(options) }),
-
-        BehaviorNodeItem("IsVisible", { (_ options: [String:Any]) -> BehaviorNode in return IsVisible(options) }),
-
-        BehaviorNodeItem("ApplyTexture2D", { (_ options: [String:Any]) -> BehaviorNode in return ApplyTexture2D(options) }),
-        BehaviorNodeItem("ApplyTextureFlip2D", { (_ options: [String:Any]) -> BehaviorNode in return ApplyTextureFlip2D(options) }),
-        
-        BehaviorNodeItem("SetCamera2D", { (_ options: [String:Any]) -> BehaviorNode in return SetCamera2D(options) }),
-
-        BehaviorNodeItem("MoveTo2D", { (_ options: [String:Any]) -> BehaviorNode in return MoveTo2D(options) }),
-        BehaviorNodeItem("Length", { (_ options: [String:Any]) -> BehaviorNode in return LengthNode(options) }),
-        BehaviorNodeItem("Distance", { (_ options: [String:Any]) -> BehaviorNode in return DistanceNode(options) }),
-
-        BehaviorNodeItem("Multiply", { (_ options: [String:Any]) -> BehaviorNode in return Multiply(options) }),
-        BehaviorNodeItem("Subtract", { (_ options: [String:Any]) -> BehaviorNode in return Subtract(options) }),
-        BehaviorNodeItem("Add", { (_ options: [String:Any]) -> BehaviorNode in return Add(options) })
-        */
+        GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return SDFSphereNode(options) }),
+        GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return SDFBoxNode(options) }),
+        GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return BoolMergeNode(options) }),
     ]
     
     init(_ game: Game)

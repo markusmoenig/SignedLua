@@ -91,7 +91,7 @@ class ScriptEditor
                 """
                 var \(asset.scriptName) = ace.createEditSession(`\(asset.value)`)
                 editor.setSession(\(asset.scriptName))
-                editor.session.setMode("ace/mode/c_cpp");
+                editor.session.setMode("ace/mode/denrim");
                 """, completionHandler: { (value, error ) in
                     if let cb = cb {
                         cb()

@@ -103,13 +103,10 @@ class Project
     
     func setBytes(game: Game)
     {
-        var texArray = Array<SIMD4<UInt8>>(repeating: SIMD4<UInt8>(0, 0, 0, 0), count: texture!.width)
+        var texArray = ContiguousArray<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: texture!.width)
         
         let width: Float = Float(texture!.width)
         let height: Float = Float(texture!.height)
-
-        let origin = float3(0,0,3)
-        let lookAt = float3(0,0,0)
 
         guard let main = game.assetFolder.getAsset("main", .Source) else {
             return
@@ -118,61 +115,124 @@ class Project
         guard let context = main.graph else {
             return
         }
+        
+        context.camOrigin = float3(0,5,-5)
+        context.camDir = float3(0,0,0)
 
         //DispatchQueue.concurrentPerform(iterations: texture!.height) { h in
         for h in 0..<texture!.height {
             let fh : Float = Float(h) / height
             for w in 0..<texture!.width {
                 
-                let dir = getCameraDir(uv: float2(Float(w) / width, fh), origin: origin, lookAt: lookAt, size: float2(width, height))
-
-                //if h == 100 && w == 100 {
-                //    print(Float(w) / width, fh, dir.x, dir.y, dir.z)
-                //}
+                let AA : Int = 1
                 
-                var color = SIMD4<UInt8>(255, 0, 0, 255)
+                var tot = float4(0,0,0, 0)
                 
-                var t : Float = 0.001;
-                for _ in 0..<70
-                {
-                    context.pos = origin - t * dir
-                    context.dist = .greatestFiniteMagnitude
-                    context.execute()
+                for m in 0..<AA {
+                    for n in 0..<AA {
 
-                    //context.dist = simd_length(context.pos) - 1.0
-                    
-                    if abs(context.dist) < (0.0001*t) {
+                        let cameraOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
+                        let dir = getCameraDir(uv: float2(Float(w) / width, fh), origin: context.camOrigin, lookAt: context.camDir, size: float2(width, height), offset: cameraOffset)
                         
-                        color = SIMD4<UInt8>(255, 255, 255, 255)
-                        break
+                        var color = SIMD4<Float>(1, 0, 0, 1)
+                        
+                        var t : Float = 0.001;
+                        for _ in 0..<70
+                        {
+                            context.reset(context.camOrigin - t * dir)
+                            context.execute()
+
+                            context.toggleRayIndex()
+
+                            if abs(context.rayDist[context.rayIndex]) < (0.0001*t) {
+                                         
+                                let normal = calcNormal(context: context, position: context.camOrigin - t * dir)
+                                
+                                let output = 0.1 * simd_dot(normal, float3(0, 0, -10))
+                                color = SIMD4<Float>(output, output, output, 1)
+                                
+                                break
+                            } else
+                            if t > 10 {
+                                break
+                            }
+                            
+                            t += context.rayDist[context.rayIndex]
+                        }
+                        
+                        tot = tot + color
                     }
-                    t += context.dist
                 }
-                
-                texArray[w] = color
+                texArray[w] = tot / Float(AA*AA)
             }
             
             let region = MTLRegionMake2D(0, h, texture!.width, 1)
             
             texArray.withUnsafeMutableBytes { texArrayPtr in
-                texture!.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<UInt8>>.size * texture!.width))
+                texture!.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<Float>>.size * texture!.width))
             }
             
             DispatchQueue.main.async {
                 game.updateOnce()
             }
         }
-                
+    }
+    
+    /// Calculates the normal for the given hit position
+    @inlinable public func calcNormal(context: GraphContext, position: float3) -> float3
+    {
         /*
-        let region = MTLRegionMake2D(0, 0, texture!.width, texture!.height)
+        vec3 epsilon = vec3(0.001, 0., 0.);
         
-        texArray.withUnsafeMutableBytes { texArrayPtr in
-            texture!.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<UInt8>>.size * texture!.width))
-        }*/
+        vec3 n = vec3(map(p + epsilon.xyy).x - map(p - epsilon.xyy).x,
+                      map(p + epsilon.yxy).x - map(p - epsilon.yxy).x,
+                      map(p + epsilon.yyx).x - map(p - epsilon.yyx).x);
+        
+        return normalize(n);*/
+
+        let e = float3(0.001, 0.0, 0.0)
+
+        var eOff : float3 = position + float3(e.x, e.y, e.y)
+        context.reset(eOff)
+        context.execute()
+        context.toggleRayIndex()
+        var n1 = context.rayDist[context.rayIndex]
+        
+        eOff = position - float3(e.x, e.y, e.y)
+        context.reset(eOff)
+        context.execute()
+        context.toggleRayIndex()
+        n1 = n1 - context.rayDist[context.rayIndex]
+        
+        eOff = position + float3(e.y, e.x, e.y)
+        context.reset(eOff)
+        context.execute()
+        context.toggleRayIndex()
+        var n2 = context.rayDist[context.rayIndex]
+        
+        eOff = position - float3(e.y, e.x, e.y)
+        context.reset(eOff)
+        context.execute()
+        context.toggleRayIndex()
+        n2 = n2 - context.rayDist[context.rayIndex]
+        
+        eOff = position + float3(e.y, e.y, e.x)
+        context.reset(eOff)
+        context.execute()
+        context.toggleRayIndex()
+        var n3 = context.rayDist[context.rayIndex]
+        
+        eOff = position - float3(e.y, e.y, e.x)
+        context.reset(eOff)
+        context.execute()
+        context.toggleRayIndex()
+        n3 = n3 - context.rayDist[context.rayIndex]
+        
+        return simd_normalize(float3(n1, n2, n3))
     }
     
     // Create the camera dir, camera code is 3D, not really
-    func getCameraDir(uv: float2, origin: float3, lookAt: float3, size: float2) -> float3
+    @inlinable public func getCameraDir(uv: float2, origin: float3, lookAt: float3, size: float2, offset: float2) -> float3
     {
         let ratio : Float = size.x / size.y
         let pixelSize : float2 = float2(1.0, 1.0) / size
@@ -194,10 +254,9 @@ class Project
         
         let vertical : float3 = v * halfHeight * 2.0
         var dir : float3 = lowerLeft - origin
-        let rand = float2(0.5, 0.5)
 
-        dir += horizontal * (pixelSize.x * rand.x + uv.x)
-        dir += vertical * (pixelSize.y * rand.y + uv.y)
+        dir += horizontal * (pixelSize.x * offset.x + uv.x)
+        dir += vertical * (pixelSize.y * offset.y + uv.y)
 
         return simd_normalize( dir );
     }
@@ -231,7 +290,7 @@ class Project
     {
         let textureDescriptor = MTLTextureDescriptor()
         textureDescriptor.textureType = MTLTextureType.type2D
-        textureDescriptor.pixelFormat = MTLPixelFormat.bgra8Unorm
+        textureDescriptor.pixelFormat = MTLPixelFormat.rgba32Float
         textureDescriptor.width = width == 0 ? 1 : width
         textureDescriptor.height = height == 0 ? 1 : height
         

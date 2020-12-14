@@ -52,6 +52,10 @@
 		2B224FB72586105200F32354 /* GraphBranchNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FB52586105200F32354 /* GraphBranchNodes.swift */; };
 		2B224FBD258619E800F32354 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FBC258619E800F32354 /* Utilities.swift */; };
 		2B224FBE258619E800F32354 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FBC258619E800F32354 /* Utilities.swift */; };
+		2B224FC62586EA1800F32354 /* GraphSDFNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FC52586EA1800F32354 /* GraphSDFNodes.swift */; };
+		2B224FC72586EA1800F32354 /* GraphSDFNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FC52586EA1800F32354 /* GraphSDFNodes.swift */; };
+		2B224FCB2586F90C00F32354 /* GraphBoolNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */; };
+		2B224FCC2586F90C00F32354 /* GraphBoolNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -84,6 +88,8 @@
 		2B224FAE2585ED1100F32354 /* Graph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Graph.swift; sourceTree = "<group>"; };
 		2B224FB52586105200F32354 /* GraphBranchNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBranchNodes.swift; sourceTree = "<group>"; };
 		2B224FBC258619E800F32354 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		2B224FC52586EA1800F32354 /* GraphSDFNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphSDFNodes.swift; sourceTree = "<group>"; };
+		2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBoolNodes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +143,8 @@
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FA72585EB7F00F32354 /* GraphBuilder.swift */,
 				2B224FB52586105200F32354 /* GraphBranchNodes.swift */,
+				2B224FC52586EA1800F32354 /* GraphSDFNodes.swift */,
+				2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */,
 				2B224F8525844C2500F32354 /* Classes */,
 				2B224F9925844D0E00F32354 /* Files */,
 				2B224F302584485300F32354 /* Assets.xcassets */,
@@ -290,8 +298,10 @@
 				2B224F7525844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA82585EB7F00F32354 /* GraphBuilder.swift in Sources */,
 				2B224F432584485300F32354 /* SignedDocument.swift in Sources */,
+				2B224FC62586EA1800F32354 /* GraphSDFNodes.swift in Sources */,
 				2B224F8925844C3100F32354 /* Font.swift in Sources */,
 				2B224F7325844C1900F32354 /* Asset.swift in Sources */,
+				2B224FCB2586F90C00F32354 /* GraphBoolNodes.swift in Sources */,
 				2B224F7925844C1900F32354 /* MetalStates.swift in Sources */,
 				2B224FAF2585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F6F25844C1900F32354 /* Game.swift in Sources */,
@@ -317,8 +327,10 @@
 				2B224F7625844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA92585EB7F00F32354 /* GraphBuilder.swift in Sources */,
 				2B224F442584485300F32354 /* SignedDocument.swift in Sources */,
+				2B224FC72586EA1800F32354 /* GraphSDFNodes.swift in Sources */,
 				2B224F8A25844C3100F32354 /* Font.swift in Sources */,
 				2B224F7425844C1900F32354 /* Asset.swift in Sources */,
+				2B224FCC2586F90C00F32354 /* GraphBoolNodes.swift in Sources */,
 				2B224F7A25844C1900F32354 /* MetalStates.swift in Sources */,
 				2B224FB02585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F7025844C1900F32354 /* Game.swift in Sources */,
