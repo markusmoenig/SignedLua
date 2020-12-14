@@ -118,11 +118,10 @@ class Project
         }
         
         let processInfo = ProcessInfo()
-        let cores = processInfo.activeProcessorCount - 1
+        let cores = processInfo.activeProcessorCount
         
         //let width: Int = texture!.width
         let height: Int = texture!.height
-        
 
         var lineCount : Int = 0
         let chunkHeight : Int = height / cores
@@ -139,28 +138,28 @@ class Project
         func startThread(_ chunk: SIMD4<Int>) {
             
             //let concurrentQueue = DispatchQueue(label: "com.test.concurrent", attributes: .concurrent)
-            DispatchQueue.global(qos: .userInteractive).async {
+            DispatchQueue.global(qos: .userInitiated).async {
             //concurrentQueue.async {
-                self.renderChunk(context: context.copy(), chunk: chunk)
+                self.renderChunk(context1: context, chunk: chunk)
             }
         }
 
-        for i in 0..<cores {
-            
-            print(i, lineCount, lineCount + chunkHeight)
+        for _ in 0..<cores {
             startThread(SIMD4<Int>(0, lineCount, 0, lineCount + chunkHeight))
             lineCount += chunkHeight
         }
     }
     
-    func renderChunk(context: GraphContext, chunk: SIMD4<Int>)
+    func renderChunk(context1: GraphContext, chunk: SIMD4<Int>)
     {
-        var texArray = ContiguousArray<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: texture!.width)
-        
         let width: Float = Float(texture!.width)
         let height: Float = Float(texture!.height)
         
-        /*
+        let widthInt : Int = texture!.width
+        //let heightInt : Int = texture!.height
+
+        var texArray = Array<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: widthInt)
+        
         guard let main = context1.game.assetFolder.getAsset("main", .Source) else {
             return
         }
@@ -169,7 +168,6 @@ class Project
         context1.game.graphBuilder.compile(asset, silent: true)
         
         let context = asset.graph!
-        */
         
         context.camOrigin = float3(0,5,-5)
         context.camDir = float3(0,0,0)
@@ -179,7 +177,7 @@ class Project
         //DispatchQueue.concurrentPerform(iterations: texture!.height) { h in
         for h in chunk.y..<chunk.w {
             let fh : Float = Float(h) / height
-            for w in 0..<texture!.width {
+            for w in 0..<widthInt {
                 
                 let AA : Int = 2
                 
@@ -224,10 +222,10 @@ class Project
             }
             
             semaphore.wait()
-            let region = MTLRegionMake2D(0, h, texture!.width, 1)
+            let region = MTLRegionMake2D(0, h, widthInt, 1)
             
             texArray.withUnsafeMutableBytes { texArrayPtr in
-                texture!.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<Float>>.size * texture!.width))
+                texture!.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<Float>>.size * widthInt))
             }
             
             DispatchQueue.main.async {
