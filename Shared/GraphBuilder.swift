@@ -50,7 +50,7 @@ class GraphBuilder
         self.game = game
     }
     
-    @discardableResult func compile(_ asset: Asset) -> CompileError
+    @discardableResult func compile(_ asset: Asset, silent: Bool = false) -> CompileError
     {
         var error = CompileError()
         error.asset = asset
@@ -361,12 +361,14 @@ class GraphBuilder
             lineNumber += 1
         }
         
-        if game.state == .Idle {
-            if error.error != nil {
-                error.line = error.line! + 1
-                game.scriptEditor?.setError(error)
-            } else {
-                game.scriptEditor?.clearAnnotations()
+        if silent == false {
+            if game.state == .Idle {
+                if error.error != nil {
+                    error.line = error.line! + 1
+                    game.scriptEditor?.setError(error)
+                } else {
+                    game.scriptEditor?.clearAnnotations()
+                }
             }
         }
 

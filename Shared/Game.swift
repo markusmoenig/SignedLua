@@ -289,16 +289,23 @@ public class Game       : ObservableObject
         globalAudioPlayers = [:]
     }
     
+    var isUpdating : Bool = false
     /// Updates the display once
     func updateOnce()
     {
-        self.view.enableSetNeedsDisplay = true
-        #if os(OSX)
-        let nsrect : NSRect = NSRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-        self.view.setNeedsDisplay(nsrect)
-        #else
-        self.view.setNeedsDisplay()
-        #endif
+        if isUpdating == false {
+            isUpdating = true
+            self.view.enableSetNeedsDisplay = true
+            #if os(OSX)
+            let nsrect : NSRect = NSRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+            self.view.setNeedsDisplay(nsrect)
+            #else
+            self.view.setNeedsDisplay()
+            #endif
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
+                self.isUpdating = false
+            }
+        }
     }
     
     func drawTexture(_ texture: MTLTexture, renderEncoder: MTLRenderCommandEncoder)
