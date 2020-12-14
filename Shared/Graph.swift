@@ -89,6 +89,14 @@ final class GraphContext
         lines = [:]
     }
     
+    /// Create a copy of this context and return it
+    func copy() -> GraphContext {
+        let copy = GraphContext(game)
+        copy.nodes = nodes
+        copy.variables = variables
+        return copy
+    }
+    
     @inlinable public func reset(_ rayPos: float3 = float3(0,0,0))
     {
         self.rayPos = rayPos

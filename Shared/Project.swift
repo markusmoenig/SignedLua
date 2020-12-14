@@ -101,13 +101,8 @@ class Project
         return texture
     }
     
-    func setBytes(game: Game)
+    func render(game: Game)
     {
-        var texArray = ContiguousArray<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: texture!.width)
-        
-        let width: Float = Float(texture!.width)
-        let height: Float = Float(texture!.height)
-
         guard let main = game.assetFolder.getAsset("main", .Source) else {
             return
         }
@@ -116,17 +111,50 @@ class Project
             return
         }
         
+        let processInfo = ProcessInfo()
+        let cores = processInfo.activeProcessorCount
+        
+        //let width: Int = texture!.width
+        let height: Int = texture!.height
+        
+
+        var lineCount : Int = 0
+        let chunkHeight : Int = height / cores
+        
+        print("Cores", cores, chunkHeight)
+
+        func startThread(_ chunk: SIMD4<Int>) {
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.renderChunk(context: context.copy(), chunk: chunk)
+            }
+        }
+        for _ in 0..<cores {
+            
+            startThread(SIMD4<Int>(0, lineCount, 0, lineCount + chunkHeight))
+            lineCount += chunkHeight
+        }
+    }
+    
+    func renderChunk(context: GraphContext, chunk: SIMD4<Int>)
+    {
+        var texArray = ContiguousArray<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: texture!.width)
+        
+        let width: Float = Float(texture!.width)
+        let height: Float = Float(texture!.height)
+        
         context.camOrigin = float3(0,5,-5)
         context.camDir = float3(0,0,0)
 
+        print("Chunk start", chunk.y, chunk.w)
+        
         //DispatchQueue.concurrentPerform(iterations: texture!.height) { h in
-        for h in 0..<texture!.height {
+        for h in chunk.y..<chunk.w {
             let fh : Float = Float(h) / height
             for w in 0..<texture!.width {
                 
                 let AA : Int = 1
                 
-                var tot = float4(0,0,0, 0)
+                var tot = float4(0,0,0,0)
                 
                 for m in 0..<AA {
                     for n in 0..<AA {
@@ -173,7 +201,7 @@ class Project
             }
             
             DispatchQueue.main.async {
-                game.updateOnce()
+                context.game.updateOnce()
             }
         }
     }

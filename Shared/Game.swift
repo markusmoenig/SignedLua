@@ -80,10 +80,7 @@ public class Game       : ObservableObject
     var graphBuilder    : GraphBuilder!
 
     public init(_ frameworkId: String? = nil)
-    {
-        let processInfo = ProcessInfo()
-        print("Cores", processInfo.activeProcessorCount)
-        
+    {        
         self.frameworkId = frameworkId
         
         viewportSize = vector_uint2( 0, 0 )

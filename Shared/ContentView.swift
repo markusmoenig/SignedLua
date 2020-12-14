@@ -59,10 +59,7 @@ struct ContentView: View {
                 
                 // Game Controls
                 Button(action: {
-
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        document.game.project!.setBytes(game: document.game)
-                    }
+                    document.game.project!.render(game: document.game)
                 })
                 {
                     Label("Run", systemImage: "play.fill")
