@@ -1,5 +1,8 @@
 #
 
+PinholeCamera<>
+DefaultSky<>
+
 sdfObject<Position: 0,0,0>
     sdfBox<Position: 1, 0, 0><Size: 1, 1, 1>
     sdfSphere<Position: -1, 0, 0><Radius: 1>

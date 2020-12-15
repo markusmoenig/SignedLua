@@ -1,0 +1,138 @@
+//
+//  GraphNodes.swift
+//  Signed
+//
+//  Created by Markus Moenig on 15/12/20.
+//
+
+import MetalKit
+import simd
+
+/// DefaultSkyNode
+final class DefaultSkyNode : GraphNode
+{
+    var sunDirection       : Float3 = Float3(0.243, 0.075, 0.512)
+    var sunColor           : Float3 = Float3(0.966, 0.966, 0.966)
+    var worldHorizonColor  : Float3 = Float3(0.852, 0.591, 0.367)
+    var sunStrength        : Float1 = Float1(5)
+
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.Sky, options)
+        name = "DefaultSky"
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+        //if let value = extractFloat1Value(options, context: context, error: &error, name: "radius", isOptional: true) {
+        //    radius = value
+        //}
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        let sunDir = sunDirection.toSIMD()
+        let skyColor = float3(0.38, 0.6, 1.0)
+        let sunColor = self.sunColor.toSIMD()
+        let horizonColor = worldHorizonColor.toSIMD()
+        
+        let sun = max(dot(context.rayDir, normalize(sunDir)), 0.0)
+        let hor = pow( 1.0 - max(context.rayDir.y, 0.0), 3.0)
+        var col = mix(skyColor, sunColor, t: sun * 0.5)
+        col = mix(col, horizonColor, t: hor)
+        
+        col += 0.25 * float3(1.0, 0.7, 0.4) * pow(sun, 5.0)
+        col += 0.25 * float3(1.0, 0.8, 0.6) * pow(sun, 5.0)
+        col += 0.15 * float3(1.0, 0.9, 0.7) * max(pow(sun, 512.0), 0.25)
+
+        context.result = float4(col.x, col.y, col.z, 1)
+        return .Success
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Creates a sphere of a given radius."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption("Float", "Radius", "The radius of the sphere. Default is Float1<1>.")
+        ]
+        return options + SDFNode.getSDFOptions()
+    }
+}
+
+/// DefaultSkyNode
+final class PinholeCameraNode : GraphNode
+{
+    var origin       : Float3 = Float3(0, 0, -5)
+    var lookAt       : Float3 = Float3(0, 0, 0)
+    var fov          : Float1 = Float1(80)
+
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.Camera, options)
+        name = "PinholeCamera"
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+        if let value = extractFloat3Value(options, context: context, error: &error, name: "origin", isOptional: true) {
+            origin = value
+        }
+        if let value = extractFloat3Value(options, context: context, error: &error, name: "lookat", isOptional: true) {
+            lookAt = value
+        }
+        if let value = extractFloat1Value(options, context: context, error: &error, name: "fov", isOptional: true) {
+            fov = value
+        }
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        let ratio : Float = context.viewSize.x / context.viewSize.y
+        let pixelSize : float2 = float2(1.0, 1.0) / context.viewSize
+
+        let camOrigin = origin.toSIMD()
+        let camLookAt = lookAt.toSIMD()
+
+        let halfWidth : Float = tan(fov.x.degreesToRadians * 0.5)
+        let halfHeight : Float = halfWidth / ratio
+        
+        let upVector = float3(0.0, 1.0, 0.0)
+
+        let w : float3 = simd_normalize(camOrigin - camLookAt)
+        let u : float3 = simd_cross(upVector, w)
+        let v : float3 = simd_cross(w, u)
+
+        var lowerLeft : float3 = camOrigin - halfWidth * u
+        lowerLeft -= halfHeight * v - w
+        
+        let horizontal : float3 = u * halfWidth * 2.0
+        
+        let vertical : float3 = v * halfHeight * 2.0
+        var dir : float3 = lowerLeft - camOrigin
+
+        dir += horizontal * (pixelSize.x * context.camOffset.x + context.uv.x)
+        dir += vertical * (pixelSize.y * context.camOffset.y + context.uv.y)
+        
+        context.camOrigin = camOrigin
+        context.rayDir = dir
+        
+        return .Success
+    }
+    
+    override func getHelp() -> String
+    {
+        return "A standard Pinhole camera (the default camera for *Signed*)."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption("Float3", "Origin", "The camera origin (viewer position). Default is Float3<0, 0, -5>."),
+            GraphOption("Float3", "LookAt", "The position the camera is looking at. Default is Float3<0, 0, 0>."),
+            GraphOption("Float", "Fov", "The field of view of the camera. Default is Float1<80>.")
+        ]
+        return options + SDFNode.getSDFOptions()
+    }
+}

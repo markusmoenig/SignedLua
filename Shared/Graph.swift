@@ -27,6 +27,12 @@ class GraphNode {
         case Success, Failure, Running, Unused
     }
     
+    enum NodeType {
+        case Camera, Sky, Utility
+    }
+    
+    var type                : NodeType = .Camera
+    
     // Only applicable for branch nodes like a sequence
     var leaves              : [GraphNode] = []
     
@@ -36,8 +42,9 @@ class GraphNode {
     // Options
     var options             : [String:Any]
     
-    init(_ options: [String:Any] = [:])
+    init(_ type: NodeType,_ options: [String:Any] = [:])
     {
+        self.type = type
         self.options = options
     }
     
@@ -80,6 +87,8 @@ final class GraphContext
 {
     var buffer              : Array<SIMD4<UInt8>>!
     
+    var cameraNode          : GraphNode? = nil
+    var skyNode             : GraphNode? = nil
     var nodes               : [GraphNode] = []
     
     var variables           : [GraphVariable] = []
@@ -89,10 +98,17 @@ final class GraphContext
         
     let core                : Core
     
-    var position            = float3(0,0,0)
+    var uv                  = float2(0,0)                       // UV coordinate (0..1)
+    var viewSize            = float2(0,0)                       // Size of the view
+
+    var position            = float3(0,0,0)                     // Current 3D position for raymarching
     
-    var camOrigin           = float3(0,0,-5)
-    var camDir              = float3(0,0,0)
+    var camOffset           = float2(0,0)                       // Camera AA uv offset
+    var camOrigin           = float3(0,0,-5)                    // Camera Origin, set by camera node
+    
+    var rayDir              = float3(0,0,0)                     // Ray direction, computed and set by camera node
+    
+    var result              = float4(0,0,0,1)                   // Temporary result of a node (Sky etc)
     
     // SDF Raymarching
     
@@ -113,6 +129,7 @@ final class GraphContext
         nodes = []
         variables = []
         lines = [:]
+        cameraNode = nil
     }
     
     /// Create a copy of this context and return it

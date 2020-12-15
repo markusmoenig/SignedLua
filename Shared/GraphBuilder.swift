@@ -35,6 +35,8 @@ class GraphBuilder
     
     var branches        : [GraphNodeItem] =
     [
+        GraphNodeItem("PinholeCamera", { (_ options: [String:Any]) -> GraphNode in return PinholeCameraNode(options) }),
+        GraphNodeItem("DefaultSky", { (_ options: [String:Any]) -> GraphNode in return DefaultSkyNode(options) }),
         GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return SDFObject(options) }),
     ]
     
@@ -231,29 +233,43 @@ class GraphBuilder
 
                                     let newBranch = branch.createNode(nodeOptions)
                                     newBranch.verifyOptions(context: asset.graph!, error: &error)
+                                    
                                     if error.error == nil {
-                                        
-                                        if level == 0 {
-                                            asset.graph!.nodes.append(newBranch)
-                                            currentBranch = []
+                                    
+                                        // Special Nodes which do not get appended to nodes
+                                        if newBranch.type == .Camera {
+                                            asset.graph!.cameraNode = newBranch
+                                            processed = true
+                                        } else
+                                        if newBranch.type == .Sky {
+                                            asset.graph!.skyNode = newBranch
+                                            processed = true
                                         }
                                         
-                                        if currentBranch.count == 0 {
-                                            //currentTree?.leaves.append(newBranch)
-                                            currentBranch.append(newBranch)
+                                        if processed == false {
+
+                                            if level == 0 {
+                                                asset.graph!.nodes.append(newBranch)
+                                                currentBranch = []
+                                            }
                                             
-                                            newBranch.lineNr = error.line!
-                                            asset.graph!.lines[error.line!] = newBranch
-                                        } else {
-                                            if let branch = currentBranch.last {
-                                                branch.leaves.append(newBranch)
+                                            if currentBranch.count == 0 {
+                                                //currentTree?.leaves.append(newBranch)
+                                                currentBranch.append(newBranch)
                                                 
                                                 newBranch.lineNr = error.line!
                                                 asset.graph!.lines[error.line!] = newBranch
+                                            } else {
+                                                if let branch = currentBranch.last {
+                                                    branch.leaves.append(newBranch)
+                                                    
+                                                    newBranch.lineNr = error.line!
+                                                    asset.graph!.lines[error.line!] = newBranch
+                                                }
+                                                currentBranch.append(newBranch)
                                             }
-                                            currentBranch.append(newBranch)
+                                            processed = true
                                         }
-                                        processed = true
                                     }
                                 }
                             }
@@ -362,6 +378,12 @@ class GraphBuilder
         }
         
         if silent == false {
+            
+            if asset.graph?.cameraNode == nil {
+                error.error = "Project must contain a Camera!"
+                error.line = 0
+            }
+            
             if core.state == .Idle {
                 if error.error != nil {
                     error.line = error.line! + 1

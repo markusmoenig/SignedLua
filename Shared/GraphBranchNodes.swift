@@ -46,9 +46,9 @@ final class SDFObject : SDFNode
 {
     var positionStore : Float3!
 
-    override init(_ options: [String:Any] = [:])
+    init(_ options: [String:Any] = [:])
     {
-        super.init(options)
+        super.init(.Utility, options)
         name = "sdfObject"
     }
     

@@ -79,7 +79,7 @@ class Renderer
         var lineCount : Int = 0
         let chunkHeight : Int = height / cores + cores
         
-        print("Cores", cores, chunkHeight)
+        //print("Cores", cores, chunkHeight)
 
         startTime = Double(Date().timeIntervalSince1970)
         totalTime = 0
@@ -127,15 +127,14 @@ class Renderer
         
         let context = asset.graph!
         
-        context.camOrigin = float3(0,5,-5)
-        context.camDir = float3(0,0,0)
+        context.viewSize = float2(width, height)
                 
         //DispatchQueue.concurrentPerform(iterations: texture!.height) { h in
         for h in chunk.y..<chunk.w {
-            let fh : Float = Float(h) / height
+            let fh : Float = 1.0 - Float(h) / height
             for w in 0..<widthInt {
                 
-                let AA : Int = 1                
+                let AA : Int = 1
                 var tot = float4(0,0,0,0)
                 
                 for m in 0..<AA {
@@ -145,22 +144,30 @@ class Renderer
                             return
                         }
                         
-                        let cameraOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
-                        let dir = getCameraDir(uv: float2(Float(w) / width, fh), origin: context.camOrigin, lookAt: context.camDir, size: float2(width, height), offset: cameraOffset)
+                        context.uv = float2(Float(w) / width, fh)
+                        context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
                         
-                        var color = SIMD4<Float>(1, 0, 0, 1)
+                        if let cameraNode = context.cameraNode {
+                            cameraNode.execute(context: context)
+                        }
+                        
+                        if let skyNode = context.skyNode {
+                            skyNode.execute(context: context)
+                        }
+                        
+                        var color = context.result
                         
                         var t : Float = 0.001;
                         for _ in 0..<70
                         {
-                            context.reset(context.camOrigin - t * dir)
+                            context.reset(context.camOrigin - t * context.rayDir)
                             context.execute()
 
                             context.toggleRayIndex()
 
                             if abs(context.rayDist[context.rayIndex]) < (0.0001*t) {
                                          
-                                let normal = calcNormal(context: context, position: context.camOrigin - t * dir)
+                                let normal = calcNormal(context: context, position: context.camOrigin - t * context.rayDir)
                                 
                                 let output = 0.1 * simd_dot(normal, float3(0, 0, -10))
                                 color = SIMD4<Float>(output, output, output, 1)
@@ -198,7 +205,7 @@ class Renderer
             
             let chunkTime = Double(Date().timeIntervalSince1970) - startTime
             totalTime += chunkTime
-            print("Rendering Time", chunkTime, totalTime)
+            print("Rendering Time", totalTime)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
                 context.core.updateOnce()

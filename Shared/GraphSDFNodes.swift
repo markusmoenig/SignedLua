@@ -13,9 +13,9 @@ final class SDFSphereNode : SDFNode
 {
     var radius        : Float1 = Float1(1)
 
-    override init(_ options: [String:Any] = [:])
+    init(_ options: [String:Any] = [:])
     {
-        super.init(options)
+        super.init(.Utility, options)
         name = "sdfSphere"
     }
     
@@ -56,9 +56,9 @@ final class SDFBoxNode : SDFNode
 {
     var size    : Float3 = Float3(1)
 
-    override init(_ options: [String:Any] = [:])
+    init(_ options: [String:Any] = [:])
     {
-        super.init(options)
+        super.init(.Utility, options)
         name = "sdfBox"
     }
     
