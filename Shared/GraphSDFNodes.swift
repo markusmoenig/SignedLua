@@ -45,7 +45,7 @@ final class SDFSphereNode : SDFNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Float", "Radius", "The radius of the sphere")
+            GraphOption("Float", "Radius", "The radius of the sphere. Default is Float1<1>.")
         ]
         return options + SDFNode.getSDFOptions()
     }
@@ -90,7 +90,7 @@ final class SDFBoxNode : SDFNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Float3", "Size", "The size of the cube")
+            GraphOption("Float3", "Size", "The size of the cube. Default is Float3<1, 1, 1>.")
         ]
         return options + SDFNode.getSDFOptions()
     }

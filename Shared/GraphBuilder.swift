@@ -442,7 +442,7 @@ class GraphBuilder
         help += node.getHelp()
         let options = node.getOptions()
         if options.count > 0 {
-            help += "\nOptions\n"
+            help += "\nOptional Parameters\n"
         }
         for o in options {
             help += "* **\(o.name)** (\(o.type)) - " + o.help + "\n"
