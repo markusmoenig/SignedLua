@@ -25,6 +25,20 @@ class SDFNode         : GraphNode
             scale = value
         }
     }
+    
+    static func getObjectOptions() -> [GraphOption]
+    {
+        return [
+            GraphOption("Float3", "Position", "The position of the object. If this is a child object the position is relative to it's parent.")
+        ]
+    }
+    
+    static func getSDFOptions() -> [GraphOption]
+    {
+        return [
+            GraphOption("Float3", "Position", "The position of the SDF relative to it's parent object.")
+        ]
+    }
 }
 
 /// SDFObject
@@ -51,5 +65,18 @@ final class SDFObject : SDFNode
         }
         context.position -= position.toSIMD()
         return .Success
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Defines an SDF Object. SDF Objects contain lists of SDF primitives and booleans and can also contain child objects."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption("Text", "Name", "The name of the object.")
+        ]
+        return options + SDFNode.getObjectOptions()
     }
 }

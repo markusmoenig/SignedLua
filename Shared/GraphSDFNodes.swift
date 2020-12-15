@@ -36,6 +36,19 @@ final class SDFSphereNode : SDFNode
         context.position -= position.toSIMD()
         return .Success
     }
+    
+    override func getHelp() -> String
+    {
+        return "Creates a sphere of a given radius."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption("Float", "Radius", "The radius of the sphere")
+        ]
+        return options + SDFNode.getSDFOptions()
+    }
 }
 
 /// SDFBoxNode
@@ -67,6 +80,19 @@ final class SDFBoxNode : SDFNode
         context.position -= position.toSIMD()
 
         return .Success
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Creates a perfect cube of a given size."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption("Float3", "Size", "The size of the cube")
+        ]
+        return options + SDFNode.getSDFOptions()
     }
 }
 

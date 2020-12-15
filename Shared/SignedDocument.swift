@@ -9,33 +9,44 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 extension UTType {
-    static var exampleText: UTType {
-        UTType(importedAs: "com.example.plain-text")
+    static var signedProject: UTType {
+        UTType(exportedAs: "com.Signed.project")
     }
 }
 
 struct SignedDocument: FileDocument {
     @ObservedObject var core = Core()
 
-    var text: String
-
-    init(text: String = "Hello, world!") {
-        self.text = text
+    init() {
     }
 
-    static var readableContentTypes: [UTType] { [.exampleText] }
+    static var readableContentTypes: [UTType] { [.signedProject] }
 
     init(configuration: ReadConfiguration) throws {
         guard let data = configuration.file.regularFileContents,
-              let string = String(data: data, encoding: .utf8)
+                let folder = try? JSONDecoder().decode(AssetFolder.self, from: data)
         else {
             throw CocoaError(.fileReadCorruptFile)
         }
-        text = string
+        if data.isEmpty == false {
+            core.assetFolder = folder
+            core.assetFolder.core = core
+            
+            // Make sure there is a selected asset
+            if core.assetFolder.assets.count > 0 {
+                core.assetFolder.current = core.assetFolder.assets[0]
+            }
+        }
     }
     
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        let data = text.data(using: .utf8)!
+        var data = Data()
+        
+        let encodedData = try? JSONEncoder().encode(core.assetFolder)
+        if let json = String(data: encodedData!, encoding: .utf8) {
+            data = json.data(using: .utf8)!
+        }
+        
         return .init(regularFileWithContents: data)
     }
 }

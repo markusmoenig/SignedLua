@@ -7,6 +7,20 @@
 
 import Foundation
 
+class GraphOption {
+    
+    var type    = ""
+    var name    : String
+    var help    : String
+    
+    init(_ type: String,_ name: String,_ help: String)
+    {
+        self.type = type
+        self.name = name
+        self.help = help
+    }
+}
+
 class GraphNode {
     
     enum Result {
@@ -36,6 +50,18 @@ class GraphNode {
     {
         return .Success
     }
+    
+    /// Get help text
+    func getHelp() -> String
+    {
+        return ""
+    }
+    
+    /// Get options
+    func getOptions() -> [GraphOption]
+    {
+        return []
+    }
 }
 
 class GraphVariable
@@ -59,7 +85,7 @@ final class GraphContext
     var variables           : [GraphVariable] = []
     var failedAt            : [Int32] = []
     
-    var lines               : [Int32:String] = [:]
+    var lines               : [Int32:GraphNode] = [:]
         
     let core                : Core
     

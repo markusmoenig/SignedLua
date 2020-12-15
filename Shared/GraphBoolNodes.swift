@@ -27,4 +27,9 @@ final class BoolMergeNode : SDFNode
 
         return .Success
     }
+    
+    override func getHelp() -> String
+    {
+        return "Merges the two previous SDFs."
+    }
 }

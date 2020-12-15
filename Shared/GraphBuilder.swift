@@ -243,13 +243,13 @@ class GraphBuilder
                                             currentBranch.append(newBranch)
                                             
                                             newBranch.lineNr = error.line!
-                                            asset.graph!.lines[error.line!] = newBranch.name
+                                            asset.graph!.lines[error.line!] = newBranch
                                         } else {
                                             if let branch = currentBranch.last {
                                                 branch.leaves.append(newBranch)
                                                 
                                                 newBranch.lineNr = error.line!
-                                                asset.graph!.lines[error.line!] = newBranch.name
+                                                asset.graph!.lines[error.line!] = newBranch
                                             }
                                             currentBranch.append(newBranch)
                                         }
@@ -270,7 +270,7 @@ class GraphBuilder
                                                 if error.error == nil {
                                                     behaviorNode.lineNr = error.line!
                                                     branch.leaves.append(behaviorNode)
-                                                    asset.graph!.lines[error.line!] = behaviorNode.name
+                                                    asset.graph!.lines[error.line!] = behaviorNode
                                                     processed = true
                                                 }
                                             } else { createError("Leaf node without active branch") }
@@ -281,7 +281,7 @@ class GraphBuilder
                         } else
                         if rightValueArray.count > 1 {
                             // Variable
-                            asset.graph!.lines[error.line!] = "Variable"
+                            asset.graph!.lines[error.line!] = nil//"Variable"
                             let possibleVariableType = rightValueArray[0].trimmingCharacters(in: .whitespaces)
                             if possibleVariableType == "Float4" {
                                 rightValueArray.removeFirst()
@@ -408,32 +408,45 @@ class GraphBuilder
         }
     }
     
+    var lastContextHelpName :String? = "d"
     @objc func cursorCallback(_ timer: Timer) {
         if core.state == .Idle && core.scriptEditor != nil {
             core.scriptEditor!.getSessionCursor({ (line) in
-                /*
-                if let asset = self.game.assetFolder.current, asset.type == .Behavior {
-                    if let context = asset.behavior {
-                        if let name = context.lines[line] {
-                            if name != self.game.contextKey {
-                                if let helpText = self.game.scriptEditor!.getBehaviorHelpForKey(name) {
-                                    self.game.contextText = helpText
-                                    self.game.contextKey = name
-                                    self.game.contextTextChanged.send(self.game.contextText)
-
-                                }
+            
+                if let asset = self.core.assetFolder.current, asset.type == .Source {
+                    if let context = asset.graph {
+                        if let node = context.lines[line] {
+                            
+                            if node.name != self.lastContextHelpName {
+                                self.core.contextText = self.generateNodeHelpText(node)
+                                self.core.contextTextChanged.send(self.core.contextText)
+                                self.lastContextHelpName = node.name
                             }
                         } else {
-                            if self.game.contextKey != "BehaviorHelp" {
-                                self.game.contextText = self.game.scriptEditor!.behaviorHelpText
-                                self.game.contextKey = "BehaviorHelp"
-                                self.game.contextTextChanged.send(self.game.contextText)
+                            if self.lastContextHelpName != nil {
+                                self.core.contextText = ""
+                                self.core.contextTextChanged.send(self.core.contextText)
+                                self.lastContextHelpName = nil
                             }
                         }
                     }
                 }
-                */
             })
         }
+    }
+    
+    /// Generates a markdown help text for the given node
+    func generateNodeHelpText(_ node:GraphNode) -> String
+    {
+        var help = "## " + node.name + "\n"
+        help += node.getHelp()
+        let options = node.getOptions()
+        if options.count > 0 {
+            help += "\nOptions\n"
+        }
+        for o in options {
+            help += "* **\(o.name)** (\(o.type)) - " + o.help + "\n"
+        }
+        return help
     }
 }

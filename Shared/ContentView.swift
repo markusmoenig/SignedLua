@@ -18,10 +18,13 @@ struct ContentView: View {
     
     @State private var screenState                      : ScreenState = .Mixed
 
+    @State private var rightSideBarIsVisible            : Bool = true
+    @State private var contextText                      : String = ""
+
     var body: some View {
         //NavigationView {
             
-        VStack {//VSplitView {
+        VStack(spacing: 1) {//VSplitView {
         
             if screenState == .Mixed || screenState == .RenderOnly {
                 
@@ -41,26 +44,54 @@ struct ContentView: View {
                 
             if screenState == .Mixed || screenState == .SourceOnly {
 
-                GeometryReader { geometry in
-                    ZStack(alignment: .topTrailing) {
+                HStack(spacing: 1) {
+                    GeometryReader { geometry in
+                        ZStack(alignment: .topTrailing) {
 
-                        GeometryReader { geometry in
-                            ScrollView {
+                            GeometryReader { geometry in
+                                ScrollView {
 
-                                WebView(document.core, deviceColorScheme).tabItem {
-                                }
-                                    .frame(height: geometry.size.height)
-                                    .tag(1)
-                                    .onChange(of: deviceColorScheme) { newValue in
-                                        document.core.scriptEditor?.setTheme(newValue)
+                                    WebView(document.core, deviceColorScheme).tabItem {
                                     }
+                                        .frame(height: geometry.size.height)
+                                        .tag(1)
+                                        .onChange(of: deviceColorScheme) { newValue in
+                                            document.core.scriptEditor?.setTheme(newValue)
+                                        }
+                                }
+                                .zIndex(0)
+                                .frame(maxWidth: .infinity)
+                                .layoutPriority(2)
                             }
-                            .zIndex(0)
-                            .frame(maxWidth: .infinity)
-                            .layoutPriority(2)
+                        }
+                    }
+                    
+                    if rightSideBarIsVisible == true {
+                        if let asset = document.core.assetFolder.current {
+                            ScrollView {
+                                if asset.type == .Source {
+                                    ParmaView(text: $contextText)
+                                        .frame(minWidth: 0,
+                                               maxWidth: .infinity,
+                                               minHeight: 0,
+                                               maxHeight: .infinity,
+                                               alignment: .bottomLeading)
+                                        .padding(4)
+                                        .onReceive(self.document.core.contextTextChanged) { text in
+                                            contextText = text
+                                        }
+                                        .foregroundColor(Color.gray)
+                                        .font(.system(size: 12))
+                                        .frame(minWidth: 160, idealWidth: 160, maxWidth: 160)
+                                        .layoutPriority(0)
+                                        .animation(.easeInOut)
+                                }
+                            }
+                            .animation(.easeInOut)
                         }
                     }
                 }
+                
                 
             }
         }
@@ -68,7 +99,7 @@ struct ContentView: View {
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
                 
-                // Game Controls
+                // Toggle preview size
                 Button(action: {
                     if screenState == .Mixed {
                         screenState = .RenderOnly
@@ -84,7 +115,7 @@ struct ContentView: View {
                 }
                 .keyboardShortcut("e")
                 
-                // Game Controls
+                // Controls for Start Render / Stop Render
                 Button(action: {
                     document.core.renderer.render(core: document.core)
                 })
@@ -92,6 +123,11 @@ struct ContentView: View {
                     Label("Run", systemImage: "play.fill")
                 }
                 .keyboardShortcut("r")
+                
+                // Toggle the Right sidebar
+                Button(action: { rightSideBarIsVisible.toggle() }, label: {
+                    Image(systemName: "sidebar.right")
+                })
             }
         }
     }
