@@ -31,7 +31,7 @@ class GraphNodeItem
 class GraphBuilder
 {
     var cursorTimer     : Timer? = nil
-    let game            : Game
+    let core            : Core
     
     var branches        : [GraphNodeItem] =
     [
@@ -45,9 +45,9 @@ class GraphBuilder
         GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return BoolMergeNode(options) }),
     ]
     
-    init(_ game: Game)
+    init(_ core: Core)
     {
-        self.game = game
+        self.core = core
     }
     
     @discardableResult func compile(_ asset: Asset, silent: Bool = false) -> CompileError
@@ -60,7 +60,7 @@ class GraphBuilder
         }
         
         if asset.graph == nil {
-            asset.graph = GraphContext(game)
+            asset.graph = GraphContext(core)
         } else {
             asset.graph!.clear()
         }
@@ -362,12 +362,12 @@ class GraphBuilder
         }
         
         if silent == false {
-            if game.state == .Idle {
+            if core.state == .Idle {
                 if error.error != nil {
                     error.line = error.line! + 1
-                    game.scriptEditor?.setError(error)
+                    core.scriptEditor?.setError(error)
                 } else {
-                    game.scriptEditor?.clearAnnotations()
+                    core.scriptEditor?.clearAnnotations()
                 }
             }
         }
@@ -409,8 +409,8 @@ class GraphBuilder
     }
     
     @objc func cursorCallback(_ timer: Timer) {
-        if game.state == .Idle && game.scriptEditor != nil {
-            game.scriptEditor!.getSessionCursor({ (line) in
+        if core.state == .Idle && core.scriptEditor != nil {
+            core.scriptEditor!.getSessionCursor({ (line) in
                 /*
                 if let asset = self.game.assetFolder.current, asset.type == .Behavior {
                     if let context = asset.behavior {

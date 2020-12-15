@@ -15,7 +15,7 @@ extension UTType {
 }
 
 struct SignedDocument: FileDocument {
-    @ObservedObject var game = Game()
+    @ObservedObject var core = Core()
 
     var text: String
 

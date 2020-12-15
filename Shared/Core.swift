@@ -9,7 +9,7 @@ import MetalKit
 import Combine
 import AVFoundation
 
-public class Game       : ObservableObject
+public class Core       : ObservableObject
 {
     enum State {
         case Idle, Running, Paused
@@ -20,7 +20,6 @@ public class Game       : ObservableObject
     var view            : DMTKView!
     var device          : MTLDevice!
 
-    var texture         : Texture2D? = nil
     var metalStates     : MetalStates!
     
     var file            : File? = nil
@@ -76,7 +75,7 @@ public class Game       : ObservableObject
     
     var frameworkId     : String? = nil
     
-    var project         : Project? = nil
+    var renderer        : Renderer!
     var graphBuilder    : GraphBuilder!
 
     public init(_ frameworkId: String? = nil)
@@ -107,7 +106,7 @@ public class Game       : ObservableObject
         }
         #endif
         
-        project = Project()
+        renderer = Renderer()
     }
     
     public func setupView(_ view: DMTKView)
@@ -121,7 +120,7 @@ public class Game       : ObservableObject
         } else {
             print("Cannot initialize Metal!")
         }
-        view.game = self
+        view.core = self
         
         metalStates = MetalStates(self)
         textureLoader = MTKTextureLoader(device: device)
@@ -133,7 +132,6 @@ public class Game       : ObservableObject
         }*/
         
         view.platformInit()
-        checkTexture()
     }
     
     public func load(_ data: Data)
@@ -192,50 +190,26 @@ public class Game       : ObservableObject
         //timeChanged.send(_Time.x)
     }
     
-    @discardableResult func checkTexture() -> Bool
-    {
-        if texture == nil || texture!.texture.width != Int(view.frame.width) || texture!.texture.height != Int(view.frame.height) {
-            
-            if texture == nil {
-                texture = Texture2D(self)
-            } else {
-                texture?.allocateTexture(width: Int(view.frame.width), height: Int(view.frame.height))
-            }
-            
-            viewportSize.x = UInt32(texture!.width)
-            viewportSize.y = UInt32(texture!.height)
-            
-            screenWidth = Float(texture!.width)
-            screenHeight = Float(texture!.height)
-            
-            gameScissorRect = MTLScissorRect(x: 0, y: 0, width: texture!.texture.width, height: texture!.texture.height)
-                        
-            //if let map = currentMap?.map {
-            //    map.setup(game: self)
-            //}
-            return true
-        }
-        return false
-    }
-    
     public func draw()
     {
         guard let drawable = view.currentDrawable else {
             return
         }
                 
-        if let texture = project?.render(assetFolder: assetFolder, device: device, time: _Time.x, frame: _Frame, viewSize: SIMD2<Int>(Int(view.frame.width), Int(view.frame.height)), breakAsset: state == .Idle ? assetFolder.current : nil) {
+        renderer.checkIsValid(self)
+        /*
+        if let texture = renderer?.render(assetFolder: assetFolder, device: device, time: _Time.x, frame: _Frame, viewSize: SIMD2<Int>(Int(view.frame.width), Int(view.frame.height)), breakAsset: state == .Idle ? assetFolder.current : nil) {
             
             let renderPassDescriptor = view.currentRenderPassDescriptor
             renderPassDescriptor?.colorAttachments[0].loadAction = .load
-            let renderEncoder = project!.commandBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor!)
+            let renderEncoder = renderer.commandBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor!)
             
             drawTexture(texture, renderEncoder: renderEncoder!)
             renderEncoder?.endEncoding()
             
-            project!.commandBuffer!.present(drawable)
+            renderer.commandBuffer!.present(drawable)
             
-            if project!.resChanged {
+            if renderer.resChanged {
                 if didSend == false {
                     didSend = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -245,7 +219,21 @@ public class Game       : ObservableObject
                 }
             }
         }
-        project?.stopDrawing()
+        renderer.stopDrawing()*/
+        
+        if let texture = renderer.texture {
+            
+            startDrawing()
+            let renderPassDescriptor = view.currentRenderPassDescriptor
+            renderPassDescriptor?.colorAttachments[0].loadAction = .load
+            let renderEncoder = gameCmdBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor!)
+            
+            drawTexture(texture, renderEncoder: renderEncoder!)
+            renderEncoder?.endEncoding()
+            
+            gameCmdBuffer!.present(drawable)
+            stopDrawing()
+        }
         
         if state == .Running {
             _Time.x += 1.0 / targetFPS
@@ -302,7 +290,7 @@ public class Game       : ObservableObject
             #else
             self.view.setNeedsDisplay()
             #endif
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5 / 60.0) {
                 self.isUpdating = false
             }
         }
@@ -335,28 +323,6 @@ public class Game       : ObservableObject
 
         renderEncoder.setRenderPipelineState(metalStates.getState(state: .CopyTexture))
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
-    }
-    
-    /// Creates vertex data for the given rectangle
-    func createVertexData(texture: Texture2D, rect: MMRect) -> [Float]
-    {
-        let left: Float  = -texture.width / 2.0 + rect.x
-        let right: Float = left + rect.width//self.width / 2 - x
-        
-        let top: Float = texture.height / 2.0 - rect.y
-        let bottom: Float = top - rect.height
-
-        let quadVertices: [Float] = [
-            right, bottom, 1.0, 0.0,
-            left, bottom, 0.0, 0.0,
-            left, top, 0.0, 1.0,
-            
-            right, bottom, 1.0, 0.0,
-            left, top, 0.0, 1.0,
-            right, top, 1.0, 1.0,
-        ]
-        
-        return quadVertices
     }
     
     /// Creates vertex data for the given rectangle

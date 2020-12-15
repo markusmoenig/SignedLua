@@ -61,7 +61,7 @@ final class GraphContext
     
     var lines               : [Int32:String] = [:]
         
-    let game                : Game
+    let core                : Core
     
     var position            = float3(0,0,0)
     
@@ -74,9 +74,9 @@ final class GraphContext
     var rayDist             : [Float] = []
     var rayIndex            : Int = 0
     
-    init(_ game: Game)
+    init(_ core: Core)
     {
-        self.game = game
+        self.core = core
         
         rayDist.append(.greatestFiniteMagnitude)
         rayDist.append(.greatestFiniteMagnitude)
@@ -91,7 +91,7 @@ final class GraphContext
     
     /// Create a copy of this context and return it
     func copy() -> GraphContext {
-        let copy = GraphContext(game)
+        let copy = GraphContext(core)
         copy.nodes = nodes
         copy.variables = variables
         return copy
@@ -124,10 +124,10 @@ final class GraphContext
     {
         // Globals
         if name == "Time" {
-            return game._Time
+            return core._Time
         } else
         if name == "Aspect" {
-            return game._Aspect
+            return core._Aspect
         }
         
         // Check the context variables

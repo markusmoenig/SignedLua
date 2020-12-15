@@ -1,5 +1,5 @@
 //
-//  Project.swift
+//  Renderer.swift
 //  Signed
 //
 //  Created by Markus Moenig on 19/11/20.
@@ -10,7 +10,7 @@ import Foundation
 import MetalKit
 import simd
 
-class Project
+class Renderer
 {
     var texture         : MTLTexture? = nil
     var temp            : MTLTexture? = nil
@@ -34,6 +34,9 @@ class Project
     var coresActive     : Int = 0
     
     var semaphore       : DispatchSemaphore!
+    
+    var isRunning       : Bool = true
+    var stopRunning     : Bool = false
 
     init()
     {
@@ -56,60 +59,9 @@ class Project
         textureCache = [:]
     }
     
-    func render(assetFolder: AssetFolder, device: MTLDevice, time: Float, frame: UInt32, viewSize: SIMD2<Int>, breakAsset: Asset? = nil) -> MTLTexture?
+    func render(core: Core)
     {
-        self.assetFolder = assetFolder
-        self.time = time
-
-        startDrawing(device)
-
-        if let main = assetFolder.getAsset("main", .Source) {
-            size = viewSize
-            
-            if let customSize = main.size {
-                size = customSize
-            }
-
-            // Make sure texture is of size size
-            if texture == nil || texture!.width != size.x || texture!.height != size.y {
-                if texture != nil {
-                    texture!.setPurgeableState(.empty)
-                    texture = nil
-                }
-                texture = allocateTexture(device, width: size.x, height: size.y)
-                clear(texture!)
-                resChanged = true
-            }
-            //checkTextures(device)
-            
-            /*
-            // Do buffers
-            for asset in assetFolder.assets {
-                if asset.type == .Buffer {
-                    if asset === breakAsset {
-                        drawShader(asset, texture!, device)
-                        return texture
-                    } else {
-                        if let outputId = asset.output {
-                            if let texture = textureCache[outputId] {
-                                drawShader(asset, texture, device)
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // Final Shader
-            drawShader(final, texture!, device)
-            */
-        }
-        
-        return texture
-    }
-    
-    func render(game: Game)
-    {
-        guard let main = game.assetFolder.getAsset("main", .Source) else {
+        guard let main = core.assetFolder.getAsset("main", .Source) else {
             return
         }
         
@@ -117,13 +69,15 @@ class Project
             return
         }
         
+        checkIsValid(core)
+
         let cores = ProcessInfo().activeProcessorCount + 1
         
         //let width: Int = texture!.width
         let height: Int = texture!.height
 
         var lineCount : Int = 0
-        let chunkHeight : Int = height / cores + cores//Int(ceil(Float(height) / Float(cores)))
+        let chunkHeight : Int = height / cores + cores
         
         print("Cores", cores, chunkHeight)
 
@@ -133,6 +87,9 @@ class Project
         
         semaphore = nil
         semaphore = DispatchSemaphore(value: 1)
+        
+        isRunning = true
+        stopRunning = false
 
         func startThread(_ chunk: SIMD4<Int>) {
             //print("Chunk start", chunk.y, chunk.w)
@@ -161,12 +118,12 @@ class Project
 
         var texArray = Array<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: widthInt)
         
-        guard let main = context1.game.assetFolder.getAsset("main", .Source) else {
+        guard let main = context1.core.assetFolder.getAsset("main", .Source) else {
             return
         }
         
         let asset = Asset(type: .Source, name: "", value: main.value, data: main.data)
-        context1.game.graphBuilder.compile(asset, silent: true)
+        context1.core.graphBuilder.compile(asset, silent: true)
         
         let context = asset.graph!
         
@@ -184,6 +141,10 @@ class Project
                 for m in 0..<AA {
                     for n in 0..<AA {
 
+                        if stopRunning {
+                            return
+                        }
+                        
                         let cameraOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
                         let dir = getCameraDir(uv: float2(Float(w) / width, fh), origin: context.camOrigin, lookAt: context.camDir, size: float2(width, height), offset: cameraOffset)
                         
@@ -227,7 +188,7 @@ class Project
             }
             
             DispatchQueue.main.async {
-                context.game.updateOnce()
+                context.core.updateOnce()
             }
             semaphore.signal()
         }
@@ -237,11 +198,13 @@ class Project
             
             let chunkTime = Double(Date().timeIntervalSince1970) - startTime
             totalTime += chunkTime
-            print("Chunktime", chunkTime, totalTime)
+            print("Rendering Time", chunkTime, totalTime)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                context.game.updateOnce()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
+                context.core.updateOnce()
             }
+            
+            isRunning = false
         }
     }
     
@@ -387,7 +350,31 @@ class Project
         return quadVertices
     }
     
-    func clear(_ texture: MTLTexture, _ color: float4 = SIMD4<Float>(0,0,0,1))
+    /// Checks if the texture size is valid and if not stop rendering and resize and clear the texture
+    func checkIsValid(_ core: Core)
+    {
+        let size = SIMD2<Int>(Int(core.view.frame.width), Int(core.view.frame.height))
+        
+        // Make sure texture is of size size
+        if texture == nil || texture!.width != size.x || texture!.height != size.y {
+            
+            stopRunning = true
+            
+            if texture != nil {
+                texture!.setPurgeableState(.empty)
+                texture = nil
+            }
+            texture = allocateTexture(core.device, width: size.x, height: size.y)
+            resChanged = true
+            
+            startDrawing(core.device)
+            clearTexture(texture!)
+            stopDrawing()
+        }
+    }
+    
+    /// Clears the textures
+    func clearTexture(_ texture: MTLTexture, _ color: float4 = SIMD4<Float>(0,0,0,1))
     {
         let renderPassDescriptor = MTLRenderPassDescriptor()
 

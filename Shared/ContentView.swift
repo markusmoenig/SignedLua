@@ -9,15 +9,23 @@ import SwiftUI
 
 struct ContentView: View {
 
+    enum ScreenState {
+        case Mixed, RenderOnly, SourceOnly
+    }
+    
     @Binding var document                               : SignedDocument
     @Environment(\.colorScheme) var deviceColorScheme   : ColorScheme
+    
+    @State private var screenState                      : ScreenState = .Mixed
 
     var body: some View {
         //NavigationView {
             
-            VSplitView {
+        VStack {//VSplitView {
+        
+            if screenState == .Mixed || screenState == .RenderOnly {
                 
-                MetalView(document.game)
+                MetalView(document.core)
                     //.zIndex(2)
                     /*
                     .frame(minWidth: 0,
@@ -29,19 +37,22 @@ struct ContentView: View {
                     //.opacity(helpIsVisible ? 0 : (document.game.state == .Running ? 1 : document.game.previewOpacity))
                     .animation(.default)
                     .allowsHitTesting(false)
+            }
                 
+            if screenState == .Mixed || screenState == .SourceOnly {
+
                 GeometryReader { geometry in
                     ZStack(alignment: .topTrailing) {
 
                         GeometryReader { geometry in
                             ScrollView {
 
-                                WebView(document.game, deviceColorScheme).tabItem {
+                                WebView(document.core, deviceColorScheme).tabItem {
                                 }
                                     .frame(height: geometry.size.height)
                                     .tag(1)
                                     .onChange(of: deviceColorScheme) { newValue in
-                                        document.game.scriptEditor?.setTheme(newValue)
+                                        document.core.scriptEditor?.setTheme(newValue)
                                     }
                             }
                             .zIndex(0)
@@ -52,14 +63,30 @@ struct ContentView: View {
                 }
                 
             }
-        //}
+        }
         
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
                 
                 // Game Controls
                 Button(action: {
-                    document.game.project!.render(game: document.game)
+                    if screenState == .Mixed {
+                        screenState = .RenderOnly
+                    } else
+                    if screenState == .RenderOnly {
+                        screenState = .SourceOnly
+                    } else {
+                        screenState = .Mixed
+                    }
+                })
+                {
+                    Label("Run", systemImage: "viewfinder")
+                }
+                .keyboardShortcut("e")
+                
+                // Game Controls
+                Button(action: {
+                    document.core.renderer.render(core: document.core)
                 })
                 {
                     Label("Run", systemImage: "play.fill")

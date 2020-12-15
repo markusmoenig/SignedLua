@@ -11,7 +11,7 @@ import CloudKit
 class AssetFolder       : Codable
 {
     var assets          : [Asset] = []
-    var game            : Game!
+    var core            : Core!
     var current         : Asset? = nil
         
     private enum CodingKeys: String, CodingKey {
@@ -35,9 +35,9 @@ class AssetFolder       : Codable
         */
     }
     
-    func setup(_ game: Game)
+    func setup(_ core: Core)
     {
-        self.game = game
+        self.core = core
         
         guard let commonPath = Bundle.main.path(forResource: "main", ofType: "", inDirectory: "Files/default") else {
             return
@@ -77,7 +77,7 @@ class AssetFolder       : Codable
             }
         }
         
-        game.scriptEditor?.createSession(asset)
+        core.scriptEditor?.createSession(asset)
         select(asset.id)
     }
     
@@ -108,7 +108,7 @@ class AssetFolder       : Codable
             }
         }
         
-        game.scriptEditor?.createSession(asset)
+        core.scriptEditor?.createSession(asset)
         select(asset.id)
     }
     
@@ -116,8 +116,8 @@ class AssetFolder       : Codable
     {
         if let current = current {
             if current.type == .Source {
-                if game.graphBuilder.cursorTimer != nil {
-                    game.graphBuilder.stopTimer()
+                if core.graphBuilder.cursorTimer != nil {
+                    core.graphBuilder.stopTimer()
                 }
                 current.graph = nil
             }
@@ -126,15 +126,15 @@ class AssetFolder       : Codable
         for asset in assets {
             if asset.id == id {
                 if asset.scriptName.isEmpty {
-                    game.scriptEditor?.createSession(asset)
+                    core.scriptEditor?.createSession(asset)
                 }
-                game.scriptEditor?.setAssetSession(asset)
+                core.scriptEditor?.setAssetSession(asset)
                 
-                if game.state == .Idle {
+                if core.state == .Idle {
                     assetCompile(asset)
                     if asset.type == .Source {
-                        if game.graphBuilder.cursorTimer == nil {
-                            game.graphBuilder.startTimer(asset)
+                        if core.graphBuilder.cursorTimer == nil {
+                            core.graphBuilder.startTimer(asset)
                         }
                     }
                 }
@@ -182,7 +182,7 @@ class AssetFolder       : Codable
                 let data = asset.data[index]
                 
                 let options: [MTKTextureLoader.Option : Any] = [.generateMipmaps : false, .SRGB : false]                
-                return try? game.textureLoader.newTexture(data: data, options: options)
+                return try? core.textureLoader.newTexture(data: data, options: options)
             }
         }
         return nil
@@ -202,7 +202,7 @@ class AssetFolder       : Codable
     func assetCompile(_ asset: Asset)
     {
         if asset.type == .Source {
-            game.graphBuilder.compile(asset)
+            core.graphBuilder.compile(asset)
             /*
 
             game.graphBuilder.compile(asset: asset, cb: { (shader, errors) in
@@ -247,7 +247,7 @@ class AssetFolder       : Codable
     func removeAsset(_ asset: Asset)
     {
         if asset.type == .Source {
-            game.graphBuilder.stopTimer()
+            core.graphBuilder.stopTimer()
         } else
         if let index = assets.firstIndex(of: asset) {
             assets.remove(at: index)
