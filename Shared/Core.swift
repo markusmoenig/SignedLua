@@ -128,7 +128,9 @@ public class Core       : ObservableObject
         
         metalStates = MetalStates(self)
         textureLoader = MTKTextureLoader(device: device)
-        
+        view.enableSetNeedsDisplay = true
+        view.isPaused = true
+
         /*
         for fontName in availableFonts {
             let font = Font(name: fontName, game: self)
@@ -145,88 +147,15 @@ public class Core       : ObservableObject
         }
     }
     
-    public func start()
-    {
-        clearLocalAudio()
-        clearGlobalAudio()
-        
-        view.reset()
-        
-        assetError.error = nil
-        state = .Running
-        
-        _Aspect.x = 1
-        _Aspect.y = 1
-
-        state = .Running
-        view.enableSetNeedsDisplay = false
-        view.isPaused = false
-            
-        _Time.x = 0
-        targetFPS = 60
-        _Frame = 0
-        
-        //if let scriptEditor = scriptEditor {
-        //    scriptEditor.setSilentMode(true)
-        //}
-    }
-    
-    func stop()
-    {
-        clearLocalAudio()
-        clearGlobalAudio()
-        
-        //if let scriptEditor = scriptEditor {
-        //    scriptEditor.setSilentMode(false)
-        //}
-        
-        gameAsset = nil
-                
-        if let scriptEditor = scriptEditor, assetError.error == nil {
-            scriptEditor.clearAnnotations()
-        }
-        
-        state = .Idle
-        view.isPaused = true
-        
-        _Time.x = 0
-        _Frame = 0
-        //timeChanged.send(_Time.x)
-    }
-    
     public func draw()
     {
         guard let drawable = view.currentDrawable else {
             return
         }
-                
+                        
         renderer.checkIsValid(self)
-        /*
-        if let texture = renderer?.render(assetFolder: assetFolder, device: device, time: _Time.x, frame: _Frame, viewSize: SIMD2<Int>(Int(view.frame.width), Int(view.frame.height)), breakAsset: state == .Idle ? assetFolder.current : nil) {
-            
-            let renderPassDescriptor = view.currentRenderPassDescriptor
-            renderPassDescriptor?.colorAttachments[0].loadAction = .load
-            let renderEncoder = renderer.commandBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor!)
-            
-            drawTexture(texture, renderEncoder: renderEncoder!)
-            renderEncoder?.endEncoding()
-            
-            renderer.commandBuffer!.present(drawable)
-            
-            if renderer.resChanged {
-                if didSend == false {
-                    didSend = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.updateUI.send()
-                        self.didSend = false
-                    }
-                }
-            }
-        }
-        renderer.stopDrawing()*/
         
-        if let texture = renderer.texture {
-            
+        if let texture = renderer.texture {            
             startDrawing()
             let renderPassDescriptor = view.currentRenderPassDescriptor
             renderPassDescriptor?.colorAttachments[0].loadAction = .load
@@ -242,7 +171,7 @@ public class Core       : ObservableObject
         if state == .Running {
             _Time.x += 1.0 / targetFPS
             _Frame += 1
-        }        
+        }
     }
     
     func startDrawing()
@@ -281,20 +210,19 @@ public class Core       : ObservableObject
         globalAudioPlayers = [:]
     }
     
-    var isUpdating : Bool = false
     /// Updates the display once
+    var isUpdating : Bool = false
     func updateOnce()
     {
         if isUpdating == false {
             isUpdating = true
-            self.view.enableSetNeedsDisplay = true
             #if os(OSX)
             let nsrect : NSRect = NSRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
             self.view.setNeedsDisplay(nsrect)
             #else
             self.view.setNeedsDisplay()
             #endif
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5 / 60.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
                 self.isUpdating = false
             }
         }

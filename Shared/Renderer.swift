@@ -40,6 +40,7 @@ class Renderer
 
     init()
     {
+        semaphore = DispatchSemaphore(value: 1)
     }
     
     deinit
@@ -68,8 +69,8 @@ class Renderer
         guard let context = main.graph else {
             return
         }
-        
-        checkIsValid(core)
+
+        checkIsValid(core, forceClear: true)
 
         let cores = ProcessInfo().activeProcessorCount + 1
         
@@ -84,10 +85,7 @@ class Renderer
         startTime = Double(Date().timeIntervalSince1970)
         totalTime = 0
         coresActive = 0
-        
-        semaphore = nil
-        semaphore = DispatchSemaphore(value: 1)
-        
+                
         isRunning = true
         stopRunning = false
 
@@ -218,9 +216,8 @@ class Renderer
             
             let chunkTime = Double(Date().timeIntervalSince1970) - startTime
             totalTime += chunkTime
-            print("Rendering Time", totalTime)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0 / 60.0) {
                 context.core.updateOnce()
             }
             
@@ -303,6 +300,7 @@ class Renderer
         textureDescriptor.height = height == 0 ? 1 : height
         
         textureDescriptor.usage = MTLTextureUsage.unknown
+        textureDescriptor.storageMode = .managed
         return device.makeTexture(descriptor: textureDescriptor)
     }
     
@@ -329,7 +327,7 @@ class Renderer
     }
     
     /// Checks if the texture size is valid and if not stop rendering and resize and clear the texture
-    func checkIsValid(_ core: Core)
+    func checkIsValid(_ core: Core, forceClear: Bool = false)
     {
         let size = SIMD2<Int>(Int(core.view.frame.width), Int(core.view.frame.height))
         
@@ -347,7 +345,13 @@ class Renderer
             
             startDrawing(core.device)
             clearTexture(texture!)
-            stopDrawing()
+            stopDrawing(syncTexture: texture!, waitUntilCompleted: true)
+        } else {
+            if forceClear {
+                startDrawing(core.device)
+                clearTexture(texture!)
+                stopDrawing(syncTexture: texture!, waitUntilCompleted: true)
+            }
         }
     }
     
