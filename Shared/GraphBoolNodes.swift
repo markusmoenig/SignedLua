@@ -9,11 +9,11 @@ import MetalKit
 import simd
 
 /// BoolMergeNode
-final class BoolMergeNode : SDFNode
+final class BoolMergeNode : GraphNode
 {
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Utility,options)
+        super.init(.Utility, . SDF, options)
         name = "boolMerge"
     }
     

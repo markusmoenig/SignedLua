@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// SDF Base Node
-class SDFNode         : GraphNode
+/// Distance Base Node
+class DistanceNode         : GraphNode
 {
     var position      : Float3 = Float3(0,0,0)
     var rotation      : Float3 = Float3(0,0,0)
@@ -42,13 +42,13 @@ class SDFNode         : GraphNode
 }
 
 /// SDFObject
-final class SDFObject : SDFNode
+final class SDFObject : DistanceNode
 {
     var positionStore : Float3!
 
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Utility, options)
+        super.init(.Utility, .SDF, options)
         name = "sdfObject"
     }
     
@@ -69,7 +69,7 @@ final class SDFObject : SDFNode
     
     override func getHelp() -> String
     {
-        return "Defines an SDF Object. SDF Objects contain lists of SDF primitives and booleans and can also contain child objects."
+        return "Defines an SDF Object. SDF objects contain lists of SDF primitives and booleans and can also contain child objects."
     }
     
     override func getOptions() -> [GraphOption]
@@ -77,6 +77,46 @@ final class SDFObject : SDFNode
         let options = [
             GraphOption("Text", "Name", "The name of the object. Default is 'Object'")
         ]
-        return options + SDFNode.getObjectOptions()
+        return options + DistanceNode.getObjectOptions()
+    }
+}
+
+/// AnalyticalObject
+final class AnalyticalObject : DistanceNode
+{
+    var positionStore : Float3!
+
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.Utility, .Analytical, options)
+        name = "analyticalObject"
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+        verifyTranslationOptions(context: context, error: &error)
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        context.position += position.toSIMD()
+        
+        for leave in leaves {
+            leave.execute(context: context)
+        }
+        context.position -= position.toSIMD()
+        return .Success
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Defines an analytical object. Analytical objects contain lists of analytical primitives can also contain child objects."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption("Text", "Name", "The name of the object. Default is 'Object'")
+        ]
+        return options + DistanceNode.getObjectOptions()
     }
 }

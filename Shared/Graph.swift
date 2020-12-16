@@ -27,12 +27,17 @@ class GraphNode {
         case Success, Failure, Running, Unused
     }
     
-    enum NodeType {
+    enum NodeRole {
         case Camera, Sky, Utility
     }
     
-    var type                : NodeType = .Camera
+    enum NodeContext {
+        case None, Analytical, SDF
+    }
     
+    var role                : NodeRole = .Camera
+    var context             : NodeContext = .None
+
     // Only applicable for branch nodes like a sequence
     var leaves              : [GraphNode] = []
     
@@ -42,9 +47,10 @@ class GraphNode {
     // Options
     var options             : [String:Any]
     
-    init(_ type: NodeType,_ options: [String:Any] = [:])
+    init(_ role: NodeRole,_ context: NodeContext,_ options: [String:Any] = [:])
     {
-        self.type = type
+        self.role = role
+        self.context = context
         self.options = options
     }
     
@@ -89,8 +95,12 @@ final class GraphContext
     
     var cameraNode          : GraphNode? = nil
     var skyNode             : GraphNode? = nil
-    var nodes               : [GraphNode] = []
     
+    // Nodes
+    var nodes               : [GraphNode] = []
+    var analyticalNodes     : [GraphNode] = []
+    var sdfNodes            : [GraphNode] = []
+
     var variables           : [GraphVariable] = []
     var failedAt            : [Int32] = []
     
@@ -110,6 +120,9 @@ final class GraphContext
     
     var result              = float4(0,0,0,1)                   // Temporary result of a node (Sky etc)
     
+    var analyticalDist      : Float = .greatestFiniteMagnitude
+    var analyticalNormal    = float3(0,0,0)                     // Analytical Normal
+
     // SDF Raymarching
     
     var rayPos              : float3 = float3(0,0,0)
@@ -127,6 +140,8 @@ final class GraphContext
     func clear()
     {
         nodes = []
+        sdfNodes = []
+        analyticalNodes = []
         variables = []
         lines = [:]
         cameraNode = nil
@@ -138,15 +153,6 @@ final class GraphContext
         copy.nodes = nodes
         copy.variables = variables
         return copy
-    }
-    
-    @inlinable public func reset(_ rayPos: float3 = float3(0,0,0))
-    {
-        self.rayPos = rayPos
-        rayDist[0] = .greatestFiniteMagnitude
-        rayDist[1] = .greatestFiniteMagnitude
-        rayIndex = 0
-        position = float3(0,0,0)
     }
     
     @inlinable public func toggleRayIndex()
@@ -207,13 +213,40 @@ final class GraphContext
         return .Success
     }
     
+    @discardableResult @inlinable public func executeAnalytical() -> GraphNode.Result
+    {
+        analyticalDist = .greatestFiniteMagnitude
+        failedAt = []
+        for node in analyticalNodes {
+            node.execute(context: self)
+        }
+        return .Success
+    }
+    
+    @discardableResult @inlinable public func executeSDF(_ rayPos: float3 = float3(0,0,0)) -> GraphNode.Result
+    {
+        self.rayPos = rayPos
+        rayDist[0] = .greatestFiniteMagnitude
+        rayDist[1] = .greatestFiniteMagnitude
+        rayIndex = 0
+        position = float3(0,0,0)
+        failedAt = []
+        
+        for node in sdfNodes {
+            node.execute(context: self)
+        }
+        toggleRayIndex()
+        
+        return .Success
+    }
+    
     func debug()
     {
         for node in nodes {
             print(node.name, node.leaves.count )
             for l in node.leaves {
                 print("  \(l.name)", l.leaves.count)
-                for l in node.leaves {
+                for l in l.leaves {
                     print("    \(l.name)", l.leaves.count)
                 }
             }

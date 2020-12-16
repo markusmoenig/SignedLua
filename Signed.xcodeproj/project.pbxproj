@@ -60,6 +60,8 @@
 		2B224FE825888C8800F32354 /* Parma in Frameworks */ = {isa = PBXBuildFile; productRef = 2B224FE725888C8800F32354 /* Parma */; };
 		2B224FEC2588A6BD00F32354 /* GraphNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FEB2588A6BD00F32354 /* GraphNodes.swift */; };
 		2B224FED2588A6BD00F32354 /* GraphNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FEB2588A6BD00F32354 /* GraphNodes.swift */; };
+		2B224FF72589B52B00F32354 /* GraphAnalyticalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FF62589B52B00F32354 /* GraphAnalyticalNodes.swift */; };
+		2B224FF82589B52B00F32354 /* GraphAnalyticalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FF62589B52B00F32354 /* GraphAnalyticalNodes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -95,6 +97,7 @@
 		2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBoolNodes.swift; sourceTree = "<group>"; };
 		2B224FDD25888B4D00F32354 /* Parma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parma.swift; sourceTree = "<group>"; };
 		2B224FEB2588A6BD00F32354 /* GraphNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphNodes.swift; sourceTree = "<group>"; };
+		2B224FF62589B52B00F32354 /* GraphAnalyticalNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphAnalyticalNodes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +157,7 @@
 				2B224FC52586EA1800F32354 /* GraphSDFNodes.swift */,
 				2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */,
 				2B224FB52586105200F32354 /* GraphBranchNodes.swift */,
+				2B224FF62589B52B00F32354 /* GraphAnalyticalNodes.swift */,
 				2B224F8525844C2500F32354 /* Classes */,
 				2B224F9925844D0E00F32354 /* Files */,
 				2B224F302584485300F32354 /* Assets.xcassets */,
@@ -314,6 +318,7 @@
 			files = (
 				2B224F7525844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA82585EB7F00F32354 /* GraphBuilder.swift in Sources */,
+				2B224FF72589B52B00F32354 /* GraphAnalyticalNodes.swift in Sources */,
 				2B224F432584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC62586EA1800F32354 /* GraphSDFNodes.swift in Sources */,
 				2B224F8925844C3100F32354 /* Font.swift in Sources */,
@@ -344,6 +349,7 @@
 			files = (
 				2B224F7625844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA92585EB7F00F32354 /* GraphBuilder.swift in Sources */,
+				2B224FF82589B52B00F32354 /* GraphAnalyticalNodes.swift in Sources */,
 				2B224F442584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC72586EA1800F32354 /* GraphSDFNodes.swift in Sources */,
 				2B224F8A25844C3100F32354 /* Font.swift in Sources */,

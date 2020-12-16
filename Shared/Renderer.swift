@@ -131,10 +131,10 @@ class Renderer
                 
         //DispatchQueue.concurrentPerform(iterations: texture!.height) { h in
         for h in chunk.y..<chunk.w {
-            let fh : Float = 1.0 - Float(h) / height
+            let fh : Float = Float(h) / height
             for w in 0..<widthInt {
                 
-                let AA : Int = 1
+                let AA : Int = 3
                 var tot = float4(0,0,0,0)
                 
                 for m in 0..<AA {
@@ -155,33 +155,46 @@ class Renderer
                             skyNode.execute(context: context)
                         }
                         
+                        // Analytical Objects
+                        context.executeAnalytical()
+                        let maxDist : Float = simd_min(10.0, context.analyticalDist)
+                        
                         var color = context.result
+                        
+                        var hit = false
                         
                         var t : Float = 0.001;
                         for _ in 0..<70
                         {
-                            context.reset(context.camOrigin - t * context.rayDir)
-                            context.execute()
-
-                            context.toggleRayIndex()
+                            context.executeSDF(context.camOrigin + t * context.rayDir)
 
                             if abs(context.rayDist[context.rayIndex]) < (0.0001*t) {
-                                         
-                                let normal = calcNormal(context: context, position: context.camOrigin - t * context.rayDir)
-                                
-                                let output = 0.1 * simd_dot(normal, float3(0, 0, -10))
-                                color = SIMD4<Float>(output, output, output, 1)
-                                
+                                hit = true
                                 break
                             } else
-                            if t > 10 {
+                            if t > maxDist {
                                 break
                             }
                             
                             t += context.rayDist[context.rayIndex]
                         }
                         
-                        tot = tot + color
+                        let normal : float3
+                        
+                        if hit && t < context.analyticalDist {
+                            normal = calcNormal(context: context, position: context.camOrigin + t * context.rayDir)
+                            
+                            let output = 0.1 * simd_dot(normal, float3(0, 2, -10))
+                            color = SIMD4<Float>(output, output, output, 1)
+                        } else
+                        if context.analyticalDist != .greatestFiniteMagnitude {
+                            normal = context.analyticalNormal
+                            
+                            let output = 0.1 * simd_dot(normal, float3(0, 2, -10))
+                            color = SIMD4<Float>(output, output, output, 1)
+                        }
+                        
+                        tot = tot + color                        
                     }
                 }
                 texArray[w] = tot / Float(AA*AA)
@@ -230,72 +243,30 @@ class Renderer
         let e = float3(0.001, 0.0, 0.0)
 
         var eOff : float3 = position + float3(e.x, e.y, e.y)
-        context.reset(eOff)
-        context.execute()
-        context.toggleRayIndex()
+        context.executeSDF(eOff)
         var n1 = context.rayDist[context.rayIndex]
         
         eOff = position - float3(e.x, e.y, e.y)
-        context.reset(eOff)
-        context.execute()
-        context.toggleRayIndex()
+        context.executeSDF(eOff)
         n1 = n1 - context.rayDist[context.rayIndex]
         
         eOff = position + float3(e.y, e.x, e.y)
-        context.reset(eOff)
-        context.execute()
-        context.toggleRayIndex()
+        context.executeSDF(eOff)
         var n2 = context.rayDist[context.rayIndex]
         
         eOff = position - float3(e.y, e.x, e.y)
-        context.reset(eOff)
-        context.execute()
-        context.toggleRayIndex()
+        context.executeSDF(eOff)
         n2 = n2 - context.rayDist[context.rayIndex]
         
         eOff = position + float3(e.y, e.y, e.x)
-        context.reset(eOff)
-        context.execute()
-        context.toggleRayIndex()
+        context.executeSDF(eOff)
         var n3 = context.rayDist[context.rayIndex]
         
         eOff = position - float3(e.y, e.y, e.x)
-        context.reset(eOff)
-        context.execute()
-        context.toggleRayIndex()
+        context.executeSDF(eOff)
         n3 = n3 - context.rayDist[context.rayIndex]
         
         return simd_normalize(float3(n1, n2, n3))
-    }
-    
-    // Create the camera dir, camera code is 3D, not really
-    @inlinable public func getCameraDir(uv: float2, origin: float3, lookAt: float3, size: float2, offset: float2) -> float3
-    {
-        let ratio : Float = size.x / size.y
-        let pixelSize : float2 = float2(1.0, 1.0) / size
-
-        let fov : Float = 80.0
-        let halfWidth : Float = tan(fov.degreesToRadians * 0.5)
-        let halfHeight : Float = halfWidth / ratio
-        
-        let upVector = float3(0.0, 1.0, 0.0)
-
-        let w : float3 = simd_normalize(origin - lookAt)
-        let u : float3 = simd_cross(upVector, w)
-        let v : float3 = simd_cross(w, u)
-
-        var lowerLeft : float3 = origin - halfWidth * u
-        lowerLeft -= halfHeight * v - w
-        
-        let horizontal : float3 = u * halfWidth * 2.0
-        
-        let vertical : float3 = v * halfHeight * 2.0
-        var dir : float3 = lowerLeft - origin
-
-        dir += horizontal * (pixelSize.x * offset.x + uv.x)
-        dir += vertical * (pixelSize.y * offset.y + uv.y)
-
-        return simd_normalize( dir );
     }
     
     func startDrawing(_ device: MTLDevice)

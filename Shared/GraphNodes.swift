@@ -18,7 +18,7 @@ final class DefaultSkyNode : GraphNode
 
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Sky, options)
+        super.init(.Sky, .None, options)
         name = "DefaultSky"
     }
     
@@ -35,14 +35,14 @@ final class DefaultSkyNode : GraphNode
         let sunColor = self.sunColor.toSIMD()
         let horizonColor = worldHorizonColor.toSIMD()
         
-        let sun = max(dot(context.rayDir, normalize(sunDir)), 0.0)
-        let hor = pow( 1.0 - max(context.rayDir.y, 0.0), 3.0)
-        var col = mix(skyColor, sunColor, t: sun * 0.5)
-        col = mix(col, horizonColor, t: hor)
+        let sun : Float = simd_max(simd_dot(context.rayDir, simd_normalize(sunDir)), 0.0)
+        let hor : Float = pow(1.0 - simd_max(context.rayDir.y, 0.0), 3.0)
+        var col : float3 = simd_mix(skyColor, sunColor, sun * float3(0.5, 0.5, 0.5))
+        col = simd_mix(col, horizonColor, float3(hor, hor, hor))
         
         col += 0.25 * float3(1.0, 0.7, 0.4) * pow(sun, 5.0)
         col += 0.25 * float3(1.0, 0.8, 0.6) * pow(sun, 5.0)
-        col += 0.15 * float3(1.0, 0.9, 0.7) * max(pow(sun, 512.0), 0.25)
+        col += 0.15 * float3(1.0, 0.9, 0.7) * simd_max(pow(sun, 512.0), 0.25)
 
         context.result = float4(col.x, col.y, col.z, 1)
         return .Success
@@ -58,7 +58,7 @@ final class DefaultSkyNode : GraphNode
         let options = [
             GraphOption("Float", "Radius", "The radius of the sphere. Default is Float1<1>.")
         ]
-        return options + SDFNode.getSDFOptions()
+        return options
     }
 }
 
@@ -71,7 +71,7 @@ final class PinholeCameraNode : GraphNode
 
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Camera, options)
+        super.init(.Camera, .None, options)
         name = "PinholeCamera"
     }
     
@@ -116,7 +116,7 @@ final class PinholeCameraNode : GraphNode
         dir += vertical * (pixelSize.y * context.camOffset.y + context.uv.y)
         
         context.camOrigin = camOrigin
-        context.rayDir = dir
+        context.rayDir = simd_normalize(-dir)
         
         return .Success
     }
@@ -133,6 +133,6 @@ final class PinholeCameraNode : GraphNode
             GraphOption("Float3", "LookAt", "The position the camera is looking at. Default is Float3<0, 0, 0>."),
             GraphOption("Float", "Fov", "The field of view of the camera. Default is Float1<80>.")
         ]
-        return options + SDFNode.getSDFOptions()
+        return options
     }
 }

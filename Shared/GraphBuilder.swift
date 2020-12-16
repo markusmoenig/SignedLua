@@ -37,13 +37,17 @@ class GraphBuilder
     [
         GraphNodeItem("PinholeCamera", { (_ options: [String:Any]) -> GraphNode in return PinholeCameraNode(options) }),
         GraphNodeItem("DefaultSky", { (_ options: [String:Any]) -> GraphNode in return DefaultSkyNode(options) }),
+        GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return AnalyticalObject(options) }),
         GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return SDFObject(options) }),
     ]
     
     var leaves          : [GraphNodeItem] =
     [
+        GraphNodeItem("analyticalPlane", { (_ options: [String:Any]) -> GraphNode in return AnalyticalPlaneNode(options) }),
+
         GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return SDFSphereNode(options) }),
         GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return SDFBoxNode(options) }),
+        GraphNodeItem("sdfPlane", { (_ options: [String:Any]) -> GraphNode in return SDFPlaneNode(options) }),
         GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return BoolMergeNode(options) }),
     ]
     
@@ -237,11 +241,11 @@ class GraphBuilder
                                     if error.error == nil {
                                     
                                         // Special Nodes which do not get appended to nodes
-                                        if newBranch.type == .Camera {
+                                        if newBranch.role == .Camera {
                                             asset.graph!.cameraNode = newBranch
                                             processed = true
                                         } else
-                                        if newBranch.type == .Sky {
+                                        if newBranch.role == .Sky {
                                             asset.graph!.skyNode = newBranch
                                             processed = true
                                         }
@@ -251,6 +255,13 @@ class GraphBuilder
                                             if level == 0 {
                                                 asset.graph!.nodes.append(newBranch)
                                                 currentBranch = []
+                                                
+                                                if newBranch.context == .Analytical {
+                                                    asset.graph!.sdfNodes.append(newBranch)
+                                                } else
+                                                if newBranch.context == .SDF {
+                                                    asset.graph!.sdfNodes.append(newBranch)
+                                                }
                                             }
                                             
                                             if currentBranch.count == 0 {
@@ -379,6 +390,7 @@ class GraphBuilder
         
         if silent == false {
             
+            asset.graph?.debug()
             if asset.graph?.cameraNode == nil {
                 error.error = "Project must contain a Camera!"
                 error.line = 0
