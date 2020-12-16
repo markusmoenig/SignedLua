@@ -370,7 +370,7 @@ struct SwiftUIWebView: NSViewRepresentable {
 #else
 struct SwiftUIWebView: UIViewRepresentable {
     public typealias UIViewType = WKWebView
-    var game        : Game!
+    var core        : Core!
     var colorScheme : ColorScheme
     
     private let webView: WKWebView = WKWebView()
@@ -392,22 +392,22 @@ struct SwiftUIWebView: UIViewRepresentable {
     public func updateUIView(_ uiView: WKWebView, context: UIViewRepresentableContext<SwiftUIWebView>) { }
 
     public func makeCoordinator() -> Coordinator {
-        return Coordinator(game, colorScheme)
+        return Coordinator(core, colorScheme)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         
-        private var game        : Game
+        private var core        : Core
         private var colorScheme : ColorScheme
         
-        init(_ game: Game,_ colorScheme: ColorScheme) {
-            self.game = game
+        init(_ core: Core,_ colorScheme: ColorScheme) {
+            self.core = core
             self.colorScheme = colorScheme
         }
         
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "jsHandler" {
-                if let scriptEditor = game.scriptEditor {
+                if let scriptEditor = core.scriptEditor {
                     scriptEditor.updated()
                 }
             }
@@ -419,7 +419,7 @@ struct SwiftUIWebView: UIViewRepresentable {
 
         //After the webpage is loaded, assign the data in WebViewModel class
         public func webView(_ web: WKWebView, didFinish: WKNavigation!) {
-            game.scriptEditor = ScriptEditor(web, game, colorScheme)
+            core.scriptEditor = ScriptEditor(web, core, colorScheme)
         }
 
         public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) { }

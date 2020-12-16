@@ -300,7 +300,6 @@ class Renderer
         textureDescriptor.height = height == 0 ? 1 : height
         
         textureDescriptor.usage = MTLTextureUsage.unknown
-        textureDescriptor.storageMode = .managed
         return device.makeTexture(descriptor: textureDescriptor)
     }
     

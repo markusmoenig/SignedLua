@@ -116,8 +116,8 @@ public class DMTKView       : MTKView
         mousePos.x = x
         mousePos.y = y
         
-        mousePos.x /= Float(bounds.width) / game.texture!.width// / game.scaleFactor
-        mousePos.y /= Float(bounds.height) / game.texture!.height// / game.scaleFactor
+        //mousePos.x /= Float(bounds.width) / core.texture!.width// / game.scaleFactor
+        //mousePos.y /= Float(bounds.height) / core.texture!.height// / game.scaleFactor
     }
     
     override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -275,11 +275,11 @@ struct MetalView: NSViewRepresentable {
 #else
 struct MetalView: UIViewRepresentable {
     typealias UIViewType = MTKView
-    var game             : Game!
+    var core             : Core!
 
-    init(_ game: Game)
+    init(_ core: Core)
     {
-        self.game = game
+        self.core = core
     }
     
     func makeCoordinator() -> Coordinator {
@@ -288,7 +288,7 @@ struct MetalView: UIViewRepresentable {
     
     func makeUIView(context: UIViewRepresentableContext<MetalView>) -> MTKView {
         let mtkView = DMTKView()
-        mtkView.game = game
+        mtkView.core = core
         mtkView.delegate = context.coordinator
         mtkView.preferredFramesPerSecond = 60
         mtkView.enableSetNeedsDisplay = true
@@ -301,7 +301,7 @@ struct MetalView: UIViewRepresentable {
         mtkView.enableSetNeedsDisplay = true
         mtkView.isPaused = true
                 
-        game.setupView(mtkView)
+        core.setupView(mtkView)
         
         return mtkView
     }
@@ -327,7 +327,7 @@ struct MetalView: UIViewRepresentable {
         }
         
         func draw(in view: MTKView) {
-            parent.game.draw()
+            parent.core.draw()
         }
     }
 }
