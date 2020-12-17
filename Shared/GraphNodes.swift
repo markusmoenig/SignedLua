@@ -56,7 +56,7 @@ final class DefaultSkyNode : GraphNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Float", "Radius", "The radius of the sphere. Default is Float1<1>.")
+            GraphOption(Float1(1), "Radius", "The radius of the sphere.")
         ]
         return options
     }
@@ -129,9 +129,9 @@ final class PinholeCameraNode : GraphNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Float3", "Origin", "The camera origin (viewer position). Default is Float3<0, 0, -5>."),
-            GraphOption("Float3", "LookAt", "The position the camera is looking at. Default is Float3<0, 0, 0>."),
-            GraphOption("Float", "Fov", "The field of view of the camera. Default is Float1<80>.")
+            GraphOption(Float3(0, 0, -5), "Origin", "The camera origin (viewer position)."),
+            GraphOption(Float3(0, 0, 0), "LookAt", "The position the camera is looking at."),
+            GraphOption(Float1(80), "Fov", "The field of view of the camera.")
         ]
         return options
     }

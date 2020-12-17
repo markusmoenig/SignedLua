@@ -67,7 +67,7 @@ final class SDFSphereNode : DistanceNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Float", "Radius", "The radius of the sphere. Default is Float1<1>.")
+            GraphOption(Float1(1), "Radius", "The radius of the sphere.")
         ]
         return options + DistanceNode.getSDFOptions()
     }
@@ -112,7 +112,7 @@ final class SDFBoxNode : DistanceNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Float3", "Size", "The size of the cube. Default is Float3<1, 1, 1>.")
+            GraphOption(Float3(1,1,1), "Size", "The size of the cube.")
         ]
         return options + DistanceNode.getSDFOptions()
     }
@@ -156,7 +156,7 @@ final class SDFPlaneNode : DistanceNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Float3", "Normal", "The normal defines the orientation of the plane. Default is the y - up vector Float3<0, 1, 0> which creates a ground plane.")
+            GraphOption(Float3(0,1,0), "Normal", "The normal defines the orientation of the plane.")
         ]
         return options + DistanceNode.getSDFOptions()
     }

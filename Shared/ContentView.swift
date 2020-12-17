@@ -29,34 +29,53 @@ struct ContentView: View {
     let leftPanelWidth                      : CGFloat = 230
     #endif
     
-    var body: some View {
-        //NavigationView {
-            
-        VStack(spacing: 2) {//VSplitView {
+    #if os(macOS)
+    let rightPanelWidth                     : CGFloat = 180
+    #else
+    let rightPanelWidth                     : CGFloat = 230
+    #endif
+    
+    var body: some View {            
+        VStack(spacing: 0) {
+        //VSplitView {
         
             if screenState == .Mixed || screenState == .RenderOnly {
                 
-                NavigationView {
+                HStack {
+
+                    NavigationView {
+                            
+                        LeftPanelView(document.core)
+                            .frame(minWidth: leftPanelWidth, idealWidth: leftPanelWidth, maxWidth: leftPanelWidth)
+                            .layoutPriority(0)
+                            .animation(.easeInOut)
                         
-                    LeftPanelView(document.core)
-                        .frame(minWidth: leftPanelWidth, idealWidth: leftPanelWidth, maxWidth: leftPanelWidth)
-                        .layoutPriority(0)
-                        .animation(.easeInOut)
+                        MetalView(document.core)
+                            //.zIndex(2)
+                            /*
+                            .frame(minWidth: 0,
+                                   maxWidth: geometry.size.width / document.game.previewFactor,
+                                   minHeight: 0,
+                                   maxHeight: geometry.size.height / document.game.previewFactor,
+                                   alignment: .topTrailing)
+                            */
+                            //.opacity(helpIsVisible ? 0 : (document.game.state == .Running ? 1 : document.game.previewOpacity))
+                            .animation(.default)
+                            .allowsHitTesting(false)
+                        
+                    }
+
                     
-                    MetalView(document.core)
-                        //.zIndex(2)
-                        /*
-                        .frame(minWidth: 0,
-                               maxWidth: geometry.size.width / document.game.previewFactor,
-                               minHeight: 0,
-                               maxHeight: geometry.size.height / document.game.previewFactor,
-                               alignment: .topTrailing)
-                        */
-                        //.opacity(helpIsVisible ? 0 : (document.game.state == .Running ? 1 : document.game.previewOpacity))
-                        .animation(.default)
-                        .allowsHitTesting(false)
+                    if rightSideBarIsVisible == true {
+                        RightPanelView(document.core)
+                            .frame(minWidth: rightPanelWidth, idealWidth: rightPanelWidth, maxWidth: rightPanelWidth)
+                            .layoutPriority(0)
+                            .animation(.easeInOut)
+                    }
                 }
             }
+            
+            Divider()
                 
             if screenState == .Mixed || screenState == .SourceOnly {
 
@@ -98,7 +117,7 @@ struct ContentView: View {
                                         }
                                         .foregroundColor(Color.gray)
                                         .font(.system(size: 12))
-                                        .frame(minWidth: 160, idealWidth: 160, maxWidth: 160)
+                                        .frame(minWidth: rightPanelWidth, idealWidth: rightPanelWidth, maxWidth: rightPanelWidth)
                                         .layoutPriority(0)
                                         .animation(.easeInOut)
                                 }

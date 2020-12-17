@@ -29,14 +29,14 @@ class DistanceNode         : GraphNode
     static func getObjectOptions() -> [GraphOption]
     {
         return [
-            GraphOption("Float3", "Position", "The position of the object. If this is a child object the position is relative to it's parent. Default is Float3<0, 0, 0>.")
+            GraphOption(Float3(0,0,0), "Position", "The position of the object. If this is a child object the position is relative to it's parent.")
         ]
     }
     
     static func getSDFOptions() -> [GraphOption]
     {
         return [
-            GraphOption("Float3", "Position", "The position of the SDF relative to it's parent object. Default is Float3<0, 0, 0>.")
+            GraphOption(Float3(0,0,0), "Position", "The position of the SDF relative to it's parent object.")
         ]
     }
 }
@@ -76,7 +76,7 @@ final class SDFObject : DistanceNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Text", "Name", "The name of the object. Default is 'Object'")
+            GraphOption(Text1("Object"), "Name", "The name of the object.")
         ]
         return options + DistanceNode.getObjectOptions()
     }
@@ -117,7 +117,7 @@ final class AnalyticalObject : DistanceNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Text", "Name", "The name of the object. Default is 'Object'")
+            GraphOption(Text1("Object"), "Name", "The name of the object.")
         ]
         return options + DistanceNode.getObjectOptions()
     }

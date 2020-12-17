@@ -31,11 +31,12 @@ class GraphNodeItem
 
 class GraphBuilder
 {
-    var cursorTimer     : Timer? = nil
-    let core            : Core
+    var cursorTimer         : Timer? = nil
+    let core                : Core
     
-    let selectionChanged  = PassthroughSubject<UUID?, Never>()
+    let selectionChanged    = PassthroughSubject<UUID?, Never>()
 
+    var currentNode         : GraphNode? = nil
     
     var branches        : [GraphNodeItem] =
     [
@@ -464,6 +465,7 @@ class GraphBuilder
                     if let context = asset.graph {
                         if let node = context.lines[line] {
                             if node.name != self.lastContextHelpName {
+                                self.currentNode = node
                                 self.selectionChanged.send(node.id)
                                 self.core.contextText = self.generateNodeHelpText(node)
                                 self.core.contextTextChanged.send(self.core.contextText)
@@ -471,6 +473,7 @@ class GraphBuilder
                             }
                         } else {
                             if self.lastContextHelpName != nil {
+                                self.currentNode = nil
                                 self.selectionChanged.send(nil)
                                 self.core.contextText = ""
                                 self.core.contextTextChanged.send(self.core.contextText)
@@ -493,7 +496,7 @@ class GraphBuilder
             help += "\nOptional Parameters\n"
         }
         for o in options {
-            help += "* **\(o.name)** (\(o.type)) - " + o.help + "\n"
+            help += "* **\(o.name)** (\(o.variable.getTypeName())) - " + o.help + "\n"
         }
         return help
     }
@@ -502,5 +505,127 @@ class GraphBuilder
     func gotoNode(_ node: GraphNode)
     {
         core.scriptEditor?.gotoLine(node.lineNr+1)
+    }
+    
+    /// Get the options for the current node
+    func getOptions() -> [GraphOption]
+    {
+        var options : [GraphOption] = []
+        
+        if let node = currentNode {
+            //options += node.getOptions()
+            if let line = getLine(node.lineNr) {
+                print(line)
+                options += extractOptionsFromLine(node, line)
+            }
+        }
+        
+        return options
+    }
+    
+    /// extract GraphOptions from the line
+    func extractOptionsFromLine(_ node: GraphNode, _ str: String) -> [GraphOption]
+    {
+        var graphOptions : [GraphOption] = []
+        var options      : [String: String] = [:]
+
+        var leftOfComment: String
+
+        if str.firstIndex(of: "#") != nil {
+            let split = str.split(separator: "#")
+            if split.count == 2 {
+                leftOfComment = String(str.split(separator: "#")[0])
+            } else {
+                leftOfComment = ""
+            }
+        } else {
+            leftOfComment = str
+        }
+        
+        // Get the current indention level
+        //let level = (str.prefix(while: {$0 == " "}).count) / 4
+
+        leftOfComment = leftOfComment.trimmingCharacters(in: .whitespaces)
+        
+        var rightValueArray : [String.SubSequence]
+            
+        if leftOfComment.firstIndex(of: "<") != nil {
+            rightValueArray = leftOfComment.split(separator: "<")
+        } else {
+            rightValueArray = leftOfComment.split(separator: " ")
+        }
+        
+        if rightValueArray.count > 0 {
+
+        // Fill in options
+        rightValueArray.removeFirst()
+            if rightValueArray.count == 1 && rightValueArray[0] == ">" {
+                // Empty Arguments
+            } else {
+                while rightValueArray.count > 0 {
+                    let array = rightValueArray[0].split(separator: ":")
+                    //print("2", array)
+                    rightValueArray.removeFirst()
+                    if array.count == 2 {
+                        let optionName = array[0].lowercased().trimmingCharacters(in: .whitespaces)
+                        var values = array[1].trimmingCharacters(in: .whitespaces)
+                        //print("option", optionName, "value", values)
+                                                            
+                        if values.count > 0 && values.last! != ">" {
+                        } else {
+                            values = String(values.dropLast())
+                        }
+                        options[optionName] = String(values)
+                    } else { rightValueArray = [] }
+                }
+            }
+        }
+        
+        print(options)
+        
+        let nodeOptions = node.getOptions()
+        var error = CompileError()
+
+        if let asset = core.assetFolder.getAsset("main", .Source) {
+            for (key, _) in options {
+                for nO in nodeOptions {
+                    if nO.name.lowercased() == key {
+                        if nO.variable.getType() == .Float {
+
+                            if let f1 = extractFloat1Value(options, context: asset.graph!, error: &error, name: key) {
+                                nO.variable = f1
+                                print(f1.x)
+                                graphOptions.append(nO)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+                
+        return graphOptions
+    }
+    
+    /// Returns the given line
+    func getLine(_ line: Int32) -> String? {
+
+        var rc : String? = nil
+        guard let asset = core.assetFolder.getAsset("main", .Source) else {
+            return nil
+        }
+        
+        let ns = asset.value as NSString
+        var lineNumber  : Int32 = 0
+        
+        ns.enumerateLines { (str, _) in
+            
+            if line == lineNumber {
+                rc = str
+            }
+            
+            lineNumber += 1
+        }
+        
+        return rc
     }
 }

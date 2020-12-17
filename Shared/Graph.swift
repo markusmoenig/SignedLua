@@ -7,17 +7,23 @@
 
 import Foundation
 
-class GraphOption {
+class GraphOption : Equatable, Identifiable {
     
-    var type    = ""
+    var id      = UUID()
+    
+    var variable: VariableContainer
     var name    : String
     var help    : String
     
-    init(_ type: String,_ name: String,_ help: String)
+    init(_ variable: VariableContainer,_ name: String,_ help: String)
     {
-        self.type = type
+        self.variable = variable
         self.name = name
         self.help = help
+    }
+    
+    static func ==(lhs:GraphOption, rhs:GraphOption) -> Bool { // Implement Equatable
+        return lhs.id == rhs.id
     }
 }
 

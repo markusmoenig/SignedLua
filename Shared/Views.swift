@@ -17,6 +17,84 @@ struct LibraryItem: Identifiable {
     var md          : String = ""
 }
 
+struct FloatView: View {
+    
+    let core                                : Core
+    let option                              : GraphOption
+    
+    @State var valueText                    : String = ""
+
+    init(_ core: Core, _ option: GraphOption)
+    {
+        self.core = core
+        self.option = option
+        
+        if let f1 = option.variable as? Float1 {
+            _valueText = State(initialValue: String(format: "%.03f", f1.x))
+        }
+    }
+    
+    var body: some View {
+        
+        VStack(alignment: .leading) {
+            Text(option.name)
+            TextField(option.name, text: $valueText)
+                //.keyboardType(.numberPad)
+        }
+        
+        /*
+        .onReceive(self.core.modelChanged) { core in
+            mode = .Project
+            updateView.toggle()
+        }*/
+        .onReceive(self.core.graphBuilder.selectionChanged) { id in
+            //options = core.graphBuilder.getOptions()
+            //updateView.toggle()
+        }
+    }
+}
+
+struct RightPanelView: View {
+    
+    let core                                : Core
+    
+    @State var radius                       : String = "1"
+    
+    @State var updateView                   : Bool = false
+    
+    @State var options                      : [GraphOption] = []
+
+    init(_ core: Core)
+    {
+        self.core = core
+    }
+    
+    var body: some View {
+        
+        VStack(alignment: .leading) {
+            
+            ForEach(options, id: \.id) { option in
+                if option.variable.getType() == .Float {
+                    FloatView(core, option)
+                }
+            }
+        
+            
+            Spacer()
+        }
+        
+        /*
+        .onReceive(self.core.modelChanged) { core in
+            mode = .Project
+            updateView.toggle()
+        }*/
+        .onReceive(self.core.graphBuilder.selectionChanged) { id in
+            options = core.graphBuilder.getOptions()
+            updateView.toggle()
+        }
+    }
+}
+
 struct LeftPanelView: View {
     
     enum Mode {
@@ -33,6 +111,12 @@ struct LeftPanelView: View {
     @State var expanded                     : Bool = false
     
     @State private var selection            : UUID? = nil
+    
+    #if os(macOS)
+    let TopRowPadding                       : CGFloat = 2
+    #else
+    let TopRowPadding                       : CGFloat = 5
+    #endif
 
     init(_ core: Core)
     {
@@ -64,7 +148,7 @@ struct LeftPanelView: View {
                 })
                 {
                     Label("", systemImage: "list.bullet.below.rectangle")
-                        .font(.system(size: 14))
+                        .font(.system(size: 20))
                         .foregroundColor(mode == .Project ? Color.accentColor : Color.white)
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -74,18 +158,16 @@ struct LeftPanelView: View {
                 })
                 {
                     Label("", systemImage: "building.columns.fill")
-                        .font(.system(size: 14))
+                        .font(.system(size: 20))
                         .foregroundColor(mode == .Library ? Color.accentColor : Color.white)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-            .padding(.top, 1)
+            .padding(.top, TopRowPadding)
             .padding(.bottom, 2)
             .frame(alignment: .topLeading)
 
-            #if os(macOS)
             Divider()
-            #endif
             
             if mode == .Project {
 

@@ -46,7 +46,7 @@ final class AnalyticalPlaneNode : DistanceNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption("Float3", "Normal", "The normal defines the orientation of the plane. Default is the y - up vector Float3<0, 1, 0> which creates a ground plane.")
+            GraphOption(Float3(0,1,0), "Normal", "The normal defines the orientation of the plane.")
         ]
         return options + DistanceNode.getSDFOptions()
     }

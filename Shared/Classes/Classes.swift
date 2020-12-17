@@ -7,7 +7,26 @@
 
 import Foundation
 
-class Float4
+class VariableContainer {
+    
+    enum VariableType {
+        case Invalid, Bool, Text, Int, Float, Float2, Float3, Float4
+    }
+    
+    func getType() -> VariableType {
+        return .Invalid
+    }
+    
+    func getTypeName() -> String {
+        return ""
+    }
+    
+    func toString() -> String {
+        return ""
+    }
+}
+
+class Float4 : VariableContainer
 {
     var x           : Float = 1
     var y           : Float = 1
@@ -22,7 +41,15 @@ class Float4
         self.w = w
     }
     
-    func toSIMD() -> SIMD4<Float>
+    override func getType() -> VariableType {
+        return .Float4
+    }
+    
+    override func getTypeName() -> String {
+        return "Float4"
+    }
+    
+    @inlinable func toSIMD() -> SIMD4<Float>
     {
         return SIMD4<Float>(x, y, z, w)
     }
@@ -44,7 +71,7 @@ class Float4
     }
 }
 
-class Float3
+class Float3 : VariableContainer
 {
     var x           : Float = 1
     var y           : Float = 1
@@ -64,7 +91,15 @@ class Float3
         self.z = o.z
     }
     
-    func toSIMD() -> SIMD3<Float>
+    override func getType() -> VariableType {
+        return .Float3
+    }
+    
+    override func getTypeName() -> String {
+        return "Float3"
+    }
+    
+    @inlinable func toSIMD() -> SIMD3<Float>
     {
         return SIMD3<Float>(x, y, z)
     }
@@ -83,7 +118,7 @@ class Float3
     }
 }
 
-class Float2
+class Float2 : VariableContainer
 {
     var x           : Float = 0
     var y           : Float = 0
@@ -94,7 +129,15 @@ class Float2
         self.y = y
     }
     
-    func toSIMD() -> SIMD2<Float>
+    override func getType() -> VariableType {
+        return .Float2
+    }
+    
+    override func getTypeName() -> String {
+        return "Float2"
+    }
+    
+    @inlinable func toSIMD() -> SIMD2<Float>
     {
         return SIMD2<Float>(x, y)
     }
@@ -110,7 +153,7 @@ class Float2
     }
 }
 
-class Float1
+class Float1 : VariableContainer
 {
     var x           : Float = 0
 
@@ -119,13 +162,25 @@ class Float1
         self.x = x
     }
     
-    func toSIMD() -> Float
+    @inlinable func toSIMD() -> Float
     {
         return x
     }
+    
+    override func getType() -> VariableType {
+        return .Float
+    }
+    
+    override func getTypeName() -> String {
+        return "Float"
+    }
+    
+    override func toString() -> String {
+        return String(x)
+    }
 }
 
-class Int1
+class Int1 : VariableContainer
 {
     var x           : Int = 0
 
@@ -134,13 +189,17 @@ class Int1
         self.x = x
     }
     
-    func toSIMD() -> Int
+    @inlinable func toSIMD() -> Int
     {
         return x
     }
+    
+    override func getTypeName() -> String {
+        return "Int"
+    }
 }
 
-class Bool1
+class Bool1 : VariableContainer
 {
     var x           : Bool = false
 
@@ -149,9 +208,36 @@ class Bool1
         self.x = x
     }
     
-    func toSIMD() -> Bool
+    @inlinable func toSIMD() -> Bool
     {
         return x
+    }
+    
+    override func getType() -> VariableType {
+        return .Bool
+    }
+    
+    override func getTypeName() -> String {
+        return "Bool"
+    }
+}
+
+class Text1 : VariableContainer
+{
+    var text: String = ""
+
+    init(_ text: String = "")
+    {
+        self.text = text
+    }
+    
+    @inlinable func toSIMD() -> String
+    {
+        return text
+    }
+    
+    override func getTypeName() -> String {
+        return "Text"
     }
 }
 
