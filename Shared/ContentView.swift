@@ -117,7 +117,7 @@ struct ContentView: View {
                                         }
                                         .foregroundColor(Color.gray)
                                         .font(.system(size: 12))
-                                        .frame(minWidth: rightPanelWidth, idealWidth: rightPanelWidth, maxWidth: rightPanelWidth)
+                                        .frame(minWidth: rightPanelWidth + 6, idealWidth: rightPanelWidth + 6, maxWidth: rightPanelWidth)
                                         .layoutPriority(0)
                                         .animation(.easeInOut)
                                 }

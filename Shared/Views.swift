@@ -148,20 +148,22 @@ struct LeftPanelView: View {
                 })
                 {
                     Label("", systemImage: "list.bullet.below.rectangle")
-                        .font(.system(size: 20))
+                        .font(.system(size: 16))
                         .foregroundColor(mode == .Project ? Color.accentColor : Color.white)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .padding(.leading, 10)
                 
                 Button(action: {
                     mode = .Library
                 })
                 {
                     Label("", systemImage: "building.columns.fill")
-                        .font(.system(size: 20))
+                        .font(.system(size: 16))
                         .foregroundColor(mode == .Library ? Color.accentColor : Color.white)
                 }
                 .buttonStyle(PlainButtonStyle())
+                Spacer()
             }
             .padding(.top, TopRowPadding)
             .padding(.bottom, 2)
