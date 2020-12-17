@@ -21,25 +21,41 @@ struct ContentView: View {
     @State private var rightSideBarIsVisible            : Bool = true
     @State private var contextText                      : String = ""
 
+    @State var updateView                               : Bool = false
+
+    #if os(macOS)
+    let leftPanelWidth                      : CGFloat = 180
+    #else
+    let leftPanelWidth                      : CGFloat = 230
+    #endif
+    
     var body: some View {
         //NavigationView {
             
-        VStack(spacing: 1) {//VSplitView {
+        VStack(spacing: 2) {//VSplitView {
         
             if screenState == .Mixed || screenState == .RenderOnly {
                 
-                MetalView(document.core)
-                    //.zIndex(2)
-                    /*
-                    .frame(minWidth: 0,
-                           maxWidth: geometry.size.width / document.game.previewFactor,
-                           minHeight: 0,
-                           maxHeight: geometry.size.height / document.game.previewFactor,
-                           alignment: .topTrailing)
-                    */
-                    //.opacity(helpIsVisible ? 0 : (document.game.state == .Running ? 1 : document.game.previewOpacity))
-                    .animation(.default)
-                    .allowsHitTesting(false)
+                NavigationView {
+                        
+                    LeftPanelView(document.core)
+                        .frame(minWidth: leftPanelWidth, idealWidth: leftPanelWidth, maxWidth: leftPanelWidth)
+                        .layoutPriority(0)
+                        .animation(.easeInOut)
+                    
+                    MetalView(document.core)
+                        //.zIndex(2)
+                        /*
+                        .frame(minWidth: 0,
+                               maxWidth: geometry.size.width / document.game.previewFactor,
+                               minHeight: 0,
+                               maxHeight: geometry.size.height / document.game.previewFactor,
+                               alignment: .topTrailing)
+                        */
+                        //.opacity(helpIsVisible ? 0 : (document.game.state == .Running ? 1 : document.game.previewOpacity))
+                        .animation(.default)
+                        .allowsHitTesting(false)
+                }
             }
                 
             if screenState == .Mixed || screenState == .SourceOnly {

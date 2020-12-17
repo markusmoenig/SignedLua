@@ -12,6 +12,9 @@ struct SignedApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: SignedDocument()) { file in
             ContentView(document: file.$document)
+        }        
+        .commands {
+            SidebarCommands()
         }
     }
 }

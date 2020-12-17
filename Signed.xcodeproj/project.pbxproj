@@ -54,8 +54,8 @@
 		2B224FC72586EA1800F32354 /* GraphSDFNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FC52586EA1800F32354 /* GraphSDFNodes.swift */; };
 		2B224FCB2586F90C00F32354 /* GraphBoolNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */; };
 		2B224FCC2586F90C00F32354 /* GraphBoolNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */; };
-		2B224FDE25888B4D00F32354 /* Parma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FDD25888B4D00F32354 /* Parma.swift */; };
-		2B224FDF25888B4D00F32354 /* Parma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FDD25888B4D00F32354 /* Parma.swift */; };
+		2B224FDE25888B4D00F32354 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FDD25888B4D00F32354 /* Views.swift */; };
+		2B224FDF25888B4D00F32354 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FDD25888B4D00F32354 /* Views.swift */; };
 		2B224FE425888C6E00F32354 /* Parma in Frameworks */ = {isa = PBXBuildFile; productRef = 2B224FE325888C6E00F32354 /* Parma */; };
 		2B224FE825888C8800F32354 /* Parma in Frameworks */ = {isa = PBXBuildFile; productRef = 2B224FE725888C8800F32354 /* Parma */; };
 		2B224FEC2588A6BD00F32354 /* GraphNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FEB2588A6BD00F32354 /* GraphNodes.swift */; };
@@ -95,7 +95,7 @@
 		2B224FBC258619E800F32354 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		2B224FC52586EA1800F32354 /* GraphSDFNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphSDFNodes.swift; sourceTree = "<group>"; };
 		2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBoolNodes.swift; sourceTree = "<group>"; };
-		2B224FDD25888B4D00F32354 /* Parma.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parma.swift; sourceTree = "<group>"; };
+		2B224FDD25888B4D00F32354 /* Views.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
 		2B224FEB2588A6BD00F32354 /* GraphNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphNodes.swift; sourceTree = "<group>"; };
 		2B224FF62589B52B00F32354 /* GraphAnalyticalNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphAnalyticalNodes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -138,7 +138,7 @@
 				2B224F2D2584485100F32354 /* SignedApp.swift */,
 				2B224F2E2584485100F32354 /* SignedDocument.swift */,
 				2B224F2F2584485100F32354 /* ContentView.swift */,
-				2B224FDD25888B4D00F32354 /* Parma.swift */,
+				2B224FDD25888B4D00F32354 /* Views.swift */,
 				2B224F6525844C1800F32354 /* Asset.swift */,
 				2B224F6925844C1800F32354 /* File.swift */,
 				2B224F6325844C1800F32354 /* Core.swift */,
@@ -324,7 +324,7 @@
 				2B224F8925844C3100F32354 /* Font.swift in Sources */,
 				2B224F7325844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCB2586F90C00F32354 /* GraphBoolNodes.swift in Sources */,
-				2B224FDE25888B4D00F32354 /* Parma.swift in Sources */,
+				2B224FDE25888B4D00F32354 /* Views.swift in Sources */,
 				2B224F7925844C1900F32354 /* MetalStates.swift in Sources */,
 				2B224FAF2585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F6F25844C1900F32354 /* Core.swift in Sources */,
@@ -355,7 +355,7 @@
 				2B224F8A25844C3100F32354 /* Font.swift in Sources */,
 				2B224F7425844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCC2586F90C00F32354 /* GraphBoolNodes.swift in Sources */,
-				2B224FDF25888B4D00F32354 /* Parma.swift in Sources */,
+				2B224FDF25888B4D00F32354 /* Views.swift in Sources */,
 				2B224F7A25844C1900F32354 /* MetalStates.swift in Sources */,
 				2B224FB02585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F7025844C1900F32354 /* Core.swift in Sources */,

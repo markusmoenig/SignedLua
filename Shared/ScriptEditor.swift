@@ -238,6 +238,17 @@ class ScriptEditor
          })
     }
     
+    func gotoLine(_ line: Int32)
+    {
+        webView.evaluateJavaScript(
+            """
+            editor.getCursorPosition().row
+            editor.scrollToLine(\(line), true, true, function () {});
+            editor.gotoLine(\(line), 0, true);
+            """, completionHandler: { (value, error ) in
+         })
+    }
+    
     func getSessionCursor(_ cb: @escaping (Int32)->() )
     {
         webView.evaluateJavaScript(

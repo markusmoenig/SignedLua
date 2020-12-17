@@ -72,6 +72,8 @@ public class Core       : ObservableObject
     var assetError      = CompileError()
     let gameError       = PassthroughSubject<Void, Never>()
     
+    let modelChanged    = PassthroughSubject<Void, Never>()
+    
     var localAudioPlayers: [String:AVAudioPlayer] = [:]
     var globalAudioPlayers: [String:AVAudioPlayer] = [:]
     
@@ -153,7 +155,9 @@ public class Core       : ObservableObject
             return
         }
                         
-        renderer.checkIsValid(self)
+        if renderer.checkIfTextureIsValid(self) == false {
+            return
+        }
         
         if let texture = renderer.texture {            
             startDrawing()

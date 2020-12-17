@@ -21,7 +21,7 @@ class GraphOption {
     }
 }
 
-class GraphNode {
+class GraphNode : Equatable, Identifiable {
     
     enum Result {
         case Success, Failure, Running, Unused
@@ -35,11 +35,13 @@ class GraphNode {
         case None, Analytical, SDF
     }
     
+    var id                  = UUID()
+    
     var role                : NodeRole = .Camera
     var context             : NodeContext = .None
 
     // Only applicable for branch nodes like a sequence
-    var leaves              : [GraphNode] = []
+    var leaves              : [GraphNode]! = []
     
     var name                : String = ""
     var lineNr              : Int32 = 0
@@ -74,6 +76,10 @@ class GraphNode {
     func getOptions() -> [GraphOption]
     {
         return []
+    }
+    
+    static func ==(lhs:GraphNode, rhs:GraphNode) -> Bool { // Implement Equatable
+        return lhs.id == rhs.id
     }
 }
 

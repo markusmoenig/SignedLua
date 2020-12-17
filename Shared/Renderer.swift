@@ -70,13 +70,16 @@ class Renderer
             return
         }
 
-        checkIsValid(core, forceClear: true)
+        
+        if checkIfTextureIsValid(core, forceClear: true) == false {
+            return
+        }
 
         let cores = ProcessInfo().activeProcessorCount + 1
         
         //let width: Int = texture!.width
         let height: Int = texture!.height
-
+        
         var lineCount : Int = 0
         let chunkHeight : Int = height / cores + cores
         
@@ -108,10 +111,14 @@ class Renderer
     
     func renderChunk(context1: GraphContext, chunk: SIMD4<Int>)
     {
-        let width: Float = Float(texture!.width)
-        let height: Float = Float(texture!.height)
+        guard let texture = texture else {
+            return
+        }
         
-        let widthInt : Int = texture!.width
+        let width: Float = Float(texture.width)
+        let height: Float = Float(texture.height)
+        
+        let widthInt : Int = texture.width
         //let heightInt : Int = texture!.height
 
         var texArray = Array<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: widthInt)
@@ -202,7 +209,7 @@ class Renderer
             let region = MTLRegionMake2D(0, h, widthInt, 1)
             
             texArray.withUnsafeMutableBytes { texArrayPtr in
-                texture!.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<Float>>.size * widthInt))
+                texture.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<Float>>.size * widthInt))
             }
             
             DispatchQueue.main.async {
@@ -326,9 +333,13 @@ class Renderer
     }
     
     /// Checks if the texture size is valid and if not stop rendering and resize and clear the texture
-    func checkIsValid(_ core: Core, forceClear: Bool = false)
+    func checkIfTextureIsValid(_ core: Core, forceClear: Bool = false) -> Bool
     {
         let size = SIMD2<Int>(Int(core.view.frame.width), Int(core.view.frame.height))
+        
+        if size.x == 0 || size.y == 0 {
+            return false
+        }
         
         // Make sure texture is of size size
         if texture == nil || texture!.width != size.x || texture!.height != size.y {
@@ -352,6 +363,7 @@ class Renderer
                 stopDrawing(syncTexture: texture!, waitUntilCompleted: true)
             }
         }
+        return true
     }
     
     /// Clears the textures

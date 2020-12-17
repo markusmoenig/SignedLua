@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 struct CompileError
 {
@@ -32,6 +33,9 @@ class GraphBuilder
 {
     var cursorTimer     : Timer? = nil
     let core            : Core
+    
+    let selectionChanged  = PassthroughSubject<UUID?, Never>()
+
     
     var branches        : [GraphNodeItem] =
     [
@@ -243,10 +247,16 @@ class GraphBuilder
                                         // Special Nodes which do not get appended to nodes
                                         if newBranch.role == .Camera {
                                             asset.graph!.cameraNode = newBranch
+                                            
+                                            newBranch.lineNr = error.line!
+                                            asset.graph!.lines[error.line!] = newBranch
                                             processed = true
                                         } else
                                         if newBranch.role == .Sky {
                                             asset.graph!.skyNode = newBranch
+                                            
+                                            newBranch.lineNr = error.line!
+                                            asset.graph!.lines[error.line!] = newBranch
                                             processed = true
                                         }
                                         
@@ -404,6 +414,10 @@ class GraphBuilder
                     core.scriptEditor?.clearAnnotations()
                 }
             }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.core.modelChanged.send()
+            }
         }
 
         return error
@@ -450,14 +464,15 @@ class GraphBuilder
                 if let asset = self.core.assetFolder.current, asset.type == .Source {
                     if let context = asset.graph {
                         if let node = context.lines[line] {
-                            
                             if node.name != self.lastContextHelpName {
+                                self.selectionChanged.send(node.id)
                                 self.core.contextText = self.generateNodeHelpText(node)
                                 self.core.contextTextChanged.send(self.core.contextText)
                                 self.lastContextHelpName = node.name
                             }
                         } else {
                             if self.lastContextHelpName != nil {
+                                self.selectionChanged.send(nil)
                                 self.core.contextText = ""
                                 self.core.contextTextChanged.send(self.core.contextText)
                                 self.lastContextHelpName = nil
@@ -482,5 +497,11 @@ class GraphBuilder
             help += "* **\(o.name)** (\(o.type)) - " + o.help + "\n"
         }
         return help
+    }
+    
+    /// Go to the line of the node
+    func gotoNode(_ node: GraphNode)
+    {
+        core.scriptEditor?.gotoLine(node.lineNr+1)
     }
 }
