@@ -50,6 +50,7 @@ final class SDFObject : DistanceNode
     {
         super.init(.Utility, .SDF, options)
         name = "sdfObject"
+        leaves = []
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
@@ -90,6 +91,7 @@ final class AnalyticalObject : DistanceNode
     {
         super.init(.Utility, .Analytical, options)
         name = "analyticalObject"
+        leaves = []
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {

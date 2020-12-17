@@ -400,7 +400,6 @@ class GraphBuilder
         
         if silent == false {
             
-            asset.graph?.debug()
             if asset.graph?.cameraNode == nil {
                 error.error = "Project must contain a Camera!"
                 error.line = 0

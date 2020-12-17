@@ -41,7 +41,7 @@ class GraphNode : Equatable, Identifiable {
     var context             : NodeContext = .None
 
     // Only applicable for branch nodes like a sequence
-    var leaves              : [GraphNode]! = []
+    var leaves              : [GraphNode]! = nil
     
     var name                : String = ""
     var lineNr              : Int32 = 0

@@ -26,7 +26,7 @@ struct LeftPanelView: View {
     let core                                : Core
     var libraryItems                        : [LibraryItem] = []
     
-    @State var mode                         : Mode = .Project
+    @State var mode                         : Mode = .Library
     @State var current                      : LibraryItem? = nil
     
     @State var updateView                   : Bool = false
@@ -107,11 +107,8 @@ struct LeftPanelView: View {
             } else
             if mode == .Library {
                 
-                List(libraryItems, children: \.children) { item in
-                    
+                List(libraryItems, children: \.children) { item in                    
                     Button(action: {
-                        //core.helpText = item.md
-                        //core.helpTextChanged.send()
                         current = item
                     })
                     {
@@ -127,21 +124,6 @@ struct LeftPanelView: View {
                             //.bold()
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
-                    /*
-                    HStack {
-                        
-                        if let image = item.image {
-                            Image(image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                        }
-                 
-                        Text(item.name)
-                            .font(.system(.title3, design: .rounded))
-                            .bold()
-                    }*/
                 }
                 
                 if let current = current {
@@ -158,7 +140,6 @@ struct LeftPanelView: View {
         .onReceive(self.core.graphBuilder.selectionChanged) { id in
             selection = id
         }
-        .font(.system(size: 11))
     }
 }
 
