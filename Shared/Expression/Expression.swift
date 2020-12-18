@@ -86,7 +86,7 @@ class ExpressionContext
     
     var nodes       : [ExpressionNode] = []
     
-    func parse(expression: String, graphContext: GraphContext, error: inout CompileError)
+    func parse(expression: String, container: VariableContainer, error: inout CompileError)
     {
         print("parse", expression)
         

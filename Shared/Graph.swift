@@ -11,11 +11,11 @@ class GraphOption : Equatable, Identifiable {
     
     var id      = UUID()
     
-    var variable: VariableContainer
+    var variable: BaseVariable
     var name    : String
     var help    : String
     
-    init(_ variable: VariableContainer,_ name: String,_ help: String)
+    init(_ variable: BaseVariable,_ name: String,_ help: String)
     {
         self.variable = variable
         self.name = name
@@ -89,19 +89,7 @@ class GraphNode : Equatable, Identifiable {
     }
 }
 
-class GraphVariable
-{
-    var name        : String
-    var value       : Any
-    
-    init(_ name: String,_ value:Any)
-    {
-        self.name = name
-        self.value = value
-    }
-}
-
-final class GraphContext
+final class GraphContext    : VariableContainer
 {
     var buffer              : Array<SIMD4<UInt8>>!
     
@@ -113,7 +101,6 @@ final class GraphContext
     var analyticalNodes     : [GraphNode] = []
     var sdfNodes            : [GraphNode] = []
 
-    var variables           : [GraphVariable] = []
     var failedAt            : [Int32] = []
     
     var lines               : [Int32:GraphNode] = [:]
@@ -176,12 +163,24 @@ final class GraphContext
         }
     }
     
-    func addVariable(_ name: String,_ value: Any)
+    func addVariable(_ variable: BaseVariable)
     {
-        variables.append(GraphVariable(name, value))
+        variables.append(variable)
     }
     
-    func getVariableValue(_ name: String) -> Any?
+    func getNode(_ name: String) -> GraphNode?
+    {
+        // Check the context variables
+        for t in nodes {
+            if t.name == name {
+                return t
+            }
+        }
+        return nil
+    }
+    
+    /// Get the given variable and process globals
+    override func getVariableValue(_ name: String) -> BaseVariable?
     {
         // Globals
         if name == "Time" {
@@ -194,18 +193,7 @@ final class GraphContext
         // Check the context variables
         for v in variables {
             if v.name == name {
-                return v.value
-            }
-        }
-        return nil
-    }
-    
-    func getNode(_ name: String) -> GraphNode?
-    {
-        // Check the context variables
-        for t in nodes {
-            if t.name == name {
-                return t
+                return v
             }
         }
         return nil

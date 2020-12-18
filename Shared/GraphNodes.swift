@@ -76,13 +76,13 @@ final class PinholeCameraNode : GraphNode
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
-        if let value = extractFloat3Value(options, context: context, error: &error, name: "origin", isOptional: true) {
+        if let value = extractFloat3Value(options, container: context, error: &error, name: "origin", isOptional: true) {
             origin = value
         }
-        if let value = extractFloat3Value(options, context: context, error: &error, name: "lookat", isOptional: true) {
+        if let value = extractFloat3Value(options, container: context, error: &error, name: "lookat", isOptional: true) {
             lookAt = value
         }
-        if let value = extractFloat1Value(options, context: context, error: &error, name: "fov", isOptional: true) {
+        if let value = extractFloat1Value(options, container: context, error: &error, name: "fov", isOptional: true) {
             fov = value
         }
     }

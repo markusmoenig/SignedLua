@@ -15,13 +15,13 @@ class DistanceNode         : GraphNode
     var scale         : Float1 = Float1(0)
     
     func verifyTranslationOptions(context: GraphContext, error: inout CompileError) {
-        if let value = extractFloat3Value(options, context: context, error: &error, name: "position", isOptional: true) {
+        if let value = extractFloat3Value(options, container: context, error: &error, name: "position", isOptional: true) {
             position = value
         }
-        if let value = extractFloat3Value(options, context: context, error: &error, name: "rotation", isOptional: true) {
+        if let value = extractFloat3Value(options, container: context, error: &error, name: "rotation", isOptional: true) {
             rotation = value
         }
-        if let value = extractFloat1Value(options, context: context, error: &error, name: "scale", isOptional: true) {
+        if let value = extractFloat1Value(options, container: context, error: &error, name: "scale", isOptional: true) {
             scale = value
         }
     }

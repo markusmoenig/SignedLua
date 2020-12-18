@@ -331,8 +331,8 @@ class GraphBuilder
                                     let z : Float; if let v = Float(array[2].trimmingCharacters(in: .whitespaces)) { z = v } else { z = 0 }
                                     let w : Float; if let v = Float(array[3].dropLast().trimmingCharacters(in: .whitespaces)) { w = v } else { w = 0 }
 
-                                    let value = Float4(x, y, z, w)
-                                    asset.graph!.addVariable(variableName!, value)
+                                    let value = Float4(variableName!, x, y, z, w)
+                                    asset.graph!.addVariable(value)
                                     processed = true
                                 } else { createError() }
                             } else
@@ -345,8 +345,8 @@ class GraphBuilder
                                     let y : Float; if let v = Float(array[1].trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
                                     let z : Float; if let v = Float(array[2].trimmingCharacters(in: .whitespaces)) { z = v } else { z = 0 }
 
-                                    let value = Float3(x, y, z)
-                                    asset.graph!.addVariable(variableName!, value)
+                                    let value = Float3(variableName!, x, y, z)
+                                    asset.graph!.addVariable(value)
                                     processed = true
                                 } else { createError() }
                             } else
@@ -358,33 +358,33 @@ class GraphBuilder
                                     let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
                                     let y : Float; if let v = Float(array[1].dropLast().trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
 
-                                    let value = Float2(x, y)
-                                    asset.graph!.addVariable(variableName!, value)
+                                    let value = Float2(variableName!, x, y)
+                                    asset.graph!.addVariable(value)
                                     processed = true
                                 } else { createError() }
                             } else
                             if possibleVariableType == "Float" {
                                 rightValueArray.removeFirst()
                                 let value : Float; if let v = Float(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces)) { value = v } else { value = 0 }
-                                asset.graph!.addVariable(variableName!, Float1(value))
+                                asset.graph!.addVariable(Float1(variableName!, value))
                                 processed = true
                             } else
                             if possibleVariableType == "Int" {
                                 rightValueArray.removeFirst()
                                 let value : Int; if let v = Int(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces)) { value = v } else { value = 0 }
-                                asset.graph!.addVariable(variableName!, Int1(value))
+                                asset.graph!.addVariable(Int1(variableName!, value))
                                 processed = true
                             } else
                             if possibleVariableType == "Bool" {
                                 rightValueArray.removeFirst()
                                 let value : Bool; if let v = Bool(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces)) { value = v } else { value = false }
-                                asset.graph!.addVariable(variableName!, Bool1(value))
+                                asset.graph!.addVariable(Bool1(variableName!, value))
                                 processed = true
                             } else
                             if possibleVariableType == "Text" {
                                 rightValueArray.removeFirst()
                                 let v = String(rightValueArray[0].dropLast().trimmingCharacters(in: .whitespaces))
-                                asset.graph!.addVariable(variableName!, TextRef(v))
+                                asset.graph!.addVariable(Text1(variableName!, v))
                                 processed = true
                             } else { error.error = "Unrecognized Variable type '\(possbibleCmd)'" }
                         }
@@ -590,7 +590,7 @@ class GraphBuilder
                     if nO.name.lowercased() == key {
                         if nO.variable.getType() == .Float {
 
-                            if let f1 = extractFloat1Value(options, context: asset.graph!, error: &error, name: key) {
+                            if let f1 = extractFloat1Value(options, container: asset.graph!, error: &error, name: key) {
                                 nO.variable = f1
                                 graphOptions.append(nO)
                             }

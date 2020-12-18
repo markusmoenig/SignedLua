@@ -21,7 +21,7 @@ final class AnalyticalPlaneNode : DistanceNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         verifyTranslationOptions(context: context, error: &error)
-        if let value = extractFloat3Value(options, context: context, error: &error, name: "normal", isOptional: true) {
+        if let value = extractFloat3Value(options, container: context, error: &error, name: "normal", isOptional: true) {
             normal = value
         }
     }

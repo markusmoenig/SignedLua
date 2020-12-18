@@ -21,7 +21,7 @@ final class SDFSphereNode : DistanceNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         verifyTranslationOptions(context: context, error: &error)
-        if let value = extractFloat1Value(options, context: context, error: &error, name: "radius", isOptional: true) {
+        if let value = extractFloat1Value(options, container: context, error: &error, name: "radius", isOptional: true) {
             radius = value
         }
     }
@@ -87,7 +87,7 @@ final class SDFBoxNode : DistanceNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         verifyTranslationOptions(context: context, error: &error)
-        if let value = extractFloat3Value(options, context: context, error: &error, name: "size", isOptional: true) {
+        if let value = extractFloat3Value(options, container: context, error: &error, name: "size", isOptional: true) {
             size = value
         }
     }
@@ -132,7 +132,7 @@ final class SDFPlaneNode : DistanceNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         verifyTranslationOptions(context: context, error: &error)
-        if let value = extractFloat3Value(options, context: context, error: &error, name: "normal", isOptional: true) {
+        if let value = extractFloat3Value(options, container: context, error: &error, name: "normal", isOptional: true) {
             normal = value
         }
     }
