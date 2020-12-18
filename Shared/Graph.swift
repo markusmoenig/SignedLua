@@ -180,7 +180,7 @@ final class GraphContext    : VariableContainer
     }
     
     /// Get the given variable and process globals
-    override func getVariableValue(_ name: String) -> BaseVariable?
+    override func getVariableValue(_ name: String, parameters: [BaseVariable] = []) -> BaseVariable?
     {
         // Globals
         if name == "Time" {

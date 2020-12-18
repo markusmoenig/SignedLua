@@ -12,7 +12,7 @@ class VariableContainer
     var variables           : [BaseVariable] = []
 
     /// Get the given variable
-    func getVariableValue(_ name: String) -> BaseVariable?
+    func getVariableValue(_ name: String, parameters: [BaseVariable] = []) -> BaseVariable?
     {
         for v in variables {
             if v.name == name {
