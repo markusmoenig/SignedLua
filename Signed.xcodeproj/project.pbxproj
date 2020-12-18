@@ -62,6 +62,12 @@
 		2B224FED2588A6BD00F32354 /* GraphNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FEB2588A6BD00F32354 /* GraphNodes.swift */; };
 		2B224FF72589B52B00F32354 /* GraphAnalyticalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FF62589B52B00F32354 /* GraphAnalyticalNodes.swift */; };
 		2B224FF82589B52B00F32354 /* GraphAnalyticalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FF62589B52B00F32354 /* GraphAnalyticalNodes.swift */; };
+		2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02C8258C3F600073DAE9 /* Expression.swift */; };
+		2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02C8258C3F600073DAE9 /* Expression.swift */; };
+		2B2E02D4258C52B10073DAE9 /* Variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D3258C52B10073DAE9 /* Variables.swift */; };
+		2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D3258C52B10073DAE9 /* Variables.swift */; };
+		2B2E02D9258C53F40073DAE9 /* ExpAtomNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D8258C53F40073DAE9 /* ExpAtomNodes.swift */; };
+		2B2E02DA258C53F40073DAE9 /* ExpAtomNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D8258C53F40073DAE9 /* ExpAtomNodes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -98,6 +104,9 @@
 		2B224FDD25888B4D00F32354 /* Views.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
 		2B224FEB2588A6BD00F32354 /* GraphNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphNodes.swift; sourceTree = "<group>"; };
 		2B224FF62589B52B00F32354 /* GraphAnalyticalNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphAnalyticalNodes.swift; sourceTree = "<group>"; };
+		2B2E02C8258C3F600073DAE9 /* Expression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expression.swift; sourceTree = "<group>"; };
+		2B2E02D3258C52B10073DAE9 /* Variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variables.swift; sourceTree = "<group>"; };
+		2B2E02D8258C53F40073DAE9 /* ExpAtomNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpAtomNodes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,7 +159,6 @@
 				2B224F6A25844C1800F32354 /* Renderer.swift */,
 				2B224F6B25844C1800F32354 /* ScriptEditor.swift */,
 				2B224F6225844C1800F32354 /* Utils.swift */,
-				2B224FBC258619E800F32354 /* Utilities.swift */,
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FEB2588A6BD00F32354 /* GraphNodes.swift */,
 				2B224FA72585EB7F00F32354 /* GraphBuilder.swift */,
@@ -158,6 +166,7 @@
 				2B224FCA2586F90C00F32354 /* GraphBoolNodes.swift */,
 				2B224FB52586105200F32354 /* GraphBranchNodes.swift */,
 				2B224FF62589B52B00F32354 /* GraphAnalyticalNodes.swift */,
+				2B2E02C7258C3F390073DAE9 /* Expression */,
 				2B224F8525844C2500F32354 /* Classes */,
 				2B224F9925844D0E00F32354 /* Files */,
 				2B224F302584485300F32354 /* Assets.xcassets */,
@@ -206,6 +215,17 @@
 				2B224F9F25844D6000F32354 /* CloudKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2B2E02C7258C3F390073DAE9 /* Expression */ = {
+			isa = PBXGroup;
+			children = (
+				2B2E02C8258C3F600073DAE9 /* Expression.swift */,
+				2B2E02D8258C53F40073DAE9 /* ExpAtomNodes.swift */,
+				2B224FBC258619E800F32354 /* Utilities.swift */,
+				2B2E02D3258C52B10073DAE9 /* Variables.swift */,
+			);
+			path = Expression;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -330,10 +350,13 @@
 				2B224F6F25844C1900F32354 /* Core.swift in Sources */,
 				2B224F8B25844C3100F32354 /* Classes.swift in Sources */,
 				2B224F8125844C1900F32354 /* Metal.metal in Sources */,
+				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
 				2B224F412584485300F32354 /* SignedApp.swift in Sources */,
+				2B2E02D9258C53F40073DAE9 /* ExpAtomNodes.swift in Sources */,
 				2B224FB62586105200F32354 /* GraphBranchNodes.swift in Sources */,
 				2B224F452584485300F32354 /* ContentView.swift in Sources */,
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
+				2B2E02D4258C52B10073DAE9 /* Variables.swift in Sources */,
 				2B224F7F25844C1900F32354 /* ScriptEditor.swift in Sources */,
 				2B224F7B25844C1900F32354 /* File.swift in Sources */,
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
@@ -361,10 +384,13 @@
 				2B224F7025844C1900F32354 /* Core.swift in Sources */,
 				2B224F8C25844C3100F32354 /* Classes.swift in Sources */,
 				2B224F8225844C1900F32354 /* Metal.metal in Sources */,
+				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,
 				2B224F422584485300F32354 /* SignedApp.swift in Sources */,
+				2B2E02DA258C53F40073DAE9 /* ExpAtomNodes.swift in Sources */,
 				2B224FB72586105200F32354 /* GraphBranchNodes.swift in Sources */,
 				2B224F462584485300F32354 /* ContentView.swift in Sources */,
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,
+				2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */,
 				2B224F8025844C1900F32354 /* ScriptEditor.swift in Sources */,
 				2B224F7C25844C1900F32354 /* File.swift in Sources */,
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,

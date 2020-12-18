@@ -38,8 +38,11 @@ struct FloatView: View {
         
         VStack(alignment: .leading) {
             Text(option.name)
-            TextField(option.name, text: $valueText)
-                //.keyboardType(.numberPad)
+            TextField(option.name, text: $valueText, onEditingChanged: { (changed) in
+                if let floatValue = Float(valueText) {
+                    print(floatValue)
+                }
+            })
         }
         
         /*
@@ -78,16 +81,15 @@ struct RightPanelView: View {
                     FloatView(core, option)
                 }
             }
-        
             
             Spacer()
         }
         
-        /*
-        .onReceive(self.core.modelChanged) { core in
-            mode = .Project
+        
+        .onReceive(self.core.modelChanged) { void in
+            options = core.graphBuilder.getOptions()
             updateView.toggle()
-        }*/
+        }
         .onReceive(self.core.graphBuilder.selectionChanged) { id in
             options = core.graphBuilder.getOptions()
             updateView.toggle()

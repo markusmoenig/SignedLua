@@ -30,7 +30,8 @@ final class SDFSphereNode : DistanceNode
     {
         context.position += position.toSIMD()
         
-        context.rayDist[context.rayIndex] = simd_length(context.rayPos - context.position) - radius.x - noise(float2(context.position.x, context.position.y) * 100.0)
+        //print("in sphere", radius.toSIMD())
+        context.rayDist[context.rayIndex] = simd_length(context.rayPos - context.position) - radius.toSIMD() - noise(float2(context.position.x, context.position.y) * 100.0)
         context.toggleRayIndex()
         
         context.position -= position.toSIMD()

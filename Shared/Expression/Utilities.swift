@@ -171,7 +171,14 @@ func extractFloat1Value(_ options: [String:Any], context: GraphContext, error: i
         } else
         if let v = context.getVariableValue(value) as? Float1 {
             return v
-        }  else { if isOptional == false { error.error = "Parameter '\(name)' not found" } }
+        }  else
+        {
+            if let context = expressionBuilder( expression: value, context: context, error: &error) {
+                return context.executeForFloat1()
+            } else {
+                if isOptional == false { error.error = "Parameter '\(name)' not found" }
+            }
+        }
     } else { if isOptional == false { error.error = "Parameter '\(name)' not found" } }
     
     return nil
@@ -285,4 +292,14 @@ func extractPair(_ options: [String:Any], variableName: String, context: GraphCo
     }
     
     return (Data, variableData, optionals)
+}
+
+func expressionBuilder(expression: String, context: GraphContext, error: inout CompileError) -> ExpressionContext?
+{
+    let exp = ExpressionContext()
+    exp.parse(expression: expression, graphContext: context, error: &error)
+    if error.error != nil {
+        return nil
+    }
+    return exp
 }

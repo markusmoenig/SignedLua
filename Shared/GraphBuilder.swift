@@ -507,7 +507,7 @@ class GraphBuilder
         core.scriptEditor?.gotoLine(node.lineNr+1)
     }
     
-    /// Get the options for the current node
+    /// Get the graph options for the current node
     func getOptions() -> [GraphOption]
     {
         var options : [GraphOption] = []
@@ -580,9 +580,7 @@ class GraphBuilder
                 }
             }
         }
-        
-        print(options)
-        
+                
         let nodeOptions = node.getOptions()
         var error = CompileError()
 
@@ -594,7 +592,6 @@ class GraphBuilder
 
                             if let f1 = extractFloat1Value(options, context: asset.graph!, error: &error, name: key) {
                                 nO.variable = f1
-                                print(f1.x)
                                 graphOptions.append(nO)
                             }
                         }
