@@ -9,7 +9,7 @@ import SwiftUI
 import Parma
 
 struct LibraryItem: Identifiable {
-    var id          : String { name }
+    var id          = UUID()
 
     let name        : String
     var children    : [LibraryItem]?
@@ -99,20 +99,20 @@ struct RightPanelView: View {
 
 struct LeftPanelView: View {
     
-    enum Mode {
-        case Project, Library
-    }
-    
     let core                                : Core
     var libraryItems                        : [LibraryItem] = []
     
-    @State var mode                         : Mode = .Library
+    @State var asset                        : Asset? = nil
+
     @State var current                      : LibraryItem? = nil
     
     @State var updateView                   : Bool = false
     @State var expanded                     : Bool = false
     
     @State private var selection            : UUID? = nil
+    @State private var librarySelection     : UUID? = nil
+
+    @State private var tabIndex             : Int = 0
     
     #if os(macOS)
     let TopRowPadding                       : CGFloat = 2
@@ -142,6 +142,83 @@ struct LeftPanelView: View {
     
     var body: some View {
         
+        TabView/*(selection: $tabIndex)*/ {
+
+            VStack {
+                if let context = asset?.graph {
+                    List(context.nodes, id: \.id, children: \.leaves, selection: $selection) { item in
+                        Text(item.name)
+                    }
+                    // Selection handling
+                    .onChange(of: selection) { newState in
+                        if let id = newState {
+                            if let node = context.getNode(id) {
+                                core.graphBuilder.gotoNode(node)
+                            }
+                        }
+                    }
+                }
+            }
+            .tabItem {
+                Image(systemName: "list.dash")
+                Text("Project")
+            }
+            
+            VStack {
+            
+                List(libraryItems, children: \.children, selection: $librarySelection) { item in
+                    Text(item.name)
+
+                    /*
+                    Button(action: {
+                        current = item
+                    })
+                    {
+                        if let image = item.image {
+                            Image(image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                        }
+                 
+                        Text(item.name)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    */
+                }
+                
+                if let current = current {
+                    Divider()
+                    Parma(current.md)
+                        .font(.system(size: 11))
+                }
+            }
+            .tabItem {
+                Image(systemName: "building.columns.fill")
+                Text("Library")
+            }
+            // Selection handling
+            .onChange(of: librarySelection) { newState in
+                if let id = newState {
+                    for item in libraryItems {
+                        if item.id == id {
+                            current = item
+                            break
+                        }
+                        if let childs = item.children {
+                            for c in childs {
+                                if c.id == id {
+                                    current = c
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        /*
         VStack(spacing: 2) {
             
             HStack(spacing: 3) {
@@ -218,9 +295,9 @@ struct LeftPanelView: View {
                         .font(.system(size: 11))
                 }
             }
-        }
+        }*/
         .onReceive(self.core.modelChanged) { core in
-            mode = .Project
+            asset = self.core.assetFolder.getAsset("main", .Source)
             updateView.toggle()
         }
         .onReceive(self.core.graphBuilder.selectionChanged) { id in

@@ -76,6 +76,10 @@ struct ContentView: View {
             }
             
             Divider()
+                .onReceive(self.document.core.updateUI) { state in
+                    screenState = .Mixed
+                    updateView.toggle()
+                }
                 
             if screenState == .Mixed || screenState == .SourceOnly {
 

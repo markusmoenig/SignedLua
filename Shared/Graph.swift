@@ -163,17 +163,35 @@ final class GraphContext    : VariableContainer
         }
     }
     
+    /// Adds a variable to the context
     func addVariable(_ variable: BaseVariable)
     {
         variables.append(variable)
     }
     
-    func getNode(_ name: String) -> GraphNode?
+    /// Recursively search for the node of the given id
+    func getNode(_ id: UUID?) -> GraphNode?
     {
-        // Check the context variables
+        if id == nil { return nil }
+        
+        func checkNode(_ node: GraphNode) -> GraphNode?
+        {
+            if node.id == id {
+                return node
+            }
+            if let childs = node.leaves {
+                for c in childs {
+                    if let found = checkNode(c) {
+                        return found
+                    }
+                }
+            }
+            return nil
+        }
+                
         for t in nodes {
-            if t.name == name {
-                return t
+            if let found = checkNode(t) {
+                return found
             }
         }
         return nil
