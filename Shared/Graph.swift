@@ -132,6 +132,7 @@ final class GraphContext    : VariableContainer
     
     var analyticalDist      : Float = .greatestFiniteMagnitude
     var analyticalNormal    = float3(0,0,0)                     // Analytical Normal
+    var analyticalMaterial  : GraphNode? = nil
     
     var activeMaterial      : GraphNode? = nil                  // The currently active Material in the hierarchy
 
@@ -169,6 +170,7 @@ final class GraphContext    : VariableContainer
         cameraNode = nil
         skyNode = nil
                 
+        analyticalMaterial = nil
         hitMaterial[0] = nil
         hitMaterial[1] = nil
         
@@ -274,9 +276,11 @@ final class GraphContext    : VariableContainer
     
     @discardableResult @inlinable public func executeAnalytical() -> GraphNode.Result
     {
+        outColor.x = 0.5
+        outColor.y = 0.5
+        outColor.z = 0.5
         analyticalDist = .greatestFiniteMagnitude
-        hitMaterial[0] = nil
-        hitMaterial[1] = nil
+        analyticalMaterial = nil
         failedAt = []
         for node in analyticalNodes {
             node.execute(context: self)

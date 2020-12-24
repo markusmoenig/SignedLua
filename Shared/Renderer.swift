@@ -139,7 +139,7 @@ class Renderer
             let fh : Float = Float(h) / height
             for w in 0..<widthInt {
                 
-                let AA : Int = 3
+                let AA : Int = 1
                 var tot = float4(0,0,0,0)
                 
                 for m in 0..<AA {
@@ -148,10 +148,6 @@ class Renderer
                         if stopRunning {
                             return
                         }
-                        
-                        context.outColor.x = 0.5
-                        context.outColor.y = 0.5
-                        context.outColor.z = 0.5
                         
                         context.uv = float2(Float(w) / width, fh)
                         context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
@@ -206,7 +202,7 @@ class Renderer
                         if context.analyticalDist != .greatestFiniteMagnitude {
                             normal = context.analyticalNormal
                             
-                            if let material = material {
+                            if let material = context.analyticalMaterial {
                                 material.execute(context: context)
                             }
                             

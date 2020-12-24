@@ -33,6 +33,7 @@ final class AnalyticalPlaneNode : DistanceNode
             if groundT < context.analyticalDist {
                 context.analyticalDist = groundT
                 context.analyticalNormal = float3(0,1,0)
+                context.analyticalMaterial = context.activeMaterial
             }
         }
         return .Success

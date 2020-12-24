@@ -339,12 +339,12 @@ struct LeftPanelView: View {
             }
         }*/
         .onReceive(self.core.modelChanged) { core in
-            asset = self.core.assetFolder.getAsset("main", .Source)
-            updateView.toggle()
+            //asset = self.core.assetFolder.getAsset("main", .Source)
+            //updateView.toggle()
         }
         .onReceive(self.core.graphBuilder.selectionChanged) { id in
-            selection = id
-            updateView.toggle()
+            //selection = id
+            //updateView.toggle()
         }
     }
 }
