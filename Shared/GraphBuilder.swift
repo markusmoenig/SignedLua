@@ -44,6 +44,7 @@ class GraphBuilder
         GraphNodeItem("DefaultSky", { (_ options: [String:Any]) -> GraphNode in return DefaultSkyNode(options) }),
         GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return AnalyticalObject(options) }),
         GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return SDFObject(options) }),
+        GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return MaterialNode(options) }),
     ]
     
     var leaves          : [GraphNodeItem] =
@@ -53,7 +54,10 @@ class GraphBuilder
         GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return SDFSphereNode(options) }),
         GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return SDFBoxNode(options) }),
         GraphNodeItem("sdfPlane", { (_ options: [String:Any]) -> GraphNode in return SDFPlaneNode(options) }),
+        
         GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return BoolMergeNode(options) }),
+        
+        GraphNodeItem("texColor", { (_ options: [String:Any]) -> GraphNode in return TexColorNode(options) }),
     ]
     
     init(_ core: Core)
@@ -75,6 +79,18 @@ class GraphBuilder
         } else {
             asset.graph!.clear()
         }
+        
+        // Insert top hierarchy nodes
+        
+        let hMaterialNodes = GraphNode(.Utility, .Material)
+        hMaterialNodes.name = "Materials"
+        hMaterialNodes.leaves = []
+        asset.graph!.hierarchicalNodes.append(hMaterialNodes)
+        
+        // Insert default variables
+        
+        asset.graph!.outColor = Float3("outColor", 0.5, 0.5, 0.5)
+        asset.graph?.variables.append(asset.graph!.outColor)
         
         let ns = asset.value as NSString
         var lineNumber  : Int32 = 0
@@ -268,10 +284,14 @@ class GraphBuilder
                                                 currentBranch = []
                                                 
                                                 if newBranch.context == .Analytical {
-                                                    asset.graph!.sdfNodes.append(newBranch)
+                                                    asset.graph!.analyticalNodes.append(newBranch)
                                                 } else
                                                 if newBranch.context == .SDF {
                                                     asset.graph!.sdfNodes.append(newBranch)
+                                                } else
+                                                if newBranch.context == .Material {
+                                                    asset.graph!.materialNodes.append(newBranch)
+                                                    hMaterialNodes.leaves!.append(newBranch)
                                                 }
                                             }
                                             

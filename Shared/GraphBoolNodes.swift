@@ -22,7 +22,14 @@ final class BoolMergeNode : GraphNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        context.rayDist[context.rayIndex] = min(context.rayDist[0], context.rayDist[1])
+        if context.rayDist[0] < context.rayDist[1] {
+            context.rayDist[context.rayIndex] = context.rayDist[0]
+            context.hitMaterial[context.rayIndex] = context.hitMaterial[0]
+        } else {
+            context.rayDist[context.rayIndex] = context.rayDist[1]
+            context.hitMaterial[context.rayIndex] = context.hitMaterial[1]
+        }
+        //context.rayDist[context.rayIndex] = min(context.rayDist[0], context.rayDist[1])
         context.toggleRayIndex()
 
         return .Success

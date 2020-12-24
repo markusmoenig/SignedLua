@@ -14,6 +14,9 @@ struct ContentView: View {
     }
     
     @Binding var document                               : SignedDocument
+    
+    @State var asset                                    : Asset? = nil
+
     @Environment(\.colorScheme) var deviceColorScheme   : ColorScheme
     
     @State private var screenState                      : ScreenState = .Mixed
@@ -121,7 +124,7 @@ struct ContentView: View {
                                         }
                                         .foregroundColor(Color.gray)
                                         .font(.system(size: 12))
-                                        .frame(minWidth: rightPanelWidth + 6, idealWidth: rightPanelWidth + 6, maxWidth: rightPanelWidth)
+                                        .frame(minWidth: rightPanelWidth + 6, idealWidth: rightPanelWidth + 6, maxWidth: rightPanelWidth + 6)
                                         .layoutPriority(0)
                                         .animation(.easeInOut)
                                 }

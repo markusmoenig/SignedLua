@@ -8,6 +8,40 @@
 import SwiftUI
 import Parma
 
+// https://stackoverflow.com/questions/61386877/in-swiftui-is-it-possible-to-use-a-modifier-only-for-a-certain-os-target
+enum OperatingSystem {
+    case macOS
+    case iOS
+    case tvOS
+    case watchOS
+
+    #if os(macOS)
+    static let current = macOS
+    #elseif os(iOS)
+    static let current = iOS
+    #elseif os(tvOS)
+    static let current = tvOS
+    #elseif os(watchOS)
+    static let current = watchOS
+    #else
+    #error("Unsupported platform")
+    #endif
+}
+
+extension View {
+    @ViewBuilder
+    func ifOS<Content: View>(
+        _ operatingSystems: OperatingSystem...,
+        modifier: @escaping (Self) -> Content
+    ) -> some View {
+        if operatingSystems.contains(OperatingSystem.current) {
+            modifier(self)
+        } else {
+            self
+        }
+    }
+}
+
 struct LibraryItem: Identifiable {
     var id          = UUID()
 
@@ -123,7 +157,7 @@ struct LeftPanelView: View {
     init(_ core: Core)
     {
         self.core = core
-
+        
         var cameraItem = LibraryItem(name: "Cameras")
         cameraItem.children = []
         
@@ -146,8 +180,11 @@ struct LeftPanelView: View {
 
             VStack {
                 if let context = asset?.graph {
-                    List(context.nodes, id: \.id, children: \.leaves, selection: $selection) { item in
+                    List(context.hierarchicalNodes, id: \.id, children: \.leaves, selection: $selection) { item in
                         Text(item.name)
+                            .ifOS(.iOS) {
+                                $0.foregroundColor(item === core.graphBuilder.currentNode ? Color.accentColor : Color.white)
+                            }
                     }
                     // Selection handling
                     .onChange(of: selection) { newState in
@@ -156,6 +193,11 @@ struct LeftPanelView: View {
                                 core.graphBuilder.gotoNode(node)
                             }
                         }
+                    }
+                    .onTapGesture {
+                        //if let node = context.getNode(id) {
+                        //    core.graphBuilder.gotoNode(node)
+                        //}
                     }
                 }
             }
@@ -302,6 +344,7 @@ struct LeftPanelView: View {
         }
         .onReceive(self.core.graphBuilder.selectionChanged) { id in
             selection = id
+            updateView.toggle()
         }
     }
 }

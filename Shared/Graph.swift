@@ -38,7 +38,7 @@ class GraphNode : Equatable, Identifiable {
     }
     
     enum NodeContext {
-        case None, Analytical, SDF
+        case None, Analytical, SDF, Material
     }
     
     var id                  = UUID()
@@ -98,14 +98,25 @@ final class GraphContext    : VariableContainer
     
     // Nodes
     var nodes               : [GraphNode] = []
+    
+    var materialNodes       : [GraphNode] = []
+
     var analyticalNodes     : [GraphNode] = []
     var sdfNodes            : [GraphNode] = []
+
+    var hierarchicalNodes   : [GraphNode] = []
 
     var failedAt            : [Int32] = []
     
     var lines               : [Int32:GraphNode] = [:]
         
     let core                : Core
+    
+    // Special Variables
+    
+    var outColor            : Float3!
+    
+    // Graph Values used for rendering
     
     var uv                  = float2(0,0)                       // UV coordinate (0..1)
     var viewSize            = float2(0,0)                       // Size of the view
@@ -121,6 +132,12 @@ final class GraphContext    : VariableContainer
     
     var analyticalDist      : Float = .greatestFiniteMagnitude
     var analyticalNormal    = float3(0,0,0)                     // Analytical Normal
+    
+    var activeMaterial      : GraphNode? = nil                  // The currently active Material in the hierarchy
+
+    var hitMaterial         : [GraphNode?] = []                 // The material which was hit for the given index
+    var blendMaterial       : GraphNode? = nil                  // The material to blend with (optional), set by the booleans
+    var materialBlend       : Float? = nil                      // The blend factor
 
     // SDF Raymarching
     
@@ -134,6 +151,9 @@ final class GraphContext    : VariableContainer
         
         rayDist.append(.greatestFiniteMagnitude)
         rayDist.append(.greatestFiniteMagnitude)
+        
+        hitMaterial.append(nil)
+        hitMaterial.append(nil)
     }
     
     func clear()
@@ -141,9 +161,19 @@ final class GraphContext    : VariableContainer
         nodes = []
         sdfNodes = []
         analyticalNodes = []
+        materialNodes = []
+        hierarchicalNodes = []
         variables = []
         lines = [:]
+        
         cameraNode = nil
+        skyNode = nil
+                
+        hitMaterial[0] = nil
+        hitMaterial[1] = nil
+        
+        blendMaterial = nil
+        materialBlend = 0
     }
     
     /// Create a copy of this context and return it
@@ -217,6 +247,17 @@ final class GraphContext    : VariableContainer
         return nil
     }
     
+    /// Get the material by the given name
+    func getMaterial(_ name: String) -> GraphNode?
+    {
+        for m in materialNodes {
+            if m.name == name {
+                return m
+            }
+        }
+        return nil
+    }
+        
     func addFailure(lineNr: Int32)
     {
         failedAt.append(lineNr)
@@ -234,6 +275,8 @@ final class GraphContext    : VariableContainer
     @discardableResult @inlinable public func executeAnalytical() -> GraphNode.Result
     {
         analyticalDist = .greatestFiniteMagnitude
+        hitMaterial[0] = nil
+        hitMaterial[1] = nil
         failedAt = []
         for node in analyticalNodes {
             node.execute(context: self)
@@ -246,6 +289,8 @@ final class GraphContext    : VariableContainer
         self.rayPos = rayPos
         rayDist[0] = .greatestFiniteMagnitude
         rayDist[1] = .greatestFiniteMagnitude
+        hitMaterial[0] = nil
+        hitMaterial[1] = nil
         rayIndex = 0
         position = float3(0,0,0)
         failedAt = []

@@ -149,6 +149,10 @@ class Renderer
                             return
                         }
                         
+                        context.outColor.x = 0.5
+                        context.outColor.y = 0.5
+                        context.outColor.z = 0.5
+                        
                         context.uv = float2(Float(w) / width, fh)
                         context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
                         
@@ -165,7 +169,8 @@ class Renderer
                         let maxDist : Float = simd_min(10.0, context.analyticalDist)
                         
                         var color = context.result
-                        
+                        var material : GraphNode? = nil
+
                         var hit = false
                         
                         var t : Float = 0.001;
@@ -175,6 +180,7 @@ class Renderer
 
                             if abs(context.rayDist[context.rayIndex]) < (0.0001*t) {
                                 hit = true
+                                material = context.hitMaterial[context.rayIndex]
                                 break
                             } else
                             if t > maxDist {
@@ -189,14 +195,26 @@ class Renderer
                         if hit && t < context.analyticalDist {
                             normal = calcNormal(context: context, position: context.camOrigin + t * context.rayDir)
                             
+                            if let material = material {
+                                material.execute(context: context)
+                            }
+                            
                             let output = 0.1 * simd_dot(normal, float3(0, 2, -10))
-                            color = SIMD4<Float>(output, output, output, 1)
+                            //color = SIMD4<Float>(output, output, output, 1)
+                            color = SIMD4<Float>(context.outColor.x * output, context.outColor.y * output, context.outColor.z * output, 1)
                         } else
                         if context.analyticalDist != .greatestFiniteMagnitude {
                             normal = context.analyticalNormal
                             
+                            if let material = material {
+                                material.execute(context: context)
+                            }
+                            
                             let output = 0.1 * simd_dot(normal, float3(0, 2, -10))
-                            color = SIMD4<Float>(output, output, output, 1)
+
+                            //color = SIMD4<Float>(output, output, output, 1)
+                            //color = SIMD4<Float>(context.outColor.x, context.outColor.y, context.outColor.z, 1)
+                            color = SIMD4<Float>(context.outColor.x * output, context.outColor.y * output, context.outColor.z * output, 1)
                         }
                         
                         tot = tot + color                        
