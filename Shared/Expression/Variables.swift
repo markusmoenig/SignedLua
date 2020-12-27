@@ -37,16 +37,28 @@ class BaseVariable {
         self.name = name
     }
     
+    /// Returns the variable type
     func getType() -> VariableType {
         return .Invalid
     }
     
+    /// Return the typeName of the variable as a String, i.e. "Float1"
     func getTypeName() -> String {
+        return "Invalid"
+    }
+    
+    /// Return the variable in a readable form, like Float3<0, 1, 2>
+    func toString() -> String {
         return ""
     }
     
-    func toString() -> String {
-        return ""
+    /// Creates a variables based on it's type, the context and it's string parameters, this is used to construct variables from text input
+    static func createType(_ typeName: String, context: VariableContainer, parameters: String) -> BaseVariable?
+    {
+        if typeName == "Float1" {
+            return Float1(context: context, parameters: parameters)
+        }
+        return nil
     }
 }
 
@@ -219,6 +231,14 @@ class Float1 : BaseVariable
     {
         super.init("")
         self.x = x
+    }
+    
+    /// From text
+    init(_ name: String = "", context: VariableContainer, parameters: String)
+    {
+        super.init(name)
+        
+        print("parameters xx", parameters)
     }
     
     @inlinable func toSIMD() -> Float

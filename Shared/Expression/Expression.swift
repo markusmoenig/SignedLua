@@ -86,7 +86,7 @@ class ExpressionContext
     
     var nodes       : [ExpressionNode] = []
     
-    func parse(expression: String, container: VariableContainer, error: inout CompileError)
+    func parse(expression: String, context: VariableContainer, error: inout CompileError)
     {
         print("parse", expression)
         
@@ -104,6 +104,34 @@ class ExpressionContext
                         token = t
                         offset += 1
                         return result
+                    }
+                }
+                result += expression[offset]
+                offset += 1
+            }
+            
+            return result
+        }
+        
+        /// Extract a substring until one of the given tokens is encountered and the hierarchy level for the opener is 0
+        func extractUpToTokenHierarchy(_ tokenList: [String],_ tokenOpener: String) -> String
+        {
+            var result = ""
+            var hierarchy : Int = 0
+            
+            while offset < expression.count {
+                for t in tokenList {
+                    if expression[offset] == t {
+                        if hierarchy == 0 {
+                            token = t
+                            offset += 1
+                            return result
+                        } else {
+                            hierarchy -= 1
+                        }
+                    } else
+                    if expression[offset] == tokenOpener {
+                        hierarchy += 1
                     }
                 }
                 result += expression[offset]
@@ -137,8 +165,13 @@ class ExpressionContext
                 if let atomNode = getAtom(element) {
                     currentAtom = atomNode
                 }
+            } else
+            if token == "<" {
+                let parameters = extractUpToTokenHierarchy([">"], "<")
+                if let variable = BaseVariable.createType(element, context: context, parameters: parameters) {
+                }
             }
-            print(element, offset)
+            //print(element, offset)
         }        
     }
     

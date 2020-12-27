@@ -299,7 +299,7 @@ func extractPair(_ options: [String:Any], variableName: String, container: Varia
 func expressionBuilder(expression: String, container: VariableContainer, error: inout CompileError) -> ExpressionContext?
 {
     let exp = ExpressionContext()
-    exp.parse(expression: expression, container: container, error: &error)
+    exp.parse(expression: expression, context: container, error: &error)
     if error.error != nil {
         return nil
     }
