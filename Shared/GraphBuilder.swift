@@ -90,10 +90,10 @@ class GraphBuilder
         // Insert default variables
         
         asset.graph!.outColor = Float3("outColor", 0.5, 0.5, 0.5)
-        asset.graph?.variables.append(asset.graph!.outColor)
+        asset.graph?.variables["outColor"] = asset.graph!.outColor
         
         asset.graph!.rayPosition = Float3("rayPosition", 0, 0, 0)
-        asset.graph?.variables.append(asset.graph!.rayPosition)
+        asset.graph?.variables["rayPosition"] = asset.graph!.rayPosition
         
         //
         
@@ -327,12 +327,20 @@ class GraphBuilder
                     } else
                     if rightValueArray.count > 1 {
                         
-                        if asset.graph?.getVariableValue(variableName!) != nil {
+                        if let variable = asset.graph?.getVariableValue(variableName!) {
                             // Variable assignment
                             let rightSide = leftOfComment.trimmingCharacters(in: .whitespaces)
                             print(variableName!, "rightSide", rightSide)
                             let exp = ExpressionContext()
                             exp.parse(expression: rightSide, container: asset.graph!, error: &error)
+                            
+                            if let result = exp.execute() {
+                                if result.getType() == variable.getType() {
+                                    asset.graph!.variables["variable"] = result
+                                }
+                            }
+
+                            processed = true
                         } else {
                             // Variable creation
                             asset.graph!.lines[error.line!] = nil//"Variable"

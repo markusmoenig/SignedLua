@@ -122,7 +122,7 @@ final class GraphContext    : VariableContainer
     var uv                  = float2(0,0)                       // UV coordinate (0..1)
     var viewSize            = float2(0,0)                       // Size of the view
 
-    var position            = float3(0,0,0)                     // Current 3D position for raymarching
+    var position            = float3(0,0,0)                     // Current object position
     
     var camOffset           = float2(0,0)                       // Camera AA uv offset
     var camOrigin           = float3(0,0,-5)                    // Camera Origin, set by camera node
@@ -164,7 +164,7 @@ final class GraphContext    : VariableContainer
         analyticalNodes = []
         materialNodes = []
         hierarchicalNodes = []
-        variables = []
+        variables = [:]
         lines = [:]
         
         cameraNode = nil
@@ -198,7 +198,7 @@ final class GraphContext    : VariableContainer
     /// Adds a variable to the context
     func addVariable(_ variable: BaseVariable)
     {
-        variables.append(variable)
+        variables[variable.name] = variable
     }
     
     /// Recursively search for the node of the given id
@@ -240,13 +240,7 @@ final class GraphContext    : VariableContainer
             return core._Aspect
         }
         
-        // Check the context variables
-        for v in variables {
-            if v.name == name {
-                return v
-            }
-        }
-        return nil
+        return super.getVariableValue(name)
     }
     
     /// Get the material by the given name

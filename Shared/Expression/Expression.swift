@@ -77,7 +77,9 @@ class ExpressionContext
     var atoms               : [ExpressionNodeItem] =
     [
         ExpressionNodeItem("*", {() -> ExpressionNode in return MultiplyAtomNode() }),
+        ExpressionNodeItem("/", {() -> ExpressionNode in return DivisionAtomNode() }),
         ExpressionNodeItem("-", {() -> ExpressionNode in return MinusAtomNode() }),
+        ExpressionNodeItem("+", {() -> ExpressionNode in return AddAtomNode() }),
     ]
         
     init()
@@ -209,6 +211,21 @@ class ExpressionContext
             }
             //print(element, offset)
         }
+    }
+    
+    /// Returns a possible result
+    @inlinable func execute() -> BaseVariable?
+    {
+        for node in nodes {
+            node.execute(self)
+        }
+        
+        if values.count >= 1 {
+            if let result = values[values.count - 1] {
+                return result
+            }
+        }
+        return nil
     }
     
     /// Returns a possible Float1 result
