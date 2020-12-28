@@ -92,6 +92,11 @@ class GraphBuilder
         asset.graph!.outColor = Float3("outColor", 0.5, 0.5, 0.5)
         asset.graph?.variables.append(asset.graph!.outColor)
         
+        asset.graph!.rayPosition = Float3("rayPosition", 0, 0, 0)
+        asset.graph?.variables.append(asset.graph!.rayPosition)
+        
+        //
+        
         let ns = asset.value as NSString
         var lineNumber  : Int32 = 0
         
@@ -327,7 +332,7 @@ class GraphBuilder
                             let rightSide = leftOfComment.trimmingCharacters(in: .whitespaces)
                             print(variableName!, "rightSide", rightSide)
                             let exp = ExpressionContext()
-                            exp.parse(expression: rightSide, context: asset.graph!, error: &error)
+                            exp.parse(expression: rightSide, container: asset.graph!, error: &error)
                         } else {
                             // Variable creation
                             asset.graph!.lines[error.line!] = nil//"Variable"

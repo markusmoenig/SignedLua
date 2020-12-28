@@ -115,7 +115,8 @@ final class GraphContext    : VariableContainer
     // Special Variables
     
     var outColor            : Float3!
-    
+    var rayPosition         : Float3!
+
     // Graph Values used for rendering
     
     var uv                  = float2(0,0)                       // UV coordinate (0..1)
@@ -142,7 +143,6 @@ final class GraphContext    : VariableContainer
 
     // SDF Raymarching
     
-    var rayPos              : float3 = float3(0,0,0)
     var rayDist             : [Float] = []
     var rayIndex            : Int = 0
     
@@ -276,9 +276,7 @@ final class GraphContext    : VariableContainer
     
     @discardableResult @inlinable public func executeAnalytical() -> GraphNode.Result
     {
-        outColor.x = 0.5
-        outColor.y = 0.5
-        outColor.z = 0.5
+        outColor.fromSIMD(float3(0.5, 0.5, 0.5))
         analyticalDist = .greatestFiniteMagnitude
         analyticalMaterial = nil
         failedAt = []
@@ -288,9 +286,9 @@ final class GraphContext    : VariableContainer
         return .Success
     }
     
-    @discardableResult @inlinable public func executeSDF(_ rayPos: float3 = float3(0,0,0)) -> GraphNode.Result
+    @discardableResult @inlinable public func executeSDF(_ rayPosition: float3 = float3(0,0,0)) -> GraphNode.Result
     {
-        self.rayPos = rayPos
+        self.rayPosition.fromSIMD(rayPosition)
         rayDist[0] = .greatestFiniteMagnitude
         rayDist[1] = .greatestFiniteMagnitude
         hitMaterial[0] = nil

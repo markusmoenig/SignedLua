@@ -31,7 +31,7 @@ final class SDFSphereNode : DistanceNode
         context.position += position.toSIMD()
         
         //print("in sphere", radius.toSIMD())
-        context.rayDist[context.rayIndex] = simd_length(context.rayPos - context.position) - radius.toSIMD()// - noise(float2(context.position.x, context.position.y) * 100.0)
+        context.rayDist[context.rayIndex] = simd_length(context.rayPosition.toSIMD() - context.position) - radius.toSIMD()// - noise(float2(context.position.x, context.position.y) * 100.0)
         context.hitMaterial[context.rayIndex] = context.activeMaterial
         context.toggleRayIndex()
         
@@ -97,7 +97,7 @@ final class SDFBoxNode : DistanceNode
     {
         context.position += position.toSIMD()
 
-        let q : float3 = simd_abs(context.rayPos - context.position) - size.toSIMD()
+        let q : float3 = simd_abs(context.rayPosition.toSIMD() - context.position) - size.toSIMD()
         context.rayDist[context.rayIndex] = simd_length(max(q,0.0)) + simd_min(simd_max(q.x,simd_max(q.y,q.z)),0.0);
         context.hitMaterial[context.rayIndex] = context.activeMaterial
         context.toggleRayIndex()
@@ -143,7 +143,7 @@ final class SDFPlaneNode : DistanceNode
     {
         context.position += position.toSIMD()
 
-        context.rayDist[context.rayIndex] = simd_dot(context.rayPos, normal.toSIMD())
+        context.rayDist[context.rayIndex] = simd_dot(context.rayPosition.toSIMD(), normal.toSIMD())
         context.toggleRayIndex()
 
         context.position -= position.toSIMD()

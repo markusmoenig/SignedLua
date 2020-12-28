@@ -174,9 +174,12 @@ func extractFloat1Value(_ options: [String:Any], container: VariableContainer, p
         }  else
         {
             if let context = expressionBuilder( expression: value, container: container, error: &error) {
-                return context.executeForFloat1()
-            } else {
-                if isOptional == false { error.error = "Parameter '\(name)' not found" }
+                if let value = context.executeForFloat1() {
+                    return value
+                } else {
+                    error.error = "Result for '\(name)' is not a Float1 value but \(context.wrongType)"
+                    return nil
+                }
             }
             if isOptional == false { error.error = "Parameter '\(name)' not found" }
         }
@@ -299,7 +302,7 @@ func extractPair(_ options: [String:Any], variableName: String, container: Varia
 func expressionBuilder(expression: String, container: VariableContainer, error: inout CompileError) -> ExpressionContext?
 {
     let exp = ExpressionContext()
-    exp.parse(expression: expression, context: container, error: &error)
+    exp.parse(expression: expression, container: container, error: &error)
     if error.error != nil {
         return nil
     }
