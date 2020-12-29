@@ -244,6 +244,14 @@ final class Float4 : BaseVariable
         return SIMD4<Float>(x, y, z, w)
     }
     
+    @inlinable func fromSIMD(_ v: float4)
+    {
+        x = v.x
+        y = v.y
+        z = v.z
+        w = v.w
+    }
+    
     @inlinable override subscript(index: Int) -> Float {
         get {
             if index == 1 {
@@ -443,9 +451,9 @@ final class Float3 : BaseVariable
                 y = Float(v)
             } else
             if index == 2 {
-                z = Float(z)
+                z = Float(v)
             } else {
-                x = Float(x)
+                x = Float(v)
             }
         }
     }

@@ -184,3 +184,43 @@ final class MaterialNode : GraphNode
         return options
     }
 }
+
+/// RenderNode
+final class RenderNode : GraphNode
+{
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.Utility, .Render, options)
+        name = "Render"
+        leaves = []
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+        if let name = options["name"] as? String {
+            self.name = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
+        } else {
+            error.error = "Render node needs a 'Name' parameter"
+        }
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        for leave in leaves {
+            leave.execute(context: context)
+        }
+        return .Success
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Renders the scene."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Text1("Render"), "Name", "The name of the render node.")
+        ]
+        return options
+    }
+}

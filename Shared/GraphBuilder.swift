@@ -45,6 +45,7 @@ class GraphBuilder
         GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return AnalyticalObject(options) }),
         GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return SDFObject(options) }),
         GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return MaterialNode(options) }),
+        GraphNodeItem("Render", { (_ options: [String:Any]) -> GraphNode in return RenderNode(options) }),
     ]
     
     var leaves          : [GraphNodeItem] =
@@ -89,11 +90,14 @@ class GraphBuilder
         
         // Insert default variables
         
-        asset.graph!.outColor = Float3("outColor", 0.5, 0.5, 0.5)
+        asset.graph!.outColor = Float4("outColor", 0.0, 0.0, 0.0, 0.0)
         asset.graph?.variables["outColor"] = asset.graph!.outColor
         
         asset.graph!.rayPosition = Float3("rayPosition", 0, 0, 0)
         asset.graph?.variables["rayPosition"] = asset.graph!.rayPosition
+        
+        asset.graph!.normal = Float3("normal", 0, 0, 0)
+        asset.graph?.variables["normal"] = asset.graph!.normal
         
         //
         
@@ -280,6 +284,9 @@ class GraphBuilder
                                             if newBranch.context == .Material {
                                                 asset.graph!.materialNodes.append(newBranch)
                                                 hMaterialNodes.leaves!.append(newBranch)
+                                            } else
+                                            if newBranch.context == .Render {
+                                                asset.graph!.renderNodes.append(newBranch)
                                             }
                                         }
                                         
@@ -327,6 +334,32 @@ class GraphBuilder
                     } else
                     if rightValueArray.count > 1 {
                         
+                        // Variable assignment
+                        let rightSide = leftOfComment.trimmingCharacters(in: .whitespaces)
+                        print(variableName!, "rightSide", rightSide)
+                        let exp = ExpressionContext()
+                        exp.parse(expression: rightSide, container: asset.graph!, error: &error)
+                        
+                        if exp.execute() != nil {
+                            
+                            if let branch = currentBranch.last {
+                                
+                                let variableNode = VariableAssignmentNode()
+                                variableNode.name = variableName!
+                                variableNode.expression = exp
+                                
+                                variableNode.lineNr = error.line!
+                                branch.leaves.append(variableNode)
+                                asset.graph!.lines[error.line!] = variableNode
+                                processed = true
+                            } else
+                            if error.error == nil { createError("Leaf node without active branch") }
+
+                            //if result.getType() == variable.getType() {
+                            //    asset.graph!.variables["variable"] = result
+                            //}
+                        } else { createError("Invalid expression") }
+                        /*
                         if let variable = asset.graph?.getVariableValue(variableName!) {
                             // Variable assignment
                             let rightSide = leftOfComment.trimmingCharacters(in: .whitespaces)
@@ -335,9 +368,9 @@ class GraphBuilder
                             exp.parse(expression: rightSide, container: asset.graph!, error: &error)
                             
                             if let result = exp.execute() {
-                                if result.getType() == variable.getType() {
-                                    asset.graph!.variables["variable"] = result
-                                }
+                                //if result.getType() == variable.getType() {
+                                //    asset.graph!.variables["variable"] = result
+                                //}
                             }
 
                             processed = true
@@ -411,7 +444,7 @@ class GraphBuilder
                                 asset.graph!.addVariable(Text1(variableName!, v))
                                 processed = true
                             } else { error.error = "Unrecognized Variable type '\(possbibleCmd)'" }
-                        }
+                        }*/
                     }
                 }
                 if str.trimmingCharacters(in: .whitespaces).count > 0 && processed == false && error.error == nil {

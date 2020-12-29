@@ -44,7 +44,7 @@ final class DefaultSkyNode : GraphNode
         col += 0.25 * float3(1.0, 0.8, 0.6) * pow(sun, 5.0)
         col += 0.15 * float3(1.0, 0.9, 0.7) * simd_max(pow(sun, 512.0), 0.25)
 
-        context.result = float4(col.x, col.y, col.z, 1)
+        context.outColor.fromSIMD(float4(col.x, col.y, col.z, 1))
         return .Success
     }
     
@@ -134,5 +134,53 @@ final class PinholeCameraNode : GraphNode
             GraphOption(Float1(80), "Fov", "The field of view of the camera.")
         ]
         return options
+    }
+}
+
+/// VariableAssignmentNode, assign or modify a variable via assignment, =, *=, -= etc
+final class VariableAssignmentNode : GraphNode
+{
+    var expression                 : ExpressionContext? = nil
+    
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.Variable, .None, options)
+        name = "VariableAsignment"
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        if let expression = expression {
+            if let result = expression.execute() {
+                
+                if let existing = context.variables[name] {
+        
+                    //let minC = min(existing.components, result.components)
+                    
+                    for i in 0..<existing.components {
+                        existing[i] = result[i]
+                    }
+                } else {
+                    // New variable
+                    context.variables[name] = result
+                }
+        
+            }
+        }
+        //print("Variable Ass", name)
+        return .Success
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Creates or modifies a variable."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        return []
     }
 }

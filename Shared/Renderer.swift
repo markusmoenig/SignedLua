@@ -152,6 +152,9 @@ class Renderer
                         context.uv = float2(Float(w) / width, fh)
                         context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
                         
+                        context.normal.fromSIMD(float3(0.0, 0.0, 1.0))
+                        context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
+
                         if let cameraNode = context.cameraNode {
                             cameraNode.execute(context: context)
                         }
@@ -164,7 +167,7 @@ class Renderer
                         context.executeAnalytical()
                         let maxDist : Float = simd_min(10.0, context.analyticalDist)
                         
-                        var color = context.result
+                        //var color = context.result
                         var material : GraphNode? = nil
 
                         var hit = false
@@ -186,6 +189,7 @@ class Renderer
                             t += context.rayDist[context.rayIndex]
                         }
                         
+                        /*
                         let normal : float3
                         
                         if hit && t < context.analyticalDist {
@@ -200,7 +204,7 @@ class Renderer
                             color = SIMD4<Float>(context.outColor.x * output, context.outColor.y * output, context.outColor.z * output, 1)
                         } else
                         if context.analyticalDist != .greatestFiniteMagnitude {
-                            normal = context.analyticalNormal
+                            no rmal = context.analyticalNormal
                             
                             if let material = context.analyticalMaterial {
                                 material.execute(context: context)
@@ -211,9 +215,35 @@ class Renderer
                             //color = SIMD4<Float>(output, output, output, 1)
                             //color = SIMD4<Float>(context.outColor.x, context.outColor.y, context.outColor.z, 1)
                             color = SIMD4<Float>(context.outColor.x * output, context.outColor.y * output, context.outColor.z * output, 1)
-                        }
+                        }*/
                         
-                        tot = tot + color                        
+                        if hit && t < context.analyticalDist {
+                            let normal = calcNormal(context: context, position: context.camOrigin + t * context.rayDir)
+                            context.normal.fromSIMD(normal)
+                            
+                            context.normal.x = 1
+                            
+                            if let material = material {
+                                material.execute(context: context)
+                            }
+                            context.executeRender()
+                        } else
+                        if context.analyticalDist != .greatestFiniteMagnitude {
+                            let normal = context.analyticalNormal
+                            context.normal.fromSIMD(normal)
+
+                            if let material = context.analyticalMaterial {
+                                material.execute(context: context)
+                            }
+                            context.executeRender()
+                        }
+
+                        //tot = tot + color
+                        if let outColor = context.variables["outColor"] as? Float4 {
+                            let result = outColor.toSIMD()
+                            
+                            tot += result
+                        }
                     }
                 }
                 texArray[w] = tot / Float(AA*AA)

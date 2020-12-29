@@ -34,11 +34,11 @@ class GraphNode : Equatable, Identifiable {
     }
     
     enum NodeRole {
-        case Camera, Sky, Utility
+        case Camera, Sky, Utility, Variable
     }
     
     enum NodeContext {
-        case None, Analytical, SDF, Material
+        case None, Analytical, SDF, Material, Render
     }
     
     var id                  = UUID()
@@ -104,6 +104,8 @@ final class GraphContext    : VariableContainer
     var analyticalNodes     : [GraphNode] = []
     var sdfNodes            : [GraphNode] = []
 
+    var renderNodes         : [GraphNode] = []
+
     var hierarchicalNodes   : [GraphNode] = []
 
     var failedAt            : [Int32] = []
@@ -112,10 +114,11 @@ final class GraphContext    : VariableContainer
         
     let core                : Core
     
-    // Special Variables
+    // Special Global Variables
     
-    var outColor            : Float3!
+    var outColor            : Float4!
     var rayPosition         : Float3!
+    var normal              : Float3!
 
     // Graph Values used for rendering
     
@@ -128,9 +131,7 @@ final class GraphContext    : VariableContainer
     var camOrigin           = float3(0,0,-5)                    // Camera Origin, set by camera node
     
     var rayDir              = float3(0,0,0)                     // Ray direction, computed and set by camera node
-    
-    var result              = float4(0,0,0,1)                   // Temporary result of a node (Sky etc)
-    
+        
     var analyticalDist      : Float = .greatestFiniteMagnitude
     var analyticalNormal    = float3(0,0,0)                     // Analytical Normal
     var analyticalMaterial  : GraphNode? = nil
@@ -161,6 +162,7 @@ final class GraphContext    : VariableContainer
     {
         nodes = []
         sdfNodes = []
+        renderNodes = []
         analyticalNodes = []
         materialNodes = []
         hierarchicalNodes = []
@@ -270,7 +272,6 @@ final class GraphContext    : VariableContainer
     
     @discardableResult @inlinable public func executeAnalytical() -> GraphNode.Result
     {
-        outColor.fromSIMD(float3(0.5, 0.5, 0.5))
         analyticalDist = .greatestFiniteMagnitude
         analyticalMaterial = nil
         failedAt = []
@@ -296,6 +297,15 @@ final class GraphContext    : VariableContainer
         }
         toggleRayIndex()
         
+        return .Success
+    }
+    
+    @discardableResult @inlinable public func executeRender() -> GraphNode.Result
+    {
+        failedAt = []
+        for node in renderNodes {
+            node.execute(context: self)
+        }
         return .Success
     }
     
