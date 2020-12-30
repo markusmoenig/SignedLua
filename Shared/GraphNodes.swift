@@ -154,20 +154,31 @@ final class VariableAssignmentNode : GraphNode
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         if let expression = expression {
-            if let result = expression.execute() {
-                
-                if let existing = context.variables[name] {
+            if let existing = context.variables[name] {
         
-                    //let minC = min(existing.components, result.components)
-                    
-                    for i in 0..<existing.components {
-                        existing[i] = result[i]
+                if let exf4 = existing as? Float4 {
+                    if let f4 = expression.executeForFloat4() {
+                        exf4.fromSIMD(f4.toSIMD())
                     }
-                } else {
-                    // New variable
-                    context.variables[name] = result
+                } else
+                if let exf3 = existing as? Float3 {
+                    if let f3 = expression.executeForFloat3() {
+                        exf3.fromSIMD(f3.toSIMD())
+                    }
+                } else
+                if let exf2 = existing as? Float2 {
+                    if let f2 = expression.executeForFloat2() {
+                        exf2.fromSIMD(f2.toSIMD())
+                    }
+                } else
+                if let exf1 = existing as? Float1 {
+                    if let f1 = expression.executeForFloat1() {
+                        exf1.fromSIMD(f1.toSIMD())
+                    }
                 }
-        
+            } else {
+                // New variable
+                context.variables[name] = expression.execute()
             }
         }
         //print("Variable Ass", name)

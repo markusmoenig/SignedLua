@@ -70,6 +70,8 @@
 		2B2E02DA258C53F40073DAE9 /* AtomNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */; };
 		2B4293BF259429AD00B56347 /* GraphTexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* GraphTexNodes.swift */; };
 		2B4293C0259429AD00B56347 /* GraphTexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* GraphTexNodes.swift */; };
+		2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
+		2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -110,6 +112,7 @@
 		2B2E02D3258C52B10073DAE9 /* Variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variables.swift; sourceTree = "<group>"; };
 		2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomNodes.swift; sourceTree = "<group>"; };
 		2B4293BE259429AD00B56347 /* GraphTexNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphTexNodes.swift; sourceTree = "<group>"; };
+		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,6 +229,7 @@
 			children = (
 				2B2E02C8258C3F600073DAE9 /* Expression.swift */,
 				2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */,
+				2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */,
 				2B224FBC258619E800F32354 /* Utilities.swift */,
 				2B2E02D3258C52B10073DAE9 /* Variables.swift */,
 			);
@@ -360,6 +364,7 @@
 				2B2E02D9258C53F40073DAE9 /* AtomNodes.swift in Sources */,
 				2B224FB62586105200F32354 /* GraphBranchNodes.swift in Sources */,
 				2B224F452584485300F32354 /* ContentView.swift in Sources */,
+				2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D4258C52B10073DAE9 /* Variables.swift in Sources */,
 				2B224F7F25844C1900F32354 /* ScriptEditor.swift in Sources */,
@@ -395,6 +400,7 @@
 				2B2E02DA258C53F40073DAE9 /* AtomNodes.swift in Sources */,
 				2B224FB72586105200F32354 /* GraphBranchNodes.swift in Sources */,
 				2B224F462584485300F32354 /* ContentView.swift in Sources */,
+				2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */,
 				2B224F8025844C1900F32354 /* ScriptEditor.swift in Sources */,

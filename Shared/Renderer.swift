@@ -152,7 +152,7 @@ class Renderer
                         context.uv = float2(Float(w) / width, fh)
                         context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
                         
-                        context.normal.fromSIMD(float3(0.0, 0.0, 1.0))
+                        context.normal.fromSIMD(float3(0.0, 0.0, 0.0))
                         context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
 
                         if let cameraNode = context.cameraNode {
@@ -220,9 +220,7 @@ class Renderer
                         if hit && t < context.analyticalDist {
                             let normal = calcNormal(context: context, position: context.camOrigin + t * context.rayDir)
                             context.normal.fromSIMD(normal)
-                            
-                            context.normal.x = 1
-                            
+
                             if let material = material {
                                 material.execute(context: context)
                             }

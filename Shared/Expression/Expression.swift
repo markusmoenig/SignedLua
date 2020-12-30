@@ -46,13 +46,80 @@ class ExpressionNode {
         self.name = name
     }
     
-    /// An atom gest passed the indices to two input values and writes the result to the next  index of the second (right) value
+    /// An atom gets passed the indices to two input values and writes the result to the next  index of the second (right) value
     func setupAtom(_ context: ExpressionContext,_ indices: [Int],_ error: inout CompileError)
     {
     }
     
+    /// A function gets passed the parameter string it has to evaluate itself
+    func setupFunction(_ container: VariableContainer,_ destIndex: Int,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        return nil
+    }
+    
     func execute(_ context: ExpressionContext)
     {
+    }
+    
+    // Utilities
+    
+    func splitIntoTwo(_ functionName : String,_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> (ExpressionContext, ExpressionContext)?
+    {
+        let array = splitParameters(parameters)
+        if array.count == 2 {
+            let arg1Context = ExpressionContext()
+            arg1Context.parse(expression: array[0], container: container, error: &error)
+            
+            if error.error != nil { return nil }
+            
+            let arg2Context = ExpressionContext()
+            arg2Context.parse(expression: array[1], container: container, error: &error)
+            
+            if error.error != nil { return nil }
+            
+            return (arg1Context, arg2Context)
+        } else {
+            error.error = "Wrong number of arguments for \(functionName)"
+        }
+        
+        return nil
+    }
+    
+    func splitParameters(_ parameters: String) -> [String] {
+        var arguments : [String] = []
+        
+        var hierarchy : Int = 0
+        var offset    : Int = 0
+        
+        var arg       = ""
+        
+        while offset < parameters.count {
+            if parameters[offset] == "," {
+                if hierarchy == 0 {
+                    arguments.append(arg.trimmingCharacters(in: .whitespaces))
+                    arg = ""
+                } else {
+                    arg.append(parameters[offset])
+                }
+            } else
+            if parameters[offset] == "<" {
+                hierarchy += 1
+                arg.append(parameters[offset])
+            } else
+            if parameters[offset] == ">" {
+                hierarchy -= 1
+                arg.append(parameters[offset])
+            } else {
+                arg.append(parameters[offset])
+            }
+            offset += 1
+        }
+        
+        if arg.isEmpty == false {
+            arguments.append(arg.trimmingCharacters(in: .whitespaces))
+        }
+                
+        return arguments
     }
 }
 
@@ -80,6 +147,11 @@ class ExpressionContext
         ExpressionNodeItem("/", {() -> ExpressionNode in return DivisionAtomNode() }),
         ExpressionNodeItem("-", {() -> ExpressionNode in return MinusAtomNode() }),
         ExpressionNodeItem("+", {() -> ExpressionNode in return AddAtomNode() }),
+    ]
+    
+    var functions           : [ExpressionNodeItem] =
+    [
+        ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() })
     ]
         
     init()
@@ -191,13 +263,28 @@ class ExpressionContext
                     uncomsumed.append(values.count)
                     values.append(variableRef)
                     
+                    resultType = .Variable
                     testForConsumption()
                 } else {
-                    error.error = "Unknown expression \'\(element)\'"
+                    if element.isEmpty == false {
+                        error.error = "Unknown expression \'\(element)\'"
+                    }
                 }
             } else
             if token == "<" {
                 let parameters = extractUpToTokenHierarchy([">"], "<")
+                
+                if let functionNode = getFunction(element) {
+                    if let result = functionNode.setupFunction(container, values.count, parameters, &error) {
+                    
+                        if error.error != nil { return }
+
+                        uncomsumed.append(values.count)
+                        values.append(result)
+                        testForConsumption()
+                        nodes.append(functionNode)
+                    }
+                } else
                 if let variable = BaseVariable.createType(element, container: container, parameters: parameters, error: &error) {
                     uncomsumed.append(values.count)
                     values.append(variable)
@@ -321,6 +408,16 @@ class ExpressionContext
         for a in atoms {
             if a.name == expression {
                 return a.createNode()
+            }
+        }
+        return nil
+    }
+    
+    /// Attempts to find a function node for the given expression
+    func getFunction(_ expression: String) -> ExpressionNode? {
+        for f in functions {
+            if f.name == expression {
+                return f.createNode()
             }
         }
         return nil

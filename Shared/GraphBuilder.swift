@@ -336,7 +336,7 @@ class GraphBuilder
                         
                         // Variable assignment
                         let rightSide = leftOfComment.trimmingCharacters(in: .whitespaces)
-                        print(variableName!, "rightSide", rightSide)
+                        //print(variableName!, "rightSide", rightSide)
                         let exp = ExpressionContext()
                         exp.parse(expression: rightSide, container: asset.graph!, error: &error)
                         
@@ -347,6 +347,8 @@ class GraphBuilder
                                 let variableNode = VariableAssignmentNode()
                                 variableNode.name = variableName!
                                 variableNode.expression = exp
+                                
+                                variableNode.execute(context: asset.graph!)
                                 
                                 variableNode.lineNr = error.line!
                                 branch.leaves.append(variableNode)

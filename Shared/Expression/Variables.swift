@@ -151,6 +151,9 @@ final class Float4 : BaseVariable
                     }
                 } else {
                     self.context1 = exp
+                    if let f1 = exp.execute() {
+                        if f1.getType() != .Float { error.error = "Parameter #1 for \(getTypeName()) does not evaluate to Float (is \(f1.getTypeName()))" }
+                    }
                 }
             }
             
@@ -217,25 +220,25 @@ final class Float4 : BaseVariable
         } else
         if expressions == 4 {
             var rc = SIMD4<Float>(x,y,z, w)
-            
+    
             if let context = context1 {
                 if let f1 = context.executeForFloat1() {
-                    rc.x = f1.x
+                    rc.x = f1.toSIMD()
                 }
             }
             if let context = context2 {
                 if let f1 = context.executeForFloat1() {
-                    rc.y = f1.x
+                    rc.y = f1.toSIMD()
                 }
             }
             if let context = context3 {
                 if let f1 = context.executeForFloat1() {
-                    rc.z = f1.x
+                    rc.z = f1.toSIMD()
                 }
             }
             if let context = context4 {
                 if let f1 = context.executeForFloat1() {
-                    rc.w = f1.x
+                    rc.w = f1.toSIMD()
                 }
             }
             
@@ -409,17 +412,17 @@ final class Float3 : BaseVariable
             
             if let context = context1 {
                 if let f1 = context.executeForFloat1() {
-                    rc.x = f1.x
+                    rc.x = f1.toSIMD()
                 }
             }
             if let context = context2 {
                 if let f1 = context.executeForFloat1() {
-                    rc.y = f1.x
+                    rc.y = f1.toSIMD()
                 }
             }
             if let context = context3 {
                 if let f1 = context.executeForFloat1() {
-                    rc.z = f1.x
+                    rc.z = f1.toSIMD()
                 }
             }
             
@@ -556,23 +559,29 @@ final class Float2 : BaseVariable
                 }
             }
         } else
-        if expressions == 3 {
+        if expressions == 2 {
             var rc = SIMD2<Float>(x,y)
             
             if let context = context1 {
                 if let f1 = context.executeForFloat1() {
-                    rc.x = f1.x
+                    rc.x = f1.toSIMD()
                 }
             }
             if let context = context2 {
                 if let f1 = context.executeForFloat1() {
-                    rc.y = f1.x
+                    rc.y = f1.toSIMD()
                 }
             }
             
             return rc
         }
         return SIMD2<Float>(x, y)
+    }
+    
+    @inlinable func fromSIMD(_ v: float2)
+    {
+        x = v.x
+        y = v.y
     }
     
     @inlinable override subscript(index: Int) -> Float {
@@ -649,6 +658,11 @@ final class Float1 : BaseVariable
     
     override func toString() -> String {
         return String(x)
+    }
+    
+    @inlinable func fromSIMD(_ v: Float)
+    {
+        x = v
     }
     
     @inlinable override subscript(index: Int) -> Float {
