@@ -50,6 +50,8 @@ class GraphNode : Equatable, Identifiable {
     var leaves              : [GraphNode]! = nil
     
     var name                : String = ""
+    var givenName           : String = ""
+    
     var lineNr              : Int32 = 0
     
     // Options
@@ -110,7 +112,7 @@ final class GraphContext    : VariableContainer
 
     var failedAt            : [Int32] = []
     
-    var lines               : [Int32:GraphNode] = [:]
+    var lines               : [Int32: GraphNode] = [:]
         
     let core                : Core
     
@@ -119,6 +121,7 @@ final class GraphContext    : VariableContainer
     var outColor            : Float4!
     var rayPosition         : Float3!
     var normal              : Float3!
+    var hitPosition         : Float3!
 
     // Graph Values used for rendering
     
@@ -249,7 +252,7 @@ final class GraphContext    : VariableContainer
     func getMaterial(_ name: String) -> GraphNode?
     {
         for m in materialNodes {
-            if m.name == name {
+            if m.givenName == name {
                 return m
             }
         }

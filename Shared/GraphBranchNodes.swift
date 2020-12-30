@@ -157,7 +157,7 @@ final class MaterialNode : GraphNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         if let name = options["name"] as? String {
-            self.name = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
+            self.givenName = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         } else {
             error.error = "Material needs a 'Name' parameter"
         }
@@ -197,7 +197,7 @@ final class RenderNode : GraphNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         if let name = options["name"] as? String {
-            self.name = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
+            self.givenName = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         } else {
             error.error = "Render node needs a 'Name' parameter"
         }

@@ -148,13 +148,10 @@ final class VariableAssignmentNode : GraphNode
         name = "VariableAsignment"
     }
     
-    override func verifyOptions(context: GraphContext, error: inout CompileError) {
-    }
-    
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         if let expression = expression {
-            if let existing = context.variables[name] {
+            if let existing = context.variables[givenName] {
         
                 if let exf4 = existing as? Float4 {
                     if let f4 = expression.executeForFloat4() {
@@ -178,7 +175,7 @@ final class VariableAssignmentNode : GraphNode
                 }
             } else {
                 // New variable
-                context.variables[name] = expression.execute()
+                context.variables[givenName] = expression.execute()
             }
         }
         //print("Variable Ass", name)

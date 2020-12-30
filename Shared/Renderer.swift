@@ -139,7 +139,7 @@ class Renderer
             let fh : Float = Float(h) / height
             for w in 0..<widthInt {
                 
-                let AA : Int = 1
+                let AA : Int = 2
                 var tot = float4(0,0,0,0)
                 
                 for m in 0..<AA {
@@ -153,6 +153,7 @@ class Renderer
                         context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
                         
                         context.normal.fromSIMD(float3(0.0, 0.0, 0.0))
+                        context.hitPosition.fromSIMD(float3(0.0, 0.0, 0.0))
                         context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
 
                         if let cameraNode = context.cameraNode {
@@ -218,7 +219,10 @@ class Renderer
                         }*/
                         
                         if hit && t < context.analyticalDist {
-                            let normal = calcNormal(context: context, position: context.camOrigin + t * context.rayDir)
+                            
+                            let p = context.camOrigin + t * context.rayDir
+                            context.hitPosition.fromSIMD(p)
+                            let normal = calcNormal(context: context, position: p)
                             context.normal.fromSIMD(normal)
 
                             if let material = material {
@@ -227,6 +231,10 @@ class Renderer
                             context.executeRender()
                         } else
                         if context.analyticalDist != .greatestFiniteMagnitude {
+                            
+                            let p = context.camOrigin + context.analyticalDist * context.rayDir
+                            context.hitPosition.fromSIMD(p)
+
                             let normal = context.analyticalNormal
                             context.normal.fromSIMD(normal)
 
@@ -235,7 +243,7 @@ class Renderer
                             }
                             context.executeRender()
                         }
-
+                        
                         //tot = tot + color
                         if let outColor = context.variables["outColor"] as? Float4 {
                             let result = outColor.toSIMD()
