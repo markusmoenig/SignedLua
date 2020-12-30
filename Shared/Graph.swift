@@ -118,8 +118,11 @@ final class GraphContext    : VariableContainer
     
     // Special Global Variables
     
-    var outColor            : Float4!
     var rayPosition         : Float3!
+    var rayOrigin           : Float3!
+    var rayDirection        : Float3!
+
+    var outColor            : Float4!
     var normal              : Float3!
     var hitPosition         : Float3!
 

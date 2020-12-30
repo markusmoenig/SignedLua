@@ -97,6 +97,15 @@ class GraphBuilder
         asset.graph!.rayPosition = Float3("rayPosition", 0, 0, 0)
         asset.graph?.variables["rayPosition"] = asset.graph!.rayPosition
         
+        asset.graph!.rayOrigin = Float3("rayOrigin", 0, 0, 0)
+        asset.graph?.variables["rayOrigin"] = asset.graph!.rayOrigin
+        
+        asset.graph!.rayDirection = Float3("rayDirection", 0, 0, 0)
+        asset.graph?.variables["rayDirection"] = asset.graph!.rayDirection
+        
+        asset.graph!.rayPosition = Float3("rayPosition", 0, 0, 0)
+        asset.graph?.variables["rayPosition"] = asset.graph!.rayPosition
+        
         asset.graph!.normal = Float3("normal", 0, 0, 0)
         asset.graph?.variables["normal"] = asset.graph!.normal
         

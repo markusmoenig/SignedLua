@@ -151,7 +151,9 @@ class ExpressionContext
     
     var functions           : [ExpressionNodeItem] =
     [
-        ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() })
+        ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() }),
+        ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
+        ExpressionNodeItem("castRay", {() -> ExpressionNode in return CastRayFuncNode() })
     ]
         
     init()

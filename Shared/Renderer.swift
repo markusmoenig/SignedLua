@@ -160,6 +160,9 @@ class Renderer
                             cameraNode.execute(context: context)
                         }
                         
+                        context.rayOrigin.fromSIMD(context.camOrigin)
+                        context.rayDirection.fromSIMD(context.rayDir)
+                        
                         if let skyNode = context.skyNode {
                             skyNode.execute(context: context)
                         }
