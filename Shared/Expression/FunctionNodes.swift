@@ -51,6 +51,84 @@ class DotFuncNode : ExpressionNode {
     }
 }
 
+class PowFuncNode : ExpressionNode {
+    
+    var arguments : (ExpressionContext, ExpressionContext)? = nil
+    var destIndex : Int = 0
+
+    init()
+    {
+        super.init("pow")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ destIndex: Int,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        self.destIndex = destIndex
+        if let args = splitIntoTwo(self.name, container, parameters, &error) {
+            arguments = args
+            let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute()
+            if a1 != nil && a2 != nil && a1!.getType() == a2!.getType() {
+                return a1
+            } else { error.error = "Unsupported parameters for dot<>" }
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        if let f41 = arguments!.0.execute() as? Float4 {
+            if let f42 = arguments!.1.execute() as? Float4 {
+                let r41 = f41.toSIMD()
+                let r42 = f42.toSIMD()
+                
+                let v = Float4();
+                v.x = pow(r41.x, r42.x)
+                v.y = pow(r41.y, r42.y)
+                v.z = pow(r41.z, r42.z)
+                v.z = pow(r41.w, r42.w)
+
+                context.values[destIndex] = v
+            }
+        } else
+        if let f31 = arguments!.0.execute() as? Float3 {
+            if let f32 = arguments!.1.execute() as? Float3 {
+                let r31 = f31.toSIMD()
+                let r32 = f32.toSIMD()
+                
+                let v = Float3();
+                v.x = pow(r31.x, r32.x)
+                v.y = pow(r31.y, r32.y)
+                v.z = pow(r31.z, r32.z)
+
+                context.values[destIndex] = v
+            }
+        } else
+        if let f21 = arguments!.0.execute() as? Float2 {
+            if let f22 = arguments!.1.execute() as? Float2 {
+                let r21 = f21.toSIMD()
+                let r22 = f22.toSIMD()
+                
+                let v = Float2();
+                v.x = pow(r21.x, r22.x)
+                v.y = pow(r21.y, r22.y)
+
+                context.values[destIndex] = v
+            }
+        } else
+        if let f11 = arguments!.0.execute() as? Float1 {
+            if let f12 = arguments!.1.execute() as? Float1 {
+                let r11 = f11.toSIMD()
+                let r12 = f12.toSIMD()
+                
+                let v = Float1();
+                v.x = pow(r11, r12)
+
+                context.values[destIndex] = v
+            }
+        }
+    }
+}
+
 class NormalizeFuncNode : ExpressionNode {
     
     var argument  : ExpressionContext? = nil

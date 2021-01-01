@@ -214,17 +214,47 @@ final class GraphContext    : VariableContainer
         variables["displacement"] = displacement
     }
     
-    func recreateFromVariableBackup(_ variables: [String:BaseVariable])
+    func createVariableBackup() -> ([String:float4],[String:float3], [String:float2], [String:Float])
     {
-        self.variables = variables
-        outColor = variables["outColor"] as? Float4
+        var bf4 : [String:float4] = [:]
+        var bf3 : [String:float3] = [:]
+        var bf2 : [String:float2] = [:]
+        var bf1 : [String:Float] = [:]
         
-        rayPosition = variables["rayPosition"] as? Float3
-        rayOrigin = variables["rayOrigin"] as? Float3
-        rayDirection = variables["rayDirection"] as? Float3
-        normal = variables["normal"] as? Float3
-        
-        displacement = variables["displacement"] as? Float1
+        for (key, v) in variables {
+            if let f4 = v as? Float4 {
+                bf4[key] = f4.toSIMD()
+            } else
+            if let f3 = v as? Float3 {
+                bf3[key] = f3.toSIMD()
+            } else
+            if let f2 = v as? Float2 {
+                bf2[key] = f2.toSIMD()
+            } else
+            if let f1 = v as? Float1 {
+                bf1[key] = f1.toSIMD()
+            }
+        }
+
+        return (bf4, bf3, bf2, bf1)
+    }
+
+    func restoreVariableBackup(_ backup: ([String:float4],[String:float3], [String:float2], [String:Float]))
+    {
+        for (key, v) in variables {
+            if let f4 = v as? Float4 {
+                f4.fromSIMD(backup.0[key]!)
+            } else
+            if let f3 = v as? Float3 {
+                f3.fromSIMD(backup.1[key]!)
+            } else
+            if let f2 = v as? Float2 {
+                f2.fromSIMD(backup.2[key]!)
+            } else
+            if let f1 = v as? Float1 {
+                f1.fromSIMD(backup.3[key]!)
+            }
+        }
     }
     
     

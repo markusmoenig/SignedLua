@@ -50,10 +50,7 @@ class CastRayFuncNode : ExpressionNode {
                         
                         container.hasHitSomething = false
                         
-                        let variables = container.variables
-
-                        container.variables = [:]
-                        container.createDefaultVariables()
+                        let backup = container.createVariableBackup()
                         
                         container.rayOrigin.fromSIMD(rayOrigin.toSIMD() + rayDirection.toSIMD() * 0.0001)
                         container.rayDirection.fromSIMD(rayDirection.toSIMD())
@@ -125,17 +122,13 @@ class CastRayFuncNode : ExpressionNode {
                         result.y = simd_clamp(result.y, 0.0, 1.0)
                         result.z = simd_clamp(result.z, 0.0, 1.0)
                         
-                        //if container.hasHitSomething {
-                        //    print(result.x, result.y, result.z)
-                        //}
-                        
                         if let outColor = context.values[destIndex] as? Float4 {
                             outColor.x += result.x
                             outColor.y += result.y
                             outColor.z += result.z
                         }
 
-                        container.recreateFromVariableBackup(variables)
+                        container.restoreVariableBackup(backup)
                     } else {
                         // Max reflection depth, return 0
                         //let v = Float4(); v.fromSIMD(float4(0,0,0,0))

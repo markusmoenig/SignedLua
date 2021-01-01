@@ -169,6 +169,7 @@ class ExpressionContext
     var functions           : [ExpressionNodeItem] =
     [
         ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() }),
+        ExpressionNodeItem("pow", {() -> ExpressionNode in return PowFuncNode() }),
         ExpressionNodeItem("normalize", {() -> ExpressionNode in return NormalizeFuncNode() }),
         ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
         ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),
