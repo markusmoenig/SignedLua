@@ -31,34 +31,12 @@ final class SDFSphereNode : DistanceNode
         context.position += position.toSIMD()
         
         //print("in sphere", radius.toSIMD())
-        context.rayDist[context.rayIndex] = simd_length(context.rayPosition.toSIMD() - context.position) - radius.toSIMD()// - noise(float2(context.position.x, context.position.y) * 100.0)
+        context.rayDist[context.rayIndex] = simd_length(context.rayPosition.toSIMD() - context.position) - radius.toSIMD() - context.displacement.toSIMD()// - noise(float2(context.rayPosition.x, context.rayPosition.y) * 2.0) * 0.4
         context.hitMaterial[context.rayIndex] = context.activeMaterial
         context.toggleRayIndex()
         
         context.position -= position.toSIMD()
         return .Success
-    }
-    
-    // https://www.shadertoy.com/view/4dS3Wd
-    @inlinable func hash(_ p: float2) -> Float
-    {
-        var p3 = simd_fract(float3(p.x, p.y, p.x) * 0.13)
-        p3 += simd_dot(p3, float3(p3.y, p3.z, p3.x) + 3.333)
-        return simd_fract((p3.x + p3.y) * p3.z)
-    }
-    
-    @inlinable func noise(_ x: float2) -> Float
-    {
-        let i = floor(x)
-        let f = simd_fract(x)
-
-        let a : Float = hash(i)
-        let b : Float = hash(i + float2(1.0, 0.0))
-        let c : Float = hash(i + float2(0.0, 1.0))
-        let d : Float = hash(i + float2(1.0, 1.0))
-
-        let u : float2 = f * f * (3.0 - 2.0 * f)
-        return simd_mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y
     }
     
     override func getHelp() -> String
@@ -97,7 +75,7 @@ final class SDFBoxNode : DistanceNode
     {
         context.position += position.toSIMD()
 
-        let q : float3 = simd_abs(context.rayPosition.toSIMD() - context.position) - size.toSIMD()
+        let q : float3 = simd_abs(context.rayPosition.toSIMD() - context.position) - size.toSIMD() - context.displacement.toSIMD()
         context.rayDist[context.rayIndex] = simd_length(max(q,0.0)) + simd_min(simd_max(q.x,simd_max(q.y,q.z)),0.0);
         context.hitMaterial[context.rayIndex] = context.activeMaterial
         context.toggleRayIndex()
@@ -121,7 +99,7 @@ final class SDFBoxNode : DistanceNode
     }
 }
 
-/// SDFBoxNode
+/// SDFPlaneNode
 final class SDFPlaneNode : DistanceNode
 {
     var normal    : Float3 = Float3(0, 1, 0)

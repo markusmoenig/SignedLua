@@ -60,6 +60,7 @@ class GraphBuilder
         
         GraphNodeItem("texColor", { (_ options: [String:Any]) -> GraphNode in return TexColorNode(options) }),
         GraphNodeItem("texChecker", { (_ options: [String:Any]) -> GraphNode in return TexCheckerNode(options) }),
+        GraphNodeItem("texNoise2D", { (_ options: [String:Any]) -> GraphNode in return TexNoise2DNode(options) }),
     ]
     
     init(_ core: Core)
@@ -111,6 +112,9 @@ class GraphBuilder
         
         asset.graph!.hitPosition = Float3("hitPosition", 0, 0, 0)
         asset.graph?.variables["hitPosition"] = asset.graph!.hitPosition
+        
+        asset.graph!.displacement = Float1("displacement", 0)
+        asset.graph?.variables["displacement"] = asset.graph!.displacement
         
         //
         

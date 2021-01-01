@@ -62,7 +62,7 @@ class BaseVariable {
             return Float1(container: container, parameters: parameters, error: &error)
         } else
         if typeName == "Float2" {
-            return Float3(container: container, parameters: parameters, error: &error)
+            return Float2(container: container, parameters: parameters, error: &error)
         } else
         if typeName == "Float3" {
             return Float3(container: container, parameters: parameters, error: &error)

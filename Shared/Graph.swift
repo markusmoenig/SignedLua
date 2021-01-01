@@ -122,6 +122,8 @@ final class GraphContext    : VariableContainer
     var rayOrigin           : Float3!
     var rayDirection        : Float3!
 
+    var displacement        : Float1!
+
     var outColor            : Float4!
     var normal              : Float3!
     var hitPosition         : Float3!

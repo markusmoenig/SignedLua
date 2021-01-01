@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
-
+    
     enum ScreenState {
         case Mixed, RenderOnly, SourceOnly
     }
     
     @Binding var document                               : SignedDocument
-    
+    @StateObject var storeManager                       : StoreManager
+
     @State var asset                                    : Asset? = nil
 
     @Environment(\.colorScheme) var deviceColorScheme   : ColorScheme
@@ -23,7 +24,7 @@ struct ContentView: View {
 
     @State private var rightSideBarIsVisible            : Bool = true
     @State private var contextText                      : String = ""
-
+    
     @State var updateView                               : Bool = false
 
     #if os(macOS)
@@ -133,8 +134,6 @@ struct ContentView: View {
                         }
                     }
                 }
-                
-                
             }
         }
         
@@ -165,6 +164,41 @@ struct ContentView: View {
                     Label("Run", systemImage: "play.fill")
                 }
                 .keyboardShortcut("r")
+
+                Menu {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("Small Tip")
+                                .font(.headline)
+                            Text("Tip of $2 for the author")
+                                .font(.caption2)
+                        }
+                        Button(action: {
+                            storeManager.purchaseId("com.moenig.Signed.IAP.Tip2")
+                        }) {
+                            Text("Buy for $2")
+                        }
+                        .foregroundColor(.blue)
+                        Divider()
+                        VStack(alignment: .leading) {
+                            Text("Medium Tip")
+                                .font(.headline)
+                            Text("Tip of $5 for the author")
+                                .font(.caption2)
+                        }
+                        Button(action: {
+                            storeManager.purchaseId("com.moenig.Signed.IAP.Tip5")
+                        }) {
+                            Text("Buy for $5")
+                        }
+                        .foregroundColor(.blue)
+                        Divider()
+                        Text("You are awesome! ❤️❤️")
+                    }
+                }
+                label: {
+                    Label("Dollar", systemImage: "dollarsign.circle")
+                }
                 
                 // Toggle the Right sidebar
                 Button(action: { rightSideBarIsVisible.toggle() }, label: {
@@ -172,11 +206,18 @@ struct ContentView: View {
                 })
             }
         }
+        .onAppear(perform: {
+            if storeManager.myProducts.isEmpty {
+                DispatchQueue.main.async {
+                    storeManager.getProducts()
+                }
+            }
+        })
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(document: .constant(SignedDocument()))
+        ContentView(document: .constant(SignedDocument()), storeManager: StoreManager())
     }
 }

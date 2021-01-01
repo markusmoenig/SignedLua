@@ -9,10 +9,13 @@ import SwiftUI
 
 @main
 struct SignedApp: App {
+    
+    @StateObject var storeManager = StoreManager()
+
     var body: some Scene {
         DocumentGroup(newDocument: SignedDocument()) { file in
-            ContentView(document: file.$document)
-        }        
+            ContentView(document: file.$document, storeManager: storeManager)
+        }
         .commands {
             SidebarCommands()
         }
