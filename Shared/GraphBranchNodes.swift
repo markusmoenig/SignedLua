@@ -68,8 +68,16 @@ final class SDFObject : DistanceNode
         
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
+            if let material = context.activeMaterial as? MaterialNode {
+                if material.hasDisplacement {
+                    material.onlyDisplacement = true
+                    material.execute(context: context)
+                    material.onlyDisplacement = false
+                }
+            }
         } else {
             context.activeMaterial = nil
+            context.displacement.fromSIMD(0)
         }
         
         for leave in leaves {
@@ -148,6 +156,12 @@ final class AnalyticalObject : DistanceNode
 /// MaterialNode
 final class MaterialNode : GraphNode
 {
+    /// Material has displacement
+    var hasDisplacement  : Bool = false
+
+    /// Material should only output displacement
+    var onlyDisplacement : Bool = false
+
     init(_ options: [String:Any] = [:])
     {
         super.init(.Utility, .Material, options)
@@ -165,9 +179,14 @@ final class MaterialNode : GraphNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
+        let buffer = context.variables["outColor"]
+        if onlyDisplacement {
+            context.variables["outColor"] = Float4()
+        }
         for leave in leaves {
             leave.execute(context: context)
         }
+        context.variables["outColor"] = buffer
         return .Success
     }
     

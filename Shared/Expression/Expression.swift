@@ -63,6 +63,23 @@ class ExpressionNode {
     
     // Utilities
     
+    func splitIntoOne(_ functionName : String,_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> ExpressionContext?
+    {
+        let array = splitParameters(parameters)
+        if array.count == 1 {
+            let arg1Context = ExpressionContext()
+            arg1Context.parse(expression: array[0], container: container, error: &error)
+            
+            if error.error != nil { return nil }
+            
+            return arg1Context
+        } else {
+            error.error = "Wrong number of arguments for \(functionName)"
+        }
+        
+        return nil
+    }
+    
     func splitIntoTwo(_ functionName : String,_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> (ExpressionContext, ExpressionContext)?
     {
         let array = splitParameters(parameters)
@@ -152,7 +169,9 @@ class ExpressionContext
     var functions           : [ExpressionNodeItem] =
     [
         ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() }),
+        ExpressionNodeItem("normalize", {() -> ExpressionNode in return NormalizeFuncNode() }),
         ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
+        ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),
         ExpressionNodeItem("castRay", {() -> ExpressionNode in return CastRayFuncNode() })
     ]
         

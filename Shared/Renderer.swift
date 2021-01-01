@@ -149,11 +149,14 @@ class Renderer
                             return
                         }
                         
+                        context.reflectionDepth = 0
+                        context.hasHitSomething = false
+
                         context.uv = float2(Float(w) / width, fh)
                         context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
                         
                         context.normal.fromSIMD(float3(0.0, 0.0, 0.0))
-                        context.hitPosition.fromSIMD(float3(0.0, 0.0, 0.0))
+                        context.rayPosition.fromSIMD(float3(0.0, 0.0, 0.0))
                         context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
 
                         if let cameraNode = context.cameraNode {
@@ -193,50 +196,23 @@ class Renderer
                             t += context.rayDist[context.rayIndex]
                         }
                         
-                        /*
-                        let normal : float3
-                        
-                        if hit && t < context.analyticalDist {
-                            normal = calcNormal(context: context, position: context.camOrigin + t * context.rayDir)
-                            
-                            if let material = material {
-                                material.execute(context: context)
-                            }
-                            
-                            let output = 0.1 * simd_dot(normal, float3(0, 2, -10))
-                            //color = SIMD4<Float>(output, output, output, 1)
-                            color = SIMD4<Float>(context.outColor.x * output, context.outColor.y * output, context.outColor.z * output, 1)
-                        } else
-                        if context.analyticalDist != .greatestFiniteMagnitude {
-                            no rmal = context.analyticalNormal
-                            
-                            if let material = context.analyticalMaterial {
-                                material.execute(context: context)
-                            }
-                            
-                            let output = 0.1 * simd_dot(normal, float3(0, 2, -10))
-
-                            //color = SIMD4<Float>(output, output, output, 1)
-                            //color = SIMD4<Float>(context.outColor.x, context.outColor.y, context.outColor.z, 1)
-                            color = SIMD4<Float>(context.outColor.x * output, context.outColor.y * output, context.outColor.z * output, 1)
-                        }*/
-                        
                         if hit && t < context.analyticalDist {
                             
                             let p = context.camOrigin + t * context.rayDir
-                            context.hitPosition.fromSIMD(p)
+                            context.rayPosition.fromSIMD(p)
                             let normal = calcNormal(context: context, position: p)
                             context.normal.fromSIMD(normal)
 
                             if let material = material {
                                 material.execute(context: context)
                             }
+                            context.hasHitSomething = true
                             context.executeRender()
                         } else
                         if context.analyticalDist != .greatestFiniteMagnitude {
                             
                             let p = context.camOrigin + context.analyticalDist * context.rayDir
-                            context.hitPosition.fromSIMD(p)
+                            context.rayPosition.fromSIMD(p)
 
                             let normal = context.analyticalNormal
                             context.normal.fromSIMD(normal)
@@ -244,13 +220,19 @@ class Renderer
                             if let material = context.analyticalMaterial {
                                 material.execute(context: context)
                             }
+                            context.hasHitSomething = true
                             context.executeRender()
                         }
                         
                         //tot = tot + color
                         if let outColor = context.variables["outColor"] as? Float4 {
-                            let result = outColor.toSIMD()
+                            var result = outColor.toSIMD()
                             
+                            result.x = simd_clamp(result.x, 0.0, 1.0)
+                            result.y = simd_clamp(result.y, 0.0, 1.0)
+                            result.z = simd_clamp(result.z, 0.0, 1.0)
+                            result.w = simd_clamp(result.w, 0.0, 1.0)
+
                             tot += result
                         }
                     }

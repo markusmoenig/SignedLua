@@ -31,7 +31,7 @@ final class SDFSphereNode : DistanceNode
         context.position += position.toSIMD()
         
         //print("in sphere", radius.toSIMD())
-        context.rayDist[context.rayIndex] = simd_length(context.rayPosition.toSIMD() - context.position) - radius.toSIMD() - context.displacement.toSIMD()// - noise(float2(context.rayPosition.x, context.rayPosition.y) * 2.0) * 0.4
+        context.rayDist[context.rayIndex] = simd_length(context.rayPosition.toSIMD() - context.position) - radius.toSIMD() - context.displacement.toSIMD()
         context.hitMaterial[context.rayIndex] = context.activeMaterial
         context.toggleRayIndex()
         

@@ -90,31 +90,8 @@ class GraphBuilder
         hMaterialNodes.leaves = []
         asset.graph!.hierarchicalNodes.append(hMaterialNodes)
         
-        // Insert default variables
-        
-        asset.graph!.outColor = Float4("outColor", 0.0, 0.0, 0.0, 0.0)
-        asset.graph?.variables["outColor"] = asset.graph!.outColor
-        
-        asset.graph!.rayPosition = Float3("rayPosition", 0, 0, 0)
-        asset.graph?.variables["rayPosition"] = asset.graph!.rayPosition
-        
-        asset.graph!.rayOrigin = Float3("rayOrigin", 0, 0, 0)
-        asset.graph?.variables["rayOrigin"] = asset.graph!.rayOrigin
-        
-        asset.graph!.rayDirection = Float3("rayDirection", 0, 0, 0)
-        asset.graph?.variables["rayDirection"] = asset.graph!.rayDirection
-        
-        asset.graph!.rayPosition = Float3("rayPosition", 0, 0, 0)
-        asset.graph?.variables["rayPosition"] = asset.graph!.rayPosition
-        
-        asset.graph!.normal = Float3("normal", 0, 0, 0)
-        asset.graph?.variables["normal"] = asset.graph!.normal
-        
-        asset.graph!.hitPosition = Float3("hitPosition", 0, 0, 0)
-        asset.graph?.variables["hitPosition"] = asset.graph!.hitPosition
-        
-        asset.graph!.displacement = Float1("displacement", 0)
-        asset.graph?.variables["displacement"] = asset.graph!.displacement
+        // Create default variables
+        asset.graph!.createDefaultVariables()
         
         //
         
@@ -367,6 +344,12 @@ class GraphBuilder
                         if exp.execute() != nil {
                             
                             if let branch = currentBranch.last {
+                                
+                                if let material = currentBranch.first as? MaterialNode {
+                                    if variableName == "displacement" {
+                                        material.hasDisplacement = true
+                                    }
+                                }
                                 
                                 let variableNode = VariableAssignmentNode()
                                 variableNode.givenName = variableName

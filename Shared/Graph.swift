@@ -126,7 +126,6 @@ final class GraphContext    : VariableContainer
 
     var outColor            : Float4!
     var normal              : Float3!
-    var hitPosition         : Float3!
 
     // Graph Values used for rendering
     
@@ -150,6 +149,9 @@ final class GraphContext    : VariableContainer
     var blendMaterial       : GraphNode? = nil                  // The material to blend with (optional), set by the booleans
     var materialBlend       : Float? = nil                      // The blend factor
 
+    var reflectionDepth     : Int = 0
+    var hasHitSomething     : Bool = false
+    
     // SDF Raymarching
     
     var rayDist             : [Float] = []
@@ -188,13 +190,43 @@ final class GraphContext    : VariableContainer
         materialBlend = 0
     }
     
-    /// Create a copy of this context and return it
-    func copy() -> GraphContext {
-        let copy = GraphContext(core)
-        copy.nodes = nodes
-        copy.variables = variables
-        return copy
+    /// Creates the default variables for the graph
+    func createDefaultVariables()
+    {
+        // Insert default variables
+        
+        outColor = Float4("outColor", 0.0, 0.0, 0.0, 0.0)
+        variables["outColor"] = outColor
+        
+        rayPosition = Float3("rayPosition", 0, 0, 0)
+        variables["rayPosition"] = rayPosition
+        
+        rayOrigin = Float3("rayOrigin", 0, 0, 0)
+        variables["rayOrigin"] = rayOrigin
+        
+        rayDirection = Float3("rayDirection", 0, 0, 0)
+        variables["rayDirection"] = rayDirection
+        
+        normal = Float3("normal", 0, 0, 0)
+        variables["normal"] = normal
+        
+        displacement = Float1("displacement", 0)
+        variables["displacement"] = displacement
     }
+    
+    func recreateFromVariableBackup(_ variables: [String:BaseVariable])
+    {
+        self.variables = variables
+        outColor = variables["outColor"] as? Float4
+        
+        rayPosition = variables["rayPosition"] as? Float3
+        rayOrigin = variables["rayOrigin"] as? Float3
+        rayDirection = variables["rayDirection"] as? Float3
+        normal = variables["normal"] as? Float3
+        
+        displacement = variables["displacement"] as? Float1
+    }
+    
     
     @inlinable public func toggleRayIndex()
     {

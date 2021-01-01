@@ -75,7 +75,7 @@ final class TexCheckerNode : GraphNode
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         let size : Float = self.size.toSIMD()
-        let p = floor(float2(context.hitPosition.x, context.hitPosition.z) / size)
+        let p = floor(float2(context.rayPosition.x, context.rayPosition.z) / size)
         let c = abs(fmod(p.x + p.y, 2.0))
         
         let rc = simd_mix(colorA.toSIMD(), colorB.toSIMD(), float3(c, c, c))
