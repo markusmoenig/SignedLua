@@ -8,6 +8,95 @@
 import Foundation
 import simd
 
+class CastShadowRayFuncNode : ExpressionNode {
+    
+    var arguments : (ExpressionContext, ExpressionContext)? = nil
+    var container : VariableContainer? = nil
+    var destIndex : Int = 0
+        
+    init()
+    {
+        super.init("castshadowray")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ destIndex: Int,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        self.container = container
+        self.destIndex = destIndex
+        if let args = splitIntoTwo(self.name, container, parameters, &error) {
+            arguments = args
+            let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute()
+            if a1 != nil && a2 != nil && a1!.getType() == a2!.getType() && a1!.getType() == .Float3 {
+                return Float1(1)
+            } else { error.error = "castshadowray<> expects two Float3 parameters" }
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        context.values[destIndex] = Float1(0)
+        if let rayOrigin = arguments!.0.execute() as? Float3 {
+            if let rayDirection = arguments!.1.execute() as? Float3 {
+
+                if let container = container as? GraphContext {
+                    
+                    if container.hasHitSomething == true {//&& container.insideShadowRay == false {
+                                            
+                        container.insideShadowRay = true
+                        let backup = container.createVariableBackup()
+                        
+                        container.rayOrigin.fromSIMD(rayOrigin.toSIMD() + rayDirection.toSIMD())
+                        container.rayDirection.fromSIMD(rayDirection.toSIMD())
+                        
+                        container.camOrigin = rayOrigin.toSIMD() + rayDirection.toSIMD()
+                        container.rayDir = rayDirection.toSIMD()
+
+                        // Analytical Objects
+                        container.executeAnalytical()
+                        let h = container.analyticalDist
+                        
+                        let tmin : Float = 0.02
+                        let tmax : Float = min(2.5, container.analyticalDist)
+                        var t : Float = tmin
+                        let k : Float = 4
+                        var ph : Float = 1e20
+
+                        var result : Float = 1
+                                                
+                        if( h < 0.001 ) {
+                            result = 0
+                        }
+
+                        while t < tmax && result > 0.0 {
+                            container.executeSDF(container.camOrigin + t * container.rayDir)
+                            let h = container.rayDist[container.rayIndex]
+                            if( h < 0.001 ) {
+                                result = 0
+                                break
+                            }
+                            let y : Float = h*h/(2.0*ph)
+                            let d : Float = sqrt(h*h-y*y)
+                            result = min( result, k*d/max(0.0,t-y) )
+                            ph = h
+                            t += h
+                        }
+                                                
+                        context.values[destIndex] = Float1(result)
+
+                        container.restoreVariableBackup(backup)
+                        //container.insideShadowRay = false
+                    } else {
+                        //container.insideShadowRay = true
+                        context.values[destIndex] = Float1(1)
+                        //container.insideShadowRay = false
+                    }
+                }
+            }
+        }
+    }
+}
+
 class CastRayFuncNode : ExpressionNode {
     
     var arguments : (ExpressionContext, ExpressionContext)? = nil
@@ -16,7 +105,7 @@ class CastRayFuncNode : ExpressionNode {
     
     init()
     {
-        super.init("castRay")
+        super.init("castray")
     }
     
     override func setupFunction(_ container: VariableContainer,_ destIndex: Int,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
@@ -28,7 +117,7 @@ class CastRayFuncNode : ExpressionNode {
             let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute()
             if a1 != nil && a2 != nil && a1!.getType() == a2!.getType() && a1!.getType() == .Float3 {
                 return a1
-            } else { error.error = "castRay<> expects two Float3 parameters" }
+            } else { error.error = "castray<> expects two Float3 parameters" }
         }
         return nil
     }
@@ -48,6 +137,7 @@ class CastRayFuncNode : ExpressionNode {
                     
                     if container.reflectionDepth < 2 && container.hasHitSomething == true {
                         
+                        let hasHitSomethingBuffer = container.hasHitSomething
                         container.hasHitSomething = false
                         
                         let backup = container.createVariableBackup()
@@ -66,7 +156,6 @@ class CastRayFuncNode : ExpressionNode {
                         container.executeAnalytical()
                         let maxDist : Float = simd_min(10.0, container.analyticalDist)
                         
-                        //var color = context.result
                         var material : GraphNode? = nil
 
                         var hit = false
@@ -128,11 +217,8 @@ class CastRayFuncNode : ExpressionNode {
                             outColor.z += result.z
                         }
 
+                        container.hasHitSomething = hasHitSomethingBuffer
                         container.restoreVariableBackup(backup)
-                    } else {
-                        // Max reflection depth, return 0
-                        //let v = Float4(); v.fromSIMD(float4(0,0,0,0))
-                        //context.values[destIndex] = v
                     }
                 }
             }

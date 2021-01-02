@@ -102,6 +102,33 @@ class ExpressionNode {
         return nil
     }
     
+    func splitIntoThree(_ functionName : String,_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> (ExpressionContext, ExpressionContext, ExpressionContext)?
+    {
+        let array = splitParameters(parameters)
+        if array.count == 3 {
+            let arg1Context = ExpressionContext()
+            arg1Context.parse(expression: array[0], container: container, error: &error)
+            
+            if error.error != nil { return nil }
+            
+            let arg2Context = ExpressionContext()
+            arg2Context.parse(expression: array[1], container: container, error: &error)
+            
+            if error.error != nil { return nil }
+            
+            let arg3Context = ExpressionContext()
+            arg3Context.parse(expression: array[2], container: container, error: &error)
+            
+            if error.error != nil { return nil }
+            
+            return (arg1Context, arg2Context, arg3Context)
+        } else {
+            error.error = "Wrong number of arguments for \(functionName)"
+        }
+        
+        return nil
+    }
+    
     func splitParameters(_ parameters: String) -> [String] {
         var arguments : [String] = []
         
@@ -170,10 +197,12 @@ class ExpressionContext
     [
         ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() }),
         ExpressionNodeItem("pow", {() -> ExpressionNode in return PowFuncNode() }),
+        ExpressionNodeItem("clamp", {() -> ExpressionNode in return ClampFuncNode() }),
         ExpressionNodeItem("normalize", {() -> ExpressionNode in return NormalizeFuncNode() }),
         ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
         ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),
-        ExpressionNodeItem("castRay", {() -> ExpressionNode in return CastRayFuncNode() })
+        ExpressionNodeItem("castray", {() -> ExpressionNode in return CastRayFuncNode() }),
+        ExpressionNodeItem("castshadowray", {() -> ExpressionNode in return CastShadowRayFuncNode() })
     ]
         
     init()

@@ -150,6 +150,8 @@ final class GraphContext    : VariableContainer
     var materialBlend       : Float? = nil                      // The blend factor
 
     var reflectionDepth     : Int = 0
+    var insideShadowRay     : Bool = false
+    
     var hasHitSomething     : Bool = false
     
     // SDF Raymarching

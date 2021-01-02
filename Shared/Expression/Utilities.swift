@@ -141,10 +141,7 @@ func extractFloat2Value(_ options: [String:Any], container: VariableContainer, p
     //if let value = options[name] as? Float2 {
     //    return value
     //} else
-    if let value = options[name] as? String {
-        
-        let array = value.split(separator: ",")
-        
+    if let value = options[name] as? String {                
         if let context = expressionBuilder( expression: value, container: container, error: &error) {
             if let value = context.executeForFloat2() {
                 return value
@@ -153,31 +150,6 @@ func extractFloat2Value(_ options: [String:Any], container: VariableContainer, p
                 return nil
             }
         }
-        /*
-        if isOptional == false { error.error = "Parameter '\(name)' not found" }
-        
-        if array.count == 2 {
-            let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
-            let y : Float; if let v = Float(array[1].trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
-            return Float2(x, y)
-        } else
-        if array.count == 1 {
-            if let v = container.getVariableValue(String(array[0]), parameters: parameters) as? Float2 {
-                return v
-            } else {
-                print("11")
-                if let context = expressionBuilder( expression: value, container: container, error: &error) {
-                    if let value = context.executeForFloat2() {
-                        return value
-                    } else {
-                        error.error = "Result for '\(name)' is not a Float2 value but \(context.wrongType)"
-                        return nil
-                    }
-                }
-                if isOptional == false { error.error = "Parameter '\(name)' not found" }
-            }
-        } else { if isOptional == false { error.error = "Wrong argument count for Float2" } }
-        */
     } else { if isOptional == false { error.error = "Parameter '\(name)' not found" } }
     
     return nil
