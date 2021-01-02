@@ -198,21 +198,27 @@ final class GraphContext    : VariableContainer
         // Insert default variables
         
         outColor = Float4("outColor", 0.0, 0.0, 0.0, 0.0)
+        outColor.role = .System
         variables["outColor"] = outColor
         
         rayPosition = Float3("rayPosition", 0, 0, 0)
+        rayPosition.role = .System
         variables["rayPosition"] = rayPosition
         
         rayOrigin = Float3("rayOrigin", 0, 0, 0)
+        rayOrigin.role = .System
         variables["rayOrigin"] = rayOrigin
         
         rayDirection = Float3("rayDirection", 0, 0, 0)
+        rayDirection.role = .System
         variables["rayDirection"] = rayDirection
         
         normal = Float3("normal", 0, 0, 0)
+        normal.role = .System
         variables["normal"] = normal
         
         displacement = Float1("displacement", 0)
+        displacement.role = .System
         variables["displacement"] = displacement
     }
     

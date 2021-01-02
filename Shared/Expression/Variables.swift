@@ -24,6 +24,12 @@ class BaseVariable {
         case Invalid, Bool, Text, Int, Float, Float2, Float3, Float4
     }
     
+    enum VariableRole {
+        case User, System
+    }
+    
+    var role        : VariableRole = .User
+    
     var context     : ExpressionContext? = nil    
     var name        : String = ""
     
@@ -72,6 +78,32 @@ class BaseVariable {
         }
         return nil
     }
+    
+    func isConstant() -> Bool
+    {
+        return role == .User
+    }
+    
+    func toSIMD1() -> Float
+    {
+        return 0
+    }
+    
+    func toSIMD2() -> SIMD2<Float>
+    {
+        return SIMD2<Float>(0,0)
+    }
+    
+    func toSIMD3() -> SIMD3<Float>
+    {
+        return SIMD3<Float>(0,0,0)
+    }
+    
+    func toSIMD4() -> SIMD4<Float>
+    {
+        return SIMD4<Float>(0,0,0,0)
+    }
+
     
     /// Subscript stub
     subscript(index: Int) -> Float {
@@ -205,8 +237,26 @@ final class Float4 : BaseVariable
         return "Float4"
     }
     
+    @inlinable override func isConstant() -> Bool {
+        if let reference = reference {
+            return reference.isConstant()
+        } else
+        if role == .User && context1 == nil && context2 == nil && context3 == nil && context4 == nil {
+            return true
+        }
+        return false
+    }
+    
+    @inlinable override func toSIMD4() -> SIMD4<Float>
+    {
+        return toSIMD()
+    }
+    
     @inlinable func toSIMD() -> SIMD4<Float>
     {
+        if isConstant() {
+            return SIMD4<Float>(x, y, z, w)
+        }
         // One big expression for all 3 components
         if expressions == 0 {
             if let ref = reference {
@@ -394,8 +444,26 @@ final class Float3 : BaseVariable
         return "Float3"
     }
     
+    @inlinable override func isConstant() -> Bool {
+        if let reference = reference {
+            return reference.isConstant()
+        } else
+        if role == .User && context1 == nil && context2 == nil && context3 == nil {
+            return true
+        }
+        return false
+    }
+    
+    @inlinable override func toSIMD3() -> SIMD3<Float>
+    {
+        return toSIMD()
+    }
+    
     @inlinable func toSIMD() -> SIMD3<Float>
     {
+        if isConstant() {
+            return SIMD3<Float>(x, y, z)
+        }
         // One big expression for all 3 components
         if expressions == 0 {
             if let ref = reference {
@@ -546,8 +614,26 @@ final class Float2 : BaseVariable
         return "Float2"
     }
     
+    @inlinable override func isConstant() -> Bool {
+        if let reference = reference {
+            return reference.isConstant()
+        } else
+        if role == .User && context1 == nil && context2 == nil {
+            return true
+        }
+        return false
+    }
+    
+    @inlinable override func toSIMD2() -> SIMD2<Float>
+    {
+        return toSIMD()
+    }
+    
     @inlinable func toSIMD() -> SIMD2<Float>
     {
+        if isConstant() {
+            return SIMD2<Float>(x, y)
+        }
         // One big expression for all 2 components
         if expressions == 0 {
             if let ref = reference {
@@ -635,8 +721,26 @@ final class Float1 : BaseVariable
         }
     }
     
+    @inlinable override func isConstant() -> Bool {
+        if let reference = reference {
+            return reference.isConstant()
+        } else
+        if role == .User && context == nil {
+            return true
+        }
+        return false
+    }
+    
+    @inlinable override func toSIMD1() -> Float
+    {
+        return toSIMD()
+    }
+    
     @inlinable func toSIMD() -> Float
     {
+        if isConstant() {
+            return x
+        }
         if let ref = reference {
             return ref[qualifiers[0]]
         } else

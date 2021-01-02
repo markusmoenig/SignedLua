@@ -491,7 +491,7 @@ class GraphBuilder
         if let node = currentNode {
             //options += node.getOptions()
             if let line = getLine(node.lineNr) {
-                print(line)
+                //print(line)
                 options += extractOptionsFromLine(node, line)
             }
         }

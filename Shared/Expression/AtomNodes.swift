@@ -31,50 +31,57 @@ class MultiplyAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
-        if let left = left as? Float1 {
-            if let right = right as? Float1 {
-                context.values[indices[1] + 1] = Float1(left.toSIMD() * right.toSIMD())
-            }
-            if let right = right as? Float2 {
-                let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
+        if left.getType() == .Float {
+            let rcLeft = left.toSIMD1()
+
+            if right.getType() == .Float {
+                let rcRight = right.toSIMD1()
+                context.values[indices[1] + 1] = Float1(rcLeft * rcRight)
+            } else
+            if right.getType() == .Float2 {
+                let rcRight = right.toSIMD2()
                 context.values[indices[1] + 1] = Float2(rcLeft * rcRight.x, rcLeft * rcRight.y)
-            }
-            if let right = right as? Float3 {
-                let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
+            } else
+            if right.getType() == .Float3 {
+                let rcRight = right.toSIMD3()
                 context.values[indices[1] + 1] = Float3(rcLeft * rcRight.x, rcLeft * rcRight.y, rcLeft * rcRight.z)
-            }
-            if let right = right as? Float4 {
-                let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
+            } else
+            if right.getType() == .Float4 {
+                let rcRight = right.toSIMD4()
                 context.values[indices[1] + 1] = Float4(rcLeft * rcRight.x, rcLeft * rcRight.y, rcLeft * rcRight.z, rcLeft * rcRight.w)
             }
-        }
-        if let left = left as? Float2 {
-            if let right = right as? Float1 {
-                let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
+        } else
+        if left.getType() == .Float2 {
+            let rcLeft = left.toSIMD2()
+
+            if right.getType() == .Float {
+                let rcRight = right.toSIMD1()
                 context.values[indices[1] + 1] = Float2(rcLeft.x * rcRight, rcLeft.y * rcRight)
             } else
-            if let right = right as? Float2 {
-                let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
+            if right.getType() == .Float2 {
+                let rcRight = right.toSIMD2()
                 context.values[indices[1] + 1] = Float2(rcLeft.x * rcRight.x, rcLeft.y * rcRight.y)
             }
         } else
-        if let left = left as? Float3 {
-            if let right = right as? Float1 {
-                let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
+        if left.getType() == .Float3 {
+            let rcLeft = left.toSIMD3()
+            if right.getType() == .Float {
+                let rcRight = right.toSIMD1()
                 context.values[indices[1] + 1] = Float3(rcLeft.x * rcRight, rcLeft.y * rcRight, rcLeft.z * rcRight)
             } else
-            if let right = right as? Float3 {
-                let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
+            if right.getType() == .Float3 {
+                let rcRight = right.toSIMD3()
                 context.values[indices[1] + 1] = Float3(rcLeft.x * rcRight.x, rcLeft.y * rcRight.y, rcLeft.z * rcRight.z)
             }
         } else
-        if let left = left as? Float4 {
-            if let right = right as? Float1 {
-                let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
+        if left.getType() == .Float4 {
+            let rcLeft = left.toSIMD4()
+            if right.getType() == .Float {
+                let rcRight = right.toSIMD1()
                 context.values[indices[1] + 1] = Float4(rcLeft.x * rcRight, rcLeft.y * rcRight, rcLeft.z * rcRight, rcLeft.w * rcRight)
             } else
-            if let right = right as? Float4 {
-                let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
+            if right.getType() == .Float4 {
+                let rcRight = right.toSIMD4()
                 context.values[indices[1] + 1] = Float4(rcLeft.x * rcRight.x, rcLeft.y * rcRight.y, rcLeft.z * rcRight.z, rcLeft.w * rcRight.w)
             }
         }
@@ -108,15 +115,15 @@ class DivisionAtomNode : ExpressionNode {
         if let left = left as? Float1 {
             if let right = right as? Float1 {
                 context.values[indices[1] + 1] = Float1(left.toSIMD() / right.toSIMD())
-            }
+            } else
             if let right = right as? Float2 {
                 let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
                 context.values[indices[1] + 1] = Float2(rcLeft / rcRight.x, rcLeft / rcRight.y)
-            }
+            } else
             if let right = right as? Float3 {
                 let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
                 context.values[indices[1] + 1] = Float3(rcLeft / rcRight.x, rcLeft / rcRight.y, rcLeft / rcRight.z)
-            }
+            } else
             if let right = right as? Float4 {
                 let rcLeft = left.toSIMD(); let rcRight = right.toSIMD()
                 context.values[indices[1] + 1] = Float4(rcLeft / rcRight.x, rcLeft / rcRight.y, rcLeft / rcRight.z, rcLeft / rcRight.w)

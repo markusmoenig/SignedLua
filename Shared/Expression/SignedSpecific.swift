@@ -27,6 +27,7 @@ class CastShadowRayFuncNode : ExpressionNode {
             arguments = args
             let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute()
             if a1 != nil && a2 != nil && a1!.getType() == a2!.getType() && a1!.getType() == .Float3 {
+                resultType = .Variable
                 return Float1(1)
             } else { error.error = "castshadowray<> expects two Float3 parameters" }
         }
@@ -116,6 +117,7 @@ class CastRayFuncNode : ExpressionNode {
             arguments = args
             let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute()
             if a1 != nil && a2 != nil && a1!.getType() == a2!.getType() && a1!.getType() == .Float3 {
+                resultType = .Variable
                 return a1
             } else { error.error = "castray<> expects two Float3 parameters" }
         }

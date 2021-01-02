@@ -40,7 +40,9 @@ class ExpressionNode {
     var name                : String = ""
     
     var indices             : [Int] = []
-    
+
+    var resultType          : ExpressionContext.ResultType = .Constant
+
     init(_ name: String)
     {
         self.name = name
@@ -219,8 +221,22 @@ class ExpressionContext
     var nodes       : [ExpressionNode] = []
     var wrongType   : String = ""
     
+    var cResult     : BaseVariable? = nil
+
+    var cResult1    : Float1? = nil
+    var cResult2    : Float2? = nil
+    var cResult3    : Float3? = nil
+    var cResult4    : Float4? = nil
+    
+    var expression  : String = ""
+    
+    @inlinable func isConstant() -> Bool {
+        return resultType == .Constant
+    }
+
     func parse(expression: String, container: VariableContainer, error: inout CompileError)
     {
+        self.expression = expression
         //print("parse", expression)
         
         var offset      : Int = 0
@@ -314,7 +330,9 @@ class ExpressionContext
                     uncomsumed.append(values.count)
                     values.append(variableRef)
                     
-                    resultType = .Variable
+                    if variableRef.isConstant() == false {
+                        resultType = .Variable
+                    }
                     testForConsumption()
                 } else {
                     if element.isEmpty == false {
@@ -328,6 +346,10 @@ class ExpressionContext
                 if let functionNode = getFunction(element) {
                     if let result = functionNode.setupFunction(container, values.count, parameters, &error) {
                     
+                        if functionNode.resultType == .Variable {
+                            resultType = .Variable
+                        }
+                        
                         if error.error != nil { return }
 
                         uncomsumed.append(values.count)
@@ -337,6 +359,11 @@ class ExpressionContext
                     }
                 } else
                 if let variable = BaseVariable.createType(element, container: container, parameters: parameters, error: &error) {
+                    
+                    if variable.isConstant() == false {
+                        resultType = .Variable
+                    }
+                    
                     uncomsumed.append(values.count)
                     values.append(variable)
                     
@@ -347,6 +374,8 @@ class ExpressionContext
             if error.error != nil {
                 return                
             }
+            
+            //print(expression, resultType)
             //print(element, offset)
         }
     }
@@ -354,12 +383,17 @@ class ExpressionContext
     /// Returns a possible result
     @inlinable func execute() -> BaseVariable?
     {
+        if cResult != nil { return cResult }
+        
         for node in nodes {
             node.execute(self)
         }
         
         if values.count >= 1 {
             if let result = values[values.count - 1] {
+                if resultType == .Constant {
+                    cResult = result
+                }
                 return result
             }
         }
@@ -369,6 +403,8 @@ class ExpressionContext
     /// Returns a possible Float1 result
     @inlinable func executeForFloat1() -> Float1?
     {
+        if cResult1 != nil { return cResult1 }
+
         for node in nodes {
             node.execute(self)
         }
@@ -376,7 +412,11 @@ class ExpressionContext
         if values.count >= 1 {
             let result = values[values.count - 1]
             if let f1 = result as? Float1 {
-                f1.context = self
+                if resultType == .Variable {
+                    f1.context = self
+                } else {
+                    cResult1 = f1
+                }
                 return f1
             } else {
                 wrongType = ""
@@ -391,6 +431,8 @@ class ExpressionContext
     /// Returns a possible Float2 result
     @inlinable func executeForFloat2() -> Float2?
     {
+        if cResult2 != nil { return cResult2 }
+
         for node in nodes {
             node.execute(self)
         }
@@ -398,7 +440,11 @@ class ExpressionContext
         if values.count >= 1 {
             let result = values[values.count - 1]
             if let f2 = result as? Float2 {
-                f2.context = self
+                if resultType == .Variable {
+                    f2.context = self
+                } else {
+                    cResult2 = f2
+                }
                 return f2
             } else {
                 wrongType = ""
@@ -413,6 +459,8 @@ class ExpressionContext
     /// Returns a possible Float3 result
     @inlinable func executeForFloat3() -> Float3?
     {
+        if cResult3 != nil { return cResult3 }
+
         for node in nodes {
             node.execute(self)
         }
@@ -420,7 +468,11 @@ class ExpressionContext
         if values.count >= 1 {
             let result = values[values.count - 1]
             if let f3 = result as? Float3 {
-                f3.context = self
+                if resultType == .Variable {
+                    f3.context = self
+                } else {
+                    cResult3 = f3
+                }
                 return f3
             } else {
                 wrongType = ""
@@ -435,6 +487,8 @@ class ExpressionContext
     /// Returns a possible Float4 result
     @inlinable func executeForFloat4() -> Float4?
     {
+        if cResult4 != nil { return cResult4 }
+
         for node in nodes {
             node.execute(self)
         }
@@ -442,7 +496,11 @@ class ExpressionContext
         if values.count >= 1 {
             let result = values[values.count - 1]
             if let f4 = result as? Float4{
-                f4.context = self
+                if resultType == .Variable {
+                    f4.context = self
+                } else {
+                    cResult4 = f4
+                }
                 return f4
             } else {
                 wrongType = ""

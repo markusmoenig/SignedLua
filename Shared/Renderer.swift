@@ -172,9 +172,8 @@ class Renderer
                         
                         // Analytical Objects
                         context.executeAnalytical()
-                        let maxDist : Float = simd_min(15.0, context.analyticalDist)
+                        let maxDist : Float = simd_min(10.0, context.analyticalDist)
                         
-                        //var color = context.result
                         var material : GraphNode? = nil
 
                         var hit = false
@@ -264,6 +263,7 @@ class Renderer
             }
             
             isRunning = false
+            print(totalTime)
         }
     }
     

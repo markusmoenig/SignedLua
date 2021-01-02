@@ -153,32 +153,38 @@ final class VariableAssignmentNode : GraphNode
         if let expression = expression {
             if let existing = context.variables[givenName] {
         
+                //if expression.isConstant() { return .Success }
+                
                 if let exf4 = existing as? Float4 {
                     if let f4 = expression.executeForFloat4() {
+                        exf4.role = expression.isConstant() ? .User : .System
                         exf4.fromSIMD(f4.toSIMD())
                     }
                 } else
                 if let exf3 = existing as? Float3 {
                     if let f3 = expression.executeForFloat3() {
+                        exf3.role = expression.isConstant() ? .User : .System
                         exf3.fromSIMD(f3.toSIMD())
                     }
                 } else
                 if let exf2 = existing as? Float2 {
                     if let f2 = expression.executeForFloat2() {
+                        exf2.role = expression.isConstant() ? .User : .System
                         exf2.fromSIMD(f2.toSIMD())
                     }
                 } else
                 if let exf1 = existing as? Float1 {
                     if let f1 = expression.executeForFloat1() {
+                        exf1.role = expression.isConstant() ? .User : .System
                         exf1.fromSIMD(f1.toSIMD())
                     }
                 }
             } else {
                 // New variable
                 context.variables[givenName] = expression.execute()
+                context.variables[givenName]!.role = expression.isConstant() ? .User : .System
             }
         }
-        //print("Variable Ass", name)
         return .Success
     }
     

@@ -12,6 +12,8 @@ class DotFuncNode : ExpressionNode {
     
     var arguments : (ExpressionContext, ExpressionContext)? = nil
     var destIndex : Int = 0
+    
+    var cResult   : BaseVariable? = nil
 
     init()
     {
@@ -25,6 +27,9 @@ class DotFuncNode : ExpressionNode {
             arguments = args
             let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute()
             if a1 != nil && a2 != nil && a1!.getType() == a2!.getType() {
+                if arguments!.0.isConstant() == false || arguments!.1.isConstant() == false {
+                    resultType = .Variable
+                }
                 return Float1(0)
             } else { error.error = "Unsupported parameters for dot<>" }
         }
@@ -33,19 +38,21 @@ class DotFuncNode : ExpressionNode {
     
     @inlinable override func execute(_ context: ExpressionContext)
     {
-        if let f41 = arguments!.0.execute() as? Float4 {
-            if let f42 = arguments!.1.execute() as? Float4 {
-                context.values[destIndex] = Float1(simd_dot(f41.toSIMD(), f42.toSIMD()))
-            }
-        } else
-        if let f31 = arguments!.0.execute() as? Float3 {
-            if let f32 = arguments!.1.execute() as? Float3 {
-                context.values[destIndex] = Float1(simd_dot(f31.toSIMD(), f32.toSIMD()))
-            }
-        } else
-        if let f21 = arguments!.0.execute() as? Float2 {
-            if let f22 = arguments!.1.execute() as? Float2 {
-                context.values[destIndex] = Float1(simd_dot(f21.toSIMD(), f22.toSIMD()))
+        if let leftResult = arguments!.0.execute() {
+            if leftResult.getType() == .Float3 {
+                if let rightResult = arguments!.1.execute() {
+                    context.values[destIndex] = Float1(simd_dot(leftResult.toSIMD3(), rightResult.toSIMD3()))
+                }
+            } else
+            if leftResult.getType() == .Float4 {
+                if let rightResult = arguments!.1.execute() {
+                    context.values[destIndex] = Float1(simd_dot(leftResult.toSIMD4(), rightResult.toSIMD4()))
+                }
+            } else
+            if leftResult.getType() == .Float2 {
+                if let rightResult = arguments!.1.execute() {
+                    context.values[destIndex] = Float1(simd_dot(leftResult.toSIMD2(), rightResult.toSIMD2()))
+                }
             }
         }
     }
@@ -67,7 +74,10 @@ class ClampFuncNode : ExpressionNode {
         if let args = splitIntoThree(self.name, container, parameters, &error) {
             arguments = args
             let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute(); let a3 = arguments!.2.execute()
-            if a1 != nil && a2 != nil && a2!.getType() == .Float && a3!.getType() == .Float {
+            if a1 != nil && a2 != nil && a3 != nil && a2!.getType() == .Float && a3!.getType() == .Float {
+                if arguments!.0.isConstant() == false || arguments!.1.isConstant() == false || arguments!.2.isConstant() == false {
+                    resultType = .Variable
+                }
                 return a1
             } else { error.error = "Unsupported parameters for clamp<>" }
         }
@@ -76,48 +86,44 @@ class ClampFuncNode : ExpressionNode {
     
     @inlinable override func execute(_ context: ExpressionContext)
     {
-        if let f12 = arguments!.1.execute() as? Float1 {
-            let r12 = f12.toSIMD()
-            if let f13 = arguments!.2.execute() as? Float1 {
-                let r13 = f13.toSIMD()
+        if let r12 = arguments!.1.executeForFloat1()?.x {
+            if let r13 = arguments!.2.executeForFloat1()?.x {
 
-                if let f4 = arguments!.0.execute() as? Float4 {
-                    let r4 = f4.toSIMD()
-                    let v = Float4();
-                    
-                    v.x = simd_clamp(r4.x, r12, r13)
-                    v.y = simd_clamp(r4.y, r12, r13)
-                    v.z = simd_clamp(r4.z, r12, r13)
-                    v.w = simd_clamp(r4.w, r12, r13)
-
-                    context.values[destIndex] = v
+                guard let input = arguments!.0.execute() else {
+                    return
+                }
+                
+                if input.getType() == .Float3 {
+                    if let r3 = arguments!.0.execute() {
+                        let v = Float3()
+                        
+                        v.fromSIMD(r3.toSIMD3().clamped(lowerBound: float3(r12, r12, r12), upperBound: float3(r13, r13, r13)))
+                        context.values[destIndex] = v
+                    }
                 } else
-                if let f3 = arguments!.0.execute() as? Float3 {
-                    let r3 = f3.toSIMD()
-                    let v = Float3();
-                    
-                    v.x = simd_clamp(r3.x, r12, r13)
-                    v.y = simd_clamp(r3.y, r12, r13)
-                    v.z = simd_clamp(r3.z, r12, r13)
-
-                    context.values[destIndex] = v
+                if input.getType() == .Float {
+                    if let r1 = arguments!.0.execute() {
+                        let v = Float1()
+                        
+                        v.x = simd_clamp(r1.toSIMD1(), r12, r13)
+                        context.values[destIndex] = v
+                    }
                 } else
-                if let f2 = arguments!.0.execute() as? Float2 {
-                    let r2 = f2.toSIMD()
-                    let v = Float2();
-                    
-                    v.x = simd_clamp(r2.x, r12, r13)
-                    v.y = simd_clamp(r2.y, r12, r13)
-
-                    context.values[destIndex] = v
+                if input.getType() == .Float4 {
+                    if let r4 = arguments!.0.execute() {
+                        let v = Float4()
+                        
+                        v.fromSIMD(r4.toSIMD4().clamped(lowerBound: float4(repeating: r12), upperBound: float4(repeating: r13)))
+                        context.values[destIndex] = v
+                    }
                 } else
-                if let f1 = arguments!.0.execute() as? Float1 {
-                    let r1 = f1.toSIMD()
-                    let v = Float1();
-                    
-                    v.x = simd_clamp(r1, r12, r13)
-
-                    context.values[destIndex] = v
+                if input.getType() == .Float2 {
+                    if let r2 = arguments!.0.execute() {
+                        let v = Float2()
+                        
+                        v.fromSIMD(r2.toSIMD2().clamped(lowerBound: float2(r12, r12), upperBound: float2(r13, r13)))
+                        context.values[destIndex] = v
+                    }
                 }
             }
         }
@@ -141,6 +147,9 @@ class PowFuncNode : ExpressionNode {
             arguments = args
             let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute()
             if a1 != nil && a2 != nil && a1!.getType() == a2!.getType() {
+                if a1!.isConstant() == false || a2!.isConstant() == false {
+                    resultType = .Variable
+                }
                 return a1
             } else { error.error = "Unsupported parameters for dot<>" }
         }
@@ -219,6 +228,9 @@ class NormalizeFuncNode : ExpressionNode {
             argument = arg
             let a1 = arg.execute()
             if a1 != nil {
+                if a1!.isConstant() == false {
+                    resultType = .Variable
+                }
                 return a1
             } else { error.error = "Unsupported argument for \(name)<>" }
         }
@@ -227,18 +239,19 @@ class NormalizeFuncNode : ExpressionNode {
     
     @inlinable override func execute(_ context: ExpressionContext)
     {
-        if let f4 = argument!.execute() as? Float4 {
-            let rc = simd_normalize(f4.toSIMD()); let v = Float4(); v.fromSIMD(rc)
-            context.values[destIndex] = v
-
-        } else
-        if let f3 = argument!.execute() as? Float3 {
-            let rc = simd_normalize(f3.toSIMD()); let v = Float3(); v.fromSIMD(rc)
-            context.values[destIndex] = v
-        } else
-        if let f2 = argument!.execute() as? Float2 {
-            let rc = simd_normalize(f2.toSIMD()); let v = Float2(); v.fromSIMD(rc)
-            context.values[destIndex] = v
+        if let result = argument!.execute() {
+            if result.getType() == .Float3 {
+                let rc = simd_normalize(result.toSIMD3()); let v = Float3(); v.fromSIMD(rc)
+                context.values[destIndex] = v
+            }
+            if result.getType() == .Float4 {
+                let rc = simd_normalize(result.toSIMD4()); let v = Float4(); v.fromSIMD(rc)
+                context.values[destIndex] = v
+            }
+            if result.getType() == .Float2 {
+                let rc = simd_normalize(result.toSIMD2()); let v = Float2(); v.fromSIMD(rc)
+                context.values[destIndex] = v
+            }
         }
     }
 }
@@ -260,6 +273,9 @@ class ReflectFuncNode : ExpressionNode {
             arguments = args
             let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute()
             if a1 != nil && a2 != nil && a1!.getType() == a2!.getType() && a1!.getType() == .Float3 {
+                if a1!.isConstant() == false || a2!.isConstant() == false {
+                    resultType = .Variable
+                }
                 return a1
             } else { error.error = "reflect<> expects two Float3 parameters" }
         }
@@ -296,6 +312,7 @@ class Noise2DFuncNode : ExpressionNode {
             let a1 = arg.execute();
             if a1 != nil && a1!.getType() == .Float2 {
                 self.arg = arg
+                resultType = .Variable
                 return a1
             } else { error.error = "\(name)<> expects one Float2 parameter" }
         }
