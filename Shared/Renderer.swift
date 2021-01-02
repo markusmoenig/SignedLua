@@ -37,6 +37,8 @@ class Renderer
     
     var isRunning       : Bool = true
     var stopRunning     : Bool = false
+    
+    var lines           : [Int] = []
 
     init()
     {
@@ -80,6 +82,11 @@ class Renderer
         //let width: Int = texture!.width
         let height: Int = texture!.height
         
+        lines = []
+        for i in 0..<height {
+            lines.append(i)
+        }
+        
         var lineCount : Int = 0
         let chunkHeight : Int = height / cores + cores
         
@@ -109,6 +116,17 @@ class Renderer
         }
     }
     
+    func getNextLine() -> Int?
+    {
+        semaphore.wait()
+        var line : Int? = nil
+        if lines.isEmpty == false {
+            line = lines.removeFirst()
+        }
+        semaphore.signal()
+        return line
+    }
+    
     func renderChunk(context1: GraphContext, chunk: SIMD4<Int>)
     {
         guard let texture = texture else {
@@ -135,7 +153,9 @@ class Renderer
         context.viewSize = float2(width, height)
                 
         //DispatchQueue.concurrentPerform(iterations: texture!.height) { h in
-        for h in chunk.y..<chunk.w {
+        //for h in chunk.y..<chunk.w {
+        //var h : Int? = 0
+        while let h = getNextLine() {
             let fh : Float = Float(h) / height
             for w in 0..<widthInt {
                 
