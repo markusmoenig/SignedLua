@@ -140,6 +140,23 @@ final class Float4 : BaseVariable
         self.w = w
     }
     
+    init(_ o: Float4)
+    {
+        super.init("", components: 4)
+        self.x = o.x
+        self.y = o.y
+        self.z = o.z
+        self.w = o.w
+    }
+    
+    init(_ o: float4)
+    {
+        super.init("", components: 4)
+        self.x = o.x
+        self.y = o.y
+        self.z = o.z
+        self.w = o.w
+    }
     
     var expressions : Int = 0
     var context1    : ExpressionContext? = nil
@@ -365,6 +382,14 @@ final class Float3 : BaseVariable
         self.z = o.z
     }
     
+    init(_ o: float3)
+    {
+        super.init("", components: 3)
+        self.x = o.x
+        self.y = o.y
+        self.z = o.z
+    }
+    
     var expressions : Int = 0
     var context1    : ExpressionContext? = nil
     var context2    : ExpressionContext? = nil
@@ -547,6 +572,20 @@ final class Float2 : BaseVariable
         super.init("", components: 2)
         self.x = x
         self.y = y
+    }
+    
+    init(_ o: Float2)
+    {
+        super.init("", components: 2)
+        self.x = o.x
+        self.y = o.y
+    }
+    
+    init(_ o: float2)
+    {
+        super.init("", components: 2)
+        self.x = o.x
+        self.y = o.y
     }
     
     var expressions : Int = 0

@@ -38,22 +38,22 @@ class DotFuncNode : ExpressionNode {
     
     @inlinable override func execute(_ context: ExpressionContext)
     {
-        if let leftResult = arguments!.0.execute() {
-            if leftResult.getType() == .Float3 {
-                if let rightResult = arguments!.1.execute() {
-                    context.values[destIndex] = Float1(simd_dot(leftResult.toSIMD3(), rightResult.toSIMD3()))
-                }
-            } else
-            if leftResult.getType() == .Float4 {
-                if let rightResult = arguments!.1.execute() {
-                    context.values[destIndex] = Float1(simd_dot(leftResult.toSIMD4(), rightResult.toSIMD4()))
-                }
-            } else
-            if leftResult.getType() == .Float2 {
-                if let rightResult = arguments!.1.execute() {
-                    context.values[destIndex] = Float1(simd_dot(leftResult.toSIMD2(), rightResult.toSIMD2()))
-                }
-            }
+        guard let leftResult = arguments!.0.execute() else {
+            return
+        }
+        
+        guard let rightResult = arguments!.1.execute() else {
+            return
+        }
+
+        if leftResult.getType() == .Float3 {
+            context.values[destIndex] = Float1(simd_dot(leftResult.toSIMD3(), rightResult.toSIMD3()))
+        } else
+        if leftResult.getType() == .Float4 {
+            context.values[destIndex] = Float1(simd_dot(leftResult.toSIMD4(), rightResult.toSIMD4()))
+        } else
+        if leftResult.getType() == .Float2 {
+            context.values[destIndex] = Float1(simd_dot(leftResult.toSIMD2(), rightResult.toSIMD2()))
         }
     }
 }
@@ -94,36 +94,16 @@ class ClampFuncNode : ExpressionNode {
                 }
                 
                 if input.getType() == .Float3 {
-                    if let r3 = arguments!.0.execute() {
-                        let v = Float3()
-                        
-                        v.fromSIMD(r3.toSIMD3().clamped(lowerBound: float3(r12, r12, r12), upperBound: float3(r13, r13, r13)))
-                        context.values[destIndex] = v
-                    }
+                    context.values[destIndex] = Float3(input.toSIMD3().clamped(lowerBound: float3(r12, r12, r12), upperBound: float3(r13, r13, r13)))
                 } else
                 if input.getType() == .Float {
-                    if let r1 = arguments!.0.execute() {
-                        let v = Float1()
-                        
-                        v.x = simd_clamp(r1.toSIMD1(), r12, r13)
-                        context.values[destIndex] = v
-                    }
+                    context.values[destIndex] = Float1(simd_clamp(input.toSIMD1(), r12, r13))
                 } else
                 if input.getType() == .Float4 {
-                    if let r4 = arguments!.0.execute() {
-                        let v = Float4()
-                        
-                        v.fromSIMD(r4.toSIMD4().clamped(lowerBound: float4(repeating: r12), upperBound: float4(repeating: r13)))
-                        context.values[destIndex] = v
-                    }
+                    context.values[destIndex] = Float4(input.toSIMD4().clamped(lowerBound: float4(repeating: r12), upperBound: float4(repeating: r13)))
                 } else
                 if input.getType() == .Float2 {
-                    if let r2 = arguments!.0.execute() {
-                        let v = Float2()
-                        
-                        v.fromSIMD(r2.toSIMD2().clamped(lowerBound: float2(r12, r12), upperBound: float2(r13, r13)))
-                        context.values[destIndex] = v
-                    }
+                    context.values[destIndex] = Float2(input.toSIMD2().clamped(lowerBound: float2(r12, r12), upperBound: float2(r13, r13)))
                 }
             }
         }
@@ -239,19 +219,18 @@ class NormalizeFuncNode : ExpressionNode {
     
     @inlinable override func execute(_ context: ExpressionContext)
     {
-        if let result = argument!.execute() {
-            if result.getType() == .Float3 {
-                let rc = simd_normalize(result.toSIMD3()); let v = Float3(); v.fromSIMD(rc)
-                context.values[destIndex] = v
-            }
-            if result.getType() == .Float4 {
-                let rc = simd_normalize(result.toSIMD4()); let v = Float4(); v.fromSIMD(rc)
-                context.values[destIndex] = v
-            }
-            if result.getType() == .Float2 {
-                let rc = simd_normalize(result.toSIMD2()); let v = Float2(); v.fromSIMD(rc)
-                context.values[destIndex] = v
-            }
+        guard let result = argument?.execute() else {
+            return
+        }
+        
+        if result.getType() == .Float3 {
+            context.values[destIndex] = Float3(simd_normalize(result.toSIMD3()))
+        } else
+        if result.getType() == .Float4 {
+            context.values[destIndex] = Float4(simd_normalize(result.toSIMD4()))
+        } else
+        if result.getType() == .Float2 {
+            context.values[destIndex] = Float2(simd_normalize(result.toSIMD2()))
         }
     }
 }
@@ -284,13 +263,15 @@ class ReflectFuncNode : ExpressionNode {
     
     @inlinable override func execute(_ context: ExpressionContext)
     {
-        if let f31 = arguments!.0.execute() as? Float3 {
-            if let f32 = arguments!.1.execute() as? Float3 {
-                let rc = simd_reflect(f31.toSIMD(), f32.toSIMD())
-                let v = Float3(); v.fromSIMD(rc)
-                context.values[destIndex] = v
-            }
+        guard let leftResult = arguments!.0.execute() else {
+            return
         }
+        
+        guard let rightResult = arguments!.1.execute() else {
+            return
+        }
+        
+        context.values[destIndex] = Float3(simd_reflect(leftResult.toSIMD3(), rightResult.toSIMD3()))
     }
 }
 

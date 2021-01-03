@@ -159,7 +159,7 @@ class Renderer
             let fh : Float = Float(h) / height
             for w in 0..<widthInt {
                 
-                let AA : Int = 1
+                let AA : Int = 2
                 var tot = float4(0,0,0,0)
                 
                 for m in 0..<AA {
