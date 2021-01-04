@@ -11,7 +11,9 @@ import StoreKit
 class StoreManager: NSObject, ObservableObject, SKProductsRequestDelegate, SKPaymentTransactionObserver {
     
     let productIDs = [
-        "com.moenig.Signed.IAP.Tip2"
+        "com.moenig.Signed.IAP.Tip2",
+        "com.moenig.Signed.IAP.Tip5",
+        "com.moenig.Signed.IAP.Tip10"
     ]
     
     @Published var myProducts       = [SKProduct]()
@@ -20,8 +22,6 @@ class StoreManager: NSObject, ObservableObject, SKProductsRequestDelegate, SKPay
     var request                     : SKProductsRequest!
     
     func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
-        print("productsRequest")
-        
         if !response.products.isEmpty {
             for fetchedProduct in response.products {
                 DispatchQueue.main.async {
@@ -36,11 +36,10 @@ class StoreManager: NSObject, ObservableObject, SKProductsRequestDelegate, SKPay
         }
     }
     
-    func getProducts() {//productIDs: [String]) {
+    func getProducts() {
         
         SKPaymentQueue.default().add(self)
 
-        print("Start requesting products ...")
         let request = SKProductsRequest(productIdentifiers: Set(productIDs))
         request.delegate = self
         request.start()

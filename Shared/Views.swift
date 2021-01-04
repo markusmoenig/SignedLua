@@ -180,7 +180,7 @@ struct LeftPanelView: View {
 
             VStack {
                 if let context = asset?.graph {
-                    List(context.hierarchicalNodes, id: \.id, children: \.leaves, selection: $selection) { item in
+                    List(context.nodes, id: \.id, children: \.leaves, selection: $selection) { item in
                         Text(item.name)
                             .ifOS(.iOS) {
                                 $0.foregroundColor(item === core.graphBuilder.currentNode ? Color.accentColor : Color.white)
@@ -339,8 +339,8 @@ struct LeftPanelView: View {
             }
         }*/
         .onReceive(self.core.modelChanged) { core in
-            //asset = self.core.assetFolder.getAsset("main", .Source)
-            //updateView.toggle()
+            asset = self.core.assetFolder.getAsset("main", .Source)
+            updateView.toggle()
         }
         .onReceive(self.core.graphBuilder.selectionChanged) { id in
             //selection = id

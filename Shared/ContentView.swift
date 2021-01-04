@@ -197,7 +197,7 @@ struct ContentView: View {
                     }
                 }
                 label: {
-                    Label("Dollar", systemImage: "dollarsign.circle")
+                    Label("Dollar", systemImage: "gift")
                 }
                 
                 // Toggle the Right sidebar

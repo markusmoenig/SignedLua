@@ -131,6 +131,11 @@ class ExpressionNode {
         return nil
     }
     
+    /**
+     Splits a "," separated list of parameters while keeping track of the <> hierarchy.
+     - Parameter parameters: The list of parameters
+     - Returns: The separated list
+     */
     func splitParameters(_ parameters: String) -> [String] {
         var arguments : [String] = []
         
@@ -233,8 +238,15 @@ class ExpressionContext
     @inlinable func isConstant() -> Bool {
         return resultType == .Constant
     }
+    
+    /**
+     Parses a an expression based on variables stored in the VariableContainer. If an error occurs it will be stored in the error struct.
+     - Parameter expression: The expression to parse
+     - Parameter defaultVariableType: The default variable type of this expression if any. This is for example used to be able to construct a Float3<> just from 0, 1, 2 if we know the parameter has to be a Float3<> variable.
+     - Parameter error: Stores the error if any.
+     */
 
-    func parse(expression: String, container: VariableContainer, error: inout CompileError)
+    func parse(expression: String, container: VariableContainer, defaultVariableType: BaseVariable.VariableType? = nil, error: inout CompileError)
     {
         self.expression = expression
         //print("parse", expression)
@@ -242,7 +254,11 @@ class ExpressionContext
         var offset      : Int = 0
         var token       : String = ""
         
-        /// Extract a substring until one of the given tokens is encountered and set token to it
+        /**
+         Extract a substring until one of the given tokens is encountered and set token to it
+         - Parameters tokenList: The list of tokens to test against
+         - Returns: The string up to one of the given tokens
+         */
         func extractUpToToken(_ tokenList: [String]) -> String
         {
             var result = ""
@@ -267,7 +283,12 @@ class ExpressionContext
             return result
         }
         
-        /// Extract a substring until one of the given tokens is encountered and the hierarchy level for the opener is 0
+        /**
+        Extract a substring until one of the given tokens is encountered and the hierarchy level for the opener is 0
+         - Parameters tokenList: The list of tokens to test against
+         - Parameters tokenOpener: The opening token for a hierarchy
+         - Returns: The string up to one of the given tokens.
+        */
         func extractUpToTokenHierarchy(_ tokenList: [String],_ tokenOpener: String) -> String
         {
             var result = ""
@@ -312,20 +333,51 @@ class ExpressionContext
             }
         }
         
+        // First, if we know the variable type, try to construct the variable from the given expression, we only need to test the vector types
+        if let defaultVariableType = defaultVariableType {
+            if defaultVariableType == .Float4 {
+                let v = Float4(container: container, parameters: expression, error: &error)
+                if error.error == nil {
+                    // Success
+                    values.append(v)
+                    return
+                }
+            } else
+            if defaultVariableType == .Float3 {
+                let v = Float3(container: container, parameters: expression, error: &error)
+                if error.error == nil {
+                    // Success
+                    values.append(v)
+                    return
+                }
+            } else
+            if defaultVariableType == .Float2 {
+                let v = Float2(container: container, parameters: expression, error: &error)
+                if error.error == nil {
+                    // Success
+                    values.append(v)
+                    return
+                }
+            }
+        }
+        
         while offset < expression.count {
             let element = extractUpToToken([" ", "<"])
             
             // " " means a standalone expression
             if token == " " || token == "EOL" {
+                // Test for standalone Float
                 if let f = Float(element) {
                     uncomsumed.append(values.count)
                     values.append(Float1(f))
                     
                     testForConsumption()
                 } else
+                // Test for an atom: *, +, etc
                 if let atomNode = getAtom(element) {
                     currentAtom = atomNode
                 } else
+                // Test for variable reference
                 if let variableRef = getVariableReference(element, container: container, error: &error) {
                     uncomsumed.append(values.count)
                     values.append(variableRef)

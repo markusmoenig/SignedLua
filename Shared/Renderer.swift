@@ -159,7 +159,7 @@ class Renderer
             let fh : Float = Float(h) / height
             for w in 0..<widthInt {
                 
-                let AA : Int = 2
+                let AA : Int = 1
                 var tot = float4(0,0,0,0)
                 
                 for m in 0..<AA {
@@ -192,7 +192,7 @@ class Renderer
                         
                         // Analytical Objects
                         context.executeAnalytical()
-                        let maxDist : Float = simd_min(10.0, context.analyticalDist)
+                        let maxDist : Float = simd_min(12.0, context.analyticalDist)
                         
                         var material : GraphNode? = nil
 

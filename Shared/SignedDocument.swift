@@ -15,7 +15,8 @@ extension UTType {
 }
 
 struct SignedDocument: FileDocument {
-    @ObservedObject var core = Core()
+    var core = Core()
+    var updated     = false
 
     init() {
     }

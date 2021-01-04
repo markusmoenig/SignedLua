@@ -96,19 +96,14 @@ func extractVariableValue(_ options: [String:Any], variableName: String, contain
 func extractFloat4Value(_ options: [String:Any], container: VariableContainer, parameters: [BaseVariable] = [], error: inout CompileError, name: String = "float4", isOptional: Bool = false ) -> Float4?
 {
     if let value = options[name] as? String {
-        let array = value.split(separator: ",")
-        if array.count == 4 {
-            let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
-            let y : Float; if let v = Float(array[1].trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
-            let z : Float; if let v = Float(array[2].trimmingCharacters(in: .whitespaces)) { z = v } else { z = 0 }
-            let w : Float; if let v = Float(array[3].trimmingCharacters(in: .whitespaces)) { w = v } else { w = 0 }
-            return Float4(x, y, z, w)
-        } else
-        if array.count == 1 {
-            if let v = container.getVariableValue(String(array[0]), parameters: parameters) as? Float4 {
-                return v
+        if let context = expressionBuilder( expression: value, container: container, defaultVariableType: .Float4, error: &error) {
+            if let value = context.executeForFloat4() {
+                return value
+            } else {
+                error.error = "Result for '\(name)' is not a Float4 value but \(context.wrongType)"
+                return nil
             }
-        } else { if isOptional == false { error.error = "Wrong argument count for Float4" } }
+        }
     } else { if isOptional == false { error.error = "Parameter '\(name)' not found" } }
     
     return nil
@@ -118,18 +113,14 @@ func extractFloat4Value(_ options: [String:Any], container: VariableContainer, p
 func extractFloat3Value(_ options: [String:Any], container: VariableContainer, parameters: [BaseVariable] = [], error: inout CompileError, name: String = "float3", isOptional: Bool = false ) -> Float3?
 {
     if let value = options[name] as? String {
-        let array = value.split(separator: ",")
-        if array.count == 3 {
-            let x : Float; if let v = Float(array[0].trimmingCharacters(in: .whitespaces)) { x = v } else { x = 0 }
-            let y : Float; if let v = Float(array[1].trimmingCharacters(in: .whitespaces)) { y = v } else { y = 0 }
-            let z : Float; if let v = Float(array[2].trimmingCharacters(in: .whitespaces)) { z = v } else { z = 0 }
-            return Float3(x, y, z)
-        } else
-        if array.count == 1 {
-            if let v = container.getVariableValue(String(array[0]), parameters: parameters) as? Float3 {
-                return v
+        if let context = expressionBuilder( expression: value, container: container, defaultVariableType: .Float3, error: &error) {
+            if let value = context.executeForFloat3() {
+                return value
+            } else {
+                error.error = "Result for '\(name)' is not a Float3 value but \(context.wrongType)"
+                return nil
             }
-        } else { if isOptional == false { error.error = "Wrong argument count for Float3" } }
+        }
     } else { if isOptional == false { error.error = "Parameter '\(name)' not found" } }
     
     return nil
@@ -142,7 +133,7 @@ func extractFloat2Value(_ options: [String:Any], container: VariableContainer, p
     //    return value
     //} else
     if let value = options[name] as? String {                
-        if let context = expressionBuilder( expression: value, container: container, error: &error) {
+        if let context = expressionBuilder( expression: value, container: container, defaultVariableType: .Float2, error: &error) {
             if let value = context.executeForFloat2() {
                 return value
             } else {
@@ -296,10 +287,10 @@ func extractPair(_ options: [String:Any], variableName: String, container: Varia
 }
 
 /// Build the expression and return the context
-func expressionBuilder(expression: String, container: VariableContainer, error: inout CompileError) -> ExpressionContext?
+func expressionBuilder(expression: String, container: VariableContainer, defaultVariableType: BaseVariable.VariableType? = nil, error: inout CompileError) -> ExpressionContext?
 {
     let exp = ExpressionContext()
-    exp.parse(expression: expression, container: container, error: &error)
+    exp.parse(expression: expression, container: container, defaultVariableType: defaultVariableType, error: &error)
     if error.error != nil {
         return nil
     }
