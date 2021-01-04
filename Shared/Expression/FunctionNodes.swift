@@ -93,18 +93,12 @@ class ClampFuncNode : ExpressionNode {
                     return
                 }
                 
-                if input.getType() == .Float3 {
-                    context.values[destIndex] = Float3(input.toSIMD3().clamped(lowerBound: float3(r12, r12, r12), upperBound: float3(r13, r13, r13)))
-                } else
-                if input.getType() == .Float {
-                    context.values[destIndex] = Float1(simd_clamp(input.toSIMD1(), r12, r13))
-                } else
-                if input.getType() == .Float4 {
-                    context.values[destIndex] = Float4(input.toSIMD4().clamped(lowerBound: float4(repeating: r12), upperBound: float4(repeating: r13)))
-                } else
-                if input.getType() == .Float2 {
-                    context.values[destIndex] = Float2(input.toSIMD2().clamped(lowerBound: float2(r12, r12), upperBound: float2(r13, r13)))
+                let v = input.createType()
+                
+                for i in 0..<v.components {
+                    v[i] = simd_clamp(input[i], r12, r13)
                 }
+                context.values[destIndex] = v
             }
         }
     }
@@ -126,7 +120,7 @@ class PowFuncNode : ExpressionNode {
         if let args = splitIntoTwo(self.name, container, parameters, &error) {
             arguments = args
             let a1 = arguments!.0.execute(); let a2 = arguments!.1.execute()
-            if a1 != nil && a2 != nil && a1!.getType() == a2!.getType() {
+            if a1 != nil && a2 != nil && a2!.getType() == .Float {
                 if a1!.isConstant() == false || a2!.isConstant() == false {
                     resultType = .Variable
                 }
@@ -138,55 +132,17 @@ class PowFuncNode : ExpressionNode {
     
     @inlinable override func execute(_ context: ExpressionContext)
     {
-        if let f41 = arguments!.0.execute() as? Float4 {
-            if let f42 = arguments!.1.execute() as? Float4 {
-                let r41 = f41.toSIMD()
-                let r42 = f42.toSIMD()
-                
-                let v = Float4();
-                v.x = pow(r41.x, r42.x)
-                v.y = pow(r41.y, r42.y)
-                v.z = pow(r41.z, r42.z)
-                v.z = pow(r41.w, r42.w)
-
-                context.values[destIndex] = v
+        if let p = arguments!.1.executeForFloat1() {
+            guard let input = arguments!.0.execute() else {
+                return
             }
-        } else
-        if let f31 = arguments!.0.execute() as? Float3 {
-            if let f32 = arguments!.1.execute() as? Float3 {
-                let r31 = f31.toSIMD()
-                let r32 = f32.toSIMD()
-                
-                let v = Float3();
-                v.x = pow(r31.x, r32.x)
-                v.y = pow(r31.y, r32.y)
-                v.z = pow(r31.z, r32.z)
-
-                context.values[destIndex] = v
+            
+            let v = input.createType()
+            
+            for i in 0..<v.components {
+                v[i] = pow(input[i], p.x)
             }
-        } else
-        if let f21 = arguments!.0.execute() as? Float2 {
-            if let f22 = arguments!.1.execute() as? Float2 {
-                let r21 = f21.toSIMD()
-                let r22 = f22.toSIMD()
-                
-                let v = Float2();
-                v.x = pow(r21.x, r22.x)
-                v.y = pow(r21.y, r22.y)
-
-                context.values[destIndex] = v
-            }
-        } else
-        if let f11 = arguments!.0.execute() as? Float1 {
-            if let f12 = arguments!.1.execute() as? Float1 {
-                let r11 = f11.toSIMD()
-                let r12 = f12.toSIMD()
-                
-                let v = Float1();
-                v.x = pow(r11, r12)
-
-                context.values[destIndex] = v
-            }
+            context.values[destIndex] = v
         }
     }
 }

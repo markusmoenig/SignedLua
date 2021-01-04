@@ -63,7 +63,7 @@ final class SDFObject : DistanceNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         verifyTranslationOptions(context: context, error: &error)
-        if let materialName = options["material"] as? String {
+        if let materialName = options["materialname"] as? String {
             self.materialName = materialName.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         }
         if let value = extractFloat3Value(options, container: context, error: &error, name: "maxbox", isOptional: true) {
@@ -213,7 +213,7 @@ final class AnalyticalObject : DistanceNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         verifyTranslationOptions(context: context, error: &error)
-        if let materialName = options["material"] as? String {
+        if let materialName = options["materialname"] as? String {
             self.materialName = materialName.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         }
     }

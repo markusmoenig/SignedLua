@@ -410,7 +410,7 @@ class ExpressionContext
                         nodes.append(functionNode)
                     }
                 } else
-                if let variable = BaseVariable.createType(element, container: container, parameters: parameters, error: &error) {
+                if let variable = BaseVariable.createTypeFromParameters(element, container: container, parameters: parameters, error: &error) {
                     
                     if variable.isConstant() == false {
                         resultType = .Variable

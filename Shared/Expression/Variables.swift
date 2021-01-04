@@ -61,8 +61,28 @@ class BaseVariable {
         return ""
     }
     
+    /// Creates a new empty variable from the type of this variable
+    func createType() -> BaseVariable
+    {
+        let v : BaseVariable
+        
+        if getType() == .Float3 {
+            v = Float3()
+        } else
+        if getType() == .Float4 {
+            v = Float4()
+        } else
+        if getType() == .Float2 {
+            v = Float2()
+        } else {
+            v = Float1()
+        }
+        
+        return v
+    }
+    
     /// Creates a variables based on it's type, the context and it's string parameters, this is used to construct variables from text input
-    static func createType(_ typeName: String, container: VariableContainer, parameters: String, error: inout CompileError) -> BaseVariable?
+    static func createTypeFromParameters(_ typeName: String, container: VariableContainer, parameters: String, error: inout CompileError) -> BaseVariable?
     {
         if typeName == "Float1" {
             return Float1(container: container, parameters: parameters, error: &error)
@@ -406,36 +426,22 @@ final class Float4 : BaseVariable
         w = v.w
     }
     
-    @inlinable func fromSIMD(_ v: float3)
-    {
-        x = v.x
-        y = v.y
-        z = v.z
-    }
-    
-    @inlinable func fromSIMD(_ v: float2)
-    {
-        x = v.x
-        y = v.y
-    }
-    
-    @inlinable func fromSIMD(_ v: Float)
-    {
-        x = v
-    }
-    
     @inlinable override subscript(index: Int) -> Float {
         get {
-            if index == 1 {
-                return y
-            } else
-            if index == 2 {
-                return z
-            } else
-            if index == 3 {
-                return w
+            if let reference = reference {
+                return reference[index]
             } else {
-                return x
+                if index == 1 {
+                    return y
+                } else
+                if index == 2 {
+                    return z
+                } else
+                if index == 3 {
+                    return w
+                } else {
+                    return x
+                }
             }
         }
         set(v) {
@@ -635,13 +641,17 @@ final class Float3 : BaseVariable
     
     @inlinable override subscript(index: Int) -> Float {
         get {
-            if index == 1 {
-                return y
-            } else
-            if index == 2 {
-                return z
+            if let reference = reference {
+                return reference[index]
             } else {
-                return x
+                if index == 1 {
+                    return y
+                } else
+                if index == 2 {
+                    return z
+                } else {
+                    return x
+                }
             }
         }
         set(v) {
@@ -813,10 +823,14 @@ final class Float2 : BaseVariable
     
     @inlinable override subscript(index: Int) -> Float {
         get {
-            if index == 1 {
-                return y
+            if let reference = reference {
+                return reference[index]
             } else {
-                return x
+                if index == 1 {
+                    return y
+                } else {
+                    return x
+                }
             }
         }
         set(v) {
@@ -912,7 +926,11 @@ final class Float1 : BaseVariable
     
     @inlinable override subscript(index: Int) -> Float {
         get {
-            return x
+            if let reference = reference {
+                return reference[index]
+            } else {
+                return x
+            }
         }
         set(v) {
             x = Float(v)
