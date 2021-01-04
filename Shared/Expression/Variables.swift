@@ -103,7 +103,6 @@ class BaseVariable {
     {
         return SIMD4<Float>(0,0,0,0)
     }
-
     
     /// Subscript stub
     subscript(index: Int) -> Float {
@@ -111,6 +110,91 @@ class BaseVariable {
             return 0
         }
         set(v) {
+        }
+    }
+    
+    /// Assign another variable value to this variable
+    func assign(from: BaseVariable, using: VariableAssignmentNode.AssignmentType)
+    {
+        if using == .Copy {
+            copy(from: from)
+        } else
+        if using == .Multiply {
+            multiply(with: from)
+        } else
+        if using == .Divide {
+            divide(with: from)
+        } else
+        if using == .Add {
+            add(with: from)
+        } else
+        if using == .Subtract {
+            subtract(with: from)
+        }
+    }
+    
+    /// Assign another variable float value to this variable up to the given components
+    func assignFromFloat(from: BaseVariable, using: VariableAssignmentNode.AssignmentType, upTo: Int)
+    {
+        if using == .Multiply {
+            multiplyWithFloat(with: from, upTo: upTo)
+        } else
+        if using == .Divide {
+            divideByFloat(with: from, upTo: upTo)
+        }
+    }
+    
+    /// copy
+    func copy(from: BaseVariable) {
+        let comp = min(components, from.components)
+        for i in 0..<comp {
+            self[i] = from[i]
+        }
+    }
+    
+    /// Multply
+    func multiply(with: BaseVariable) {
+        let comp = min(components, with.components)
+        for i in 0..<comp {
+            self[i] *= with[i]
+        }
+    }
+    
+    /// Divide
+    func divide(with: BaseVariable) {
+        let comp = min(components, with.components)
+        for i in 0..<comp {
+            self[i] /= with[i]
+        }
+    }
+    
+    /// Add
+    func add(with: BaseVariable) {
+        let comp = min(components, with.components)
+        for i in 0..<comp {
+            self[i] += with[i]
+        }
+    }
+    
+    /// Subtract
+    func subtract(with: BaseVariable) {
+        let comp = min(components, with.components)
+        for i in 0..<comp {
+            self[i] -= with[i]
+        }
+    }
+    
+    /// Multply with a float value up to the given component count
+    func multiplyWithFloat(with: BaseVariable, upTo: Int) {
+        for i in 0..<upTo {
+            self[i] *= with[0]
+        }
+    }
+    
+    /// Division by a float value up to the given component count
+    func divideByFloat(with: BaseVariable, upTo: Int) {
+        for i in 0..<upTo {
+            self[i] *= with[0]
         }
     }
 }
@@ -320,6 +404,24 @@ final class Float4 : BaseVariable
         y = v.y
         z = v.z
         w = v.w
+    }
+    
+    @inlinable func fromSIMD(_ v: float3)
+    {
+        x = v.x
+        y = v.y
+        z = v.z
+    }
+    
+    @inlinable func fromSIMD(_ v: float2)
+    {
+        x = v.x
+        y = v.y
+    }
+    
+    @inlinable func fromSIMD(_ v: Float)
+    {
+        x = v
     }
     
     @inlinable override subscript(index: Int) -> Float {

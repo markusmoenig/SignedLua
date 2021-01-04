@@ -140,7 +140,16 @@ final class PinholeCameraNode : GraphNode
 /// VariableAssignmentNode, assign or modify a variable via assignment, =, *=, -= etc
 final class VariableAssignmentNode : GraphNode
 {
-    var expression                 : ExpressionContext? = nil
+    enum AssignmentType {
+        case Copy, Multiply, Divide, Add, Subtract
+    }
+    
+    /// The right handed expression the variables gets assigned to
+    var expression                  : ExpressionContext? = nil
+    /// The components  of the assignment (like outColor.xyz has 3 assignment components)
+    var assignmentComponents        : Int = 0
+    /// The assignment type
+    var assignmentType              : AssignmentType = .Copy
     
     init(_ options: [String:Any] = [:])
     {
@@ -151,37 +160,20 @@ final class VariableAssignmentNode : GraphNode
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         if let expression = expression {
-            if let existing = context.variables[givenName] {
-        
-                //if expression.isConstant() { return .Success }
-                
-                if let exf4 = existing as? Float4 {
-                    if let f4 = expression.executeForFloat4() {
-                        exf4.role = expression.isConstant() ? .User : .System
-                        exf4.fromSIMD(f4.toSIMD())
-                    }
-                } else
-                if let exf3 = existing as? Float3 {
-                    if let f3 = expression.executeForFloat3() {
-                        exf3.role = expression.isConstant() ? .User : .System
-                        exf3.fromSIMD(f3.toSIMD())
-                    }
-                } else
-                if let exf2 = existing as? Float2 {
-                    if let f2 = expression.executeForFloat2() {
-                        exf2.role = expression.isConstant() ? .User : .System
-                        exf2.fromSIMD(f2.toSIMD())
-                    }
-                } else
-                if let exf1 = existing as? Float1 {
-                    if let f1 = expression.executeForFloat1() {
-                        exf1.role = expression.isConstant() ? .User : .System
-                        exf1.fromSIMD(f1.toSIMD())
+            // Assign to existing variable
+            if let existing = context.variables[givenName] {                        
+                if let v = expression.execute() {
+                    existing.role = expression.isConstant() ? .User : .System
+                    if v.getType() == .Float && (assignmentType == .Multiply || assignmentType == .Divide) {
+                        existing.assignFromFloat(from: v, using: assignmentType, upTo: assignmentComponents)
+                    } else {
+                        existing.role = expression.isConstant() ? .User : .System
+                        existing.assign(from: v, using: assignmentType)
                     }
                 }
             } else {
                 // New variable
-                context.variables[givenName] = expression.execute()
+                context.variables[givenName] = expression.execute()//expression.values.last!
                 context.variables[givenName]!.role = expression.isConstant() ? .User : .System
             }
         }

@@ -143,11 +143,36 @@ class GraphBuilder
             }
             
             var variableName : String? = nil
+            var assignmentType : VariableAssignmentNode.AssignmentType = .Copy
+            
             // --- Check for variable assignment
-            let values = leftOfComment.split(separator: "=")
-            if values.count == 2 {
-                variableName = String(values[0]).trimmingCharacters(in: .whitespaces)
-                leftOfComment = String(values[1])
+            if leftOfComment.contains("="){
+             
+                var values : [String] = []
+                
+                if leftOfComment.contains("*=") {
+                    assignmentType = .Multiply
+                    values = leftOfComment.components(separatedBy: "*=")
+                } else
+                if leftOfComment.contains("/=") {
+                    assignmentType = .Divide
+                    values = leftOfComment.components(separatedBy: "/=")
+                } else
+                if leftOfComment.contains("+=") {
+                    assignmentType = .Add
+                    values = leftOfComment.components(separatedBy: "+=")
+                } else
+                if leftOfComment.contains("-=") {
+                    assignmentType = .Subtract
+                    values = leftOfComment.components(separatedBy: "+=")
+                } else {
+                    values = leftOfComment.components(separatedBy: "=")
+                }
+                
+                if values.count == 2 {
+                    variableName = String(values[0]).trimmingCharacters(in: .whitespaces)
+                    leftOfComment = String(values[1])
+                }
             }
             
             /// Splits the option string into a possible command and its <> enclosed options
@@ -333,15 +358,15 @@ class GraphBuilder
                             }
                         }
                     } else
-                    if let variableName = variableName {
+                    if var variableName = variableName {
                         
                         // Variable assignment
                         let rightSide = leftOfComment.trimmingCharacters(in: .whitespaces)
-                        //print(variableName!, "rightSide", rightSide)
+                        //print(variableName, "rightSide", rightSide)
                         let exp = ExpressionContext()
                         exp.parse(expression: rightSide, container: asset.graph!, error: &error)
                         
-                        if exp.execute() != nil {
+                        if error.error == nil {
                             
                             if let branch = currentBranch.last {
                                 
@@ -351,8 +376,20 @@ class GraphBuilder
                                     }
                                 }
                                 
+                                var assignmentComponents : Int = 0
+                                
+                                if variableName.contains(".") {
+                                    let array = variableName.split(separator: ".")
+                                    if array.count == 2 {
+                                        variableName = String(array[0])
+                                        assignmentComponents = array[1].count
+                                    }
+                                }
+                                
                                 let variableNode = VariableAssignmentNode()
                                 variableNode.givenName = variableName
+                                variableNode.assignmentComponents = assignmentComponents
+                                variableNode.assignmentType = assignmentType
                                 variableNode.expression = exp
                                 
                                 variableNode.execute(context: asset.graph!)
