@@ -148,7 +148,7 @@ class AssetFolder       : Codable
     func getAsset(_ name: String,_ type: Asset.AssetType = .Source) -> Asset?
     {
         for asset in assets {
-            if asset.type == type && (asset.name == name || String(asset.name.split(separator: ".")[0]) == name) {
+            if asset.type == type && asset.name == name {
                 return asset
             }
         }

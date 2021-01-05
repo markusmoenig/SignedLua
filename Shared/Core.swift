@@ -36,7 +36,8 @@ public class Core       : ObservableObject
     var gameCmdBuffer   : MTLCommandBuffer? = nil
     var gameScissorRect : MTLScissorRect? = nil
     
-    var scriptEditor    : ScriptEditor? = nil
+    var scriptEditor    : ScriptEditor!
+    var scriptProcessor : ScriptProcessor!
 
     var textureLoader   : MTKTextureLoader!
         
@@ -102,7 +103,8 @@ public class Core       : ObservableObject
         assetFolder.setup(self)
         
         graphBuilder = GraphBuilder(self)
-                
+        scriptProcessor = ScriptProcessor(self)
+
         #if os(iOS)
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)

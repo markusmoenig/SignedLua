@@ -65,7 +65,7 @@ class GraphBuilder
     
     init(_ core: Core)
     {
-        self.core = core
+        self.core = core        
     }
     
     @discardableResult func compile(_ asset: Asset, silent: Bool = false) -> CompileError
@@ -83,15 +83,27 @@ class GraphBuilder
             asset.graph!.clear()
         }
         
-        // Insert top hierarchy nodes
+        let graph = asset.graph!
+        
+        // Insert top hierarchy nodes for the UI
+        
+        let hCameraNodes = GraphNode(.Camera, .None)
+        hCameraNodes.name = "Cameras"
+        hCameraNodes.leaves = []
+        graph.hierarchicalNodes.append(hCameraNodes)
         
         let hMaterialNodes = GraphNode(.Utility, .Material)
         hMaterialNodes.name = "Materials"
         hMaterialNodes.leaves = []
-        asset.graph!.hierarchicalNodes.append(hMaterialNodes)
+        graph.hierarchicalNodes.append(hMaterialNodes)
+        
+        let hObjectNodes = GraphNode(.Utility, .SDF)
+        hObjectNodes.name = "Objects"
+        hObjectNodes.leaves = []
+        graph.hierarchicalNodes.append(hObjectNodes)
         
         // Create default variables
-        asset.graph!.createDefaultVariables()
+        graph.createDefaultVariables()
         
         //
         
@@ -286,12 +298,14 @@ class GraphBuilder
                                         newBranch.lineNr = error.line!
                                         asset.graph!.lines[error.line!] = newBranch
                                         processed = true
+                                        
+                                        hCameraNodes.leaves.append(newBranch)
                                     } else
                                     if newBranch.role == .Sky {
                                         asset.graph!.skyNode = newBranch
                                         
                                         newBranch.lineNr = error.line!
-                                        asset.graph!.lines[error.line!] = newBranch
+                                        graph.lines[error.line!] = newBranch
                                         processed = true
                                     }
                                     
@@ -303,13 +317,39 @@ class GraphBuilder
                                             
                                             if newBranch.context == .Analytical {
                                                 asset.graph!.analyticalNodes.append(newBranch)
+                                                
+                                                // Separate hierarchical Node
+                                                
+                                                let hObject = AnalyticalObject()
+                                                hObject.name = newBranch.givenName
+                                                hObject.lineNr = error.line!
+                                                hObject.leaves = nil
+                                                hObject.id = newBranch.id
+                                                hObjectNodes.leaves!.append(hObject)
                                             } else
                                             if newBranch.context == .SDF {
                                                 asset.graph!.sdfNodes.append(newBranch)
+                                                
+                                                // Separate hierarchical Node
+                                                
+                                                let hObject = SDFObject()
+                                                hObject.name = newBranch.givenName
+                                                hObject.lineNr = error.line!
+                                                hObject.leaves = nil
+                                                hObject.id = newBranch.id
+                                                hObjectNodes.leaves!.append(hObject)
                                             } else
                                             if newBranch.context == .Material {
                                                 asset.graph!.materialNodes.append(newBranch)
-                                                hMaterialNodes.leaves!.append(newBranch)
+                                                
+                                                // Separate hierarchical Node
+                                                
+                                                let hMaterial = MaterialNode()
+                                                hMaterial.name = newBranch.givenName
+                                                hMaterial.lineNr = error.line!
+                                                hMaterial.leaves = nil
+                                                hMaterial.id = newBranch.id
+                                                hMaterialNodes.leaves!.append(hMaterial)
                                             } else
                                             if newBranch.context == .Render {
                                                 asset.graph!.renderNodes.append(newBranch)
@@ -517,125 +557,9 @@ class GraphBuilder
     /// Go to the line of the node
     func gotoNode(_ node: GraphNode)
     {
-        core.scriptEditor?.gotoLine(node.lineNr+1)
-    }
-    
-    /// Get the graph options for the current node
-    func getOptions() -> [GraphOption]
-    {
-        var options : [GraphOption] = []
-        
-        if let node = currentNode {
-            //options += node.getOptions()
-            if let line = getLine(node.lineNr) {
-                //print(line)
-                options += extractOptionsFromLine(node, line)
-            }
+        if currentNode != node {
+            core.scriptEditor?.gotoLine(node.lineNr+1)
+            currentNode = node
         }
-        
-        return options
-    }
-    
-    /// extract GraphOptions from the line
-    func extractOptionsFromLine(_ node: GraphNode, _ str: String) -> [GraphOption]
-    {
-        var graphOptions : [GraphOption] = []
-        var options      : [String: String] = [:]
-
-        var leftOfComment: String
-
-        if str.firstIndex(of: "#") != nil {
-            let split = str.split(separator: "#")
-            if split.count == 2 {
-                leftOfComment = String(str.split(separator: "#")[0])
-            } else {
-                leftOfComment = ""
-            }
-        } else {
-            leftOfComment = str
-        }
-        
-        // Get the current indention level
-        //let level = (str.prefix(while: {$0 == " "}).count) / 4
-
-        leftOfComment = leftOfComment.trimmingCharacters(in: .whitespaces)
-        
-        var rightValueArray : [String.SubSequence]
-            
-        if leftOfComment.firstIndex(of: "<") != nil {
-            rightValueArray = leftOfComment.split(separator: "<")
-        } else {
-            rightValueArray = leftOfComment.split(separator: " ")
-        }
-        
-        if rightValueArray.count > 0 {
-
-        // Fill in options
-        rightValueArray.removeFirst()
-            if rightValueArray.count == 1 && rightValueArray[0] == ">" {
-                // Empty Arguments
-            } else {
-                while rightValueArray.count > 0 {
-                    let array = rightValueArray[0].split(separator: ":")
-                    //print("2", array)
-                    rightValueArray.removeFirst()
-                    if array.count == 2 {
-                        let optionName = array[0].lowercased().trimmingCharacters(in: .whitespaces)
-                        var values = array[1].trimmingCharacters(in: .whitespaces)
-                        //print("option", optionName, "value", values)
-                                                            
-                        if values.count > 0 && values.last! != ">" {
-                        } else {
-                            values = String(values.dropLast())
-                        }
-                        options[optionName] = String(values)
-                    } else { rightValueArray = [] }
-                }
-            }
-        }
-                
-        let nodeOptions = node.getOptions()
-        var error = CompileError()
-
-        if let asset = core.assetFolder.getAsset("main", .Source) {
-            for (key, _) in options {
-                for nO in nodeOptions {
-                    if nO.name.lowercased() == key {
-                        if nO.variable.getType() == .Float {
-
-                            if let f1 = extractFloat1Value(options, container: asset.graph!, error: &error, name: key) {
-                                nO.variable = f1
-                                graphOptions.append(nO)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-                
-        return graphOptions
-    }
-    
-    /// Returns the given line
-    func getLine(_ line: Int32) -> String? {
-
-        var rc : String? = nil
-        guard let asset = core.assetFolder.getAsset("main", .Source) else {
-            return nil
-        }
-        
-        let ns = asset.value as NSString
-        var lineNumber  : Int32 = 0
-        
-        ns.enumerateLines { (str, _) in
-            
-            if line == lineNumber {
-                rc = str
-            }
-            
-            lineNumber += 1
-        }
-        
-        return rc
     }
 }

@@ -74,9 +74,12 @@ struct FloatView: View {
             Text(option.name)
             TextField(option.name, text: $valueText, onEditingChanged: { (changed) in
                 if let floatValue = Float(valueText) {
-                    print(floatValue)
+                    option.variable = Float1(floatValue)
                 }
-            })
+            },
+            onCommit: {
+                core.scriptProcessor.replaceOptionInLine(option)
+            } )
         }
         
         /*
@@ -113,6 +116,7 @@ struct RightPanelView: View {
             ForEach(options, id: \.id) { option in
                 if option.variable.getType() == .Float {
                     FloatView(core, option)
+                        .padding(4)
                 }
             }
             
@@ -121,11 +125,11 @@ struct RightPanelView: View {
         
         
         .onReceive(self.core.modelChanged) { void in
-            options = core.graphBuilder.getOptions()
+            options = core.scriptProcessor.getOptions()
             updateView.toggle()
         }
         .onReceive(self.core.graphBuilder.selectionChanged) { id in
-            options = core.graphBuilder.getOptions()
+            options = core.scriptProcessor.getOptions()
             updateView.toggle()
         }
     }
@@ -147,7 +151,7 @@ struct LeftPanelView: View {
     @State private var librarySelection     : UUID? = nil
 
     @State private var tabIndex             : Int = 0
-    
+        
     #if os(macOS)
     let TopRowPadding                       : CGFloat = 2
     #else
@@ -180,7 +184,7 @@ struct LeftPanelView: View {
 
             VStack {
                 if let context = asset?.graph {
-                    List(context.nodes, id: \.id, children: \.leaves, selection: $selection) { item in
+                    List(context.hierarchicalNodes, id: \.id, children: \.leaves, selection: $selection) { item in
                         Text(item.name)
                             .ifOS(.iOS) {
                                 $0.foregroundColor(item === core.graphBuilder.currentNode ? Color.accentColor : Color.white)
@@ -260,91 +264,12 @@ struct LeftPanelView: View {
             }
         }
         
-        /*
-        VStack(spacing: 2) {
-            
-            HStack(spacing: 3) {
-                Button(action: {
-                    mode = .Project
-                })
-                {
-                    Label("", systemImage: "list.bullet.below.rectangle")
-                        .font(.system(size: 16))
-                        .foregroundColor(mode == .Project ? Color.accentColor : Color.white)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .padding(.leading, 10)
-                
-                Button(action: {
-                    mode = .Library
-                })
-                {
-                    Label("", systemImage: "building.columns.fill")
-                        .font(.system(size: 16))
-                        .foregroundColor(mode == .Library ? Color.accentColor : Color.white)
-                }
-                .buttonStyle(PlainButtonStyle())
-                Spacer()
-            }
-            .padding(.top, TopRowPadding)
-            .padding(.bottom, 2)
-            .frame(alignment: .topLeading)
-
-            Divider()
-            
-            if mode == .Project {
-
-                if let asset = core.assetFolder.getAsset("main", .Source) {
-                    if let context = asset.graph {
-                        List(context.nodes, id: \.id, children: \.leaves, selection: $selection) { item in
-                            Button(action: {
-                                core.graphBuilder.gotoNode(item)
-                            })
-                            {                         
-                                Text(item.name)
-                                    //.font(.system(.title3, design: .rounded))
-                                    //.bold()
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                    }
-                }
-            } else
-            if mode == .Library {
-                
-                List(libraryItems, children: \.children) { item in                    
-                    Button(action: {
-                        current = item
-                    })
-                    {
-                        if let image = item.image {
-                            Image(image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                        }
-                 
-                        Text(item.name)
-                            //.font(.system(.title3, design: .rounded))
-                            //.bold()
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                
-                if let current = current {
-                    Divider()
-                    Parma(current.md)
-                        .font(.system(size: 11))
-                }
-            }
-        }*/
         .onReceive(self.core.modelChanged) { core in
             asset = self.core.assetFolder.getAsset("main", .Source)
             updateView.toggle()
         }
         .onReceive(self.core.graphBuilder.selectionChanged) { id in
-            //selection = id
-            //updateView.toggle()
+            selection = id
         }
     }
 }

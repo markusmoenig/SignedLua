@@ -63,6 +63,11 @@ final class SDFObject : DistanceNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         verifyTranslationOptions(context: context, error: &error)
+        if let name = options["name"] as? String {
+            self.givenName = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
+        } else {
+            self.givenName = "SDF Object"
+        }
         if let materialName = options["materialname"] as? String {
             self.materialName = materialName.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         }
@@ -213,6 +218,11 @@ final class AnalyticalObject : DistanceNode
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
         verifyTranslationOptions(context: context, error: &error)
+        if let name = options["name"] as? String {
+            self.givenName = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
+        } else {
+            self.givenName = "Analytical Object"
+        }
         if let materialName = options["materialname"] as? String {
             self.materialName = materialName.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         }

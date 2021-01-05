@@ -153,6 +153,16 @@ class ScriptEditor
         })
     }
     
+    func setAssetLine(_ asset: Asset, line: String)
+    {
+        let cmd = """
+        {var Range = require("ace/range").Range
+        editor.session.replace(new Range(editor.selection.lead.row, 0, editor.selection.lead.row, Number.MAX_VALUE), `\(line)`)}
+        """
+        webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
+        })
+    }
+    
     func setAssetSession(_ asset: Asset)
     {
         core.showingHelp = false

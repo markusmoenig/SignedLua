@@ -368,6 +368,10 @@ final class Float4 : BaseVariable
         return false
     }
     
+    override func toString() -> String {
+        return "\(String(x)), \((String(y))), \((String(z))), \((String(w)))"
+    }
+    
     @inlinable override func toSIMD4() -> SIMD4<Float>
     {
         return toSIMD()
@@ -587,6 +591,10 @@ final class Float3 : BaseVariable
         return false
     }
     
+    override func toString() -> String {
+        return "\(String(x)), \((String(y))), \((String(z)))"
+    }
+    
     @inlinable override func toSIMD3() -> SIMD3<Float>
     {
         return toSIMD()
@@ -775,6 +783,10 @@ final class Float2 : BaseVariable
         return false
     }
     
+    override func toString() -> String {
+        return "\(String(x)), \((String(y)))"
+    }
+    
     @inlinable override func toSIMD2() -> SIMD2<Float>
     {
         return toSIMD()
@@ -916,7 +928,7 @@ final class Float1 : BaseVariable
     }
     
     override func toString() -> String {
-        return String(x)
+        return String(x)//format: "%.03f", x)
     }
     
     @inlinable func fromSIMD(_ v: Float)

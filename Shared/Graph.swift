@@ -61,7 +61,7 @@ class GraphNode : Equatable, Identifiable {
     {
         self.role = role
         self.context = context
-        self.options = options
+        self.options = options        
     }
     
     /// Verify options
@@ -306,6 +306,13 @@ final class GraphContext    : VariableContainer
                 return found
             }
         }
+        
+        if let cameraNode = cameraNode {
+            if cameraNode.id == id {
+                return cameraNode
+            }
+        }
+        
         return nil
     }
     

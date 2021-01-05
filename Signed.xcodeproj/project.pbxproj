@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B224D9825A40C3D006C5C2F /* ScriptProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */; };
+		2B224D9925A40C3D006C5C2F /* ScriptProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */; };
 		2B224F412584485300F32354 /* SignedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224F2D2584485100F32354 /* SignedApp.swift */; };
 		2B224F422584485300F32354 /* SignedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224F2D2584485100F32354 /* SignedApp.swift */; };
 		2B224F432584485300F32354 /* SignedDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224F2E2584485100F32354 /* SignedDocument.swift */; };
@@ -80,6 +82,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptProcessor.swift; sourceTree = "<group>"; };
 		2B224F2D2584485100F32354 /* SignedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedApp.swift; sourceTree = "<group>"; };
 		2B224F2E2584485100F32354 /* SignedDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedDocument.swift; sourceTree = "<group>"; };
 		2B224F2F2584485100F32354 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -174,6 +177,7 @@
 				2B224F6625844C1800F32354 /* MetalView.swift */,
 				2B224F6A25844C1800F32354 /* Renderer.swift */,
 				2B224F6B25844C1800F32354 /* ScriptEditor.swift */,
+				2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */,
 				2B224F6225844C1800F32354 /* Utils.swift */,
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FEB2588A6BD00F32354 /* GraphNodes.swift */,
@@ -361,6 +365,7 @@
 				2B224FF72589B52B00F32354 /* GraphAnalyticalNodes.swift in Sources */,
 				2B224F432584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC62586EA1800F32354 /* GraphSDFNodes.swift in Sources */,
+				2B224D9825A40C3D006C5C2F /* ScriptProcessor.swift in Sources */,
 				2B224F8925844C3100F32354 /* Font.swift in Sources */,
 				2B224F7325844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCB2586F90C00F32354 /* GraphBoolNodes.swift in Sources */,
@@ -399,6 +404,7 @@
 				2B224FF82589B52B00F32354 /* GraphAnalyticalNodes.swift in Sources */,
 				2B224F442584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC72586EA1800F32354 /* GraphSDFNodes.swift in Sources */,
+				2B224D9925A40C3D006C5C2F /* ScriptProcessor.swift in Sources */,
 				2B224F8A25844C3100F32354 /* Font.swift in Sources */,
 				2B224F7425844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCC2586F90C00F32354 /* GraphBoolNodes.swift in Sources */,
