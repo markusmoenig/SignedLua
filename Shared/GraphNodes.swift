@@ -62,17 +62,29 @@ final class DefaultSkyNode : GraphNode
     }
 }
 
-/// DefaultSkyNode
-final class PinholeCameraNode : GraphNode
+/// BaseCameraNode
+class BaseCameraNode : GraphNode
 {
     var origin       : Float3 = Float3(0, 0, -5)
     var lookAt       : Float3 = Float3(0, 0, 0)
-    var fov          : Float1 = Float1(80)
+    var fov          = Float1(80)
+}
 
+/// PinholeCameraNode
+final class PinholeCameraNode : BaseCameraNode
+{
+    var mouseDownPos          = float2(0,0)
+    
+    var cameraHelper          : CameraHelper!
+    
+    var updateStarted         = false
+    
     init(_ options: [String:Any] = [:])
     {
         super.init(.Camera, .None, options)
         name = "PinholeCamera"
+        
+        cameraHelper = CameraHelper(self)
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
@@ -119,6 +131,36 @@ final class PinholeCameraNode : GraphNode
         context.rayDir = simd_normalize(-dir)
         
         return .Success
+    }
+    
+    /// toolTouchDown
+    override func toolTouchDown(_ pos: float2,_ toolContext: ToolContext)
+    {
+        mouseDownPos = pos
+        toolContext.checkIfTextureIsValid()
+    }
+    
+    /// toolTouchMove
+    override func toolTouchMove(_ pos: float2,_ toolContext: ToolContext)
+    {
+        cameraHelper.move(dx: (mouseDownPos.x - pos.x) * 0.003, dy: (mouseDownPos.y - pos.y) * 0.003, aspect: Float(toolContext.texture!.width) / Float(toolContext.texture!.height))
+        mouseDownPos = pos
+        
+        if updateStarted == false {
+            updateStarted = true
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2 ) {
+                toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin])
+                toolContext.core.renderer.restart(.Preview)
+                self.updateStarted = false
+            }
+        }
+    }
+    
+    /// toolTouchUp
+    override func toolTouchUp(_ pos: float2,_ toolContext: ToolContext)
+    {
+        toolContext.core.renderer.restart(.Normal)
     }
     
     override func getHelp() -> String

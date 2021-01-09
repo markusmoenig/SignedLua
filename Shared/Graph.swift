@@ -5,7 +5,7 @@
 //  Created by Markus Moenig on 13/12/20.
 //
 
-import Foundation
+import MetalKit
 
 class GraphOption : Equatable, Identifiable {
     
@@ -84,6 +84,21 @@ class GraphNode : Equatable, Identifiable {
     func getOptions() -> [GraphOption]
     {
         return []
+    }
+    
+    /// toolTouchDown
+    func toolTouchDown(_ pos: float2,_ toolContext: ToolContext)
+    {
+    }
+    
+    /// toolTouchMove
+    func toolTouchMove(_ pos: float2,_ toolContext: ToolContext)
+    {
+    }
+    
+    /// toolTouchUp
+    func toolTouchUp(_ pos: float2,_ toolContext: ToolContext)
+    {
     }
     
     static func ==(lhs:GraphNode, rhs:GraphNode) -> Bool { // Implement Equatable

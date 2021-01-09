@@ -60,6 +60,92 @@ class ScriptProcessor
         }
     }
     
+    func replaceFloat1InLine(_ map: [String:Float1]) {
+        
+        if let node = core.graphBuilder.currentNode {
+            if var line = getLine(node.lineNr) {
+                
+                for (key, value) in map {
+                
+                    var range = line.range(of: key + ":")
+                    if range == nil { range = line.range(of: key + " :") }
+                    
+                    if let range = range {
+                        
+                        let startIndex : Int = range.lowerBound.utf16Offset(in: line)
+                            
+                        var endIndex : Int = startIndex
+                        var foundEndIndex = false
+                        
+                        while endIndex < line.count {
+                            
+                            if line[endIndex] == ">" {
+                                foundEndIndex = true
+                                break
+                            }
+                            endIndex += 1
+                        }
+                        
+                        if foundEndIndex {
+                            let end = String.Index(utf16Offset: endIndex, in: line)
+                            line.replaceSubrange(range.lowerBound..<end, with: "\(key): \(String(value.x))")
+                        }
+                    }
+                }
+                
+                guard let asset = core.assetFolder.getAsset("main", .Source) else {
+                    return
+                }
+                core.scriptEditor.setAssetLine(asset, line: line)
+            }
+        }
+    }
+    
+    func replaceFloat3InLine(_ map: [String:Float3], withUndo: Bool = true) {
+        
+        if let node = core.graphBuilder.currentNode {
+            if var line = getLine(node.lineNr) {
+                
+                for (key, value) in map {
+                
+                    var range = line.range(of: key + ":")
+                    if range == nil { range = line.range(of: key + " :") }
+                    
+                    if let range = range {
+                        
+                        let startIndex : Int = range.lowerBound.utf16Offset(in: line)
+                            
+                        var endIndex : Int = startIndex
+                        var foundEndIndex = false
+                        
+                        while endIndex < line.count {
+                            
+                            if line[endIndex] == ">" {
+                                foundEndIndex = true
+                                break
+                            }
+                            endIndex += 1
+                        }
+                        
+                        if foundEndIndex {
+                            let end = String.Index(utf16Offset: endIndex, in: line)
+                            line.replaceSubrange(range.lowerBound..<end, with: "\(key): \(value.toString())")
+                        }
+                    }
+                }
+                
+                guard let asset = core.assetFolder.getAsset("main", .Source) else {
+                    return
+                }
+                if withUndo == true {
+                    core.scriptEditor.setAssetLine(asset, line: line)
+                } else {
+                    setLine(node.lineNr, line)
+                }
+            }
+        }
+    }
+    
     /// Get the graph options for the current node
     func getOptions() -> [GraphOption]
     {

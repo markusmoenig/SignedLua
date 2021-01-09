@@ -62,28 +62,33 @@ public class DMTKView       : MTKView
     }
         
     override public func mouseDown(with event: NSEvent) {
-        if core.state == .Running {
-            if event.clickCount == 2 {
-                hasDoubleTap = true
-            } else {
-                mouseIsDown = true
-                setMousePos(event)
-            }
+        if event.clickCount == 2 {
+            hasDoubleTap = true
+        } else {
+            mouseIsDown = true
+            setMousePos(event)
+        }
+
+        if let node = core.graphBuilder.currentNode {
+            node.toolTouchDown(mousePos, core.toolContext)
         }
     }
     
     override public func mouseDragged(with event: NSEvent) {
-        if core.state == .Running && mouseIsDown {
-            setMousePos(event)
+        setMousePos(event)
+        if let node = core.graphBuilder.currentNode {
+            node.toolTouchMove(mousePos, core.toolContext)
         }
     }
     
     override public func mouseUp(with event: NSEvent) {
-        if core.state == .Running {
-            mouseIsDown = false
-            hasTap = false
-            hasDoubleTap = false
-            setMousePos(event)
+        mouseIsDown = false
+        hasTap = false
+        hasDoubleTap = false
+        setMousePos(event)
+        
+        if let node = core.graphBuilder.currentNode {
+            node.toolTouchUp(mousePos, core.toolContext)
         }
     }
     #elseif os(iOS)

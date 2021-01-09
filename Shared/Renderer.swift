@@ -12,6 +12,12 @@ import simd
 
 class Renderer
 {
+    enum RenderMode {
+        case Normal, Preview
+    }
+    
+    var renderMode      : RenderMode = .Normal
+    
     var texture         : MTLTexture? = nil
     var temp            : MTLTexture? = nil
 
@@ -34,15 +40,20 @@ class Renderer
     var coresActive     : Int = 0
     
     var semaphore       : DispatchSemaphore!
+    var dispatchGroup   : DispatchGroup!
     
-    var isRunning       : Bool = true
+    var isRunning       : Bool = false
     var stopRunning     : Bool = false
     
+    let core            : Core
+        
     var lines           : [Int] = []
 
-    init()
+    init(_ core: Core)
     {
+        self.core = core
         semaphore = DispatchSemaphore(value: 1)
+        dispatchGroup = DispatchGroup()
     }
     
     deinit
@@ -62,7 +73,7 @@ class Renderer
         textureCache = [:]
     }
     
-    func render(core: Core)
+    func start()
     {
         guard let main = core.assetFolder.getAsset("main", .Source) else {
             return
@@ -103,6 +114,7 @@ class Renderer
             //print("Chunk start", chunk.y, chunk.w)
 
             coresActive += 1
+            dispatchGroup.enter()
             DispatchQueue.global(qos: .userInitiated).async {
                 self.renderChunk(context1: context, chunk: chunk)
             }
@@ -156,6 +168,7 @@ class Renderer
         //for h in chunk.y..<chunk.w {
         //var h : Int? = 0
         while let h = getNextLine() {
+
             let fh : Float = Float(h) / height
             for w in 0..<widthInt {
                 
@@ -166,7 +179,7 @@ class Renderer
                     for n in 0..<AA {
 
                         if stopRunning {
-                            return
+                            break
                         }
                         
                         context.reflectionDepth = 0
@@ -226,7 +239,11 @@ class Renderer
                                 material.execute(context: context)
                             }
                             context.hasHitSomething = true
-                            context.executeRender()
+                            if renderMode == .Normal {
+                                context.executeRender()
+                            } else {
+                                previewRender()
+                            }
                         } else
                         if context.analyticalDist != .greatestFiniteMagnitude {
                             
@@ -240,23 +257,22 @@ class Renderer
                                 material.execute(context: context)
                             }
                             context.hasHitSomething = true
-                            context.executeRender()
+                            if renderMode == .Normal {
+                                context.executeRender()
+                            } else {
+                                previewRender()
+                            }
                         }
                         
-                        //tot = tot + color
-                        if let outColor = context.variables["outColor"] as? Float4 {
-                            var result = outColor.toSIMD()
-                            
-                            result.x = simd_clamp(result.x, 0.0, 1.0)
-                            result.y = simd_clamp(result.y, 0.0, 1.0)
-                            result.z = simd_clamp(result.z, 0.0, 1.0)
-                            result.w = simd_clamp(result.w, 0.0, 1.0)
-
-                            tot += result
-                        }
+                        let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
+                        tot += result
                     }
                 }
                 texArray[w] = tot / Float(AA*AA)
+            }
+            
+            if stopRunning {
+                break
             }
             
             semaphore.wait()
@@ -266,25 +282,55 @@ class Renderer
                 texture.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<Float>>.size * widthInt))
             }
             
-            DispatchQueue.main.async {
-                context.core.updateOnce()
+            if renderMode == .Normal {
+                DispatchQueue.main.async {
+                    context.core.updateOnce()
+                }
             }
             semaphore.signal()
         }
         
         coresActive -= 1
-        if coresActive == 0 {
+        if coresActive == 0 && stopRunning == false {
             
             let chunkTime = Double(Date().timeIntervalSince1970) - startTime
             totalTime += chunkTime
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0 / 60.0) {
-                context.core.updateOnce()
+            if renderMode == .Normal {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0 / 60.0) {
+                    context.core.updateOnce()
+                }
+            } else {
+                DispatchQueue.main.async {
+                    context.core.updateOnce()
+                }
             }
             
             isRunning = false
             print(totalTime)
         }
+        
+        dispatchGroup.leave()
+    }
+    
+    func restart(_ renderMode : RenderMode = .Normal)
+    {
+        stop()
+        dispatchGroup.wait()
+            
+        self.renderMode = renderMode
+        self.start()
+    }
+    
+    func stop()
+    {
+        stopRunning = true
+    }
+    
+    /// Render a preview during camera actions
+    func previewRender()
+    {
+        
     }
     
     /// Calculates the normal for the given hit position

@@ -39,6 +39,8 @@ public class Core       : ObservableObject
     var scriptEditor    : ScriptEditor!
     var scriptProcessor : ScriptProcessor!
 
+    var toolContext     : ToolContext!
+
     var textureLoader   : MTKTextureLoader!
         
     var resources       : [AnyObject] = []
@@ -104,6 +106,7 @@ public class Core       : ObservableObject
         
         graphBuilder = GraphBuilder(self)
         scriptProcessor = ScriptProcessor(self)
+        toolContext = ToolContext(self)
 
         #if os(iOS)
         do {
@@ -114,7 +117,7 @@ public class Core       : ObservableObject
         }
         #endif
         
-        renderer = Renderer()
+        renderer = Renderer(self)
     }
     
     public func setupView(_ view: DMTKView)

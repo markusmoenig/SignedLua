@@ -65,7 +65,7 @@ struct ContentView: View {
                             */
                             //.opacity(helpIsVisible ? 0 : (document.game.state == .Running ? 1 : document.game.previewOpacity))
                             .animation(.default)
-                            .allowsHitTesting(false)
+                            .allowsHitTesting(true)
                         
                     }
 
@@ -158,7 +158,7 @@ struct ContentView: View {
                 
                 // Controls for Start Render / Stop Render
                 Button(action: {
-                    document.core.renderer.render(core: document.core)
+                    document.core.renderer.restart()
                 })
                 {
                     Label("Run", systemImage: "play.fill")

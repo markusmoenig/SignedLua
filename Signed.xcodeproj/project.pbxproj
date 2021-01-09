@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1EAD1425A6FAD500E59CFB /* Tool.swift */; };
+		2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1EAD1425A6FAD500E59CFB /* Tool.swift */; };
 		2B224D9825A40C3D006C5C2F /* ScriptProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */; };
 		2B224D9925A40C3D006C5C2F /* ScriptProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */; };
 		2B224F412584485300F32354 /* SignedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224F2D2584485100F32354 /* SignedApp.swift */; };
@@ -76,12 +78,15 @@
 		2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
 		2B6D5D02259C664A003F7DD8 /* SignedSpecific.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */; };
 		2B6D5D03259C664A003F7DD8 /* SignedSpecific.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */; };
+		2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
+		2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2B1EAD1425A6FAD500E59CFB /* Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
 		2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptProcessor.swift; sourceTree = "<group>"; };
 		2B224F2D2584485100F32354 /* SignedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedApp.swift; sourceTree = "<group>"; };
 		2B224F2E2584485100F32354 /* SignedDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedDocument.swift; sourceTree = "<group>"; };
@@ -122,6 +127,7 @@
 		2B4293BE259429AD00B56347 /* GraphTexNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphTexNodes.swift; sourceTree = "<group>"; };
 		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 		2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedSpecific.swift; sourceTree = "<group>"; };
+		2B8A692A25A4486A006B1B5C /* CameraHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraHelper.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -179,6 +185,8 @@
 				2B224F6B25844C1800F32354 /* ScriptEditor.swift */,
 				2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */,
 				2B224F6225844C1800F32354 /* Utils.swift */,
+				2B8A692A25A4486A006B1B5C /* CameraHelper.swift */,
+				2B1EAD1425A6FAD500E59CFB /* Tool.swift */,
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FEB2588A6BD00F32354 /* GraphNodes.swift */,
 				2B224FA72585EB7F00F32354 /* GraphBuilder.swift */,
@@ -379,10 +387,12 @@
 				2B224F8125844C1900F32354 /* Metal.metal in Sources */,
 				2B4293BF259429AD00B56347 /* GraphTexNodes.swift in Sources */,
 				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
+				2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F412584485300F32354 /* SignedApp.swift in Sources */,
 				2B2E02D9258C53F40073DAE9 /* AtomNodes.swift in Sources */,
 				2B224FB62586105200F32354 /* GraphBranchNodes.swift in Sources */,
 				2B224F452584485300F32354 /* ContentView.swift in Sources */,
+				2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D4258C52B10073DAE9 /* Variables.swift in Sources */,
@@ -418,10 +428,12 @@
 				2B224F8225844C1900F32354 /* Metal.metal in Sources */,
 				2B4293C0259429AD00B56347 /* GraphTexNodes.swift in Sources */,
 				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,
+				2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F422584485300F32354 /* SignedApp.swift in Sources */,
 				2B2E02DA258C53F40073DAE9 /* AtomNodes.swift in Sources */,
 				2B224FB72586105200F32354 /* GraphBranchNodes.swift in Sources */,
 				2B224F462584485300F32354 /* ContentView.swift in Sources */,
+				2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */,
