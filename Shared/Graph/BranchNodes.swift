@@ -8,11 +8,11 @@
 import Foundation
 
 /// Distance Base Node
-class DistanceNode         : GraphNode
+class GraphDistanceNode : GraphNode
 {
-    var position      : Float3 = Float3(0,0,0)
-    var rotation      : Float3 = Float3(0,0,0)
-    var scale         : Float1 = Float1(0)
+    var position        : Float3 = Float3(0,0,0)
+    var rotation        : Float3 = Float3(0,0,0)
+    var scale           : Float1 = Float1(0)
     
     func verifyTranslationOptions(context: GraphContext, error: inout CompileError) {
         if let value = extractFloat3Value(options, container: context, error: &error, name: "position", isOptional: true) {
@@ -42,7 +42,7 @@ class DistanceNode         : GraphNode
 }
 
 /// SDFObject
-final class SDFObject : DistanceNode
+final class GraphSDFObject : GraphDistanceNode
 {
     var maxBox        : Float3? = nil
     
@@ -94,7 +94,7 @@ final class SDFObject : DistanceNode
         if processIt {
             if let materialName = materialName {
                 context.activeMaterial = context.getMaterial(materialName)
-                if let material = context.activeMaterial as? MaterialNode {
+                if let material = context.activeMaterial as? GraphMaterialNode {
                     if material.hasDisplacement {
                         material.onlyDisplacement = true
                         material.execute(context: context)
@@ -124,7 +124,7 @@ final class SDFObject : DistanceNode
         let options = [
             GraphOption(Text1("Object"), "Name", "The name of the object.")
         ]
-        return options + DistanceNode.getObjectOptions()
+        return options + GraphDistanceNode.getObjectOptions()
     }
     
     func intersect(_ context: GraphContext, maxDimensions: float3) -> Bool
@@ -203,7 +203,7 @@ final class SDFObject : DistanceNode
 }
 
 /// AnalyticalObject
-final class AnalyticalObject : DistanceNode
+final class GraphAnalyticalObject : GraphDistanceNode
 {
     var positionStore : Float3!
 
@@ -255,12 +255,12 @@ final class AnalyticalObject : DistanceNode
         let options = [
             GraphOption(Text1("Object"), "Name", "The name of the object.")
         ]
-        return options + DistanceNode.getObjectOptions()
+        return options + GraphDistanceNode.getObjectOptions()
     }
 }
 
 /// MaterialNode
-final class MaterialNode : GraphNode
+final class GraphMaterialNode : GraphNode
 {
     /// Material has displacement
     var hasDisplacement  : Bool = false
@@ -311,7 +311,7 @@ final class MaterialNode : GraphNode
 }
 
 /// RenderNode
-final class RenderNode : GraphNode
+final class GraphRenderNode : GraphNode
 {
     init(_ options: [String:Any] = [:])
     {

@@ -186,7 +186,6 @@
 				2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */,
 				2B224F6225844C1800F32354 /* Utils.swift */,
 				2B8A692A25A4486A006B1B5C /* CameraHelper.swift */,
-				2B1EAD1425A6FAD500E59CFB /* Tool.swift */,
 				2BE97DC025AC2A7200729833 /* Graph */,
 				2B2E02C7258C3F390073DAE9 /* Expression */,
 				2B224F8525844C2500F32354 /* Classes */,
@@ -256,6 +255,7 @@
 		2BE97DC025AC2A7200729833 /* Graph */ = {
 			isa = PBXGroup;
 			children = (
+				2B1EAD1425A6FAD500E59CFB /* Tool.swift */,
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FEB2588A6BD00F32354 /* Nodes.swift */,
 				2B224FA72585EB7F00F32354 /* Builder.swift */,

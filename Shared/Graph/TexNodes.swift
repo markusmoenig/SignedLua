@@ -9,7 +9,7 @@ import MetalKit
 import simd
 
 /// TexColor
-final class TexColorNode : GraphNode
+final class GraphTexColorNode : GraphNode
 {
     var color        : Float3 = Float3(0.5, 0.5, 0.5)
 
@@ -48,7 +48,7 @@ final class TexColorNode : GraphNode
 }
 
 /// TexChecker
-final class TexCheckerNode : GraphNode
+final class GraphTexCheckerNode : GraphNode
 {
     var colorA        : Float3 = Float3(0.0, 0.0, 0.0)
     var colorB        : Float3 = Float3(1, 1, 1)
@@ -100,7 +100,7 @@ final class TexCheckerNode : GraphNode
 }
 
 /// TexNoise2DNode
-final class TexNoise2DNode : GraphNode
+final class GraphTexNoise2DNode : GraphNode
 {
     var position         : Float2 = Float2(0.0, 0.0)
 

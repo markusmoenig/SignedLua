@@ -9,7 +9,7 @@ import MetalKit
 import simd
 
 /// SDFSphereNode
-final class SDFSphereNode : DistanceNode
+final class GraphSDFSphereNode : GraphDistanceNode
 {
     var radius        : Float1 = Float1(1)
 
@@ -49,12 +49,12 @@ final class SDFSphereNode : DistanceNode
         let options = [
             GraphOption(Float1(1), "Radius", "The radius of the sphere.")
         ]
-        return options + DistanceNode.getSDFOptions()
+        return options + GraphDistanceNode.getSDFOptions()
     }
 }
 
 /// SDFBoxNode
-final class SDFBoxNode : DistanceNode
+final class GraphSDFBoxNode : GraphDistanceNode
 {
     var size    : Float3 = Float3(1)
 
@@ -95,12 +95,12 @@ final class SDFBoxNode : DistanceNode
         let options = [
             GraphOption(Float3(1,1,1), "Size", "The size of the cube.")
         ]
-        return options + DistanceNode.getSDFOptions()
+        return options + GraphDistanceNode.getSDFOptions()
     }
 }
 
 /// SDFPlaneNode
-final class SDFPlaneNode : DistanceNode
+final class GraphSDFPlaneNode : GraphDistanceNode
 {
     var normal    : Float3 = Float3(0, 1, 0)
 
@@ -139,7 +139,7 @@ final class SDFPlaneNode : DistanceNode
         let options = [
             GraphOption(Float3(0,1,0), "Normal", "The normal defines the orientation of the plane.")
         ]
-        return options + DistanceNode.getSDFOptions()
+        return options + GraphDistanceNode.getSDFOptions()
     }
 }
 

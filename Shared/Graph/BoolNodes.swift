@@ -9,7 +9,7 @@ import MetalKit
 import simd
 
 /// BoolMergeNode
-final class BoolMergeNode : GraphNode
+final class GraphBoolMergeNode : GraphNode
 {
     init(_ options: [String:Any] = [:])
     {

@@ -7,7 +7,7 @@
 
 import MetalKit
 
-class ToolContext {
+class GraphToolContext {
     var texture             : MTLTexture? = nil
 
     var commandQueue        : MTLCommandQueue? = nil

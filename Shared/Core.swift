@@ -39,7 +39,7 @@ public class Core       : ObservableObject
     var scriptEditor    : ScriptEditor!
     var scriptProcessor : ScriptProcessor!
 
-    var toolContext     : ToolContext!
+    var toolContext     : GraphToolContext!
 
     var textureLoader   : MTKTextureLoader!
         
@@ -106,7 +106,7 @@ public class Core       : ObservableObject
         
         graphBuilder = GraphBuilder(self)
         scriptProcessor = ScriptProcessor(self)
-        toolContext = ToolContext(self)
+        toolContext = GraphToolContext(self)
 
         #if os(iOS)
         do {

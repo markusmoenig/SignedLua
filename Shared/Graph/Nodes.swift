@@ -9,7 +9,7 @@ import MetalKit
 import simd
 
 /// DefaultSkyNode
-final class DefaultSkyNode : GraphNode
+final class GraphDefaultSkyNode : GraphNode
 {
     var sunDirection       : Float3 = Float3(0.243, 0.075, 0.512)
     var sunColor           : Float3 = Float3(0.966, 0.966, 0.966)
@@ -63,7 +63,7 @@ final class DefaultSkyNode : GraphNode
 }
 
 /// BaseCameraNode
-class BaseCameraNode : GraphNode
+class GraphBaseCameraNode : GraphNode
 {
     var origin       : Float3 = Float3(0, 0, -5)
     var lookAt       : Float3 = Float3(0, 0, 0)
@@ -71,7 +71,7 @@ class BaseCameraNode : GraphNode
 }
 
 /// PinholeCameraNode
-final class PinholeCameraNode : BaseCameraNode
+final class GraphPinholeCameraNode : GraphBaseCameraNode
 {
     var mouseDownPos          = float2(0,0)
     
@@ -134,14 +134,14 @@ final class PinholeCameraNode : BaseCameraNode
     }
     
     /// toolTouchDown
-    override func toolTouchDown(_ pos: float2,_ toolContext: ToolContext)
+    override func toolTouchDown(_ pos: float2,_ toolContext: GraphToolContext)
     {
         mouseDownPos = pos
         toolContext.checkIfTextureIsValid()
     }
     
     /// toolTouchMove
-    override func toolTouchMove(_ pos: float2,_ toolContext: ToolContext)
+    override func toolTouchMove(_ pos: float2,_ toolContext: GraphToolContext)
     {
         cameraHelper.move(dx: (mouseDownPos.x - pos.x) * 0.003, dy: (mouseDownPos.y - pos.y) * 0.003, aspect: Float(toolContext.texture!.width) / Float(toolContext.texture!.height))
         mouseDownPos = pos
@@ -158,7 +158,7 @@ final class PinholeCameraNode : BaseCameraNode
     }
     
     /// toolTouchUp
-    override func toolTouchUp(_ pos: float2,_ toolContext: ToolContext)
+    override func toolTouchUp(_ pos: float2,_ toolContext: GraphToolContext)
     {
         toolContext.core.renderer.restart(.Normal)
     }

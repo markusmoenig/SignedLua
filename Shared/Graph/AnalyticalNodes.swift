@@ -9,7 +9,7 @@ import Foundation
 import simd
 
 /// Analytical Plane
-final class AnalyticalPlaneNode : DistanceNode
+final class GraphAnalyticalPlaneNode : GraphDistanceNode
 {
     var normal    : Float3 = Float3(0, 1, 0)
 
@@ -49,7 +49,7 @@ final class AnalyticalPlaneNode : DistanceNode
         let options = [
             GraphOption(Float3(0,1,0), "Normal", "The normal defines the orientation of the plane.")
         ]
-        return options + DistanceNode.getSDFOptions()
+        return options + GraphDistanceNode.getSDFOptions()
     }
 }
 

@@ -15,9 +15,9 @@ class CameraHelper
     
     let up              = float3(0, 1, 0)
 
-    let cameraNode      : BaseCameraNode
+    let cameraNode      : GraphBaseCameraNode
     
-    init(_ node         : BaseCameraNode)
+    init(_ node         : GraphBaseCameraNode)
     {
         cameraNode = node
         

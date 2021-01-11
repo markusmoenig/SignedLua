@@ -87,17 +87,17 @@ class GraphNode : Equatable, Identifiable {
     }
     
     /// toolTouchDown
-    func toolTouchDown(_ pos: float2,_ toolContext: ToolContext)
+    func toolTouchDown(_ pos: float2,_ toolContext: GraphToolContext)
     {
     }
     
     /// toolTouchMove
-    func toolTouchMove(_ pos: float2,_ toolContext: ToolContext)
+    func toolTouchMove(_ pos: float2,_ toolContext: GraphToolContext)
     {
     }
     
     /// toolTouchUp
-    func toolTouchUp(_ pos: float2,_ toolContext: ToolContext)
+    func toolTouchUp(_ pos: float2,_ toolContext: GraphToolContext)
     {
     }
     

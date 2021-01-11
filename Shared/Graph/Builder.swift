@@ -40,27 +40,27 @@ class GraphBuilder
     
     var branches        : [GraphNodeItem] =
     [
-        GraphNodeItem("PinholeCamera", { (_ options: [String:Any]) -> GraphNode in return PinholeCameraNode(options) }),
-        GraphNodeItem("DefaultSky", { (_ options: [String:Any]) -> GraphNode in return DefaultSkyNode(options) }),
-        GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return AnalyticalObject(options) }),
-        GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return SDFObject(options) }),
-        GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return MaterialNode(options) }),
-        GraphNodeItem("Render", { (_ options: [String:Any]) -> GraphNode in return RenderNode(options) }),
+        GraphNodeItem("PinholeCamera", { (_ options: [String:Any]) -> GraphNode in return GraphPinholeCameraNode(options) }),
+        GraphNodeItem("DefaultSky", { (_ options: [String:Any]) -> GraphNode in return GraphDefaultSkyNode(options) }),
+        GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalObject(options) }),
+        GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject(options) }),
+        GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) }),
+        GraphNodeItem("Render", { (_ options: [String:Any]) -> GraphNode in return GraphRenderNode(options) }),
     ]
     
     var leaves          : [GraphNodeItem] =
     [
-        GraphNodeItem("analyticalPlane", { (_ options: [String:Any]) -> GraphNode in return AnalyticalPlaneNode(options) }),
+        GraphNodeItem("analyticalPlane", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalPlaneNode(options) }),
 
-        GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return SDFSphereNode(options) }),
-        GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return SDFBoxNode(options) }),
-        GraphNodeItem("sdfPlane", { (_ options: [String:Any]) -> GraphNode in return SDFPlaneNode(options) }),
+        GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSDFSphereNode(options) }),
+        GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return GraphSDFBoxNode(options) }),
+        GraphNodeItem("sdfPlane", { (_ options: [String:Any]) -> GraphNode in return GraphSDFPlaneNode(options) }),
         
-        GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return BoolMergeNode(options) }),
+        GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return GraphBoolMergeNode(options) }),
         
-        GraphNodeItem("texColor", { (_ options: [String:Any]) -> GraphNode in return TexColorNode(options) }),
-        GraphNodeItem("texChecker", { (_ options: [String:Any]) -> GraphNode in return TexCheckerNode(options) }),
-        GraphNodeItem("texNoise2D", { (_ options: [String:Any]) -> GraphNode in return TexNoise2DNode(options) }),
+        GraphNodeItem("texColor", { (_ options: [String:Any]) -> GraphNode in return GraphTexColorNode(options) }),
+        GraphNodeItem("texChecker", { (_ options: [String:Any]) -> GraphNode in return GraphTexCheckerNode(options) }),
+        GraphNodeItem("texNoise2D", { (_ options: [String:Any]) -> GraphNode in return GraphTexNoise2DNode(options) }),
     ]
     
     init(_ core: Core)
@@ -313,7 +313,7 @@ class GraphBuilder
                                                 
                                                 // Separate hierarchical Node
                                                 
-                                                let hObject = AnalyticalObject()
+                                                let hObject = GraphAnalyticalObject()
                                                 hObject.name = newBranch.givenName
                                                 hObject.lineNr = error.line!
                                                 hObject.leaves = nil
@@ -325,7 +325,7 @@ class GraphBuilder
                                                 
                                                 // Separate hierarchical Node
                                                 
-                                                let hObject = SDFObject()
+                                                let hObject = GraphSDFObject()
                                                 hObject.name = newBranch.givenName
                                                 hObject.lineNr = error.line!
                                                 hObject.leaves = nil
@@ -337,7 +337,7 @@ class GraphBuilder
                                                 
                                                 // Separate hierarchical Node
                                                 
-                                                let hMaterial = MaterialNode()
+                                                let hMaterial = GraphMaterialNode()
                                                 hMaterial.name = newBranch.givenName
                                                 hMaterial.lineNr = error.line!
                                                 hMaterial.leaves = nil
@@ -403,7 +403,7 @@ class GraphBuilder
                             
                             if let branch = currentBranch.last {
                                 
-                                if let material = currentBranch.first as? MaterialNode {
+                                if let material = currentBranch.first as? GraphMaterialNode {
                                     if variableName == "displacement" {
                                         material.hasDisplacement = true
                                     }
