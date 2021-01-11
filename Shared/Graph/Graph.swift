@@ -61,7 +61,7 @@ class GraphNode : Equatable, Identifiable {
     {
         self.role = role
         self.context = context
-        self.options = options        
+        self.options = options
     }
     
     /// Verify options
@@ -128,9 +128,7 @@ final class GraphContext    : VariableContainer
     var failedAt            : [Int32] = []
     
     var lines               : [Int32: GraphNode] = [:]
-        
-    let core                : Core
-    
+
     // Special Global Variables
     
     var rayPosition         : Float3!
@@ -174,15 +172,15 @@ final class GraphContext    : VariableContainer
     var rayDist             : [Float] = []
     var rayIndex            : Int = 0
     
-    init(_ core: Core)
+    override init()
     {
-        self.core = core
-        
         rayDist.append(.greatestFiniteMagnitude)
         rayDist.append(.greatestFiniteMagnitude)
         
         hitMaterial.append(nil)
         hitMaterial.append(nil)
+        
+        super.init()
     }
     
     func clear()
@@ -334,14 +332,6 @@ final class GraphContext    : VariableContainer
     /// Get the given variable and process globals
     override func getVariableValue(_ name: String) -> BaseVariable?
     {
-        // Globals
-        if name == "Time" {
-            return core._Time
-        } else
-        if name == "Aspect" {
-            return core._Aspect
-        }
-        
         return super.getVariableValue(name)
     }
     

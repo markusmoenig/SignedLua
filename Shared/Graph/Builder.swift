@@ -78,7 +78,7 @@ class GraphBuilder
         }
         
         if asset.graph == nil {
-            asset.graph = GraphContext(core)
+            asset.graph = GraphContext()
         } else {
             asset.graph!.clear()
         }
@@ -155,7 +155,7 @@ class GraphBuilder
             }
             
             var variableName : String? = nil
-            var assignmentType : VariableAssignmentNode.AssignmentType = .Copy
+            var assignmentType : GraphVariableAssignmentNode.AssignmentType = .Copy
             
             // --- Check for variable assignment
             if leftOfComment.contains("="){
@@ -419,7 +419,7 @@ class GraphBuilder
                                     }
                                 }
                                 
-                                let variableNode = VariableAssignmentNode()
+                                let variableNode = GraphVariableAssignmentNode()
                                 variableNode.givenName = variableName
                                 variableNode.assignmentComponents = assignmentComponents
                                 variableNode.assignmentType = assignmentType

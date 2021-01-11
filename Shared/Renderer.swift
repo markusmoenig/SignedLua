@@ -153,12 +153,12 @@ class Renderer
 
         var texArray = Array<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: widthInt)
         
-        guard let main = context1.core.assetFolder.getAsset("main", .Source) else {
+        guard let main = core.assetFolder.getAsset("main", .Source) else {
             return
         }
         
         let asset = Asset(type: .Source, name: "", value: main.value, data: main.data)
-        context1.core.graphBuilder.compile(asset, silent: true)
+        core.graphBuilder.compile(asset, silent: true)
         
         let context = asset.graph!
         
@@ -284,7 +284,7 @@ class Renderer
             
             if renderMode == .Normal {
                 DispatchQueue.main.async {
-                    context.core.updateOnce()
+                    self.core.updateOnce()
                 }
             }
             semaphore.signal()
@@ -298,11 +298,11 @@ class Renderer
             
             if renderMode == .Normal {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0 / 60.0) {
-                    context.core.updateOnce()
+                    self.core.updateOnce()
                 }
             } else {
                 DispatchQueue.main.async {
-                    context.core.updateOnce()
+                    self.core.updateOnce()
                 }
             }
             

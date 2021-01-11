@@ -151,7 +151,7 @@ class BaseVariable {
     }
     
     /// Assign another variable value to this variable
-    func assign(from: BaseVariable, using: VariableAssignmentNode.AssignmentType)
+    func assign(from: BaseVariable, using: GraphVariableAssignmentNode.AssignmentType)
     {
         if using == .Copy {
             copy(from: from)
@@ -171,7 +171,7 @@ class BaseVariable {
     }
     
     /// Assign another variable float value to this variable up to the given components
-    func assignFromFloat(from: BaseVariable, using: VariableAssignmentNode.AssignmentType, upTo: Int)
+    func assignFromFloat(from: BaseVariable, using: GraphVariableAssignmentNode.AssignmentType, upTo: Int)
     {
         if using == .Multiply {
             multiplyWithFloat(with: from, upTo: upTo)

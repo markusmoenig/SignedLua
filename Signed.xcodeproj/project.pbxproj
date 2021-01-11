@@ -78,6 +78,8 @@
 		2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
 		2B6D5D02259C664A003F7DD8 /* SignedSpecific.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */; };
 		2B6D5D03259C664A003F7DD8 /* SignedSpecific.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */; };
+		2B76D82B25AC46F000AF6FF2 /* SignedGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */; };
+		2B76D82C25AC46F000AF6FF2 /* SignedGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */; };
 		2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
 		2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
@@ -127,6 +129,7 @@
 		2B4293BE259429AD00B56347 /* TexNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TexNodes.swift; sourceTree = "<group>"; };
 		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 		2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedSpecific.swift; sourceTree = "<group>"; };
+		2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedGraph.swift; sourceTree = "<group>"; };
 		2B8A692A25A4486A006B1B5C /* CameraHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraHelper.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
@@ -256,14 +259,15 @@
 			isa = PBXGroup;
 			children = (
 				2B1EAD1425A6FAD500E59CFB /* Tool.swift */,
+				2B224FA72585EB7F00F32354 /* Builder.swift */,
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FEB2588A6BD00F32354 /* Nodes.swift */,
-				2B224FA72585EB7F00F32354 /* Builder.swift */,
 				2B4293BE259429AD00B56347 /* TexNodes.swift */,
 				2B224FC52586EA1800F32354 /* SDFNodes.swift */,
 				2B224FCA2586F90C00F32354 /* BoolNodes.swift */,
 				2B224FB52586105200F32354 /* BranchNodes.swift */,
 				2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */,
+				2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */,
 			);
 			path = Graph;
 			sourceTree = "<group>";
@@ -405,6 +409,7 @@
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D4258C52B10073DAE9 /* Variables.swift in Sources */,
 				2B224F7F25844C1900F32354 /* ScriptEditor.swift in Sources */,
+				2B76D82B25AC46F000AF6FF2 /* SignedGraph.swift in Sources */,
 				2B224F7B25844C1900F32354 /* File.swift in Sources */,
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
@@ -446,6 +451,7 @@
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */,
 				2B224F8025844C1900F32354 /* ScriptEditor.swift in Sources */,
+				2B76D82C25AC46F000AF6FF2 /* SignedGraph.swift in Sources */,
 				2B224F7C25844C1900F32354 /* File.swift in Sources */,
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
