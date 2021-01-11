@@ -210,7 +210,7 @@ class ExpressionContext
         ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),
         ExpressionNodeItem("castray", {() -> ExpressionNode in return CastRayFuncNode() }),
         ExpressionNodeItem("castshadowray", {() -> ExpressionNode in return CastShadowRayFuncNode() })
-    ]
+     ]
         
     init()
     {
@@ -336,6 +336,10 @@ class ExpressionContext
         // First, if we know the variable type, try to construct the variable from the given expression, we only need to test the vector types
         if let defaultVariableType = defaultVariableType {
             if defaultVariableType == .Float4 {
+                if let v = container.getVariableValue(expression), v as? Float4 != nil {
+                    values.append(v)
+                    return
+                }
                 let v = Float4(container: container, parameters: expression, error: &error)
                 if error.error == nil {
                     // Success
@@ -344,6 +348,10 @@ class ExpressionContext
                 }
             } else
             if defaultVariableType == .Float3 {
+                if let v = container.getVariableValue(expression), v as? Float3 != nil {
+                    values.append(v)
+                    return
+                }
                 let v = Float3(container: container, parameters: expression, error: &error)
                 if error.error == nil {
                     // Success
@@ -352,10 +360,34 @@ class ExpressionContext
                 }
             } else
             if defaultVariableType == .Float2 {
+                if let v = container.getVariableValue(expression), v as? Float2 != nil {
+                    values.append(v)
+                    return
+                }
                 let v = Float2(container: container, parameters: expression, error: &error)
                 if error.error == nil {
                     // Success
                     values.append(v)
+                    return
+                }
+            } else
+            if defaultVariableType == .Int {
+                if let v = container.getVariableValue(expression), v as? Int1 != nil {
+                    values.append(v)
+                    return
+                }
+                if let i = Int(expression) {
+                    values.append(Int1(i))
+                    return
+                }
+            } else
+            if defaultVariableType == .Bool {
+                if let v = container.getVariableValue(expression), v as? Bool1 != nil {
+                    values.append(v)
+                    return
+                }
+                if let b = Bool(expression) {
+                    values.append(Bool1(b))
                     return
                 }
             }
@@ -424,7 +456,7 @@ class ExpressionContext
             }
             
             if error.error != nil {
-                return                
+                return
             }
             
             //print(expression, resultType)
@@ -470,6 +502,62 @@ class ExpressionContext
                     cResult1 = f1
                 }
                 return f1
+            } else {
+                wrongType = ""
+                if result != nil {
+                    wrongType = result!.getTypeName()
+                }
+            }
+        }
+        return nil
+    }
+    
+    /// Returns a possible Int1 result
+    @inlinable func executeForInt1() -> Int1?
+    {
+        //if cResult1 != nil { return cResult1 }
+
+        for node in nodes {
+            node.execute(self)
+        }
+        
+        if values.count >= 1 {
+            let result = values[values.count - 1]
+            if let i1 = result as? Int1 {
+                //if resultType == .Variable {
+                    i1.context = self
+                //} else {
+                    //cResult1 = f1
+                //}
+                return i1
+            } else {
+                wrongType = ""
+                if result != nil {
+                    wrongType = result!.getTypeName()
+                }
+            }
+        }
+        return nil
+    }
+    
+    /// Returns a possible Bool1 result
+    @inlinable func executeForBool1() -> Bool1?
+    {
+        //if cResult1 != nil { return cResult1 }
+
+        for node in nodes {
+            node.execute(self)
+        }
+        
+        if values.count >= 1 {
+            let result = values[values.count - 1]
+            if let b1 = result as? Bool1 {
+                //if resultType == .Variable {
+                    b1.context = self
+                //} else {
+                    //cResult1 = f1
+                //}
+                return b1
             } else {
                 wrongType = ""
                 if result != nil {

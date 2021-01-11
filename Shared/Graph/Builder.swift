@@ -267,14 +267,7 @@ class GraphBuilder
                                 rightValueArray.removeFirst()
                                 if array.count == 2 {
                                     let optionName = array[0].lowercased().trimmingCharacters(in: .whitespaces)
-                                    var values = array[1].trimmingCharacters(in: .whitespaces)
-                                    //print("option", optionName, "value", values)
-                                                                        
-                                    //if values.count > 0 && values.last! != ">" {
-                                    //    createError("No closing '>' for option '\(optionName)'")
-                                    //} else {
-                                        values = String(values)
-                                    //}
+                                    let values = array[1].trimmingCharacters(in: .whitespaces)
                                     options[optionName] = String(values)
                                 } else { createError(); rightValueArray = [] }
                             }

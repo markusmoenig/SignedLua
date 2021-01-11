@@ -9,11 +9,22 @@ import Foundation
 
 class VariableContainer
 {
+    /// The variables of this container
     var variables           : [String:BaseVariable] = [:]
+    
+    /// Optional  parameters, for example inside Denrim trees
+    var parameters          : [BaseVariable]? = nil
 
     /// Get the given variable
-    func getVariableValue(_ name: String, parameters: [BaseVariable] = []) -> BaseVariable?
+    func getVariableValue(_ name: String) -> BaseVariable?
     {
+        if let params = self.parameters {
+            for p in params {
+                if p.name == name {
+                    return p
+                }
+            }
+        }
         return variables[name]
     }
 }
@@ -30,7 +41,7 @@ class BaseVariable {
     
     var role        : VariableRole = .User
     
-    var context     : ExpressionContext? = nil    
+    var context     : ExpressionContext? = nil
     var name        : String = ""
     
     // How many components does this variable have
@@ -84,7 +95,7 @@ class BaseVariable {
     /// Creates a variables based on it's type, the context and it's string parameters, this is used to construct variables from text input
     static func createTypeFromParameters(_ typeName: String, container: VariableContainer, parameters: String, error: inout CompileError) -> BaseVariable?
     {
-        if typeName == "Float1" {
+        if typeName == "Float" {
             return Float1(container: container, parameters: parameters, error: &error)
         } else
         if typeName == "Float2" {
@@ -95,6 +106,12 @@ class BaseVariable {
         } else
         if typeName == "Float4" {
             return Float4(container: container, parameters: parameters, error: &error)
+        } else
+        if typeName == "Int" {
+            return Int1(container: container, parameters: parameters, error: &error)
+        } else
+        if typeName == "Bool" {
+            return Bool1(container: container, parameters: parameters, error: &error)
         }
         return nil
     }
@@ -966,13 +983,63 @@ final class Int1 : BaseVariable
         self.x = x
     }
     
+    /// From text
+    init(_ name: String = "", container: VariableContainer, parameters: String, error: inout CompileError)
+    {
+        super.init(name)
+        let exp = ExpressionContext()
+        exp.parse(expression: parameters, container: container, defaultVariableType: .Int, error: &error)
+        if error.error == nil {
+            if exp.resultType == .Constant {
+                if let i1 = exp.executeForInt1() {
+                    x = i1.x
+                }
+            } else {
+                self.context = exp
+            }
+        }
+    }
+    
     @inlinable func toSIMD() -> Int
     {
+        if isConstant() {
+            return x
+        }
+        if let ref = reference {
+            return Int(ref[qualifiers[0]])
+        } else
+        if let context = context {
+            if let i1 = context.executeForInt1() {
+                return i1.x
+            }
+        }
         return x
     }
     
     override func getTypeName() -> String {
         return "Int"
+    }
+    
+    override func toString() -> String {
+        return String(x)
+    }
+    
+    @inlinable func fromSIMD(_ v: Int)
+    {
+        x = v
+    }
+    
+    @inlinable override subscript(index: Int) -> Float {
+        get {
+            if let reference = reference {
+                return reference[index]
+            } else {
+                return Float(x)
+            }
+        }
+        set(v) {
+            x = Int(v)
+        }
     }
 }
 
@@ -990,6 +1057,23 @@ final class Bool1 : BaseVariable
     {
         super.init("")
         self.x = x
+    }
+    
+    /// From text
+    init(_ name: String = "", container: VariableContainer, parameters: String, error: inout CompileError)
+    {
+        super.init(name)
+        let exp = ExpressionContext()
+        exp.parse(expression: parameters, container: container, defaultVariableType: .Bool, error: &error)
+        if error.error == nil {
+            if exp.resultType == .Constant {
+                if let b1 = exp.executeForBool1() {
+                    x = b1.x
+                }
+            } else {
+                self.context = exp
+            }
+        }
     }
     
     @inlinable func toSIMD() -> Bool

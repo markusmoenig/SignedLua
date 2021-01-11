@@ -215,7 +215,7 @@ final class VariableAssignmentNode : GraphNode
                 }
             } else {
                 // New variable
-                context.variables[givenName] = expression.execute()//expression.values.last!
+                context.variables[givenName] = expression.execute()
                 context.variables[givenName]!.role = expression.isConstant() ? .User : .System
             }
         }
