@@ -1,12 +1,11 @@
 //
-//  GraphBuilder.swift
-//  Signed
+//  BaseBuilder.swift
+//  Denrim
 //
-//  Created by Markus Moenig on 13/12/20.
+//  Created by Markus Moenig on 12/1/21.
 //
 
 import Foundation
-import Combine
 
 struct CompileError
 {
@@ -31,19 +30,11 @@ class GraphNodeItem
 
 class GraphBuilder
 {
-    var cursorTimer         : Timer? = nil
-    let core                : Core
-    
-    let selectionChanged    = PassthroughSubject<UUID?, Never>()
-
-    var currentNode         : GraphNode? = nil
-    
     var branches        : [GraphNodeItem] =
     [
-        GraphNodeItem("PinholeCamera", { (_ options: [String:Any]) -> GraphNode in return GraphPinholeCameraNode(options) }),
-        GraphNodeItem("DefaultSky", { (_ options: [String:Any]) -> GraphNode in return GraphDefaultSkyNode(options) }),
         GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalObject(options) }),
         GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject(options) }),
+        GraphNodeItem("sdfObject2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject2D(options) }),
         GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) }),
         GraphNodeItem("Render", { (_ options: [String:Any]) -> GraphNode in return GraphRenderNode(options) }),
     ]
@@ -63,9 +54,8 @@ class GraphBuilder
         GraphNodeItem("texNoise2D", { (_ options: [String:Any]) -> GraphNode in return GraphTexNoise2DNode(options) }),
     ]
     
-    init(_ core: Core)
+    init()
     {
-        self.core = core        
     }
     
     @discardableResult func compile(_ asset: Asset, silent: Bool = false) -> CompileError
@@ -444,27 +434,6 @@ class GraphBuilder
             lastLevel = level
             lineNumber += 1
         }
-        
-        if silent == false {
-            
-            if asset.graph?.cameraNode == nil {
-                error.error = "Project must contain a Camera!"
-                error.line = 0
-            }
-            
-            if core.state == .Idle {
-                if error.error != nil {
-                    error.line = error.line! + 1
-                    core.scriptEditor?.setError(error)
-                } else {
-                    core.scriptEditor?.clearAnnotations()
-                }
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.core.modelChanged.send()
-            }
-        }
 
         return error
     }
@@ -480,79 +449,5 @@ class GraphBuilder
         }
         
         return res
-    }
-    
-    func startTimer(_ asset: Asset)
-    {
-        DispatchQueue.main.async(execute: {
-            let timer = Timer.scheduledTimer(timeInterval: 0.2,
-                                             target: self,
-                                             selector: #selector(self.cursorCallback),
-                                             userInfo: nil,
-                                             repeats: true)
-            self.cursorTimer = timer
-        })
-    }
-    
-    func stopTimer()
-    {
-        if cursorTimer != nil {
-            cursorTimer?.invalidate()
-            cursorTimer = nil
-        }
-    }
-    
-    var lastContextHelpName :String? = "d"
-    @objc func cursorCallback(_ timer: Timer) {
-        if core.state == .Idle && core.scriptEditor != nil {
-            core.scriptEditor!.getSessionCursor({ (line) in
-            
-                if let asset = self.core.assetFolder.current, asset.type == .Source {
-                    if let context = asset.graph {
-                        if let node = context.lines[line] {
-                            if node.name != self.lastContextHelpName {
-                                self.currentNode = node
-                                self.selectionChanged.send(node.id)
-                                self.core.contextText = self.generateNodeHelpText(node)
-                                self.core.contextTextChanged.send(self.core.contextText)
-                                self.lastContextHelpName = node.name
-                            }
-                        } else {
-                            if self.lastContextHelpName != nil {
-                                self.currentNode = nil
-                                self.selectionChanged.send(nil)
-                                self.core.contextText = ""
-                                self.core.contextTextChanged.send(self.core.contextText)
-                                self.lastContextHelpName = nil
-                            }
-                        }
-                    }
-                }
-            })
-        }
-    }
-    
-    /// Generates a markdown help text for the given node
-    func generateNodeHelpText(_ node:GraphNode) -> String
-    {
-        var help = "## " + node.name + "\n"
-        help += node.getHelp()
-        let options = node.getOptions()
-        if options.count > 0 {
-            help += "\nOptional Parameters\n"
-        }
-        for o in options {
-            help += "* **\(o.name)** (\(o.variable.getTypeName())) - " + o.help + "\n"
-        }
-        return help
-    }
-    
-    /// Go to the line of the node
-    func gotoNode(_ node: GraphNode)
-    {
-        if currentNode != node {
-            core.scriptEditor?.gotoLine(node.lineNr+1)
-            currentNode = node
-        }
     }
 }

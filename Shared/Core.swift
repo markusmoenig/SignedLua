@@ -85,7 +85,7 @@ public class Core       : ObservableObject
     var frameworkId     : String? = nil
     
     var renderer        : Renderer!
-    var graphBuilder    : GraphBuilder!
+    var graphBuilder    : SignedGraphBuilder!
 
     public init(_ frameworkId: String? = nil)
     {        
@@ -104,7 +104,7 @@ public class Core       : ObservableObject
         assetFolder = AssetFolder()
         assetFolder.setup(self)
         
-        graphBuilder = GraphBuilder(self)
+        graphBuilder = SignedGraphBuilder(self)
         scriptProcessor = ScriptProcessor(self)
         toolContext = GraphToolContext(self)
 

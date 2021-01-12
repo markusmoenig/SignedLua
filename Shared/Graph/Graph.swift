@@ -146,7 +146,8 @@ final class GraphContext    : VariableContainer
     var viewSize            = float2(0,0)                       // Size of the view
 
     var position            = float3(0,0,0)                     // Current object position
-    
+    var position2D          = float2(0,0)                       // Current object position for 2D objects
+
     var camOffset           = float2(0,0)                       // Camera AA uv offset
     var camOrigin           = float3(0,0,-5)                    // Camera Origin, set by camera node
     

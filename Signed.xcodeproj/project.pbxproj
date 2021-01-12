@@ -46,8 +46,8 @@
 		2B224F9A25844D0E00F32354 /* Files in Resources */ = {isa = PBXBuildFile; fileRef = 2B224F9925844D0E00F32354 /* Files */; };
 		2B224F9B25844D0E00F32354 /* Files in Resources */ = {isa = PBXBuildFile; fileRef = 2B224F9925844D0E00F32354 /* Files */; };
 		2B224FA025844D6000F32354 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B224F9F25844D6000F32354 /* CloudKit.framework */; };
-		2B224FA82585EB7F00F32354 /* Builder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FA72585EB7F00F32354 /* Builder.swift */; };
-		2B224FA92585EB7F00F32354 /* Builder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FA72585EB7F00F32354 /* Builder.swift */; };
+		2B224FA82585EB7F00F32354 /* SignedBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FA72585EB7F00F32354 /* SignedBuilder.swift */; };
+		2B224FA92585EB7F00F32354 /* SignedBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FA72585EB7F00F32354 /* SignedBuilder.swift */; };
 		2B224FAF2585ED1100F32354 /* Graph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FAE2585ED1100F32354 /* Graph.swift */; };
 		2B224FB02585ED1100F32354 /* Graph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FAE2585ED1100F32354 /* Graph.swift */; };
 		2B224FB62586105200F32354 /* BranchNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FB52586105200F32354 /* BranchNodes.swift */; };
@@ -72,6 +72,10 @@
 		2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D3258C52B10073DAE9 /* Variables.swift */; };
 		2B2E02D9258C53F40073DAE9 /* AtomNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */; };
 		2B2E02DA258C53F40073DAE9 /* AtomNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */; };
+		2B400E9D25AD3F56006493A0 /* BranchNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */; };
+		2B400E9E25AD3F56006493A0 /* BranchNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */; };
+		2B400EC425AD45F0006493A0 /* BaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EC325AD45F0006493A0 /* BaseBuilder.swift */; };
+		2B400EC525AD45F0006493A0 /* BaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EC325AD45F0006493A0 /* BaseBuilder.swift */; };
 		2B4293BF259429AD00B56347 /* TexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* TexNodes.swift */; };
 		2B4293C0259429AD00B56347 /* TexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* TexNodes.swift */; };
 		2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
@@ -114,7 +118,7 @@
 		2B224F8725844C3100F32354 /* Classes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Classes.swift; sourceTree = "<group>"; };
 		2B224F9925844D0E00F32354 /* Files */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Files; sourceTree = "<group>"; };
 		2B224F9F25844D6000F32354 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
-		2B224FA72585EB7F00F32354 /* Builder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Builder.swift; sourceTree = "<group>"; };
+		2B224FA72585EB7F00F32354 /* SignedBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedBuilder.swift; sourceTree = "<group>"; };
 		2B224FAE2585ED1100F32354 /* Graph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Graph.swift; sourceTree = "<group>"; };
 		2B224FB52586105200F32354 /* BranchNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchNodes.swift; sourceTree = "<group>"; };
 		2B224FBC258619E800F32354 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -126,6 +130,8 @@
 		2B2E02C8258C3F600073DAE9 /* Expression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expression.swift; sourceTree = "<group>"; };
 		2B2E02D3258C52B10073DAE9 /* Variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variables.swift; sourceTree = "<group>"; };
 		2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomNodes.swift; sourceTree = "<group>"; };
+		2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchNodes2D.swift; sourceTree = "<group>"; };
+		2B400EC325AD45F0006493A0 /* BaseBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseBuilder.swift; sourceTree = "<group>"; };
 		2B4293BE259429AD00B56347 /* TexNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TexNodes.swift; sourceTree = "<group>"; };
 		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 		2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedSpecific.swift; sourceTree = "<group>"; };
@@ -259,13 +265,15 @@
 			isa = PBXGroup;
 			children = (
 				2B1EAD1425A6FAD500E59CFB /* Tool.swift */,
-				2B224FA72585EB7F00F32354 /* Builder.swift */,
+				2B224FA72585EB7F00F32354 /* SignedBuilder.swift */,
+				2B400EC325AD45F0006493A0 /* BaseBuilder.swift */,
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FEB2588A6BD00F32354 /* Nodes.swift */,
 				2B4293BE259429AD00B56347 /* TexNodes.swift */,
 				2B224FC52586EA1800F32354 /* SDFNodes.swift */,
 				2B224FCA2586F90C00F32354 /* BoolNodes.swift */,
 				2B224FB52586105200F32354 /* BranchNodes.swift */,
+				2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */,
 				2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */,
 				2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */,
 			);
@@ -381,7 +389,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B224F7525844C1900F32354 /* MetalView.swift in Sources */,
-				2B224FA82585EB7F00F32354 /* Builder.swift in Sources */,
+				2B224FA82585EB7F00F32354 /* SignedBuilder.swift in Sources */,
 				2B224FF72589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
 				2B224F432584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC62586EA1800F32354 /* SDFNodes.swift in Sources */,
@@ -402,6 +410,7 @@
 				2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F412584485300F32354 /* SignedApp.swift in Sources */,
 				2B2E02D9258C53F40073DAE9 /* AtomNodes.swift in Sources */,
+				2B400EC425AD45F0006493A0 /* BaseBuilder.swift in Sources */,
 				2B224FB62586105200F32354 /* BranchNodes.swift in Sources */,
 				2B224F452584485300F32354 /* ContentView.swift in Sources */,
 				2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */,
@@ -411,6 +420,7 @@
 				2B224F7F25844C1900F32354 /* ScriptEditor.swift in Sources */,
 				2B76D82B25AC46F000AF6FF2 /* SignedGraph.swift in Sources */,
 				2B224F7B25844C1900F32354 /* File.swift in Sources */,
+				2B400E9D25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
 				2B224FEC2588A6BD00F32354 /* Nodes.swift in Sources */,
@@ -423,7 +433,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B224F7625844C1900F32354 /* MetalView.swift in Sources */,
-				2B224FA92585EB7F00F32354 /* Builder.swift in Sources */,
+				2B224FA92585EB7F00F32354 /* SignedBuilder.swift in Sources */,
 				2B224FF82589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
 				2B224F442584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC72586EA1800F32354 /* SDFNodes.swift in Sources */,
@@ -444,6 +454,7 @@
 				2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F422584485300F32354 /* SignedApp.swift in Sources */,
 				2B2E02DA258C53F40073DAE9 /* AtomNodes.swift in Sources */,
+				2B400EC525AD45F0006493A0 /* BaseBuilder.swift in Sources */,
 				2B224FB72586105200F32354 /* BranchNodes.swift in Sources */,
 				2B224F462584485300F32354 /* ContentView.swift in Sources */,
 				2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */,
@@ -453,6 +464,7 @@
 				2B224F8025844C1900F32354 /* ScriptEditor.swift in Sources */,
 				2B76D82C25AC46F000AF6FF2 /* SignedGraph.swift in Sources */,
 				2B224F7C25844C1900F32354 /* File.swift in Sources */,
+				2B400E9E25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
 				2B224FED2588A6BD00F32354 /* Nodes.swift in Sources */,
