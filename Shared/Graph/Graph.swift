@@ -34,11 +34,11 @@ class GraphNode : Equatable, Identifiable {
     }
     
     enum NodeRole {
-        case Camera, Sky, Utility, Variable
+        case Camera, Sky, Utility, Variable, Render
     }
     
     enum NodeContext {
-        case None, Analytical, SDF, Material, Render
+        case None, Analytical, SDF, SDF2D, Material
     }
     
     var id                  = UUID()
@@ -112,7 +112,8 @@ final class GraphContext    : VariableContainer
     
     var cameraNode          : GraphNode? = nil
     var skyNode             : GraphNode? = nil
-    
+    var renderNode          : GraphNode? = nil
+
     // Nodes
     var nodes               : [GraphNode] = []
     
@@ -120,6 +121,7 @@ final class GraphContext    : VariableContainer
 
     var analyticalNodes     : [GraphNode] = []
     var sdfNodes            : [GraphNode] = []
+    var sdf2DNodes          : [GraphNode] = []
 
     var renderNodes         : [GraphNode] = []
 
@@ -145,6 +147,8 @@ final class GraphContext    : VariableContainer
     var uv                  = float2(0,0)                       // UV coordinate (0..1)
     var viewSize            = float2(0,0)                       // Size of the view
 
+    var adjustedUV          = float2(0,0)                       // The adjusted UV between 0..100 with 0,0 at the upper left corner
+
     var position            = float3(0,0,0)                     // Current object position
     var position2D          = float2(0,0)                       // Current object position for 2D objects
 
@@ -152,7 +156,7 @@ final class GraphContext    : VariableContainer
     var camOrigin           = float3(0,0,-5)                    // Camera Origin, set by camera node
     
     var rayDir              = float3(0,0,0)                     // Ray direction, computed and set by camera node
-        
+
     var analyticalDist      : Float = .greatestFiniteMagnitude
     var analyticalNormal    = float3(0,0,0)                     // Analytical Normal
     var analyticalMaterial  : GraphNode? = nil
@@ -173,8 +177,16 @@ final class GraphContext    : VariableContainer
     var rayDist             : [Float] = []
     var rayIndex            : Int = 0
     
+    // Distance 2D
+    
+    var distance2D          : [Float] = []                      // The distance to a 2D SDF
+    var distance2DIndex     : Int = 0
+    
     override init()
     {
+        distance2D.append(.greatestFiniteMagnitude)
+        distance2D.append(.greatestFiniteMagnitude)
+        
         rayDist.append(.greatestFiniteMagnitude)
         rayDist.append(.greatestFiniteMagnitude)
         
@@ -188,6 +200,7 @@ final class GraphContext    : VariableContainer
     {
         nodes = []
         sdfNodes = []
+        sdf2DNodes = []
         renderNodes = []
         analyticalNodes = []
         materialNodes = []
@@ -279,14 +292,14 @@ final class GraphContext    : VariableContainer
         }
     }
     
-    
     @inlinable public func toggleRayIndex()
     {
-        if rayIndex == 0 {
-            rayIndex = 1
-        } else {
-            rayIndex = 0
-        }
+        rayIndex = rayIndex == 0 ? 1 : 0
+    }
+    
+    @inlinable public func toggleDistance2DIndex()
+    {
+        distance2DIndex = distance2DIndex == 0 ? 1 : 0
     }
     
     /// Adds a variable to the context
@@ -391,13 +404,79 @@ final class GraphContext    : VariableContainer
         return .Success
     }
     
+    @discardableResult @inlinable public func executeSDF2D() -> GraphNode.Result
+    {
+        distance2D[0] = .greatestFiniteMagnitude
+        distance2D[1] = .greatestFiniteMagnitude
+        hitMaterial[0] = nil
+        hitMaterial[1] = nil
+        distance2DIndex = 0
+        failedAt = []
+        
+        for node in sdf2DNodes {
+            node.execute(context: self)
+        }
+        toggleDistance2DIndex()
+        
+        return .Success
+    }
+    
     @discardableResult @inlinable public func executeRender() -> GraphNode.Result
     {
         failedAt = []
-        for node in renderNodes {
-            node.execute(context: self)
+        if let renderNode = renderNode {
+            renderNode.execute(context: self)
         }
         return .Success
+    }
+    
+    func shadowRay(_ rO: float3,_ rD: float3) -> Float
+    {
+        if hasHitSomething == true {
+                                
+            let backup = createVariableBackup()
+            
+            rayOrigin.fromSIMD(rO + rD)
+            rayDirection.fromSIMD(rD)
+            
+            camOrigin = rO + rD
+            rayDir = rD
+
+            // Analytical Objects
+            executeAnalytical()
+            let h = analyticalDist
+            
+            let tmin : Float = 0.02
+            let tmax : Float = min(2.5, analyticalDist)
+            var t : Float = tmin
+            let k : Float = 4
+            var ph : Float = 1e20
+
+            var result : Float = 1
+                                    
+            if( h < 0.001 ) {
+                result = 0
+            }
+
+            while t < tmax && result > 0.0 {
+                executeSDF(camOrigin + t * rayDir)
+                let h = rayDist[rayIndex]
+                if( h < 0.001 ) {
+                    result = 0
+                    break
+                }
+                let y : Float = h*h/(2.0*ph)
+                let d : Float = sqrt(h*h-y*y)
+                result = min( result, k*d/max(0.0,t-y) )
+                ph = h
+                t += h
+            }
+                                    
+            restoreVariableBackup(backup)
+            
+            return result
+        }
+        return 1
     }
     
     func debug()

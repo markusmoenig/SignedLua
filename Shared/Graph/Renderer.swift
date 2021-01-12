@@ -83,7 +83,6 @@ class Renderer
             return
         }
 
-        
         if checkIfTextureIsValid(core, forceClear: true) == false {
             return
         }

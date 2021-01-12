@@ -50,7 +50,7 @@ final class GraphSDFObject2D : GraphDistanceNode2D
 
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Utility, .SDF, options)
+        super.init(.Utility, .SDF2D, options)
         name = "sdfObject2D"
         leaves = []
     }
@@ -70,6 +70,12 @@ final class GraphSDFObject2D : GraphDistanceNode2D
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         context.position2D += position.toSIMD()
+        
+        if let materialName = materialName {
+            context.activeMaterial = context.getMaterial(materialName)
+        } else {
+            context.activeMaterial = nil
+        }
         
         for leave in leaves {
             leave.execute(context: context)

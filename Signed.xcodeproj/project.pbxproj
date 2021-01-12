@@ -76,6 +76,10 @@
 		2B400E9E25AD3F56006493A0 /* BranchNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */; };
 		2B400EC425AD45F0006493A0 /* BaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EC325AD45F0006493A0 /* BaseBuilder.swift */; };
 		2B400EC525AD45F0006493A0 /* BaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EC325AD45F0006493A0 /* BaseBuilder.swift */; };
+		2B400EEC25AD953F006493A0 /* SDFNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */; };
+		2B400EED25AD953F006493A0 /* SDFNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */; };
+		2B400EF125AD9A7D006493A0 /* RenderNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EF025AD9A7D006493A0 /* RenderNodes.swift */; };
+		2B400EF225AD9A7D006493A0 /* RenderNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EF025AD9A7D006493A0 /* RenderNodes.swift */; };
 		2B4293BF259429AD00B56347 /* TexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* TexNodes.swift */; };
 		2B4293C0259429AD00B56347 /* TexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* TexNodes.swift */; };
 		2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
@@ -132,6 +136,8 @@
 		2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomNodes.swift; sourceTree = "<group>"; };
 		2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchNodes2D.swift; sourceTree = "<group>"; };
 		2B400EC325AD45F0006493A0 /* BaseBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseBuilder.swift; sourceTree = "<group>"; };
+		2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDFNodes2D.swift; sourceTree = "<group>"; };
+		2B400EF025AD9A7D006493A0 /* RenderNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderNodes.swift; sourceTree = "<group>"; };
 		2B4293BE259429AD00B56347 /* TexNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TexNodes.swift; sourceTree = "<group>"; };
 		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 		2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedSpecific.swift; sourceTree = "<group>"; };
@@ -190,7 +196,6 @@
 				2B224F6C25844C1900F32354 /* Metal.metal */,
 				2B224F6825844C1800F32354 /* MetalStates.swift */,
 				2B224F6625844C1800F32354 /* MetalView.swift */,
-				2B224F6A25844C1800F32354 /* Renderer.swift */,
 				2B224F6B25844C1800F32354 /* ScriptEditor.swift */,
 				2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */,
 				2B224F6225844C1800F32354 /* Utils.swift */,
@@ -265,16 +270,19 @@
 			isa = PBXGroup;
 			children = (
 				2B1EAD1425A6FAD500E59CFB /* Tool.swift */,
+				2B224F6A25844C1800F32354 /* Renderer.swift */,
 				2B224FA72585EB7F00F32354 /* SignedBuilder.swift */,
 				2B400EC325AD45F0006493A0 /* BaseBuilder.swift */,
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FEB2588A6BD00F32354 /* Nodes.swift */,
 				2B4293BE259429AD00B56347 /* TexNodes.swift */,
 				2B224FC52586EA1800F32354 /* SDFNodes.swift */,
+				2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */,
 				2B224FCA2586F90C00F32354 /* BoolNodes.swift */,
 				2B224FB52586105200F32354 /* BranchNodes.swift */,
 				2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */,
 				2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */,
+				2B400EF025AD9A7D006493A0 /* RenderNodes.swift */,
 				2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */,
 			);
 			path = Graph;
@@ -397,6 +405,8 @@
 				2B224F8925844C3100F32354 /* Font.swift in Sources */,
 				2B224F7325844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCB2586F90C00F32354 /* BoolNodes.swift in Sources */,
+				2B400EF125AD9A7D006493A0 /* RenderNodes.swift in Sources */,
+				2B400EEC25AD953F006493A0 /* SDFNodes2D.swift in Sources */,
 				2B224FDE25888B4D00F32354 /* Views.swift in Sources */,
 				2B224F7925844C1900F32354 /* MetalStates.swift in Sources */,
 				2B6D5D02259C664A003F7DD8 /* SignedSpecific.swift in Sources */,
@@ -441,6 +451,8 @@
 				2B224F8A25844C3100F32354 /* Font.swift in Sources */,
 				2B224F7425844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCC2586F90C00F32354 /* BoolNodes.swift in Sources */,
+				2B400EF225AD9A7D006493A0 /* RenderNodes.swift in Sources */,
+				2B400EED25AD953F006493A0 /* SDFNodes2D.swift in Sources */,
 				2B224FDF25888B4D00F32354 /* Views.swift in Sources */,
 				2B224F7A25844C1900F32354 /* MetalStates.swift in Sources */,
 				2B6D5D03259C664A003F7DD8 /* SignedSpecific.swift in Sources */,

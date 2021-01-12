@@ -37,6 +37,7 @@ class GraphBuilder
         GraphNodeItem("sdfObject2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject2D(options) }),
         GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) }),
         GraphNodeItem("Render", { (_ options: [String:Any]) -> GraphNode in return GraphRenderNode(options) }),
+        GraphNodeItem("renderPBR", { (_ options: [String:Any]) -> GraphNode in return GraphPBRNode(options) }),
     ]
     
     var leaves          : [GraphNodeItem] =
@@ -46,6 +47,8 @@ class GraphBuilder
         GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSDFSphereNode(options) }),
         GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return GraphSDFBoxNode(options) }),
         GraphNodeItem("sdfPlane", { (_ options: [String:Any]) -> GraphNode in return GraphSDFPlaneNode(options) }),
+        
+        GraphNodeItem("sdfCircle2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFCircleNode2D(options) }),
         
         GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return GraphBoolMergeNode(options) }),
         
@@ -290,6 +293,13 @@ class GraphBuilder
                                         newBranch.lineNr = error.line!
                                         graph.lines[error.line!] = newBranch
                                         processed = true
+                                    } else
+                                    if newBranch.role == .Render {
+                                        asset.graph!.renderNode = newBranch
+                                        
+                                        newBranch.lineNr = error.line!
+                                        graph.lines[error.line!] = newBranch
+                                        processed = true
                                     }
                                     
                                     if processed == false {
@@ -322,6 +332,9 @@ class GraphBuilder
                                                 hObject.id = newBranch.id
                                                 hObjectNodes.leaves!.append(hObject)
                                             } else
+                                            if newBranch.context == .SDF2D {
+                                                asset.graph!.sdf2DNodes.append(newBranch)
+                                            } else
                                             if newBranch.context == .Material {
                                                 asset.graph!.materialNodes.append(newBranch)
                                                 
@@ -333,10 +346,10 @@ class GraphBuilder
                                                 hMaterial.leaves = nil
                                                 hMaterial.id = newBranch.id
                                                 hMaterialNodes.leaves!.append(hMaterial)
-                                            } else
-                                            if newBranch.context == .Render {
-                                                asset.graph!.renderNodes.append(newBranch)
-                                            }
+                                            } //else
+                                            //if newBranch.context == .Render {
+                                            //    asset.graph!.renderNodes.append(newBranch)
+                                            //}
                                         }
                                         
                                         if currentBranch.count == 0 {

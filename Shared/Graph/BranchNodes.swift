@@ -315,7 +315,7 @@ final class GraphRenderNode : GraphNode
 {
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Utility, .Render, options)
+        super.init(.Render, .None, options)
         name = "Render"
         leaves = []
     }
