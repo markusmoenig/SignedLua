@@ -142,16 +142,19 @@ struct LeftPanelView: View {
     
     @State var asset                        : Asset? = nil
 
-    @State var current                      : LibraryItem? = nil
+    //@State var current                      : LibraryItem? = nil
     
     @State var updateView                   : Bool = false
-    @State var expanded                     : Bool = false
+    //@State var expanded                     : Bool = false
     
     @State private var selection            : UUID? = nil
-    @State private var librarySelection     : UUID? = nil
+    //@State private var librarySelection     : UUID? = nil
 
-    @State private var tabIndex             : Int = 0
+    //@State private var tabIndex             : Int = 0
         
+    @State private var showMaterials        : Bool = false
+    @State private var showObjects          : Bool = false
+
     #if os(macOS)
     let TopRowPadding                       : CGFloat = 2
     #else
@@ -162,6 +165,7 @@ struct LeftPanelView: View {
     {
         self.core = core
         
+        /*
         var cameraItem = LibraryItem(name: "Cameras")
         cameraItem.children = []
         
@@ -176,20 +180,111 @@ struct LeftPanelView: View {
         }
         
         libraryItems.append(cameraItem)
+        */
     }
     
     var body: some View {
         
-        TabView/*(selection: $tabIndex)*/ {
+        //TabView/*(selection: $tabIndex)*/ {
 
             VStack {
                 if let context = asset?.graph {
+                    
+                    List() {
+                        if let cameraNode = context.cameraNode {
+                            Button(action: {
+                                core.graphBuilder.gotoNode(cameraNode)
+                            })
+                            {
+                                Label(cameraNode.givenName, systemImage: "camera")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .listRowBackground(Group {
+                                if selection == cameraNode.id {
+                                    Color.gray.mask(RoundedRectangle(cornerRadius: 4))
+                                } else { Color.clear }
+                            })
+                        }
+                        if let skyNode = context.skyNode {
+                            Button(action: {
+                                core.graphBuilder.gotoNode(skyNode)
+                            })
+                            {
+                                Label(skyNode.givenName, systemImage: "sun.haze")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .listRowBackground(Group {
+                                if selection == skyNode.id {
+                                    Color.gray.mask(RoundedRectangle(cornerRadius: 4))
+                                } else { Color.clear }
+                            })
+                        }
+                        DisclosureGroup("Materials", isExpanded: $showMaterials) {
+                            ForEach(context.materialNodes, id: \.id) { node in
+                                Button(action: {
+                                    core.graphBuilder.gotoNode(node)
+                                })
+                                {
+                                    Label(node.givenName, systemImage: "light.max")
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .listRowBackground(Group {
+                                    if selection == node.id {
+                                        Color.gray.mask(RoundedRectangle(cornerRadius: 4))
+                                    } else { Color.clear }
+                                })
+                            }
+                        }
+                        DisclosureGroup("Objects", isExpanded: $showObjects) {
+                            ForEach(context.objectNodes, id: \.id) { node in
+                                Button(action: {
+                                    core.graphBuilder.gotoNode(node)
+                                })
+                                {
+                                    Label(node.givenName, systemImage: "cube")
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .listRowBackground(Group {
+                                    if selection == node.id {
+                                        Color.gray.mask(RoundedRectangle(cornerRadius: 4))
+                                    } else { Color.clear }
+                                })
+                            }
+                        }
+                        if let renderNode = context.renderNode {
+                            Button(action: {
+                                core.graphBuilder.gotoNode(renderNode)
+                            })
+                            {
+                                Label(renderNode.givenName, systemImage: "atom")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .listRowBackground(Group {
+                                if selection == renderNode.id {
+                                    Color.gray.mask(RoundedRectangle(cornerRadius: 4))
+                                } else { Color.clear }
+                            })
+                        }
+                    }
+                    
+                    /*
                     List(context.hierarchicalNodes, id: \.id, children: \.leaves, selection: $selection) { item in
                         Text(item.name)
                             .ifOS(.iOS) {
                                 $0.foregroundColor(item === core.graphBuilder.currentNode ? Color.accentColor : Color.white)
                             }
                     }
+                    
                     // Selection handling
                     .onChange(of: selection) { newState in
                         if let id = newState {
@@ -203,6 +298,7 @@ struct LeftPanelView: View {
                         //    core.graphBuilder.gotoNode(node)
                         //}
                     }
+                    */
                 }
             }
             .tabItem {
@@ -210,6 +306,7 @@ struct LeftPanelView: View {
                 Text("Project")
             }
             
+            /*
             VStack {
             
                 List(libraryItems, children: \.children, selection: $librarySelection) { item in
@@ -261,8 +358,9 @@ struct LeftPanelView: View {
                         }
                     }
                 }
-            }
-        }
+            }*/
+        
+        //}
         
         .onReceive(self.core.modelChanged) { core in
             asset = self.core.assetFolder.getAsset("main", .Source)
@@ -270,6 +368,9 @@ struct LeftPanelView: View {
         }
         .onReceive(self.core.graphBuilder.selectionChanged) { id in
             selection = id
+            //DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            //    selection = id
+            //}
         }
     }
 }

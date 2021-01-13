@@ -73,7 +73,7 @@ class SignedGraphBuilder: GraphBuilder {
         }
     }
     
-    var lastContextHelpName :String? = "d"
+    var lastContextHelpId :UUID? = nil
     @objc func cursorCallback(_ timer: Timer) {
         if core.state == .Idle && core.scriptEditor != nil {
             core.scriptEditor!.getSessionCursor({ (line) in
@@ -81,20 +81,20 @@ class SignedGraphBuilder: GraphBuilder {
                 if let asset = self.core.assetFolder.current, asset.type == .Source {
                     if let context = asset.graph {
                         if let node = context.lines[line] {
-                            if node.name != self.lastContextHelpName {
+                            if node.id != self.lastContextHelpId {
                                 self.currentNode = node
                                 self.selectionChanged.send(node.id)
                                 self.core.contextText = self.generateNodeHelpText(node)
                                 self.core.contextTextChanged.send(self.core.contextText)
-                                self.lastContextHelpName = node.name
+                                self.lastContextHelpId = node.id
                             }
                         } else {
-                            if self.lastContextHelpName != nil {
+                            if self.lastContextHelpId != nil {
                                 self.currentNode = nil
                                 self.selectionChanged.send(nil)
                                 self.core.contextText = ""
                                 self.core.contextTextChanged.send(self.core.contextText)
-                                self.lastContextHelpName = nil
+                                self.lastContextHelpId = nil
                             }
                         }
                     }

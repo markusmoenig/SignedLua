@@ -118,14 +118,11 @@ final class GraphContext    : VariableContainer
     var nodes               : [GraphNode] = []
     
     var materialNodes       : [GraphNode] = []
+    var objectNodes         : [GraphNode] = []
 
     var analyticalNodes     : [GraphNode] = []
     var sdfNodes            : [GraphNode] = []
     var sdf2DNodes          : [GraphNode] = []
-
-    var renderNodes         : [GraphNode] = []
-
-    var hierarchicalNodes   : [GraphNode] = []
 
     var failedAt            : [Int32] = []
     
@@ -201,10 +198,9 @@ final class GraphContext    : VariableContainer
         nodes = []
         sdfNodes = []
         sdf2DNodes = []
-        renderNodes = []
         analyticalNodes = []
         materialNodes = []
-        hierarchicalNodes = []
+        objectNodes = []
         variables = [:]
         lines = [:]
         

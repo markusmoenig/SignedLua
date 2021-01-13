@@ -19,6 +19,7 @@ final class GraphDefaultSkyNode : GraphNode
     {
         super.init(.Sky, .None, options)
         name = "DefaultSky"
+        givenName = "Default Sky"
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
@@ -82,6 +83,7 @@ final class GraphPinholeCameraNode : GraphBaseCameraNode
     {
         super.init(.Camera, .None, options)
         name = "PinholeCamera"
+        givenName = "Pinhole Camera"
         
         cameraHelper = CameraHelper(self)
     }

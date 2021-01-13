@@ -70,7 +70,7 @@ class GraphBuilder
         func createError(_ errorText: String = "Syntax Error") {
             error.error = errorText
         }
-        
+
         if asset.graph == nil {
             asset.graph = GraphContext()
         } else {
@@ -78,24 +78,7 @@ class GraphBuilder
         }
         
         let graph = asset.graph!
-        
-        // Insert top hierarchy nodes for the UI
-        
-        let hCameraNodes = GraphNode(.Camera, .None)
-        hCameraNodes.name = "Cameras"
-        hCameraNodes.leaves = []
-        graph.hierarchicalNodes.append(hCameraNodes)
-        
-        let hMaterialNodes = GraphNode(.Utility, .Material)
-        hMaterialNodes.name = "Materials"
-        hMaterialNodes.leaves = []
-        graph.hierarchicalNodes.append(hMaterialNodes)
-        
-        let hObjectNodes = GraphNode(.Utility, .SDF)
-        hObjectNodes.name = "Objects"
-        hObjectNodes.leaves = []
-        graph.hierarchicalNodes.append(hObjectNodes)
-        
+                
         // Create default variables
         graph.createDefaultVariables()
         
@@ -285,8 +268,6 @@ class GraphBuilder
                                         newBranch.lineNr = error.line!
                                         asset.graph!.lines[error.line!] = newBranch
                                         processed = true
-                                        
-                                        hCameraNodes.leaves.append(newBranch)
                                     } else
                                     if newBranch.role == .Sky {
                                         asset.graph!.skyNode = newBranch
@@ -310,46 +291,18 @@ class GraphBuilder
                                             
                                             if newBranch.context == .Analytical {
                                                 asset.graph!.analyticalNodes.append(newBranch)
-                                                
-                                                // Separate hierarchical Node
-                                                
-                                                let hObject = GraphAnalyticalObject()
-                                                hObject.name = newBranch.givenName
-                                                hObject.lineNr = error.line!
-                                                hObject.leaves = nil
-                                                hObject.id = newBranch.id
-                                                hObjectNodes.leaves!.append(hObject)
+                                                graph.objectNodes.append(newBranch)
                                             } else
                                             if newBranch.context == .SDF {
                                                 asset.graph!.sdfNodes.append(newBranch)
-                                                
-                                                // Separate hierarchical Node
-                                                
-                                                let hObject = GraphSDFObject()
-                                                hObject.name = newBranch.givenName
-                                                hObject.lineNr = error.line!
-                                                hObject.leaves = nil
-                                                hObject.id = newBranch.id
-                                                hObjectNodes.leaves!.append(hObject)
+                                                graph.objectNodes.append(newBranch)
                                             } else
                                             if newBranch.context == .SDF2D {
                                                 asset.graph!.sdf2DNodes.append(newBranch)
                                             } else
                                             if newBranch.context == .Material {
                                                 asset.graph!.materialNodes.append(newBranch)
-                                                
-                                                // Separate hierarchical Node
-                                                
-                                                let hMaterial = GraphMaterialNode()
-                                                hMaterial.name = newBranch.givenName
-                                                hMaterial.lineNr = error.line!
-                                                hMaterial.leaves = nil
-                                                hMaterial.id = newBranch.id
-                                                hMaterialNodes.leaves!.append(hMaterial)
-                                            } //else
-                                            //if newBranch.context == .Render {
-                                            //    asset.graph!.renderNodes.append(newBranch)
-                                            //}
+                                            }
                                         }
                                         
                                         if currentBranch.count == 0 {

@@ -15,6 +15,7 @@ final class GraphPBRNode : GraphNode
     {
         super.init(.Render, .None, options)
         name = "renderPBR"
+        givenName = "PBR Render"
         leaves = []
     }
     
@@ -179,6 +180,7 @@ final class GraphCustomRenderNode : GraphNode
     {
         super.init(.Render, .None, options)
         name = "renderCustom"
+        givenName = "Custom Render"
         leaves = []
     }
     
