@@ -217,7 +217,7 @@ class Renderer
                 context.normal.fromSIMD(normal)
 
                 if let material = material {
-                    material.execute(context: context)
+                    context.executeMaterial(material)
                 }
                 context.hasHitSomething = true
                 if renderMode == .Normal {
@@ -235,7 +235,7 @@ class Renderer
                 context.normal.fromSIMD(normal)
 
                 if let material = context.analyticalMaterial {
-                    material.execute(context: context)
+                    context.executeMaterial(material)
                 }
                 context.hasHitSomething = true
                 if renderMode == .Normal {

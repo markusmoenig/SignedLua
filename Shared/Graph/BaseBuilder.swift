@@ -38,6 +38,7 @@ class GraphBuilder
         GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) }),
         GraphNodeItem("Render", { (_ options: [String:Any]) -> GraphNode in return GraphRenderNode(options) }),
         GraphNodeItem("renderPBR", { (_ options: [String:Any]) -> GraphNode in return GraphPBRNode(options) }),
+        GraphNodeItem("renderPBRPath", { (_ options: [String:Any]) -> GraphNode in return GraphPBRPathNode(options) }),
         GraphNodeItem("renderCustom", { (_ options: [String:Any]) -> GraphNode in return GraphCustomRenderNode(options) }),
     ]
     

@@ -15,7 +15,7 @@ final class GraphPBRNode : GraphNode
     {
         super.init(.Render, .None, options)
         name = "renderPBR"
-        givenName = "PBR Render"
+        givenName = "PBR"
         leaves = []
     }
     
@@ -37,8 +37,15 @@ final class GraphPBRNode : GraphNode
         let LoH = saturate(dot(l, h))
         
         let baseColor = float3(context.outColor.x, context.outColor.y, context.outColor.z)
-        let roughness : Float = 0.4
-        let metallic : Float = 0.8
+        var roughness : Float = 0.0
+        if let r = context.getVariableValue("roughness") as? Float1 {
+            roughness = r.x
+        }
+        
+        var metallic : Float = 0.8
+        if let m = context.getVariableValue("metallic") as? Float1 {
+            metallic = m.x
+        }
 
         let intensity : Float = 2.0
         let indirectIntensity : Float = 0.64
@@ -206,5 +213,59 @@ final class GraphCustomRenderNode : GraphNode
             GraphOption(Float3(0.5, 0.5, 0.5), "Color", "The static color of the texture.")
         ]
         return options
+    }
+}
+
+/// PBRPathRenderer
+final class GraphPBRPathNode : GraphNode
+{
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.Render, .None, options)
+        name = "renderPBR"
+        givenName = "PBR Pathtracer"
+        leaves = []
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        /*
+        let v = -context.rayDirection.toSIMD()
+        let n = context.normal.toSIMD()
+        //let l = normalize(float3(0.6, 0.7, -0.7))
+        let l = normalize(float3(5, 10, -10))
+        let h = normalize(v + l)
+        let r = normalize(simd_reflect(context.rayDirection.toSIMD(), n))*/
+        
+        let color = float3(0,0,0)
+
+        context.outColor!.x = pow(color.x, 1.0 / 2.2)
+        context.outColor!.y = pow(color.y, 1.0 / 2.2)
+        context.outColor!.z = pow(color.z, 1.0 / 2.2)
+
+        return .Success
+    }
+    
+    override func getHelp() -> String
+    {
+        return "A CPU based PBR renderer."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Int1(1), "Anti-Aliasing", "The anti-aliasing performed by the renderer. Higher values produce more samples and better quality.")
+        ]
+        return options
+    }
+    
+    // Based on https://www.shadertoy.com/view/XlKSDR
+    
+    func saturate(_ x: Float) -> Float
+    {
+        return simd_clamp(x, 0, 1)
     }
 }

@@ -141,6 +141,7 @@ final class GraphContext    : VariableContainer
     var rayDirection        : Float3!
 
     var displacement        : Float1!
+    var bump                : Float1!
 
     var outColor            : Float4!
     var normal              : Float3!
@@ -249,6 +250,10 @@ final class GraphContext    : VariableContainer
         displacement = Float1("displacement", 0)
         displacement.role = .System
         variables["displacement"] = displacement
+        
+        bump = Float1("bump", 0)
+        bump.role = .System
+        variables["bump"] = bump
     }
     
     func createVariableBackup() -> ([String:float4],[String:float3], [String:float2], [String:Float])
@@ -432,6 +437,44 @@ final class GraphContext    : VariableContainer
         return .Success
     }
     
+    /// Execute the material and optional bump mapping
+    @discardableResult @inlinable public func executeMaterial(_ material: GraphNode) -> GraphNode.Result
+    {
+        failedAt = []
+
+        material.execute(context: self)
+        
+        if bump.x != 0.0 {
+            let backup = createVariableBackup()
+            let e = float2(0.001, 0)
+            
+            let pO = rayPosition.toSIMD()
+            let bRef = bump.toSIMD()
+            
+            rayPosition.fromSIMD(pO - float3(e.x, e.y, e.y))
+            material.execute(context: self)
+            let b1 = bump.toSIMD()
+            
+            rayPosition.fromSIMD(pO - float3(e.y, e.x, e.y))
+            material.execute(context: self)
+            let b2 = bump.toSIMD()
+            
+            rayPosition.fromSIMD(pO - float3(e.y, e.y, e.x))
+            material.execute(context: self)
+            let b3 = bump.toSIMD()
+            
+            restoreVariableBackup(backup)
+            
+            let n = normal.toSIMD()
+            var grad = (float3(b1, b2, b3) - bRef) / e.x
+            grad -= n * simd_dot(n, grad)
+            
+            let bumpFactor : Float = 0.2
+            normal.fromSIMD(simd_normalize(n + grad * bumpFactor))
+        }
+        
+        return .Success
+    }
 
     /// Cast a ray
     func castRay(_ rO: float3,_ rD: float3) -> float3
