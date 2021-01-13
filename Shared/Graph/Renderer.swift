@@ -163,111 +163,139 @@ class Renderer
         
         context.viewSize = float2(width, height)
                 
-        //DispatchQueue.concurrentPerform(iterations: texture!.height) { h in
-        //for h in chunk.y..<chunk.w {
-        //var h : Int? = 0
+    
+        func renderPixel()
+        {
+            context.reflectionDepth = 0
+            context.hasHitSomething = false
+            
+            context.normal.fromSIMD(float3(0.0, 0.0, 0.0))
+            context.rayPosition.fromSIMD(float3(0.0, 0.0, 0.0))
+            context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
+
+            if let cameraNode = context.cameraNode {
+                cameraNode.execute(context: context)
+            }
+            
+            context.rayOrigin.fromSIMD(context.camOrigin)
+            context.rayDirection.fromSIMD(context.rayDir)
+            
+            if let skyNode = context.skyNode {
+                skyNode.execute(context: context)
+            }
+            
+            // Analytical Objects
+            context.executeAnalytical()
+            let maxDist : Float = simd_min(12.0, context.analyticalDist)
+            
+            var material : GraphNode? = nil
+
+            var hit = false
+            
+            var t : Float = 0.001;
+            for _ in 0..<70
+            {
+                context.executeSDF(context.camOrigin + t * context.rayDir)
+
+                if abs(context.rayDist[context.rayIndex]) < (0.0001*t) {
+                    hit = true
+                    material = context.hitMaterial[context.rayIndex]
+                    break
+                } else
+                if t > maxDist {
+                    break
+                }
+                
+                t += context.rayDist[context.rayIndex]
+            }
+            
+            if hit && t < context.analyticalDist {
+                
+                let p = context.camOrigin + t * context.rayDir
+                context.rayPosition.fromSIMD(p)
+                let normal = calcNormal(context: context, position: p)
+                context.normal.fromSIMD(normal)
+
+                if let material = material {
+                    material.execute(context: context)
+                }
+                context.hasHitSomething = true
+                if renderMode == .Normal {
+                    context.executeRender()
+                } else {
+                    previewRender()
+                }
+            } else
+            if context.analyticalDist != .greatestFiniteMagnitude {
+                
+                let p = context.camOrigin + context.analyticalDist * context.rayDir
+                context.rayPosition.fromSIMD(p)
+
+                let normal = context.analyticalNormal
+                context.normal.fromSIMD(normal)
+
+                if let material = context.analyticalMaterial {
+                    material.execute(context: context)
+                }
+                context.hasHitSomething = true
+                if renderMode == .Normal {
+                    context.executeRender()
+                } else {
+                    previewRender()
+                }
+            }
+        }
+        
+        // Extract Render Options
+        var AA : Int = 1
+        var renderType : GraphNode.NodeRenderType = .Normal
+        if let renderNode = context.renderNode {
+            renderType = renderNode.renderType
+            
+            if renderType == .Normal {
+                if let line = core.scriptProcessor.getLine(renderNode.lineNr) {
+                    let options = core.scriptProcessor.extractOptionsFromLine(renderNode, line)
+                    for o in options {
+                        if o.name.lowercased().contains("aliasing") {
+                            if let i1 = o.variable as? Int1 {
+                                AA = i1.x
+                            }
+                        }
+                    }
+                }
+            }
+        }
+            
         while let h = getNextLine() {
 
             let fh : Float = Float(h) / height
             for w in 0..<widthInt {
                 
-                let AA : Int = 1
-                var tot = float4(0,0,0,0)
-                
-                for m in 0..<AA {
-                    for n in 0..<AA {
-
-                        if stopRunning {
-                            break
-                        }
-                        
-                        context.reflectionDepth = 0
-                        context.hasHitSomething = false
-
-                        context.uv = float2(Float(w) / width, fh)
-                        context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
-                        
-                        context.normal.fromSIMD(float3(0.0, 0.0, 0.0))
-                        context.rayPosition.fromSIMD(float3(0.0, 0.0, 0.0))
-                        context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
-
-                        if let cameraNode = context.cameraNode {
-                            cameraNode.execute(context: context)
-                        }
-                        
-                        context.rayOrigin.fromSIMD(context.camOrigin)
-                        context.rayDirection.fromSIMD(context.rayDir)
-                        
-                        if let skyNode = context.skyNode {
-                            skyNode.execute(context: context)
-                        }
-                        
-                        // Analytical Objects
-                        context.executeAnalytical()
-                        let maxDist : Float = simd_min(12.0, context.analyticalDist)
-                        
-                        var material : GraphNode? = nil
-
-                        var hit = false
-                        
-                        var t : Float = 0.001;
-                        for _ in 0..<70
-                        {
-                            context.executeSDF(context.camOrigin + t * context.rayDir)
-
-                            if abs(context.rayDist[context.rayIndex]) < (0.0001*t) {
-                                hit = true
-                                material = context.hitMaterial[context.rayIndex]
-                                break
-                            } else
-                            if t > maxDist {
-                                break
-                            }
-                            
-                            t += context.rayDist[context.rayIndex]
-                        }
-                        
-                        if hit && t < context.analyticalDist {
-                            
-                            let p = context.camOrigin + t * context.rayDir
-                            context.rayPosition.fromSIMD(p)
-                            let normal = calcNormal(context: context, position: p)
-                            context.normal.fromSIMD(normal)
-
-                            if let material = material {
-                                material.execute(context: context)
-                            }
-                            context.hasHitSomething = true
-                            if renderMode == .Normal {
-                                context.executeRender()
-                            } else {
-                                previewRender()
-                            }
-                        } else
-                        if context.analyticalDist != .greatestFiniteMagnitude {
-                            
-                            let p = context.camOrigin + context.analyticalDist * context.rayDir
-                            context.rayPosition.fromSIMD(p)
-
-                            let normal = context.analyticalNormal
-                            context.normal.fromSIMD(normal)
-
-                            if let material = context.analyticalMaterial {
-                                material.execute(context: context)
-                            }
-                            context.hasHitSomething = true
-                            if renderMode == .Normal {
-                                context.executeRender()
-                            } else {
-                                previewRender()
-                            }
-                        }
-                        
-                        let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
-                        tot += result
-                    }
+                if stopRunning {
+                    break
                 }
-                texArray[w] = tot / Float(AA*AA)
+                
+                if renderType == .Normal {
+                    var tot = float4(0,0,0,0)
+                    
+                    for m in 0..<AA {
+                        for n in 0..<AA {
+
+                            if stopRunning {
+                                break
+                            }
+
+                            context.uv = float2(Float(w) / width, fh)
+                            context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
+                            
+                            renderPixel()
+                            
+                            let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
+                            tot += result
+                        }
+                    }
+                    texArray[w] = tot / Float(AA*AA)
+                }
             }
             
             if stopRunning {

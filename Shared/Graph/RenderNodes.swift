@@ -83,13 +83,13 @@ final class GraphPBRNode : GraphNode
     
     override func getHelp() -> String
     {
-        return "Creates a texture of a static color."
+        return "A CPU based PBR renderer."
     }
     
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption(Float3(0.5, 0.5, 0.5), "Color", "The static color of the texture.")
+            GraphOption(Int1(1), "Anti-Aliasing", "The anti-aliasing performed by the renderer. Higher values produce more samples and better quality.")
         ]
         return options
     }

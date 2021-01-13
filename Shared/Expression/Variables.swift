@@ -609,7 +609,7 @@ final class Float3 : BaseVariable
     }
     
     override func toString() -> String {
-        return "\(String(x)), \((String(y))), \((String(z)))"
+        return "\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z))"
     }
     
     @inlinable override func toSIMD3() -> SIMD3<Float>
@@ -1014,6 +1014,10 @@ final class Int1 : BaseVariable
             }
         }
         return x
+    }
+    
+    override func getType() -> VariableType {
+        return .Int
     }
     
     override func getTypeName() -> String {

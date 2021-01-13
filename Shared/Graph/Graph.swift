@@ -41,6 +41,10 @@ class GraphNode : Equatable, Identifiable {
         case None, Analytical, SDF, SDF2D, Material
     }
     
+    enum NodeRenderType {
+        case Normal, PathTracer
+    }
+    
     var id                  = UUID()
     
     var role                : NodeRole = .Camera
@@ -53,6 +57,8 @@ class GraphNode : Equatable, Identifiable {
     var givenName           : String = ""
     
     var lineNr              : Int32 = 0
+    
+    var renderType          : NodeRenderType = .Normal
     
     // Options
     var options             : [String:Any]

@@ -227,10 +227,33 @@ class ScriptProcessor
             for (key, _) in options {
                 for nO in nodeOptions {
                     if nO.name.lowercased() == key {
+                        if nO.variable.getType() == .Int {
+                            if let i1 = extractInt1Value(options, container: asset.graph!, error: &error, name: key) {
+                                nO.variable = i1
+                                graphOptions.append(nO)
+                            }
+                        } else
                         if nO.variable.getType() == .Float {
-
                             if let f1 = extractFloat1Value(options, container: asset.graph!, error: &error, name: key) {
                                 nO.variable = f1
+                                graphOptions.append(nO)
+                            }
+                        } else
+                        if nO.variable.getType() == .Float2 {
+                            if let f2 = extractFloat2Value(options, container: asset.graph!, error: &error, name: key) {
+                                nO.variable = f2
+                                graphOptions.append(nO)
+                            }
+                        } else
+                        if nO.variable.getType() == .Float3 {
+                            if let f3 = extractFloat3Value(options, container: asset.graph!, error: &error, name: key) {
+                                nO.variable = f3
+                                graphOptions.append(nO)
+                            }
+                        } else
+                        if nO.variable.getType() == .Float4 {
+                            if let f4 = extractFloat4Value(options, container: asset.graph!, error: &error, name: key) {
+                                nO.variable = f4
                                 graphOptions.append(nO)
                             }
                         }
