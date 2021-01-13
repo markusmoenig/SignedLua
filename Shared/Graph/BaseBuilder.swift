@@ -38,6 +38,7 @@ class GraphBuilder
         GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) }),
         GraphNodeItem("Render", { (_ options: [String:Any]) -> GraphNode in return GraphRenderNode(options) }),
         GraphNodeItem("renderPBR", { (_ options: [String:Any]) -> GraphNode in return GraphPBRNode(options) }),
+        GraphNodeItem("renderCustom", { (_ options: [String:Any]) -> GraphNode in return GraphCustomRenderNode(options) }),
     ]
     
     var leaves          : [GraphNodeItem] =
@@ -299,7 +300,6 @@ class GraphBuilder
                                         
                                         newBranch.lineNr = error.line!
                                         graph.lines[error.line!] = newBranch
-                                        processed = true
                                     }
                                     
                                     if processed == false {

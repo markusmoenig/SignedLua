@@ -42,56 +42,7 @@ class CastShadowRayFuncNode : ExpressionNode {
 
                 if let container = container as? GraphContext {
                     
-                    if container.hasHitSomething == true {//&& container.insideShadowRay == false {
-                                            
-                        container.insideShadowRay = true
-                        let backup = container.createVariableBackup()
-                        
-                        container.rayOrigin.fromSIMD(rayOrigin.toSIMD() + rayDirection.toSIMD())
-                        container.rayDirection.fromSIMD(rayDirection.toSIMD())
-                        
-                        container.camOrigin = rayOrigin.toSIMD() + rayDirection.toSIMD()
-                        container.rayDir = rayDirection.toSIMD()
-
-                        // Analytical Objects
-                        container.executeAnalytical()
-                        let h = container.analyticalDist
-                        
-                        let tmin : Float = 0.02
-                        let tmax : Float = min(2.5, container.analyticalDist)
-                        var t : Float = tmin
-                        let k : Float = 4
-                        var ph : Float = 1e20
-
-                        var result : Float = 1
-                                                
-                        if( h < 0.001 ) {
-                            result = 0
-                        }
-
-                        while t < tmax && result > 0.0 {
-                            container.executeSDF(container.camOrigin + t * container.rayDir)
-                            let h = container.rayDist[container.rayIndex]
-                            if( h < 0.001 ) {
-                                result = 0
-                                break
-                            }
-                            let y : Float = h*h/(2.0*ph)
-                            let d : Float = sqrt(h*h-y*y)
-                            result = min( result, k*d/max(0.0,t-y) )
-                            ph = h
-                            t += h
-                        }
-                                                
-                        context.values[destIndex] = Float1(result)
-
-                        container.restoreVariableBackup(backup)
-                        //container.insideShadowRay = false
-                    } else {
-                        //container.insideShadowRay = true
-                        context.values[destIndex] = Float1(1)
-                        //container.insideShadowRay = false
-                    }
+                    context.values[destIndex] = Float1(container.shadowRay(rayOrigin.toSIMD(), rayDirection.toSIMD()))
                 }
             }
         }
@@ -138,89 +89,14 @@ class CastRayFuncNode : ExpressionNode {
                     container.reflectionDepth += 1
                     
                     if container.reflectionDepth < 2 && container.hasHitSomething == true {
-                        
-                        let hasHitSomethingBuffer = container.hasHitSomething
-                        container.hasHitSomething = false
-                        
-                        let backup = container.createVariableBackup()
-                        
-                        container.rayOrigin.fromSIMD(rayOrigin.toSIMD() + rayDirection.toSIMD() * 0.0001)
-                        container.rayDirection.fromSIMD(rayDirection.toSIMD())
-                        
-                        container.camOrigin = rayOrigin.toSIMD() + rayDirection.toSIMD() * 0.0001
-                        container.rayDir = rayDirection.toSIMD()
-
-                        if let skyNode = container.skyNode {
-                            skyNode.execute(context: container)
-                        }
-                        
-                        // Analytical Objects
-                        container.executeAnalytical()
-                        let maxDist : Float = simd_min(10.0, container.analyticalDist)
-                        
-                        var material : GraphNode? = nil
-
-                        var hit = false
-                        
-                        var t : Float = 0.001
-                        for _ in 0..<70
-                        {
-                            container.executeSDF(container.camOrigin + t * container.rayDir)
-
-                            if abs(container.rayDist[container.rayIndex]) < (0.0001*t) {
-                                hit = true
-                                material = container.hitMaterial[container.rayIndex]
-                                break
-                            } else
-                            if t > maxDist {
-                                break
-                            }
                             
-                            t += container.rayDist[container.rayIndex]
-                        }
-                        
-                        if hit && t < container.analyticalDist {
-                            
-                            let p = container.camOrigin + t * container.rayDir
-                            container.rayPosition.fromSIMD(p)
-                            let normal = calcNormal(context: container, position: p)
-                            container.normal.fromSIMD(normal)
+                        let result = container.castRay(rayOrigin.toSIMD(), rayDirection.toSIMD())
 
-                            if let material = material {
-                                material.execute(context: container)
-                            }
-                            container.hasHitSomething = true
-                            container.executeRender()
-                        } else
-                        if container.analyticalDist != .greatestFiniteMagnitude {
-                            
-                            let p = container.camOrigin + container.analyticalDist * container.rayDir
-                            container.rayPosition.fromSIMD(p)
-
-                            let normal = container.analyticalNormal
-                            container.normal.fromSIMD(normal)
-
-                            if let material = container.analyticalMaterial {
-                                material.execute(context: container)
-                            }
-                            container.hasHitSomething = true
-                            container.executeRender()
-                        }
-                        
-                        var result = container.outColor!.toSIMD()
-                        
-                        result.x = simd_clamp(result.x, 0.0, 1.0)
-                        result.y = simd_clamp(result.y, 0.0, 1.0)
-                        result.z = simd_clamp(result.z, 0.0, 1.0)
-                        
                         if let outColor = context.values[destIndex] as? Float4 {
                             outColor.x += result.x
                             outColor.y += result.y
                             outColor.z += result.z
                         }
-
-                        container.hasHitSomething = hasHitSomethingBuffer
-                        container.restoreVariableBackup(backup)
                     }
                 }
             }

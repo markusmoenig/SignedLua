@@ -430,6 +430,97 @@ final class GraphContext    : VariableContainer
         return .Success
     }
     
+
+    /// Cast a ray
+    func castRay(_ rO: float3,_ rD: float3) -> float3
+    {
+        if  hasHitSomething == true {
+            
+            let hasHitSomethingBuffer = hasHitSomething
+            hasHitSomething = false
+            
+            let backup = createVariableBackup()
+            
+            rayOrigin.fromSIMD(rO + rD * 0.0001)
+            rayDirection.fromSIMD(rD)
+            
+            camOrigin = rO + rD * 0.0001
+            rayDir = rD
+
+            if let skyNode = skyNode {
+                skyNode.execute(context: self)
+            }
+            
+            // Analytical Objects
+            executeAnalytical()
+            let maxDist : Float = simd_min(10.0, analyticalDist)
+            
+            var material : GraphNode? = nil
+
+            var hit = false
+            
+            var t : Float = 0.001
+            for _ in 0..<70
+            {
+                executeSDF(camOrigin + t * rayDir)
+
+                if abs(rayDist[rayIndex]) < (0.0001*t) {
+                    hit = true
+                    material = hitMaterial[rayIndex]
+                    break
+                } else
+                if t > maxDist {
+                    break
+                }
+                
+                t += rayDist[rayIndex]
+            }
+            
+            if hit && t < analyticalDist {
+                
+                let p = camOrigin + t * rayDir
+                rayPosition.fromSIMD(p)
+                let normal = calcNormal(position: p)
+                self.normal.fromSIMD(normal)
+
+                if let material = material {
+                    material.execute(context: self)
+                }
+                hasHitSomething = true
+                executeRender()
+            } else
+            if analyticalDist != .greatestFiniteMagnitude {
+                
+                let p = camOrigin + analyticalDist * rayDir
+                rayPosition.fromSIMD(p)
+
+                let normal = analyticalNormal
+                self.normal.fromSIMD(normal)
+
+                if let material = analyticalMaterial {
+                    material.execute(context: self)
+                }
+                hasHitSomething = true
+                executeRender()
+            }
+            
+            let outColor = self.outColor!.toSIMD()
+            var result = float3(0,0,0)
+            
+            result.x = simd_clamp(outColor.x, 0.0, 1.0)
+            result.y = simd_clamp(outColor.y, 0.0, 1.0)
+            result.z = simd_clamp(outColor.z, 0.0, 1.0)
+
+            hasHitSomething = hasHitSomethingBuffer
+            restoreVariableBackup(backup)
+            
+            return result
+        }
+        
+        return float3(0,0,0)
+    }
+    
+    /// Cast an SDF specific soft shadow ray
     func shadowRay(_ rO: float3,_ rD: float3) -> Float
     {
         if hasHitSomething == true {
@@ -477,6 +568,47 @@ final class GraphContext    : VariableContainer
             return result
         }
         return 1
+    }
+    
+    /// Calculates the normal for the given hit position
+    @inlinable public func calcNormal(position: float3) -> float3
+    {
+        /*
+        vec3 epsilon = vec3(0.001, 0., 0.);
+        
+        vec3 n = vec3(map(p + epsilon.xyy).x - map(p - epsilon.xyy).x,
+                      map(p + epsilon.yxy).x - map(p - epsilon.yxy).x,
+                      map(p + epsilon.yyx).x - map(p - epsilon.yyx).x);
+        
+        return normalize(n);*/
+
+        let e = float3(0.001, 0.0, 0.0)
+
+        var eOff : float3 = position + float3(e.x, e.y, e.y)
+        executeSDF(eOff)
+        var n1 = rayDist[rayIndex]
+        
+        eOff = position - float3(e.x, e.y, e.y)
+        executeSDF(eOff)
+        n1 = n1 - rayDist[rayIndex]
+        
+        eOff = position + float3(e.y, e.x, e.y)
+        executeSDF(eOff)
+        var n2 = rayDist[rayIndex]
+        
+        eOff = position - float3(e.y, e.x, e.y)
+        executeSDF(eOff)
+        n2 = n2 - rayDist[rayIndex]
+        
+        eOff = position + float3(e.y, e.y, e.x)
+        executeSDF(eOff)
+        var n3 = rayDist[rayIndex]
+        
+        eOff = position - float3(e.y, e.y, e.x)
+        executeSDF(eOff)
+        n3 = n3 - rayDist[rayIndex]
+        
+        return simd_normalize(float3(n1, n2, n3))
     }
     
     func debug()

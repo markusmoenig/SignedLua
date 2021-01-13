@@ -8,13 +8,14 @@
 import Foundation
 import simd
 
-/// Analytical Plane
+/// PBRRenderer
 final class GraphPBRNode : GraphNode
 {
     init(_ options: [String:Any] = [:])
     {
         super.init(.Render, .None, options)
         name = "renderPBR"
+        leaves = []
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
@@ -35,7 +36,7 @@ final class GraphPBRNode : GraphNode
         let LoH = saturate(dot(l, h))
         
         let baseColor = float3(context.outColor.x, context.outColor.y, context.outColor.z)
-        let roughness : Float = 0.0
+        let roughness : Float = 0.4
         let metallic : Float = 0.8
 
         let intensity : Float = 2.0
@@ -62,10 +63,13 @@ final class GraphPBRNode : GraphNode
         // diffuse indirect
         let indirectDiffuse = Irradiance_SphericalHarmonics(n) * Fd_Lambert()
         
+        //vec2 indirectHit = traceRay(position, r);
+        let indirectSpecular = context.castRay(context.rayPosition!.toSIMD(), r)
+        
         // indirect contribution
         let dfg = PrefilteredDFG_Karis(roughness, NoV)
         let specularColor = f0 * dfg.x + dfg.y
-        let ibl = diffuseColor * indirectDiffuse// + indirectSpecular * specularColor
+        let ibl = diffuseColor * indirectDiffuse + indirectSpecular * specularColor
 
         color += ibl * indirectIntensity
 
@@ -165,5 +169,40 @@ final class GraphPBRNode : GraphNode
         let a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y
 
         return float2(-1.04, 1.04) * a004 + float2(r.z, r.w)
+    }
+}
+
+/// CustomRenderer
+final class GraphCustomRenderNode : GraphNode
+{
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.Render, .None, options)
+        name = "renderCustom"
+        leaves = []
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        for n in leaves {
+            n.execute(context: context)
+        }        
+        return .Success
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Creates a texture of a static color."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(0.5, 0.5, 0.5), "Color", "The static color of the texture.")
+        ]
+        return options
     }
 }
