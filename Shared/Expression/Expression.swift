@@ -86,7 +86,6 @@ class ExpressionNode {
         
         var lastType : BaseVariable.VariableType? = nil
         
-        print(functionName, options.count, array.count)
         if options.count != array.count {
             error.error = "Wrong number of parameters for \(functionName): \(array.count). Should be \(options.count)."
             return false
@@ -259,6 +258,7 @@ class ExpressionContext
     
     class ExpressionNodeItem
     {
+        var id           = UUID()
         var name         : String
         var createNode   : () -> ExpressionNode
         

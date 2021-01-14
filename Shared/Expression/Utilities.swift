@@ -325,3 +325,26 @@ func expressionBuilder(expression: String, container: VariableContainer, default
     }
     return exp
 }
+
+/// Extract the word at the given offset into a line respecting the given boundaries
+func extractWordAtOffset(_ line: String, offset: Int32, boundaries: String) -> String
+{
+    var result = ""
+    
+    // Left side
+    var o = Int(offset)
+
+    while o >= 0 && boundaries.contains(line[o]) == false {
+        result.insert(contentsOf: String(line[o]), at: result.startIndex)
+        o -= 1
+    }
+    
+    // Right side
+    o = Int(offset+1)
+    while o < line.count && boundaries.contains(line[o]) == false {
+        result.append(String(line[o]))
+        o += 1
+    }
+    
+    return result
+}

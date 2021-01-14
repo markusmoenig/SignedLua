@@ -259,14 +259,28 @@ class ScriptEditor
          })
     }
     
-    func getSessionCursor(_ cb: @escaping (Int32)->() )
+    func getSessionCursor(_ cb: @escaping (Int32, Int32)->() )
     {
         webView.evaluateJavaScript(
             """
-            editor.getCursorPosition().row
+            editor.getCursorPosition()
             """, completionHandler: { (value, error ) in
-                if let v = value as? Int32 {
-                    cb(v)
+                //if let v = value as? Int32 {
+                //    cb(v)
+                //}
+                
+                //print(value)
+                if let map = value as? [String:Any] {
+                    var row      : Int32 = -1
+                    var column   : Int32 = -1
+                    if let r = map["row"] as? Int32 {
+                        row = r
+                    }
+                    if let c = map["column"] as? Int32 {
+                        column = c
+                    }
+
+                    cb(row, column)
                 }
          })
     }

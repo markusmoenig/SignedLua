@@ -224,6 +224,7 @@ final class GraphPBRPathNode : GraphNode
         super.init(.Render, .None, options)
         name = "renderPBR"
         givenName = "PBR Pathtracer"
+        renderType = .PathTracer
         leaves = []
     }
     

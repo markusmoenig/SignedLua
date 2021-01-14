@@ -86,6 +86,7 @@ public class Core       : ObservableObject
     
     var renderer        : Renderer!
     var graphBuilder    : SignedGraphBuilder!
+    
 
     public init(_ frameworkId: String? = nil)
     {        

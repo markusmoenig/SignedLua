@@ -243,6 +243,8 @@ final class Float4 : BaseVariable
     var z           : Float = 1
     var w           : Float = 1
 
+    var isColor     = false
+
     init(_ name: String = "", _ x: Float = 1,_ y: Float = 1,_ z: Float = 1,_ w: Float = 1)
     {
         super.init(name, components: 4)
@@ -486,6 +488,8 @@ final class Float3 : BaseVariable
     var x           : Float = 1
     var y           : Float = 1
     var z           : Float = 1
+    
+    var isColor     = false
 
     init(_ name: String = "", _ x: Float = 1,_ y: Float = 1,_ z: Float = 1)
     {

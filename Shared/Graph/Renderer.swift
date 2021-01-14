@@ -275,6 +275,7 @@ class Renderer
                     break
                 }
                 
+
                 if renderType == .Normal {
                     var tot = float4(0,0,0,0)
                     
@@ -295,6 +296,14 @@ class Renderer
                         }
                     }
                     texArray[w] = tot / Float(AA*AA)
+                } else
+                if renderType == .PathTracer {
+                    
+                    context.uv = float2(Float(w) / width, fh)
+                    context.camOffset = float2(Float.random(in: 0...1), Float.random(in: 0...1))
+                    renderPixel()
+                    let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
+                    texArray[w] = result
                 }
             }
             

@@ -12,7 +12,8 @@ class SignedGraphBuilder: GraphBuilder {
     let core                : Core
     
     let selectionChanged    = PassthroughSubject<UUID?, Never>()
-    
+    let contextColorChanged = PassthroughSubject<String, Never>()
+
     var cursorTimer         : Timer? = nil
     var currentNode         : GraphNode? = nil
     
@@ -76,25 +77,52 @@ class SignedGraphBuilder: GraphBuilder {
     var lastContextHelpId :UUID? = nil
     @objc func cursorCallback(_ timer: Timer) {
         if core.state == .Idle && core.scriptEditor != nil {
-            core.scriptEditor!.getSessionCursor({ (line) in
+            core.scriptEditor!.getSessionCursor({ (line, column) in
             
                 if let asset = self.core.assetFolder.current, asset.type == .Source {
-                    if let context = asset.graph {
-                        if let node = context.lines[line] {
-                            if node.id != self.lastContextHelpId {
-                                self.currentNode = node
-                                self.selectionChanged.send(node.id)
-                                self.core.contextText = self.generateNodeHelpText(node)
-                                self.core.contextTextChanged.send(self.core.contextText)
-                                self.lastContextHelpId = node.id
-                            }
+                    
+                    var processed = false
+                    if let line = self.core.scriptProcessor.getLine(line) {
+                        let word = extractWordAtOffset(line, offset: column, boundaries: " <>\",()")
+                        
+                        if word.starts(with: "#") && (word.count == 7 || word.count == 9) {
+                            // Color ?
+                            self.contextColorChanged.send(word)
                         } else {
-                            if self.lastContextHelpId != nil {
-                                self.currentNode = nil
-                                self.selectionChanged.send(nil)
-                                self.core.contextText = ""
-                                self.core.contextTextChanged.send(self.core.contextText)
-                                self.lastContextHelpId = nil
+                            let context = ExpressionContext()
+                            for f in context.functions {
+                                if f.name == word {
+                                    if f.id != self.lastContextHelpId {
+                                        let functionNode = f.createNode()
+                                        
+                                        self.core.contextText = self.generateNodeHelpText(functionNode)
+                                        self.core.contextTextChanged.send(self.core.contextText)
+                                        processed = true
+                                        self.lastContextHelpId = f.id
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if processed == false {
+                        if let context = asset.graph {
+                            if let node = context.lines[line] {
+                                if node.id != self.lastContextHelpId {
+                                    self.currentNode = node
+                                    self.selectionChanged.send(node.id)
+                                    self.core.contextText = self.generateNodeHelpText(node)
+                                    self.core.contextTextChanged.send(self.core.contextText)
+                                    self.lastContextHelpId = node.id
+                                }
+                            } else {
+                                if self.lastContextHelpId != nil {
+                                    self.currentNode = nil
+                                    self.selectionChanged.send(nil)
+                                    self.core.contextText = ""
+                                    self.core.contextTextChanged.send(self.core.contextText)
+                                    self.lastContextHelpId = nil
+                                }
                             }
                         }
                     }
@@ -104,7 +132,22 @@ class SignedGraphBuilder: GraphBuilder {
     }
     
     /// Generates a markdown help text for the given node
-    func generateNodeHelpText(_ node:GraphNode) -> String
+    func generateNodeHelpText(_ node: GraphNode) -> String
+    {
+        var help = "## " + node.name + "\n"
+        help += node.getHelp()
+        let options = node.getOptions()
+        if options.count > 0 {
+            help += "\nOptional Parameters\n"
+        }
+        for o in options {
+            help += "* **\(o.name)** (\(o.variable.getTypeName())) - " + o.help + "\n"
+        }
+        return help
+    }
+    
+    /// Generates a markdown help text for the given expression node
+    func generateNodeHelpText(_ node: ExpressionNode) -> String
     {
         var help = "## " + node.name + "\n"
         help += node.getHelp()

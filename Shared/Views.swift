@@ -169,6 +169,9 @@ struct Float3View: View {
     @State var valueText1                   : String = ""
     @State var valueText2                   : String = ""
     @State var valueText3                   : String = ""
+    
+    @State var selectedColor                = Color.white
+    var isColor                             = false
 
     init(_ core: Core, _ option: GraphOption)
     {
@@ -180,6 +183,7 @@ struct Float3View: View {
             _valueText1 = State(initialValue: String(format: "%.03g", simd.x))
             _valueText2 = State(initialValue: String(format: "%.03g", simd.y))
             _valueText3 = State(initialValue: String(format: "%.03g", simd.z))
+            isColor = f3.isColor
         }
     }
     
@@ -187,30 +191,37 @@ struct Float3View: View {
         
         VStack(alignment: .leading) {
             Text(option.name)
-            TextField(option.name, text: $valueText1, onEditingChanged: { (changed) in
-                if Float(valueText1) != nil {
-                    option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
-            TextField(option.name, text: $valueText2, onEditingChanged: { (changed) in
-                if Float(valueText2) != nil {
-                    option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
-            TextField(option.name, text: $valueText3, onEditingChanged: { (changed) in
-                if Float(valueText3) != nil {
-                    option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
+            if isColor == false {
+                TextField(option.name, text: $valueText1, onEditingChanged: { (changed) in
+                    if Float(valueText1) != nil {
+                        option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
+                    }
+                },
+                onCommit: {
+                    core.scriptProcessor.replaceOptionInLine(option)
+                } )
+                TextField(option.name, text: $valueText2, onEditingChanged: { (changed) in
+                    if Float(valueText2) != nil {
+                        option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
+                    }
+                },
+                onCommit: {
+                    core.scriptProcessor.replaceOptionInLine(option)
+                } )
+                TextField(option.name, text: $valueText3, onEditingChanged: { (changed) in
+                    if Float(valueText3) != nil {
+                        option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
+                    }
+                },
+                onCommit: {
+                    core.scriptProcessor.replaceOptionInLine(option)
+                } )
+            } else {
+                ColorPicker("", selection: $selectedColor)
+                    .onChange(of: selectedColor) { color in
+                        
+                    }
+            }
         }
     }
 }
@@ -331,6 +342,12 @@ struct ParameterView: View {
             }
             .onReceive(self.core.graphBuilder.selectionChanged) { id in
                 options = core.scriptProcessor.getOptions()
+                updateView.toggle()
+            }
+            .onReceive(self.core.graphBuilder.contextColorChanged) { colorText in
+                let v = Float3(0,0,0)
+                v.isColor = true
+                options = [GraphOption(v,"Color","")]
                 updateView.toggle()
             }
         }
