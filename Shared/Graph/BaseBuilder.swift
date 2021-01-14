@@ -390,7 +390,7 @@ class GraphBuilder
                                 processed = true
                             } else
                             if error.error == nil { createError("Leaf node without active branch") }
-                        } else { createError("Invalid expression") }
+                        } else { if error.error == nil { createError("Invalid expression") } }
                     }
                 }
                 if str.trimmingCharacters(in: .whitespaces).count > 0 && processed == false && error.error == nil {

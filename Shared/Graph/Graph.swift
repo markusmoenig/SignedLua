@@ -9,17 +9,27 @@ import MetalKit
 
 class GraphOption : Equatable, Identifiable {
     
-    var id      = UUID()
+    enum Rules {
+        case None, SameTypeAsPrevious
+    }
     
-    var variable: BaseVariable
-    var name    : String
-    var help    : String
+    var id          = UUID()
     
-    init(_ variable: BaseVariable,_ name: String,_ help: String)
+    var variable    : BaseVariable
+    var name        : String
+    var help        : String
+    var group       : String? = nil
+    var optionals   : [BaseVariable]
+    var rules       : Rules
+    
+    init(_ variable: BaseVariable,_ name: String,_ help: String, group: String? = nil, optionals: [BaseVariable] = [], rules: Rules = .None)
     {
         self.variable = variable
         self.name = name
         self.help = help
+        self.group = group
+        self.optionals = optionals
+        self.rules = rules
     }
     
     static func ==(lhs:GraphOption, rhs:GraphOption) -> Bool { // Implement Equatable

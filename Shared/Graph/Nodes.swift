@@ -44,8 +44,12 @@ final class GraphVariableAssignmentNode : GraphNode
                 }
             } else {
                 // New variable
-                context.variables[givenName] = expression.execute()
-                context.variables[givenName]!.role = expression.isConstant() ? .User : .System
+                if let result = expression.execute() {
+                    result.role = expression.isConstant() ? .User : .System
+                    context.variables[givenName] = result
+                } else {
+                    print("Expression result is nil for", givenName, "expression:", expression.expression)
+                }
             }
         }
         return .Success

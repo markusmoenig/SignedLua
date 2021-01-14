@@ -39,9 +39,12 @@ class ExpressionNode {
 
     var name                : String = ""
     
+    var argumentsIn         : [ExpressionContext] = []
     var indices             : [Int] = []
-
     var resultType          : ExpressionContext.ResultType = .Constant
+
+    /// The destination index for the result
+    var destIndex : Int = 0
 
     init(_ name: String)
     {
@@ -54,7 +57,7 @@ class ExpressionNode {
     }
     
     /// A function gets passed the parameter string it has to evaluate itself
-    func setupFunction(_ container: VariableContainer,_ destIndex: Int,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         return nil
     }
@@ -63,8 +66,82 @@ class ExpressionNode {
     {
     }
     
-    // Utilities
+    /// Get help text
+    func getHelp() -> String
+    {
+        return ""
+    }
     
+    /// Get options
+    func getOptions() -> [GraphOption]
+    {
+        return []
+    }
+
+    ///
+    func verifyOptions(_ functionName : String,_ container: VariableContainer, _ parameters: String,_ error: inout CompileError) -> Bool
+    {
+        let options = getOptions()
+        let array = splitParameters(parameters)
+        
+        var lastType : BaseVariable.VariableType? = nil
+        
+        print(functionName, options.count, array.count)
+        if options.count != array.count {
+            error.error = "Wrong number of parameters for \(functionName): \(array.count). Should be \(options.count)."
+            return false
+        }
+        
+        for i in 0..<options.count {
+            let context = ExpressionContext()
+            context.parse(expression: array[i], container: container, error: &error)
+            if error.error == nil {
+                
+                if let rc = context.execute() {
+                    
+                    let type = rc.getType()
+                    // Check type
+                    var rightType = false
+                    if type == options[i].variable.getType() {
+                        rightType = true
+                    } else {
+                        for v in options[i].optionals {
+                            if type == v.getType() {
+                                rightType = true
+                                break
+                            }
+                        }
+                    }
+                    
+                    if rightType {
+                        var passesRules = false
+                        if options[i].rules == .SameTypeAsPrevious && type != lastType {
+                            error.error = "Wrong type \(type) for parameter \(i+1) of \(functionName). Needs to be \(lastType!)."
+                        } else {
+                            passesRules = true
+                        }
+                        
+                        if passesRules {
+                            lastType = type
+                            if context.isConstant() == false {
+                                resultType = .Variable
+                            }
+                            argumentsIn.append(context)
+                        }
+                    } else {
+                        error.error = "Wrong type \(type) for parameter \(i+1) of \(functionName)."
+                        return false
+                    }
+                }
+            } else {
+                return false
+            }
+        }
+        
+        return true
+    }
+    
+    // Utilities
     func splitIntoOne(_ functionName : String,_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> ExpressionContext?
     {
         let array = splitParameters(parameters)
@@ -76,7 +153,7 @@ class ExpressionNode {
             
             return arg1Context
         } else {
-            error.error = "Wrong number of arguments for \(functionName)"
+            error.error = "Wrong number of parameters for \(functionName)"
         }
         
         return nil
@@ -98,7 +175,7 @@ class ExpressionNode {
             
             return (arg1Context, arg2Context)
         } else {
-            error.error = "Wrong number of arguments for \(functionName)"
+            error.error = "Wrong number of parameters for \(functionName)"
         }
         
         return nil
@@ -125,7 +202,7 @@ class ExpressionNode {
             
             return (arg1Context, arg2Context, arg3Context)
         } else {
-            error.error = "Wrong number of arguments for \(functionName)"
+            error.error = "Wrong number of parameters for \(functionName)"
         }
         
         return nil
@@ -234,6 +311,8 @@ class ExpressionContext
     var cResult2    : Float2? = nil
     var cResult3    : Float3? = nil
     var cResult4    : Float4? = nil
+    
+    var lastResult  : BaseVariable? = nil
     
     var expression  : String = ""
     
@@ -430,7 +509,8 @@ class ExpressionContext
                 let parameters = extractUpToTokenHierarchy([">"], "<")
                 
                 if let functionNode = getFunction(element) {
-                    if let result = functionNode.setupFunction(container, values.count, parameters, &error) {
+                    functionNode.destIndex = values.count
+                    if let result = functionNode.setupFunction(container, parameters, &error) {
                     
                         if functionNode.resultType == .Variable {
                             resultType = .Variable
@@ -480,6 +560,7 @@ class ExpressionContext
                 if resultType == .Constant {
                     cResult = result
                 }
+                lastResult = result
                 return result
             }
         }
