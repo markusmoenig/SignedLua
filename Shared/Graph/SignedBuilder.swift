@@ -74,6 +74,7 @@ class SignedGraphBuilder: GraphBuilder {
         }
     }
     
+    var send = false
     var lastContextHelpId :UUID? = nil
     @objc func cursorCallback(_ timer: Timer) {
         if core.state == .Idle && core.scriptEditor != nil {
@@ -85,9 +86,13 @@ class SignedGraphBuilder: GraphBuilder {
                     if let line = self.core.scriptProcessor.getLine(line) {
                         let word = extractWordAtOffset(line, offset: column, boundaries: " <>\",()")
                         
+                        
                         if word.starts(with: "#") && (word.count == 7 || word.count == 9) {
                             // Color ?
-                            self.contextColorChanged.send(word)
+                            if self.send == false {
+                                self.contextColorChanged.send(word)
+                                self.send = true
+                            }
                         } else {
                             let context = ExpressionContext()
                             for f in context.functions {

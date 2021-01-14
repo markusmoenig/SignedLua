@@ -170,7 +170,7 @@ struct Float3View: View {
     @State var valueText2                   : String = ""
     @State var valueText3                   : String = ""
     
-    @State var selectedColor                = Color.white
+    @State private var selectedColor        = Color.white
     var isColor                             = false
 
     init(_ core: Core, _ option: GraphOption)
@@ -217,9 +217,15 @@ struct Float3View: View {
                     core.scriptProcessor.replaceOptionInLine(option)
                 } )
             } else {
-                ColorPicker("", selection: $selectedColor)
+                ColorPicker("", selection: $selectedColor, supportsOpacity: false)
                     .onChange(of: selectedColor) { color in
+                        print(color)
+                        var f3 = Float3()
+                        f3.x = Float(color.cgColor!.components![0])
+                        f3.y = Float(color.cgColor!.components![1])
+                        f3.z = Float(color.cgColor!.components![2])
                         
+                        print(f3.toHexString())
                     }
             }
         }

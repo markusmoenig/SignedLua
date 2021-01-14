@@ -287,6 +287,30 @@ final class Float4 : BaseVariable
     var context3    : ExpressionContext? = nil
     var context4    : ExpressionContext? = nil
 
+    /// From a hex color
+    init(_ hexString: String)
+    {
+        func intFromHexString(hexStr: String) -> UInt64 {
+            var hexInt: UInt64 = 0
+            // Create scanner
+            let scanner: Scanner = Scanner(string: hexStr)
+            // Tell scanner to skip the # character
+            scanner.charactersToBeSkipped = CharacterSet(charactersIn: "#")
+            // Scan hex value
+            scanner.scanHexInt64(&hexInt)
+            return hexInt
+        }
+        
+        let hexint = Int(intFromHexString(hexStr: hexString))
+        x = Float((hexint & 0xff000000) >> 32) / 255.0
+        y = Float((hexint & 0xff0000) >> 16) / 255.0
+        z = Float((hexint & 0xff00) >> 8) / 255.0
+        w = Float((hexint & 0xff) >> 0) / 255.0
+        
+        super.init("", components: 4)
+        isColor = true
+    }
+    
     /// From text
     init(_ name: String = "", container: VariableContainer, parameters: String, error: inout CompileError)
     {
@@ -528,6 +552,29 @@ final class Float3 : BaseVariable
     var context2    : ExpressionContext? = nil
     var context3    : ExpressionContext? = nil
 
+    /// From a hex color
+    init(_ hexString: String)
+    {
+        func intFromHexString(hexStr: String) -> UInt64 {
+            var hexInt: UInt64 = 0
+            // Create scanner
+            let scanner: Scanner = Scanner(string: hexStr)
+            // Tell scanner to skip the # character
+            scanner.charactersToBeSkipped = CharacterSet(charactersIn: "#")
+            // Scan hex value
+            scanner.scanHexInt64(&hexInt)
+            return hexInt
+        }
+        
+        let hexint = Int(intFromHexString(hexStr: hexString))
+        x = Float((hexint & 0xff0000) >> 16) / 255.0
+        y = Float((hexint & 0xff00) >> 8) / 255.0
+        z = Float((hexint & 0xff) >> 0) / 255.0
+        
+        super.init("", components: 3)
+        isColor = true
+    }
+    
     /// From text
     init(_ name: String = "", container: VariableContainer, parameters: String, error: inout CompileError)
     {
@@ -614,6 +661,19 @@ final class Float3 : BaseVariable
     
     override func toString() -> String {
         return "\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z))"
+    }
+    
+    func toHexString() -> String {
+        let r:CGFloat = CGFloat(x)
+        let g:CGFloat = CGFloat(y)
+        let b:CGFloat = CGFloat(z)
+        //let a:CGFloat = 1
+        
+        //getRed(&r, green: &g, blue: &b, alpha: &a)
+        
+        let rgb:Int = (Int)(r*255)<<16 | (Int)(g*255)<<8 | (Int)(b*255)<<0
+        
+        return NSString(format:"#%06x", rgb) as String
     }
     
     @inlinable override func toSIMD3() -> SIMD3<Float>
