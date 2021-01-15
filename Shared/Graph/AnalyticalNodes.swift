@@ -28,7 +28,10 @@ final class GraphAnalyticalPlaneNode : GraphDistanceNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        let groundT : Float = (0.0 - context.camOrigin.y) / context.rayDir.y
+        let camOrigin = context.rayOrigin.toSIMD()
+        let camDir = context.rayDirection.toSIMD()
+        
+        let groundT : Float = (0.0 - camOrigin.y) / camDir.y
         if groundT > 0.0 {
             if groundT < context.analyticalDist {
                 context.analyticalDist = groundT

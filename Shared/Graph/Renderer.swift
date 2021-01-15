@@ -215,10 +215,10 @@ class Renderer
                             if let cameraNode = context.cameraNode {
                                 cameraNode.execute(context: context)
                             }
-                            
-                            context.rayOrigin.fromSIMD(context.camOrigin)
-                            context.rayDirection.fromSIMD(context.rayDir)
-                            
+
+                            let camOrigin = context.rayOrigin.toSIMD()
+                            let camDir = context.rayDirection.toSIMD()
+
                             let hit = context.hit()
                             if hit.0 == Float.greatestFiniteMagnitude {
                                 if let skyNode = context.skyNode {
@@ -229,7 +229,7 @@ class Renderer
 
                                 context.normal.fromSIMD(hit.2)
                                 
-                                let p = context.camOrigin + hit.0 * context.rayDir
+                                let p = camOrigin + hit.0 * camDir
                                 context.rayPosition.fromSIMD(p)
                                 
                                 if let material = hit.1 {
@@ -255,9 +255,6 @@ class Renderer
                         if let cameraNode = context.cameraNode {
                             cameraNode.execute(context: context)
                         }
-                        
-                        context.rayOrigin.fromSIMD(context.camOrigin)
-                        context.rayDirection.fromSIMD(context.rayDir)
                         
                         context.executeRender()
                         

@@ -83,7 +83,7 @@ final class GraphSDFObject : GraphDistanceNode
         var processIt = true
         
         if maxBox != nil {
-            if maxBufferRo == context.camOrigin && maxBufferRd == context.rayDir {
+            if maxBufferRo == context.rayOrigin.toSIMD() && maxBufferRd == context.rayDirection.toSIMD() {
                 processIt = maxBuffer
             } else
             if intersect(context, maxDimensions: maxBox!.toSIMD3()) == false {
@@ -129,8 +129,8 @@ final class GraphSDFObject : GraphDistanceNode
     
     func intersect(_ context: GraphContext, maxDimensions: float3) -> Bool
     {
-        let ro = context.camOrigin
-        let rd = context.rayDir
+        let ro = context.rayOrigin.toSIMD()
+        let rd = context.rayDirection.toSIMD()
         
         maxBufferRo = ro
         maxBufferRd = rd

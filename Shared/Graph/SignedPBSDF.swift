@@ -143,8 +143,8 @@ final class GraphPrincipledPathNode : GraphNode
             var lightPdf : Float = 1.0
             state.depth = depth
             
-            context.camOrigin = r.origin
-            context.rayDir = r.direction
+            context.rayOrigin.fromSIMD(r.origin)
+            context.rayDirection.fromSIMD(r.direction)
             
             let hit = context.hit()
             if hit.0 == Float.greatestFiniteMagnitude {

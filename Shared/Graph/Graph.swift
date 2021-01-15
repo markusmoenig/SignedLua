@@ -167,9 +167,6 @@ final class GraphContext    : VariableContainer
     var position2D          = float2(0,0)                       // Current object position for 2D objects
 
     var camOffset           = float2(0,0)                       // Camera AA uv offset
-    var camOrigin           = float3(0,0,-5)                    // Camera Origin, set by camera node
-    
-    var rayDir              = float3(0,0,0)                     // Ray direction, computed and set by camera node
 
     var analyticalDist      : Float = .greatestFiniteMagnitude
     var analyticalNormal    = float3(0,0,0)                     // Analytical Normal
@@ -491,10 +488,13 @@ final class GraphContext    : VariableContainer
     {
         var rc : (Float, GraphNode?, float3) = (Float.greatestFiniteMagnitude, nil, float3(0,0,0))
         
+        let camOrigin = rayOrigin.toSIMD()
+        let camDir = rayDirection.toSIMD()
+        
         // Analytical Objects
         executeAnalytical()
-        let maxDist : Float = simd_min(12.0, analyticalDist)
         
+        let maxDist : Float = simd_min(12.0, analyticalDist)
         var material : GraphNode? = nil
 
         // Raymarch
@@ -502,7 +502,7 @@ final class GraphContext    : VariableContainer
         var t : Float = 0.001;
         for _ in 0..<70
         {
-            executeSDF(camOrigin + t * rayDir)
+            executeSDF(camOrigin + t * camDir)
 
             if abs(rayDist[rayIndex]) < (0.0001*t) {
                 hit = true
@@ -518,7 +518,7 @@ final class GraphContext    : VariableContainer
         
         if hit && t < analyticalDist {
             rc.0 = t
-            let p = camOrigin + t * rayDir
+            let p = camOrigin + t * camDir
             rc.2 = calcNormal(position: p)
 
             if let material = material {
@@ -547,8 +547,8 @@ final class GraphContext    : VariableContainer
         rayOrigin.fromSIMD(rO + rD * 0.0001)
         rayDirection.fromSIMD(rD)
         
-        camOrigin = rO + rD * 0.0001
-        rayDir = rD
+        let camOrigin = rO + rD * 0.0001
+        let rayDir = rD
         
         let hit = self.hit()
         if hit.0 == Float.greatestFiniteMagnitude {
@@ -592,8 +592,8 @@ final class GraphContext    : VariableContainer
             rayOrigin.fromSIMD(rO + rD)
             rayDirection.fromSIMD(rD)
             
-            camOrigin = rO + rD
-            rayDir = rD
+            let camOrigin = rO + rD
+            let rayDir = rD
 
             // Analytical Objects
             executeAnalytical()

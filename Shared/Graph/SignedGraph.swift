@@ -30,13 +30,16 @@ final class GraphDefaultSkyNode : GraphNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
+        let camOrigin = context.rayOrigin.toSIMD()
+        let camDir = context.rayDirection.toSIMD()
+        
         let sunDir = sunDirection.toSIMD()
         let skyColor = float3(0.38, 0.6, 1.0)
         let sunColor = self.sunColor.toSIMD()
         let horizonColor = worldHorizonColor.toSIMD()
         
-        let sun : Float = simd_max(simd_dot(context.rayDir, simd_normalize(sunDir)), 0.0)
-        let hor : Float = pow(1.0 - simd_max(context.rayDir.y, 0.0), 3.0)
+        let sun : Float = simd_max(simd_dot(camDir, simd_normalize(sunDir)), 0.0)
+        let hor : Float = pow(1.0 - simd_max(camDir.y, 0.0), 3.0)
         var col : float3 = simd_mix(skyColor, sunColor, sun * float3(0.5, 0.5, 0.5))
         col = simd_mix(col, horizonColor, float3(hor, hor, hor))
         
@@ -128,8 +131,8 @@ final class GraphPinholeCameraNode : GraphBaseCameraNode
         dir += horizontal * (pixelSize.x * context.camOffset.x + context.uv.x)
         dir += vertical * (pixelSize.y * context.camOffset.y + context.uv.y)
         
-        context.camOrigin = camOrigin
-        context.rayDir = simd_normalize(-dir)
+        context.rayOrigin.fromSIMD(camOrigin)
+        context.rayDirection.fromSIMD(simd_normalize(-dir))
         
         return .Success
     }
