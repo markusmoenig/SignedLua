@@ -90,6 +90,8 @@
 		2B76D82C25AC46F000AF6FF2 /* SignedGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */; };
 		2B888B5225B1361100956C64 /* SignedPBSDF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B5125B1361100956C64 /* SignedPBSDF.swift */; };
 		2B888B5325B1361100956C64 /* SignedPBSDF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B5125B1361100956C64 /* SignedPBSDF.swift */; };
+		2B888B5725B15E7600956C64 /* LightNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B5625B15E7600956C64 /* LightNodes.swift */; };
+		2B888B5825B15E7600956C64 /* LightNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B5625B15E7600956C64 /* LightNodes.swift */; };
 		2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
 		2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
@@ -145,6 +147,7 @@
 		2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedSpecific.swift; sourceTree = "<group>"; };
 		2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedGraph.swift; sourceTree = "<group>"; };
 		2B888B5125B1361100956C64 /* SignedPBSDF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedPBSDF.swift; sourceTree = "<group>"; };
+		2B888B5625B15E7600956C64 /* LightNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightNodes.swift; sourceTree = "<group>"; };
 		2B8A692A25A4486A006B1B5C /* CameraHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraHelper.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
@@ -285,6 +288,7 @@
 				2B224FB52586105200F32354 /* BranchNodes.swift */,
 				2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */,
 				2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */,
+				2B888B5625B15E7600956C64 /* LightNodes.swift */,
 				2B400EF025AD9A7D006493A0 /* SignedPBR.swift */,
 				2B888B5125B1361100956C64 /* SignedPBSDF.swift */,
 				2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */,
@@ -438,6 +442,7 @@
 				2B400E9D25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
+				2B888B5725B15E7600956C64 /* LightNodes.swift in Sources */,
 				2B224FEC2588A6BD00F32354 /* Nodes.swift in Sources */,
 				2B224F7D25844C1900F32354 /* Renderer.swift in Sources */,
 			);
@@ -485,6 +490,7 @@
 				2B400E9E25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
+				2B888B5825B15E7600956C64 /* LightNodes.swift in Sources */,
 				2B224FED2588A6BD00F32354 /* Nodes.swift in Sources */,
 				2B224F7E25844C1900F32354 /* Renderer.swift in Sources */,
 			);

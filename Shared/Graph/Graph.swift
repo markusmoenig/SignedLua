@@ -44,7 +44,7 @@ class GraphNode : Equatable, Identifiable {
     }
     
     enum NodeRole {
-        case Camera, Sky, Utility, Variable, Render
+        case Camera, Sky, Utility, Variable, Render, Light
     }
     
     enum NodeContext {
@@ -139,6 +139,8 @@ final class GraphContext    : VariableContainer
     var analyticalNodes     : [GraphNode] = []
     var sdfNodes            : [GraphNode] = []
     var sdf2DNodes          : [GraphNode] = []
+    
+    var lightNodes          : [GraphNode] = []
 
     var failedAt            : [Int32] = []
     

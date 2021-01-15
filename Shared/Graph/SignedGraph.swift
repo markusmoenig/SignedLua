@@ -30,7 +30,6 @@ final class GraphDefaultSkyNode : GraphNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        let camOrigin = context.rayOrigin.toSIMD()
         let camDir = context.rayDirection.toSIMD()
         
         let sunDir = sunDirection.toSIMD()

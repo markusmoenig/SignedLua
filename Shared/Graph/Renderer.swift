@@ -256,6 +256,9 @@ class Renderer
                             cameraNode.execute(context: context)
                         }
                         
+                        let sunLight = GraphDirectionalLightNode()
+                        context.lightNodes = [sunLight]
+                        
                         context.executeRender()
                         
                         let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
