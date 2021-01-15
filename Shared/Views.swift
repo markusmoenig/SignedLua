@@ -220,7 +220,7 @@ struct Float3View: View {
                 ColorPicker("", selection: $selectedColor, supportsOpacity: false)
                     .onChange(of: selectedColor) { color in
                         print(color)
-                        var f3 = Float3()
+                        let f3 = Float3()
                         f3.x = Float(color.cgColor!.components![0])
                         f3.y = Float(color.cgColor!.components![1])
                         f3.z = Float(color.cgColor!.components![2])

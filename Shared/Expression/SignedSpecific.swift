@@ -101,47 +101,6 @@ class CastRayFuncNode : ExpressionNode {
         }
     }
     
-    /// Calculates the normal for the given hit position
-    @inlinable public func calcNormal(context: GraphContext, position: float3) -> float3
-    {
-        /*
-        vec3 epsilon = vec3(0.001, 0., 0.);
-        
-        vec3 n = vec3(map(p + epsilon.xyy).x - map(p - epsilon.xyy).x,
-                      map(p + epsilon.yxy).x - map(p - epsilon.yxy).x,
-                      map(p + epsilon.yyx).x - map(p - epsilon.yyx).x);
-        
-        return normalize(n);*/
-
-        let e = float3(0.001, 0.0, 0.0)
-
-        var eOff : float3 = position + float3(e.x, e.y, e.y)
-        context.executeSDF(eOff)
-        var n1 = context.rayDist[context.rayIndex]
-        
-        eOff = position - float3(e.x, e.y, e.y)
-        context.executeSDF(eOff)
-        n1 = n1 - context.rayDist[context.rayIndex]
-        
-        eOff = position + float3(e.y, e.x, e.y)
-        context.executeSDF(eOff)
-        var n2 = context.rayDist[context.rayIndex]
-        
-        eOff = position - float3(e.y, e.x, e.y)
-        context.executeSDF(eOff)
-        n2 = n2 - context.rayDist[context.rayIndex]
-        
-        eOff = position + float3(e.y, e.y, e.x)
-        context.executeSDF(eOff)
-        var n3 = context.rayDist[context.rayIndex]
-        
-        eOff = position - float3(e.y, e.y, e.x)
-        context.executeSDF(eOff)
-        n3 = n3 - context.rayDist[context.rayIndex]
-        
-        return simd_normalize(float3(n1, n2, n3))
-    }
-    
     override func getHelp() -> String
     {
         return "Casts a ray and returns the computed color."

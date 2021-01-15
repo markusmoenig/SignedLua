@@ -35,11 +35,7 @@ class GraphBuilder
         GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalObject(options) }),
         GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject(options) }),
         GraphNodeItem("sdfObject2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject2D(options) }),
-        GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) }),
-        GraphNodeItem("Render", { (_ options: [String:Any]) -> GraphNode in return GraphRenderNode(options) }),
-        GraphNodeItem("renderPBR", { (_ options: [String:Any]) -> GraphNode in return GraphPBRNode(options) }),
-        GraphNodeItem("renderPBRPath", { (_ options: [String:Any]) -> GraphNode in return GraphPBRPathNode(options) }),
-        GraphNodeItem("renderCustom", { (_ options: [String:Any]) -> GraphNode in return GraphCustomRenderNode(options) }),
+        GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) })
     ]
     
     var leaves          : [GraphNodeItem] =

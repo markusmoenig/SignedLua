@@ -24,6 +24,10 @@ class SignedGraphBuilder: GraphBuilder {
         
         branches.append(GraphNodeItem("PinholeCamera", { (_ options: [String:Any]) -> GraphNode in return GraphPinholeCameraNode(options) }))
         branches.append(GraphNodeItem("DefaultSky", { (_ options: [String:Any]) -> GraphNode in return GraphDefaultSkyNode(options) }))
+        
+        branches.append(GraphNodeItem("renderPrincipledBSDF", { (_ options: [String:Any]) -> GraphNode in return GraphPrincipledPathNode(options) }))
+        branches.append(GraphNodeItem("renderPBR", { (_ options: [String:Any]) -> GraphNode in return GraphPBRNode(options) }))
+        branches.append(GraphNodeItem("renderCustom", { (_ options: [String:Any]) -> GraphNode in return GraphCustomRenderNode(options) }))
     }
     
     @discardableResult override func compile(_ asset: Asset, silent: Bool = false) -> CompileError

@@ -162,89 +162,6 @@ class Renderer
         let context = asset.graph!
         
         context.viewSize = float2(width, height)
-                
-    
-        func renderPixel()
-        {
-            context.reflectionDepth = 0
-            context.hasHitSomething = false
-            
-            context.normal.fromSIMD(float3(0.0, 0.0, 0.0))
-            context.rayPosition.fromSIMD(float3(0.0, 0.0, 0.0))
-            context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
-
-            if let cameraNode = context.cameraNode {
-                cameraNode.execute(context: context)
-            }
-            
-            context.rayOrigin.fromSIMD(context.camOrigin)
-            context.rayDirection.fromSIMD(context.rayDir)
-            
-            if let skyNode = context.skyNode {
-                skyNode.execute(context: context)
-            }
-            
-            // Analytical Objects
-            context.executeAnalytical()
-            let maxDist : Float = simd_min(12.0, context.analyticalDist)
-            
-            var material : GraphNode? = nil
-
-            var hit = false
-            
-            var t : Float = 0.001;
-            for _ in 0..<70
-            {
-                context.executeSDF(context.camOrigin + t * context.rayDir)
-
-                if abs(context.rayDist[context.rayIndex]) < (0.0001*t) {
-                    hit = true
-                    material = context.hitMaterial[context.rayIndex]
-                    break
-                } else
-                if t > maxDist {
-                    break
-                }
-                
-                t += context.rayDist[context.rayIndex]
-            }
-            
-            if hit && t < context.analyticalDist {
-                
-                let p = context.camOrigin + t * context.rayDir
-                context.rayPosition.fromSIMD(p)
-                let normal = calcNormal(context: context, position: p)
-                context.normal.fromSIMD(normal)
-
-                if let material = material {
-                    context.executeMaterial(material)
-                }
-                context.hasHitSomething = true
-                if renderMode == .Normal {
-                    context.executeRender()
-                } else {
-                    previewRender()
-                }
-            } else
-            if context.analyticalDist != .greatestFiniteMagnitude {
-                
-                let p = context.camOrigin + context.analyticalDist * context.rayDir
-                context.rayPosition.fromSIMD(p)
-
-                let normal = context.analyticalNormal
-                context.normal.fromSIMD(normal)
-
-                if let material = context.analyticalMaterial {
-                    context.executeMaterial(material)
-                }
-                context.hasHitSomething = true
-                if renderMode == .Normal {
-                    context.executeRender()
-                } else {
-                    previewRender()
-                }
-            }
-        }
         
         // Extract Render Options
         var AA : Int = 1
@@ -275,6 +192,12 @@ class Renderer
                     break
                 }
                 
+                context.reflectionDepth = 0
+                context.hasHitSomething = false
+                
+                context.normal.fromSIMD(float3(0.0, 0.0, 0.0))
+                context.rayPosition.fromSIMD(float3(0.0, 0.0, 0.0))
+                context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
 
                 if renderType == .Normal {
                     var tot = float4(0,0,0,0)
@@ -288,8 +211,32 @@ class Renderer
 
                             context.uv = float2(Float(w) / width, fh)
                             context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
+
+                            if let cameraNode = context.cameraNode {
+                                cameraNode.execute(context: context)
+                            }
                             
-                            renderPixel()
+                            context.rayOrigin.fromSIMD(context.camOrigin)
+                            context.rayDirection.fromSIMD(context.rayDir)
+                            
+                            let hit = context.hit()
+                            if hit.0 == Float.greatestFiniteMagnitude {
+                                if let skyNode = context.skyNode {
+                                    skyNode.execute(context: context)
+                                }
+                            } else {
+                                context.hasHitSomething = true
+
+                                context.normal.fromSIMD(hit.2)
+                                
+                                let p = context.camOrigin + hit.0 * context.rayDir
+                                context.rayPosition.fromSIMD(p)
+                                
+                                if let material = hit.1 {
+                                    context.executeMaterial(material)
+                                }
+                                context.executeRender()
+                            }
                             
                             let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
                             tot += result
@@ -299,11 +246,26 @@ class Renderer
                 } else
                 if renderType == .PathTracer {
                     
-                    context.uv = float2(Float(w) / width, fh)
-                    context.camOffset = float2(Float.random(in: 0...1), Float.random(in: 0...1))
-                    renderPixel()
-                    let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
-                    texArray[w] = result
+                    var tot = float4(0,0,0,0)
+
+                    for i in 0..<1 {
+                        
+                        context.uv = float2(Float(w) / width, fh)
+                        context.camOffset = float2(Float.random(in: 0...1), Float.random(in: 0...1))
+                        if let cameraNode = context.cameraNode {
+                            cameraNode.execute(context: context)
+                        }
+                        
+                        context.rayOrigin.fromSIMD(context.camOrigin)
+                        context.rayDirection.fromSIMD(context.rayDir)
+                        
+                        context.executeRender()
+                        
+                        let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
+                        
+                        tot += result / Float(i+1)
+                    }
+                    texArray[w] = tot
                 }
             }
             
@@ -367,47 +329,6 @@ class Renderer
     func previewRender()
     {
         
-    }
-    
-    /// Calculates the normal for the given hit position
-    @inlinable public func calcNormal(context: GraphContext, position: float3) -> float3
-    {
-        /*
-        vec3 epsilon = vec3(0.001, 0., 0.);
-        
-        vec3 n = vec3(map(p + epsilon.xyy).x - map(p - epsilon.xyy).x,
-                      map(p + epsilon.yxy).x - map(p - epsilon.yxy).x,
-                      map(p + epsilon.yyx).x - map(p - epsilon.yyx).x);
-        
-        return normalize(n);*/
-
-        let e = float3(0.001, 0.0, 0.0)
-
-        var eOff : float3 = position + float3(e.x, e.y, e.y)
-        context.executeSDF(eOff)
-        var n1 = context.rayDist[context.rayIndex]
-        
-        eOff = position - float3(e.x, e.y, e.y)
-        context.executeSDF(eOff)
-        n1 = n1 - context.rayDist[context.rayIndex]
-        
-        eOff = position + float3(e.y, e.x, e.y)
-        context.executeSDF(eOff)
-        var n2 = context.rayDist[context.rayIndex]
-        
-        eOff = position - float3(e.y, e.x, e.y)
-        context.executeSDF(eOff)
-        n2 = n2 - context.rayDist[context.rayIndex]
-        
-        eOff = position + float3(e.y, e.y, e.x)
-        context.executeSDF(eOff)
-        var n3 = context.rayDist[context.rayIndex]
-        
-        eOff = position - float3(e.y, e.y, e.x)
-        context.executeSDF(eOff)
-        n3 = n3 - context.rayDist[context.rayIndex]
-        
-        return simd_normalize(float3(n1, n2, n3))
     }
     
     func startDrawing(_ device: MTLDevice)

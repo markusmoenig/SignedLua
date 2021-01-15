@@ -420,6 +420,12 @@ final class Float4 : BaseVariable
         return toSIMD()
     }
     
+    @inlinable override func toSIMD3() -> SIMD3<Float>
+    {
+        let simd = toSIMD()
+        return float3(simd.x, simd.y, simd.z)
+    }
+    
     @inlinable func toSIMD() -> SIMD4<Float>
     {
         if isConstant() {
