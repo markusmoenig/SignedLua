@@ -241,6 +241,7 @@ final class GraphAnalyticalObject : GraphDistanceNode
         for leave in leaves {
             leave.execute(context: context)
         }
+        
         context.position -= position.toSIMD()
         return .Success
     }

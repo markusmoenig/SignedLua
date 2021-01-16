@@ -165,6 +165,8 @@ class Renderer
         
         // Extract Render Options
         var AA : Int = 1
+        var iterations : Int = 10
+        
         var renderType : GraphNode.NodeRenderType = .Normal
         if let renderNode = context.renderNode {
             renderType = renderNode.renderType
@@ -176,6 +178,17 @@ class Renderer
                         if o.name.lowercased().contains("aliasing") {
                             if let i1 = o.variable as? Int1 {
                                 AA = i1.x
+                            }
+                        }
+                    }
+                }
+            } else {
+                if let line = core.scriptProcessor.getLine(renderNode.lineNr) {
+                    let options = core.scriptProcessor.extractOptionsFromLine(renderNode, line)
+                    for o in options {
+                        if o.name.lowercased().contains("iterations") {
+                            if let i1 = o.variable as? Int1 {
+                                iterations = i1.x
                             }
                         }
                     }
@@ -248,7 +261,7 @@ class Renderer
                     
                     var tot = float4(0,0,0,0)
 
-                    for i in 0..<1 {
+                    for i in 0..<iterations {
                         
                         context.uv = float2(Float(w) / width, fh)
                         context.camOffset = float2(Float.random(in: 0...1), Float.random(in: 0...1))
@@ -256,16 +269,14 @@ class Renderer
                             cameraNode.execute(context: context)
                         }
                         
-                        let sunLight = GraphDirectionalLightNode()
-                        context.lightNodes = [sunLight]
-                        
                         context.executeRender()
                         
                         let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
                         
-                        tot += result / Float(i+1)
+                        let k : Float = Float(i+1)
+                        tot = tot * (1.0 - 1.0/k) + result * (1.0/k)
                     }
-                    texArray[w] = tot
+                    texArray[w] = tot.clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
                 }
             }
             

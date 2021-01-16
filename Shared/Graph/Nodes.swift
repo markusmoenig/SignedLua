@@ -38,15 +38,18 @@ final class GraphVariableAssignmentNode : GraphNode
                     if v.getType() == .Float && (assignmentType == .Multiply || assignmentType == .Divide) {
                         existing.assignFromFloat(from: v, using: assignmentType, upTo: assignmentComponents)
                     } else {
-                        existing.role = expression.isConstant() ? .User : .System
                         existing.assign(from: v, using: assignmentType)
                     }
                 }
             } else {
                 // New variable
                 if let result = expression.execute() {
-                    result.role = expression.isConstant() ? .User : .System
-                    context.variables[givenName] = result
+                    if context.variables[givenName] == nil {
+                        let v = result.createType()
+                        v.role = expression.isConstant() ? .User : .System
+                        context.variables[givenName] = v
+                    }
+                    context.variables[givenName]!.assign(from: result, using: assignmentType)
                 } else {
                     print("Expression result is nil for", givenName, "expression:", expression.expression)
                 }

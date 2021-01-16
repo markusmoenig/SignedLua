@@ -50,7 +50,7 @@ final class GraphPrincipledPathNode : GraphNode
         var emission        = float3(0,0,0)
         var anisotropic     : Float = 0
         var metallic        : Float = 0
-        var roughness       : Float = 0
+        var roughness       : Float = 0.5
         var subsurface      : Float = 0
         var specularTint    : Float = 0
         var sheen           : Float = 0
@@ -58,8 +58,8 @@ final class GraphPrincipledPathNode : GraphNode
         var clearcoat       : Float = 0
         var clearcoatGloss  : Float = 0
         var transmission    : Float = 0
-        var ior             : Float = 0
-        var extinction      = float3(0,0,0)
+        var ior             : Float = 1.45
+        var extinction      = float3(1,1,1)
     }
     
     struct State
@@ -107,27 +107,29 @@ final class GraphPrincipledPathNode : GraphNode
         var pdf                 : Float = 0
     }
     
+    let EPS                     : Float = 0.00001
+    var ctx                     : GraphContext!
+    
+    var maxDepth                : Int = 2
+    
     init(_ options: [String:Any] = [:])
     {
         super.init(.Render, .None, options)
         name = "renderPrincipledBSDF"
-        givenName = "Principled BSDF Pathtracer"
+        givenName = "Principled BSDF"
         renderType = .PathTracer
         leaves = []
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
+        if let value = extractInt1Value(options, container: context, error: &error, name: "maxdepth", isOptional: true) {
+            maxDepth = value.toSIMD()
+        }
     }
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        /*
-        let v = -context.rayDirection.toSIMD()
-        let n = context.normal.toSIMD()
-        //let l = normalize(float3(0.6, 0.7, -0.7))
-        let l = normalize(float3(5, 10, -10))
-        let h = normalize(v + l)
-        let r = normalize(simd_reflect(context.rayDirection.toSIMD(), n))*/
+        ctx = context
         
         var r = Ray(origin: context.rayOrigin.toSIMD(), direction: context.rayDirection.toSIMD())
         
@@ -135,14 +137,12 @@ final class GraphPrincipledPathNode : GraphNode
         var throughput = float3(1, 1, 1)
         
         var state = State()
-        var lightSampleRec = LightSampleRec()
+        //var lightSampleRec = LightSampleRec()
         var bsdfSampleRec = BsdfSampleRec()
-        
-        var maxDepth: Int = 1
-        
+                
         for depth in 0..<maxDepth
         {
-            var lightPdf : Float = 1.0
+            //var lightPdf : Float = 1.0
             state.depth = depth
             
             context.rayOrigin.fromSIMD(r.origin)
@@ -164,15 +164,49 @@ final class GraphPrincipledPathNode : GraphNode
                 return .Success
             }
             
+            context.normal.fromSIMD(hit.2)
+            
             if let material = hit.1 {
                 context.executeMaterial(material)
             }
             
-            radiance += state.mat.emission * throughput;
-
-            //GetNormalsAndTexCoord(state, r);
-            //GetMaterialsAndTextures(state, r);
+            // Fill in state
             
+            let normal = context.normal.toSIMD()
+            state.fhp = r.origin + r.direction * hit.0
+            state.normal = normal
+            state.ffnormal = dot(normal, r.direction) <= 0.0 ? normal : normal * -1.0
+            state.isEmitter = false
+            
+            state.texCoord = context.uv
+            
+            let UpVector = abs(state.ffnormal.z) < 0.999 ? float3(0, 0, 1) : float3(1, 0, 0)
+            state.tangent = normalize(cross(UpVector, state.ffnormal))
+            state.bitangent = cross(normal, state.tangent)
+
+            radiance += state.mat.emission * throughput
+
+            // Fill in materials
+            state.mat.albedo = context.outColor.toSIMD3()
+            if let v = context.getVariableValue("roughness") as? Float1 {
+                state.mat.roughness = v.x
+            } else { state.mat.roughness = 0.5 }
+            
+            if let v = context.getVariableValue("metallic") as? Float1 {
+                state.mat.metallic = v.x
+            } else { state.mat.metallic = 0.0 }
+            
+            if let v = context.getVariableValue("specular") as? Float1 {
+                state.mat.specular = v.x
+            } else { state.mat.specular = 0.0 }
+            
+            if let v = context.getVariableValue("transmission") as? Float1 {
+                state.mat.transmission = v.x
+            } else { state.mat.transmission = 0.0 }
+            
+            state.eta = dot(state.normal, state.ffnormal) > 0.0 ? (1.0 / state.mat.ior) : state.mat.ior
+
+            //
             /*
     #ifdef LIGHTS
             if (state.isEmitter)
@@ -183,7 +217,20 @@ final class GraphPrincipledPathNode : GraphNode
     #endif
     */
             
-            radiance += DirectLight(r, state) * throughput
+            radiance += DirectLight(r, &state) * throughput
+            
+            bsdfSampleRec.bsdfDir = DisneySample(r, &state)
+
+            bsdfSampleRec.pdf = DisneyPdf(r, &state, bsdfSampleRec.bsdfDir)
+            
+            if (bsdfSampleRec.pdf > 0.0) {
+                throughput *= DisneyEval(r, &state, bsdfSampleRec.bsdfDir) * abs(dot(state.ffnormal, bsdfSampleRec.bsdfDir)) / bsdfSampleRec.pdf
+            } else {
+                break
+            }
+            
+            r.direction = bsdfSampleRec.bsdfDir
+            r.origin = state.fhp + r.direction * EPS
         }
     
         context.outColor!.x = pow(radiance.x, 1.0 / 2.2)
@@ -193,10 +240,63 @@ final class GraphPrincipledPathNode : GraphNode
         return .Success
     }
     
-    func DirectLight(_ r: Ray,_ state: State) -> float3
+    func DirectLight(_ r: Ray,_ state: inout State) -> float3
     {
         var L = float3(0, 0, 0)
+        
+        let surfacePos = state.fhp + state.ffnormal * EPS
+        
+        // Analytic Lights
+        
+        if ctx.lightNodes.count == 0 { return L }
+        let light = ctx.lightNodes[Int.random(in: 0..<ctx.lightNodes.count)]
+        
+        light.execute(context: ctx)
+        
+        var lightDir : float3
+        var lightDistSq : Float = 0
 
+        if light.lightType == .Sun {
+            lightDir = light.direction
+            
+            if dot(lightDir, state.ffnormal) <= 0.0 {
+                return L
+            }
+        } else {
+            lightDir = light.surfacePos - surfacePos
+            let lightDist = length(lightDir)
+            lightDistSq = lightDist * lightDist
+            lightDir /= sqrt(lightDistSq)
+            
+            if dot(lightDir, state.ffnormal) <= 0.0 || dot(lightDir, light.normal) >= 0.0 {
+                return L
+            }
+        }
+        
+        ctx.rayOrigin.fromSIMD(surfacePos)
+        ctx.rayDirection.fromSIMD(lightDir)
+
+        let hit = ctx.hit()
+        let inShadow : Bool = hit.0 != Float.greatestFiniteMagnitude
+        
+        if inShadow == false {
+            let bsdfPdf = DisneyPdf(r, &state, lightDir)
+            let f = DisneyEval(r, &state, lightDir)
+            var weight : Float = 1
+            
+            var lightPdf : Float
+
+            if light.lightType == .Sun {
+                lightPdf = 1.0 / 6.87E-2
+                weight = 1.0
+            } else {
+                lightPdf = lightDistSq / (light.area * abs(dot(light.normal, lightDir)))
+                weight = powerHeuristic(lightPdf, bsdfPdf)
+            }
+
+            L += weight * f * abs(dot(state.ffnormal, lightDir)) * light.emission / lightPdf
+        }
+        
         return L
     }
     
@@ -264,7 +364,7 @@ final class GraphPrincipledPathNode : GraphNode
     
     
     //-----------------------------------------------------------------------
-    func DisneyPdf(_ ray: Ray,_ state: inout State) -> float3
+    func DisneySample(_ ray: Ray,_ state: inout State) -> float3
     //-----------------------------------------------------------------------
     {
         let N : float3 = state.ffnormal
@@ -424,9 +524,16 @@ final class GraphPrincipledPathNode : GraphNode
         return simd_mix(brdf, bsdf, float3(state.mat.transmission, state.mat.transmission, state.mat.transmission))
     }
 
+    var seed : Float = 32323.23
+
     func rand() -> Float
     {
         return Float.random(in: 0...1)
+        /*
+        let x1 : Float = dot(float2(seed, seed), float2(12.9898, 78.233))
+        let rc = simd_fract(sin(x1) * Float(43758.5453))
+        seed *= rc
+        return rc*/
     }
     
     //-----------------------------------------------------------------------
@@ -438,7 +545,7 @@ final class GraphPrincipledPathNode : GraphNode
         let phi = r1 * 2.0 * Float.pi
 
         let cosTheta = sqrt((1.0 - r2) / (1.0 + (a * a - 1.0) * r2))
-        let sinTheta = simd_clamp(sqrt(1.0 - (cosTheta * cosTheta)), 0.0, 1.0);
+        let sinTheta = simd_clamp(sqrt(1.0 - (cosTheta * cosTheta)), 0.0, 1.0)
         let sinPhi = sin(phi)
         let cosPhi = cos(phi)
 
@@ -554,7 +661,8 @@ final class GraphPrincipledPathNode : GraphNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption(Int1(1), "Anti-Aliasing", "The anti-aliasing performed by the renderer. Higher values produce more samples and better quality.")
+            GraphOption(Int1(10), "Iterations", "The numer of iterations for the path tracer. The higher, the better quality."),
+            GraphOption(Int1(2), "MaxDepth", "The maximum number of ray bounces.")
         ]
         return options
     }

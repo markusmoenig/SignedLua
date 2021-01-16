@@ -40,7 +40,7 @@ class GraphBuilder
     
     var leaves          : [GraphNodeItem] =
     [
-        GraphNodeItem("analyticalPlane", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalPlaneNode(options) }),
+        GraphNodeItem("analyticalGroundPlane", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalGroundPlaneNode(options) }),
 
         GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSDFSphereNode(options) }),
         GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return GraphSDFBoxNode(options) }),
@@ -299,6 +299,11 @@ class GraphBuilder
                                             } else
                                             if newBranch.context == .Material {
                                                 asset.graph!.materialNodes.append(newBranch)
+                                            } else
+                                            if newBranch.role == .Light {
+                                                if let lightNode = newBranch as? GraphLightNode {
+                                                    asset.graph!.lightNodes.append(lightNode)
+                                                }
                                             }
                                         }
                                         

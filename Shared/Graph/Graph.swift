@@ -140,7 +140,7 @@ final class GraphContext    : VariableContainer
     var sdfNodes            : [GraphNode] = []
     var sdf2DNodes          : [GraphNode] = []
     
-    var lightNodes          : [GraphNode] = []
+    var lightNodes          : [GraphLightNode] = []
 
     var failedAt            : [Int32] = []
     
@@ -194,7 +194,7 @@ final class GraphContext    : VariableContainer
     
     var distance2D          : [Float] = []                      // The distance to a 2D SDF
     var distance2DIndex     : Int = 0
-    
+        
     override init()
     {
         distance2D.append(.greatestFiniteMagnitude)
@@ -217,6 +217,7 @@ final class GraphContext    : VariableContainer
         analyticalNodes = []
         materialNodes = []
         objectNodes = []
+        lightNodes = []
         variables = [:]
         lines = [:]
         
@@ -451,6 +452,7 @@ final class GraphContext    : VariableContainer
     {
         failedAt = []
 
+        bump.x = 0
         material.execute(context: self)
         
         if bump.x != 0.0 {

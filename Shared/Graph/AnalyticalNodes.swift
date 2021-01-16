@@ -9,14 +9,14 @@ import Foundation
 import simd
 
 /// Analytical Plane
-final class GraphAnalyticalPlaneNode : GraphDistanceNode
+final class GraphAnalyticalGroundPlaneNode : GraphDistanceNode
 {
     var normal    : Float3 = Float3(0, 1, 0)
 
     init(_ options: [String:Any] = [:])
     {
         super.init(.Utility, .Analytical, options)
-        name = "analyticalPlane"
+        name = "analyticalGroundPlane"
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
@@ -44,7 +44,7 @@ final class GraphAnalyticalPlaneNode : GraphDistanceNode
     
     override func getHelp() -> String
     {
-        return "Creates a plane."
+        return "Creates a ground plane."
     }
     
     override func getOptions() -> [GraphOption]
