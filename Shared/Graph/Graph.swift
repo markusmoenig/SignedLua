@@ -90,6 +90,10 @@ class GraphNode : Equatable, Identifiable {
         return .Success
     }
     
+    func resetMaterialVariables(context: GraphContext)
+    {
+    }
+    
     /// Get help text
     func getHelp() -> String
     {
@@ -453,6 +457,9 @@ final class GraphContext    : VariableContainer
         failedAt = []
 
         bump.x = 0
+        if let renderNode = renderNode {
+            renderNode.resetMaterialVariables(context: self)
+        }
         material.execute(context: self)
         
         if bump.x != 0.0 {
@@ -488,7 +495,7 @@ final class GraphContext    : VariableContainer
     }
     
     ///
-    func hit() -> (Float, GraphNode?, float3)
+    func hit(shadowRay: Bool = false) -> (Float, GraphNode?, float3)
     {
         var rc : (Float, GraphNode?, float3) = (Float.greatestFiniteMagnitude, nil, float3(0,0,0))
         
@@ -523,7 +530,9 @@ final class GraphContext    : VariableContainer
         if hit && t < analyticalDist {
             rc.0 = t
             let p = camOrigin + t * camDir
-            rc.2 = calcNormal(position: p)
+            if shadowRay == false {
+                rc.2 = calcNormal(position: p)
+            }
 
             if let material = material {
                 rc.1 = material

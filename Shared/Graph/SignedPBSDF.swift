@@ -127,6 +127,29 @@ final class GraphPrincipledPathNode : GraphNode
         }
     }
     
+    override func resetMaterialVariables(context: GraphContext)
+    {
+        context.variables["albedo"] = Float3("albedo", 0.5, 0.5, 0.5)
+        context.variables["specular"] = Float1("specular", 0.5)
+        
+        context.variables["emission"] = Float3("emission", 0, 0, 0)
+        context.variables["anisotropic"] = Float1("anisotropic", 0)
+        
+        context.variables["metallic"] = Float1("metallic", 0)
+        context.variables["roughness"] = Float1("roughness", 0.5)
+        context.variables["subsurface"] = Float1("subsurface", 0)
+        context.variables["specularTint"] = Float1("specularTint", 0)
+        
+        context.variables["sheen"] = Float1("sheen", 0)
+        context.variables["sheenTint"] = Float1("sheenTint", 0)
+        context.variables["clearcoat"] = Float1("clearcoat", 0)
+        context.variables["clearcoatGloss"] = Float1("clearcoatGloss", 0)
+        
+        context.variables["transmission"] = Float1("transmission", 0)
+        context.variables["ior"] = Float1("ior", 1.45)
+        context.variables["extinction"] = Float3("extinction", 1, 1, 1)
+    }
+    
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         ctx = context
@@ -188,22 +211,25 @@ final class GraphPrincipledPathNode : GraphNode
 
             // Fill in materials
             state.mat.albedo = context.outColor.toSIMD3()
-            if let v = context.getVariableValue("roughness") as? Float1 {
-                state.mat.roughness = v.x
-            } else { state.mat.roughness = 0.5 }
+            state.mat.specular = context.variables["specular"]![0]
             
-            if let v = context.getVariableValue("metallic") as? Float1 {
-                state.mat.metallic = v.x
-            } else { state.mat.metallic = 0.0 }
+            state.mat.emission = (context.variables["emission"]! as! Float3).toSIMD()
+            state.mat.anisotropic = context.variables["anisotropic"]![0]
             
-            if let v = context.getVariableValue("specular") as? Float1 {
-                state.mat.specular = v.x
-            } else { state.mat.specular = 0.0 }
+            state.mat.metallic = context.variables["metallic"]![0]
+            state.mat.roughness = context.variables["roughness"]![0]
+            state.mat.subsurface = context.variables["subsurface"]![0]
+            state.mat.specularTint = context.variables["specularTint"]![0]
             
-            if let v = context.getVariableValue("transmission") as? Float1 {
-                state.mat.transmission = v.x
-            } else { state.mat.transmission = 0.0 }
-            
+            state.mat.sheen = context.variables["sheen"]![0]
+            state.mat.sheenTint = context.variables["sheenTint"]![0]
+            state.mat.clearcoat = context.variables["clearcoat"]![0]
+            state.mat.clearcoatGloss = context.variables["clearcoatGloss"]![0]
+
+            state.mat.transmission = context.variables["transmission"]![0]
+            state.mat.ior = context.variables["ior"]![0]
+            state.mat.extinction = (context.variables["extinction"]! as! Float3).toSIMD()
+
             state.eta = dot(state.normal, state.ffnormal) > 0.0 ? (1.0 / state.mat.ior) : state.mat.ior
 
             //
@@ -273,10 +299,11 @@ final class GraphPrincipledPathNode : GraphNode
             }
         }
         
-        ctx.rayOrigin.fromSIMD(surfacePos)
+        lightDir = normalize(lightDir)
+        ctx.rayOrigin.fromSIMD(surfacePos + lightDir * EPS)
         ctx.rayDirection.fromSIMD(lightDir)
 
-        let hit = ctx.hit()
+        let hit = ctx.hit(shadowRay: true)
         let inShadow : Bool = hit.0 != Float.greatestFiniteMagnitude
         
         if inShadow == false {

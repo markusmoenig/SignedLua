@@ -114,7 +114,7 @@ class ExpressionNode {
                     
                     if rightType {
                         var passesRules = false
-                        if options[i].rules == .SameTypeAsPrevious && type != lastType {
+                        if options[i].rules == .SameTypeAsPrevious && type != lastType && lastType != nil {
                             error.error = "Wrong type \(type) for parameter \(i+1) of \(functionName). Needs to be \(lastType!)."
                         } else {
                             passesRules = true
