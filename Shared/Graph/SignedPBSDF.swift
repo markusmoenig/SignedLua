@@ -37,6 +37,10 @@ final class GraphPrincipledPathNode : GraphNode
      * SOFTWARE.
      */
     
+    enum RayType {
+        case Reflection, Refraction
+    }
+    
     struct Ray
     {
         var origin          = float3(0,0,0)
@@ -79,6 +83,7 @@ final class GraphPrincipledPathNode : GraphNode
         var texCoord        = float2(0,0)
         var bary            = float3(0,0,0)
         
+        var rayType         : RayType = .Reflection
         //ivec3 triID;
         //int matID;
         var mat             = Material()
@@ -111,6 +116,8 @@ final class GraphPrincipledPathNode : GraphNode
     var ctx                     : GraphContext!
     
     var maxDepth                : Int = 2
+    
+    let preview = true
     
     init(_ options: [String:Any] = [:])
     {
@@ -203,9 +210,13 @@ final class GraphPrincipledPathNode : GraphNode
             
             state.texCoord = context.uv
             
+            //state.tangent = cross(state.ffnormal, float3(1,0,1))
+            //state.tangent = normalize(cross(state.ffnormal, state.tangent))
+            //state.bitangent = normalize(cross(state.ffnormal,state.tangent))
+            
             let UpVector = abs(state.ffnormal.z) < 0.999 ? float3(0, 0, 1) : float3(1, 0, 0)
             state.tangent = normalize(cross(UpVector, state.ffnormal))
-            state.bitangent = cross(normal, state.tangent)
+            state.bitangent = cross(state.ffnormal, state.tangent)
 
             radiance += state.mat.emission * throughput
 
@@ -245,7 +256,7 @@ final class GraphPrincipledPathNode : GraphNode
             
             radiance += DirectLight(r, &state) * throughput
             
-            bsdfSampleRec.bsdfDir = DisneySample(r, &state)
+            bsdfSampleRec.bsdfDir = DisneySample(r, &state)// simd_reflect(r.direction, state.ffnormal)
 
             bsdfSampleRec.pdf = DisneyPdf(r, &state, bsdfSampleRec.bsdfDir)
             
@@ -275,7 +286,7 @@ final class GraphPrincipledPathNode : GraphNode
         // Analytic Lights
         
         if ctx.lightNodes.count == 0 { return L }
-        let light = ctx.lightNodes[Int.random(in: 0..<ctx.lightNodes.count)]
+        let light = ctx.lightNodes[0]//Int.random(in: 0..<ctx.lightNodes.count)]
         
         light.execute(context: ctx)
         
@@ -306,7 +317,7 @@ final class GraphPrincipledPathNode : GraphNode
         let hit = ctx.hit(shadowRay: true)
         let inShadow : Bool = hit.0 != Float.greatestFiniteMagnitude
         
-        if inShadow == false {
+        if inShadow == false || inShadow == true {
             let bsdfPdf = DisneyPdf(r, &state, lightDir)
             let f = DisneyEval(r, &state, lightDir)
             var weight : Float = 1
@@ -335,35 +346,33 @@ final class GraphPrincipledPathNode : GraphNode
         let V = -ray.direction
         let L = bsdfDir
         var H = float3(0,0,0)
+        
+        if state.rayType == .Refraction {
+            H = normalize(L + V * state.eta)
+        } else {
+            H = normalize(L + V)
+        }
+
+        let NDotH = abs(dot(N, H))
+        let VDotH = abs(dot(V, H))
+        let LDotH = abs(dot(L, H))
+        let NDotL = abs(dot(N, L))
 
         let specularAlpha = max(0.001, state.mat.roughness)
 
-        // Transmission
-        if (dot(N, L) <= 0.0)
+        // Handle transmission separately
+        if (state.rayType == .Refraction)
         {
-            /*
-            H = -simd_normalize(L + V * state.eta)
-            L = -L
-
-            let NDotH = abs(dot(N, H))
-            let VDotH = abs(dot(V, H))
-            let LDotH = abs(dot(L, H))
-
             let pdfGTR2 = GTR2(NDotH, specularAlpha) * NDotH
             let F = DielectricFresnel(LDotH, state.eta)
-            let denomSqrt = LDotH + VDotH * state.eta*/
-            //return pdfGTR2 * (1.0 - F) * VDotH / (denomSqrt * denomSqrt);
-            return 1.0
+            let denomSqrt = LDotH + VDotH * state.eta
+            return pdfGTR2 * (1.0 - F) * LDotH / (denomSqrt * denomSqrt)
         }
 
         // Reflection
-        //var brdfPdf     : Float = 0.0
-        var bsdfPdf     : Float = 0.0
+        var brdfPdf : Float = 0.0
+        var bsdfPdf : Float = 0.0
 
-        H = normalize(L + V)
-
-        let NDotH = abs(dot(N, H))
-        
         let clearcoatAlpha = simd_mix(0.1, 0.001, state.mat.clearcoatGloss)
 
         let diffuseRatio = 0.5 * (1.0 - state.mat.metallic)
@@ -377,16 +386,16 @@ final class GraphPrincipledPathNode : GraphNode
         let pdfGTR2_aniso = GTR2_aniso(NDotH, dot(H, state.tangent), dot(H, state.bitangent), ax, ay) * NDotH
         let pdfGTR1 = GTR1(NDotH, clearcoatAlpha) * NDotH
         let ratio = 1.0 / (1.0 + state.mat.clearcoat)
-        let pdfSpec = simd_mix(pdfGTR1, pdfGTR2_aniso, ratio) / (4.0 * abs(dot(V, H)))
-        let pdfDiff = abs(dot(L, N)) * (1.0 / Float.pi)
-        let brdfPdf = diffuseRatio * pdfDiff + specularRatio * pdfSpec
+        let pdfSpec = simd_mix(pdfGTR1, pdfGTR2_aniso, ratio) / (4.0 * VDotH)
+        let pdfDiff = NDotL * (1.0 / Float.pi)
+        brdfPdf = diffuseRatio * pdfDiff + specularRatio * pdfSpec
 
         // PDFs for bsdf
         let pdfGTR2 = GTR2(NDotH, specularAlpha) * NDotH
-        let F = DielectricFresnel(abs(dot(L, H)), state.eta);
-        bsdfPdf = pdfGTR2 * F / (4.0 * abs(dot(V, H)));
+        let F = DielectricFresnel(LDotH, state.eta)
+        bsdfPdf = pdfGTR2 * F / (4.0 * VDotH)
 
-        return simd_mix(brdfPdf, bsdfPdf, state.mat.transmission);
+        return simd_mix(brdfPdf, bsdfPdf, state.mat.transmission)
     }
     
     
@@ -397,14 +406,15 @@ final class GraphPrincipledPathNode : GraphNode
         let N : float3 = state.ffnormal
         let V = -ray.direction
         state.specularBounce = false
+        state.rayType = .Reflection
 
         var dir = float3(0,0,0)
 
-        let r1 = rand()
-        let r2 = rand()
+        let r1 = ctx.rand()
+        let r2 = ctx.rand()
 
         // BSDF
-        if (rand() < state.mat.transmission)
+        if (ctx.rand() < state.mat.transmission)
         {
             var H : float3 = ImportanceSampleGGX(state.mat.roughness, r1, r2)
             H = state.tangent * H.x
@@ -416,11 +426,14 @@ final class GraphPrincipledPathNode : GraphNode
 
             let F = DielectricFresnel(theta, state.eta)
 
-            if cos2t < 0.0 || rand() < F {
+            // Reflection/Total internal reflection
+            if cos2t < 0.0 || ctx.rand() < F {
                 dir = normalize(simd_reflect(-V, H))
             } else {
+                // Transmission
                 dir = normalize(simd_refract(-V, H, state.eta))
                 state.specularBounce = true
+                state.rayType = .Refraction
             }
         }
         // BRDF
@@ -428,7 +441,7 @@ final class GraphPrincipledPathNode : GraphNode
         {
             let diffuseRatio = 0.5 * (1.0 - state.mat.metallic)
 
-            if rand() < diffuseRatio {
+            if ctx.rand() < diffuseRatio {
                 var H = CosineSampleHemisphere(r1, r2)
                 H = state.tangent * H.x
                 H += state.bitangent * H.y
@@ -451,17 +464,23 @@ final class GraphPrincipledPathNode : GraphNode
     {
         let N = state.ffnormal
         let V = -ray.direction
-        var L = bsdfDir
+        let L = bsdfDir
         var H = normalize(L + V)
 
-        var brdf = float3(0, 0, 0)
-        var bsdf = float3(0, 0, 0)
+        if state.rayType == .Refraction {
+            H = normalize(L + V * state.eta)
+        } else {
+            H = normalize(L + V)
+        }
 
         let NDotL = dot(N, L)
         let NDotV = dot(N, V)
         let NDotH = dot(N, H)
-        //let VDotH = dot(V, H)
+        let VDotH = dot(V, H)
         let LDotH = dot(L, H)
+        
+        var brdf = float3(0, 0, 0)
+        var bsdf = float3(0, 0, 0)
 
         if (state.mat.transmission > 0.0)
         {
@@ -476,30 +495,17 @@ final class GraphPrincipledPathNode : GraphNode
 
             let a = max(0.001, state.mat.roughness)
             
-            if (dot(N, L) <= 0.0)
-            {
-                H = -normalize(L + V * state.eta)
-                L = -L
-
-                //let LDotH = dot(L, H)
-                //let VDotH = dot(V, H)
-                //let NDotH = dot(N, H)
-                let NDotL = dot(N, L)
-                //let NDotV = dot(N, V)
-
-                //let F = DielectricFresnel(abs(LDotH), state.eta)
-                //let D = GTR2(NDotH, a);
-                //let G = SmithG_GGX(NDotL, a) * SmithG_GGX(NDotV, a)
-
-                //let denomSqrt = LDotH + VDotH * state.eta
-                // TODO: Fix issue with shading normals: https://blog.yiningkarlli.com/2015/01/consistent-normal-interpolation.html
-                // bsdf = state.mat.albedo * transmittance * (1.0 - F) * G * D * VDotH * LDotH * 4.0 / (denomSqrt * denomSqrt);
-                bsdf = state.mat.albedo / NDotL
+            let F = DielectricFresnel(abs(LDotH), state.eta)
+            let D = GTR2(NDotH, a)
+            let G = SmithG_GGX(NDotL, a) * SmithG_GGX(NDotV, a)
+            
+            // TODO: Include subsurface scattering
+            if state.rayType == .Refraction {
+                let denomSqrt = LDotH + VDotH * state.eta
+                bsdf = state.mat.albedo * transmittance * (1.0 - F) * D * G
+                bsdf *= VDotH * LDotH * 4.0 / (denomSqrt * denomSqrt)
             } else {
-                let F = DielectricFresnel(abs(LDotH), state.eta)
-                let D = GTR2(NDotH, a)
-                let G = SmithG_GGX(NDotL, a) * SmithG_GGX(NDotV, a)
-                bsdf = state.mat.albedo * transmittance * F * G * D
+                bsdf = state.mat.albedo * transmittance * F * D * G;
             }
         }
 
@@ -549,18 +555,6 @@ final class GraphPrincipledPathNode : GraphNode
         }
 
         return simd_mix(brdf, bsdf, float3(state.mat.transmission, state.mat.transmission, state.mat.transmission))
-    }
-
-    var seed : Float = 32323.23
-
-    func rand() -> Float
-    {
-        return Float.random(in: 0...1)
-        /*
-        let x1 : Float = dot(float2(seed, seed), float2(12.9898, 78.233))
-        let rc = simd_fract(sin(x1) * Float(43758.5453))
-        seed *= rc
-        return rc*/
     }
     
     //-----------------------------------------------------------------------

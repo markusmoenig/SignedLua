@@ -223,6 +223,10 @@ class Renderer
                             }
 
                             context.uv = float2(Float(w) / width, fh)
+                            context.seed = context.uv
+                            context.randomVector.x = Float.random(in: 0...1)
+                            context.randomVector.y = Float.random(in: 0...1)
+                            context.randomVector.z = Float.random(in: 0...1)
                             context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
 
                             if let cameraNode = context.cameraNode {
@@ -264,6 +268,10 @@ class Renderer
                     for i in 0..<iterations {
                         
                         context.uv = float2(Float(w) / width, fh)
+                        context.seed = context.uv
+                        context.randomVector.x = Float.random(in: 0...1)
+                        context.randomVector.y = Float.random(in: 0...1)
+                        context.randomVector.z = Float.random(in: 0...1)
                         context.camOffset = float2(Float.random(in: 0...1), Float.random(in: 0...1))
                         if let cameraNode = context.cameraNode {
                             cameraNode.execute(context: context)

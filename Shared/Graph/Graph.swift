@@ -164,6 +164,8 @@ final class GraphContext    : VariableContainer
 
     // Graph Values used for rendering
     
+    var seed                = float2(0,0)                       // random seed
+    var randomVector        = float3()
     var uv                  = float2(0,0)                       // UV coordinate (0..1)
     var viewSize            = float2(0,0)                       // Size of the view
 
@@ -505,7 +507,7 @@ final class GraphContext    : VariableContainer
         // Analytical Objects
         executeAnalytical()
         
-        let maxDist : Float = simd_min(12.0, analyticalDist)
+        let maxDist : Float = analyticalDist//12.0//simd_min(12.0, analyticalDist)
         var material : GraphNode? = nil
 
         // Raymarch
@@ -684,6 +686,17 @@ final class GraphContext    : VariableContainer
         n3 = n3 - rayDist[rayIndex]
         
         return simd_normalize(float3(n1, n2, n3))
+    }
+    
+    func rand() -> Float
+    {
+        //return 0.5
+
+        //return Float.random(in: 0...1)
+        seed.x -= randomVector.x
+        seed.y -= randomVector.y
+        let x = sin(dot(seed, float2(12.9898, 78.233)))
+        return simd_fract(x * Float(43758.5453))
     }
     
     func debug()

@@ -54,7 +54,7 @@ final class GraphPBRNode : GraphNode
         let diffuseColor = (1.0 - metallic) * baseColor
         let f0 = float3(repeating: 0.04 * (1.0 - metallic) * metallic)
 
-        let attenuation : Float = context.shadowRay(context.rayPosition!.toSIMD(), l)
+        let attenuation : Float = 1.0//context.shadowRay(context.rayPosition!.toSIMD(), l)
         
         // specular BRDF
         let D = D_GGX(linearRoughness, NoH, h)
@@ -72,7 +72,7 @@ final class GraphPBRNode : GraphNode
         let indirectDiffuse = Irradiance_SphericalHarmonics(n) * Fd_Lambert()
         
         //vec2 indirectHit = traceRay(position, r);
-        let indirectSpecular = context.castRay(context.rayPosition!.toSIMD(), r)
+        let indirectSpecular = float3(0,0,0)//context.castRay(context.rayPosition!.toSIMD(), r)
         
         // indirect contribution
         let dfg = PrefilteredDFG_Karis(roughness, NoV)

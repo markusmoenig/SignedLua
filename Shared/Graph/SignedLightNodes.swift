@@ -119,8 +119,8 @@ final class GraphSphereLightNode : GraphLightNode {
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        let r1 = Float.random(in: 0...1)
-        let r2 = Float.random(in: 0...1)
+        let r1 : Float = context.rand()
+        let r2 : Float = context.rand()
 
         let r = radius.toSIMD()
         surfacePos = position.toSIMD() + UniformSampleSphere(r1, r2) * r
