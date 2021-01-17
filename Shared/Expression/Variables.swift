@@ -5,7 +5,7 @@
 //  Created by Markus Moenig on 18/12/20.
 //
 
-import Foundation
+import MetalKit
 
 class VariableContainer
 {

@@ -298,12 +298,11 @@ final class GraphCameraNode : GraphBaseCameraNode
     
     func generateRay(context: GraphContext)
     {
-        let r1 = 2.0 * context.rand()
-        let r2 = 2.0 * context.rand()
+        let r2D = 2.0 * context.rand2()
 
         var jitter = float2()
-        jitter.x = r1 < 1.0 ? sqrt(r1) - 1.0 : 1.0 - sqrt(2.0 - r1)
-        jitter.y = r2 < 1.0 ? sqrt(r2) - 1.0 : 1.0 - sqrt(2.0 - r2)
+        jitter.x = r2D.x < 1.0 ? sqrt(r2D.x) - 1.0 : 1.0 - sqrt(2.0 - r2D.x)
+        jitter.y = r2D.y < 1.0 ? sqrt(r2D.y) - 1.0 : 1.0 - sqrt(2.0 - r2D.y)
 
         jitter /= (context.viewSize * 0.5)
         var d = (2.0 * context.uv - 1.0) + jitter

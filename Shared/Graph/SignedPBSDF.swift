@@ -219,7 +219,10 @@ final class GraphPrincipledPathNode : GraphNode
             state.bitangent = cross(state.ffnormal, state.tangent)
 
             // Fill in materials
-            state.mat.albedo = context.outColor.toSIMD3()
+            let albedo = context.outColor.toSIMD3()
+            state.mat.albedo.x = pow(albedo.x, 2.2)
+            state.mat.albedo.y = pow(albedo.y, 2.2)
+            state.mat.albedo.z = pow(albedo.z, 2.2)
             state.mat.specular = context.variables["specular"]![0]
             
             state.mat.emission = (context.variables["emission"]! as! Float3).toSIMD()
@@ -419,13 +422,12 @@ final class GraphPrincipledPathNode : GraphNode
 
         var dir = float3(0,0,0)
 
-        let r1 = ctx.rand()
-        let r2 = ctx.rand()
+        let r2D = ctx.rand2()
 
         // BSDF
         if (ctx.rand() < state.mat.transmission)
         {
-            var H : float3 = ImportanceSampleGGX(state.mat.roughness, r1, r2)
+            var H : float3 = ImportanceSampleGGX(state.mat.roughness, r2D.x, r2D.y)
             H = state.tangent * H.x
             H += state.bitangent * H.y
             H += N * H.z
@@ -451,13 +453,13 @@ final class GraphPrincipledPathNode : GraphNode
             let diffuseRatio = 0.5 * (1.0 - state.mat.metallic)
 
             if ctx.rand() < diffuseRatio {
-                var H = CosineSampleHemisphere(r1, r2)
+                var H = CosineSampleHemisphere(r2D.x, r2D.y)
                 H = state.tangent * H.x
                 H += state.bitangent * H.y
                 H += N * H.z
                 dir = H
             } else {
-                var H = ImportanceSampleGGX(state.mat.roughness, r1, r2)
+                var H = ImportanceSampleGGX(state.mat.roughness, r2D.x, r2D.y)
                 H = state.tangent * H.x
                 H += state.bitangent * H.y
                 H += N * H.z

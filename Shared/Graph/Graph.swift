@@ -102,7 +102,7 @@ class GraphNode : Equatable, Identifiable {
     
     // The material for the node, if any
     var materialNode        : GraphNode? = nil
-    
+        
     init(_ role: NodeRole,_ context: NodeContext,_ options: [String:Any] = [:])
     {
         self.role = role
@@ -201,8 +201,6 @@ final class GraphContext    : VariableContainer
 
     // Graph Values used for rendering
     
-    var seed                = float2(0,0)                       // random seed
-    var randomVector        = float3()
     var uv                  = float2(0,0)                       // UV coordinate (0..1)
     var viewSize            = float2(0,0)                       // Size of the view
 
@@ -238,6 +236,9 @@ final class GraphContext    : VariableContainer
     var distance2D          : [Float] = []                      // The distance to a 2D SDF
     var distance2DIndex     : Int = 0
         
+    var sampler             = BestCandidateSampler1D()
+    var sampler2D           = BestCandidateSampler2D()
+
     override init()
     {
         distance2D.append(.greatestFiniteMagnitude)
@@ -727,13 +728,14 @@ final class GraphContext    : VariableContainer
     
     func rand() -> Float
     {
-        //return 0.5
-
         //return Float.random(in: 0...1)
-        seed.x -= randomVector.x
-        seed.y -= randomVector.y
-        let x = sin(dot(seed, float2(12.9898, 78.233)))
-        return simd_fract(x * Float(43758.5453))
+        return sampler.getSample(uv.x * uv.y)
+    }
+    
+    func rand2() -> float2
+    {
+        let seed = Float.random(in: 0...1)
+        return sampler2D.getSample(float2(seed, seed))
     }
     
     func debug()
