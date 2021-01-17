@@ -218,8 +218,6 @@ final class GraphPrincipledPathNode : GraphNode
             state.tangent = normalize(cross(UpVector, state.ffnormal))
             state.bitangent = cross(state.ffnormal, state.tangent)
 
-            radiance += state.mat.emission * throughput
-
             // Fill in materials
             state.mat.albedo = context.outColor.toSIMD3()
             state.mat.specular = context.variables["specular"]![0]
@@ -243,16 +241,16 @@ final class GraphPrincipledPathNode : GraphNode
 
             state.eta = dot(state.normal, state.ffnormal) > 0.0 ? (1.0 / state.mat.ior) : state.mat.ior
 
-            //
-            /*
-    #ifdef LIGHTS
-            if (state.isEmitter)
-            {
-                radiance += EmitterSample(r, state, lightSampleRec, bsdfSampleRec) * throughput;
-                break;
+            radiance += state.mat.emission * throughput
+
+            // Light
+            if state.mat.emission.x > 0 || state.mat.emission.y > 0 || state.mat.emission.z > 0 {
+                //radiance += float3(1,0,0) * throughput
+                //radiance += EmitterSample(r, state, lightSampleRec, bsdfSampleRec) * throughput;
+                break
             }
-    #endif
-    */
+            
+            //
             
             radiance += DirectLight(r, &state) * throughput
             
@@ -286,26 +284,30 @@ final class GraphPrincipledPathNode : GraphNode
         // Analytic Lights
         
         if ctx.lightNodes.count == 0 { return L }
-        let light = ctx.lightNodes[0]//Int.random(in: 0..<ctx.lightNodes.count)]
         
-        light.execute(context: ctx)
-        
+        let lightNode = ctx.lightNodes[Int.random(in: 0..<ctx.lightNodes.count)]
+
+        guard let lightInfo = lightNode.sampleLight(context: ctx) else {
+            print("failed to sample light")
+            return L
+        }
+                
         var lightDir : float3
         var lightDistSq : Float = 0
 
-        if light.lightType == .Sun {
-            lightDir = light.direction
+        if lightInfo.lightType == .Sun {
+            lightDir = lightInfo.direction
             
             if dot(lightDir, state.ffnormal) <= 0.0 {
                 return L
             }
         } else {
-            lightDir = light.surfacePos - surfacePos
+            lightDir = lightInfo.surfacePos - surfacePos
             let lightDist = length(lightDir)
             lightDistSq = lightDist * lightDist
             lightDir /= sqrt(lightDistSq)
             
-            if dot(lightDir, state.ffnormal) <= 0.0 || dot(lightDir, light.normal) >= 0.0 {
+            if dot(lightDir, state.ffnormal) <= 0.0 || dot(lightDir, lightInfo.normal) >= 0.0 {
                 return L
             }
         }
@@ -315,24 +317,32 @@ final class GraphPrincipledPathNode : GraphNode
         ctx.rayDirection.fromSIMD(lightDir)
 
         let hit = ctx.hit(shadowRay: true)
-        let inShadow : Bool = hit.0 != Float.greatestFiniteMagnitude
+        var inShadow : Bool = false
+            
+        if lightInfo.lightType == .Sun {
+            inShadow = hit.0 != Float.greatestFiniteMagnitude
+        } else {
+            if let material = hit.1 as? GraphMaterialNode {
+                inShadow = material.isEmitter == false
+            }
+        }
         
-        if inShadow == false || inShadow == true {
+        if inShadow == false {
             let bsdfPdf = DisneyPdf(r, &state, lightDir)
             let f = DisneyEval(r, &state, lightDir)
             var weight : Float = 1
             
             var lightPdf : Float
 
-            if light.lightType == .Sun {
+            if lightInfo.lightType == .Sun {
                 lightPdf = 1.0 / 6.87E-2
                 weight = 1.0
             } else {
-                lightPdf = lightDistSq / (light.area * abs(dot(light.normal, lightDir)))
+                lightPdf = lightDistSq / (lightInfo.area * abs(dot(lightInfo.normal, lightDir)))
                 weight = powerHeuristic(lightPdf, bsdfPdf)
             }
 
-            L += weight * f * abs(dot(state.ffnormal, lightDir)) * light.emission / lightPdf
+            L += weight * f * abs(dot(state.ffnormal, lightDir)) * lightInfo.emission / lightPdf
         }
         
         return L
@@ -397,7 +407,6 @@ final class GraphPrincipledPathNode : GraphNode
 
         return simd_mix(brdfPdf, bsdfPdf, state.mat.transmission)
     }
-    
     
     //-----------------------------------------------------------------------
     func DisneySample(_ ray: Ray,_ state: inout State) -> float3

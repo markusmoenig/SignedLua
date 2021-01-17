@@ -264,7 +264,10 @@ final class GraphAnalyticalObject : GraphDistanceNode
 final class GraphMaterialNode : GraphNode
 {
     /// Material has displacement
-    var hasDisplacement  : Bool = false
+    var hasDisplacement : Bool = false
+
+    /// Material emits light
+    var isEmitter       : Bool = false
 
     /// Material should only output displacement
     var onlyDisplacement : Bool = false

@@ -13,7 +13,7 @@ final class GraphBoolMergeNode : GraphNode
 {
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Utility, . SDF, options)
+        super.init(.Boolean, .SDF, options)
         name = "boolMerge"
     }
     

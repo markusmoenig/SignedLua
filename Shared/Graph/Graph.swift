@@ -37,6 +37,29 @@ class GraphOption : Equatable, Identifiable {
     }
 }
 
+class GraphLightInfo {
+
+    enum LightType {
+        case Sun, Spherical, Rect
+    }
+    
+    var lightType       : LightType
+    
+    var surfacePos      = float3(0,0,0)
+    var normal          = float3(0,0,0)
+    var emission        = float3(0,0,0)
+    
+    var area            : Float = 1
+    
+    // For directional lights
+    var direction       = float3(0,0,0)
+    
+    init(_ lightType: LightType)
+    {
+        self.lightType = lightType
+    }
+}
+
 class GraphNode : Equatable, Identifiable {
     
     enum Result {
@@ -44,7 +67,7 @@ class GraphNode : Equatable, Identifiable {
     }
     
     enum NodeRole {
-        case Camera, Sky, Utility, Variable, Render, Light
+        case Camera, Sky, Utility, Variable, Render, Light, Boolean, SDF
     }
     
     enum NodeContext {
@@ -73,6 +96,13 @@ class GraphNode : Equatable, Identifiable {
     // Options
     var options             : [String:Any]
     
+    // Hierarchy
+    var rootNode            : GraphNode? = nil
+    var parentNode          : GraphNode? = nil
+    
+    // The material for the node, if any
+    var materialNode        : GraphNode? = nil
+    
     init(_ role: NodeRole,_ context: NodeContext,_ options: [String:Any] = [:])
     {
         self.role = role
@@ -90,6 +120,13 @@ class GraphNode : Equatable, Identifiable {
         return .Success
     }
     
+    /// Implemented by renderers to init / reset the material variables
+    func sampleLight(context: GraphContext) -> GraphLightInfo?
+    {
+        return nil
+    }
+    
+    /// Implemented by renderers to init / reset the material variables
     func resetMaterialVariables(context: GraphContext)
     {
     }
@@ -144,7 +181,7 @@ final class GraphContext    : VariableContainer
     var sdfNodes            : [GraphNode] = []
     var sdf2DNodes          : [GraphNode] = []
     
-    var lightNodes          : [GraphLightNode] = []
+    var lightNodes          : [GraphNode] = []
 
     var failedAt            : [Int32] = []
     
@@ -190,7 +227,7 @@ final class GraphContext    : VariableContainer
     var insideShadowRay     : Bool = false
     
     var hasHitSomething     : Bool = false
-    
+        
     // SDF Raymarching
     
     var rayDist             : [Float] = []

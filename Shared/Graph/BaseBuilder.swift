@@ -308,7 +308,6 @@ class GraphBuilder
                                         }
                                         
                                         if currentBranch.count == 0 {
-                                            //currentTree?.leaves.append(newBranch)
                                             currentBranch.append(newBranch)
                                             
                                             newBranch.lineNr = error.line!
@@ -335,12 +334,27 @@ class GraphBuilder
                                     
                                     if error.error == nil {
                                         if let branch = currentBranch.last {
-                                            let behaviorNode = leave.createNode(nodeOptions)
-                                            behaviorNode.verifyOptions(context: asset.graph!, error: &error)
+                                            let node = leave.createNode(nodeOptions)
+                                            node.verifyOptions(context: asset.graph!, error: &error)
                                             if error.error == nil {
-                                                behaviorNode.lineNr = error.line!
-                                                branch.leaves.append(behaviorNode)
-                                                asset.graph!.lines[error.line!] = behaviorNode
+                                                
+                                                node.rootNode = currentBranch.first
+                                                node.parentNode = branch
+                                                
+                                                if node.context == .SDF && node.role == .SDF {
+                                                    node.rootNode!.execute(context: graph)
+                                                    if let material = graph.activeMaterial as? GraphMaterialNode {
+                                                        node.materialNode = material
+                                                        if material.isEmitter {
+                                                            // Material is emitter, add it to the lightNodes
+                                                            graph.lightNodes.append(node)
+                                                        }
+                                                    }
+                                                }
+
+                                                node.lineNr = error.line!
+                                                branch.leaves.append(node)
+                                                asset.graph!.lines[error.line!] = node
                                                 processed = true
                                             }
                                         } else { createError("Leaf node without active branch") }
@@ -364,6 +378,9 @@ class GraphBuilder
                                 if let material = currentBranch.first as? GraphMaterialNode {
                                     if variableName == "displacement" {
                                         material.hasDisplacement = true
+                                    } else
+                                    if variableName == "emission" {
+                                        material.isEmitter = true
                                     }
                                 }
                                 

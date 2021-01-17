@@ -15,7 +15,7 @@ final class GraphSDFSphereNode : GraphDistanceNode
 
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Utility, .SDF, options)
+        super.init(.SDF, .SDF, options)
         name = "sdfSphere"
     }
     
@@ -39,6 +39,42 @@ final class GraphSDFSphereNode : GraphDistanceNode
         return .Success
     }
     
+    @inlinable public override func sampleLight(context: GraphContext) -> GraphLightInfo?
+    {
+        let light = GraphLightInfo(.Spherical)
+        
+        let r1 : Float = context.rand()
+        let r2 : Float = context.rand()
+
+        let r = radius.toSIMD()
+        light.surfacePos = position.toSIMD() + UniformSampleSphere(r1, r2) * r
+        light.normal = simd_normalize(light.surfacePos - position.toSIMD())
+        
+        if let material = materialNode {
+            material.execute(context: context)
+        }
+        if let emission = context.variables["emission"]! as? Float3 {
+            light.emission = emission.toSIMD()// * float(numOfLights)
+        }
+        
+        light.area = 4.0 * Float.pi * r * r
+        
+        return light
+    }
+    
+    //-----------------------------------------------------------------------
+    func UniformSampleSphere(_ u1: Float,_ u2: Float) -> float3
+    //-----------------------------------------------------------------------
+    {
+        let z = 1.0 - 2.0 * u1
+        let r = sqrt(max(0.0, 1.0 - z * z))
+        let phi = 2.0 * Float.pi * u2
+        let x = r * cos(phi)
+        let y = r * sin(phi)
+
+        return float3(x, y, z)
+    }
+    
     override func getHelp() -> String
     {
         return "Creates a sphere of a given radius."
@@ -60,7 +96,7 @@ final class GraphSDFBoxNode : GraphDistanceNode
 
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Utility, .SDF, options)
+        super.init(.SDF, .SDF, options)
         name = "sdfBox"
     }
     
