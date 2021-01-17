@@ -548,24 +548,42 @@ final class GraphContext    : VariableContainer
         let maxDist : Float = analyticalDist//12.0//simd_min(12.0, analyticalDist)
         var material : GraphNode? = nil
 
+        var filteredNodes : [GraphNode] = []
+        
+        for n in sdfNodes {
+            if let sdf = n as? GraphSDFObject {
+                if sdf.isVisible(camOrigin, camDir) {
+                    filteredNodes.append(sdf)
+                }
+            }
+        }
+        
+        let backup = sdfNodes
+        sdfNodes = filteredNodes
+        
         // Raymarch
         var hit = false
         var t : Float = 0.001;
-        for _ in 0..<70
-        {
-            executeSDF(camOrigin + t * camDir)
 
-            if abs(rayDist[rayIndex]) < (0.0001*t) {
-                hit = true
-                material = hitMaterial[rayIndex]
-                break
-            } else
-            if t > maxDist {
-                break
+        if filteredNodes.isEmpty == false {
+            for _ in 0..<70
+            {
+                executeSDF(camOrigin + t * camDir)
+
+                if abs(rayDist[rayIndex]) < (0.0001*t) {
+                    hit = true
+                    material = hitMaterial[rayIndex]
+                    break
+                } else
+                if t > maxDist {
+                    break
+                }
+                
+                t += rayDist[rayIndex]
             }
-            
-            t += rayDist[rayIndex]
         }
+        
+        sdfNodes = backup
         
         if hit && t < analyticalDist {
             rc.0 = t

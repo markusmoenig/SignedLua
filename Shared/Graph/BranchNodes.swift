@@ -45,11 +45,6 @@ class GraphDistanceNode : GraphNode
 final class GraphSDFObject : GraphDistanceNode
 {
     var maxBox        : Float3? = nil
-    
-    var maxBufferRo   = float3(0,0,0)
-    var maxBufferRd   = float3(0,0,0)
-    var maxBuffer     = false
-
     var positionStore : Float3!
     
     var materialName  : String? = nil
@@ -79,37 +74,25 @@ final class GraphSDFObject : GraphDistanceNode
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         context.position += position.toSIMD()
-        
-        var processIt = true
-        
-        if maxBox != nil {
-            if maxBufferRo == context.rayOrigin.toSIMD() && maxBufferRd == context.rayDirection.toSIMD() {
-                processIt = maxBuffer
-            } else
-            if intersect(context, maxDimensions: maxBox!.toSIMD3()) == false {
-                processIt = false
-            }
-        }
-            
-        if processIt {
-            if let materialName = materialName {
-                context.activeMaterial = context.getMaterial(materialName)
-                if let material = context.activeMaterial as? GraphMaterialNode {
-                    if material.hasDisplacement {
-                        material.onlyDisplacement = true
-                        material.execute(context: context)
-                        material.onlyDisplacement = false
-                    }
+                    
+        if let materialName = materialName {
+            context.activeMaterial = context.getMaterial(materialName)
+            if let material = context.activeMaterial as? GraphMaterialNode {
+                if material.hasDisplacement {
+                    material.onlyDisplacement = true
+                    material.execute(context: context)
+                    material.onlyDisplacement = false
                 }
-            } else {
-                context.activeMaterial = nil
-                context.displacement.fromSIMD(0)
             }
-            
-            for leave in leaves {
-                leave.execute(context: context)
-            }
+        } else {
+            context.activeMaterial = nil
+            context.displacement.fromSIMD(0)
         }
+        
+        for leave in leaves {
+            leave.execute(context: context)
+        }
+        
         context.position -= position.toSIMD()
         return .Success
     }
@@ -127,14 +110,18 @@ final class GraphSDFObject : GraphDistanceNode
         return options + GraphDistanceNode.getObjectOptions()
     }
     
-    func intersect(_ context: GraphContext, maxDimensions: float3) -> Bool
+    /// Checks if the object is visible by testing against its (optional) bbox
+    func isVisible(_ ro: float3,_ rd: float3) -> Bool {
+        if maxBox != nil {
+            return intersect(ro, rd, maxDimensions: maxBox!.toSIMD3())
+        } else {
+            return true
+        }
+    }
+    
+    /// Ray - Box intersection
+    func intersect(_ ro: float3,_ rd: float3, maxDimensions: float3) -> Bool
     {
-        let ro = context.rayOrigin.toSIMD()
-        let rd = context.rayDirection.toSIMD()
-        
-        maxBufferRo = ro
-        maxBufferRd = rd
-
         let bounds = [position.toSIMD() - maxDimensions / 2, position.toSIMD() + maxDimensions / 2]
         
         var tmin : Float = 0
@@ -164,7 +151,6 @@ final class GraphSDFObject : GraphDistanceNode
         }
 
         if ( (tmin > tymax) || (tymin > tmax) ) {
-            maxBuffer = false
             return false
         }
 
@@ -185,7 +171,6 @@ final class GraphSDFObject : GraphDistanceNode
         }
 
         if ( (tmin > tzmax) || (tzmin > tmax) ) {
-            maxBuffer = false
             return false
         }
 
@@ -197,7 +182,6 @@ final class GraphSDFObject : GraphDistanceNode
         */
 
         //return tmin < tmax;
-        maxBuffer = true
         return true
     }
 }
