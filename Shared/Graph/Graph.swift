@@ -684,6 +684,8 @@ final class GraphContext    : VariableContainer
         hasHitSomething = hasHitSomethingBuffer
         restoreVariableBackup(backup)
         
+        reflectionDepth += 1
+
         return result
     }
     

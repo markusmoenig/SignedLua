@@ -24,10 +24,24 @@ final class GraphPBRNode : GraphNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
+        context.reflectionDepth += 1
+        
+        if context.lightNodes.count == 0 { return .Failure }
+
         let v = -context.rayDirection.toSIMD()
         let n = context.normal.toSIMD()
         //let l = normalize(float3(0.6, 0.7, -0.7))
-        let l = normalize(float3(5, 10, -10))
+        var l = normalize(float3(5, 10, -10))
+        
+        let lightNode = context.lightNodes[0]
+        if let lightInfo = lightNode.sampleLight(context: context) {
+            if lightInfo.lightType == .Sun {
+                l = lightInfo.direction
+            } else {
+                l = normalize(context.rayPosition.toSIMD() - lightInfo.surfacePos)
+            }
+        }
+        
         let h = normalize(v + l)
         let r = normalize(simd_reflect(context.rayDirection.toSIMD(), n))
         
@@ -54,7 +68,7 @@ final class GraphPBRNode : GraphNode
         let diffuseColor = (1.0 - metallic) * baseColor
         let f0 = float3(repeating: 0.04 * (1.0 - metallic) * metallic)
 
-        let attenuation : Float = 1.0//context.shadowRay(context.rayPosition!.toSIMD(), l)
+        let attenuation : Float = context.reflectionDepth < 2 ? context.shadowRay(context.rayPosition!.toSIMD(), l) : 1
         
         // specular BRDF
         let D = D_GGX(linearRoughness, NoH, h)
@@ -72,7 +86,7 @@ final class GraphPBRNode : GraphNode
         let indirectDiffuse = Irradiance_SphericalHarmonics(n) * Fd_Lambert()
         
         //vec2 indirectHit = traceRay(position, r);
-        let indirectSpecular = float3(0,0,0)//context.castRay(context.rayPosition!.toSIMD(), r)
+        let indirectSpecular = context.reflectionDepth < 2 ? context.castRay(context.rayPosition!.toSIMD(), r) : float3(0,0,0)
         
         // indirect contribution
         let dfg = PrefilteredDFG_Karis(roughness, NoV)

@@ -10,6 +10,30 @@ import Foundation
 import MetalKit
 import simd
 
+class Tile
+{
+    let x       : Int
+    let y       : Int
+    var width   : Int
+    var height  : Int
+    
+    var right   : Int
+    var bottom  : Int
+    
+    var size    : Int
+    
+    init(_ x: Int,_ y: Int,_ width: Int,_ height: Int)
+    {
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        right = x + width
+        bottom = y + height
+        size = width * height
+    }
+}
+
 class Renderer
 {
     enum RenderMode {
@@ -46,8 +70,8 @@ class Renderer
     var stopRunning     : Bool = false
     
     let core            : Core
-        
-    var lines           : [Int] = []
+            
+    var tiles           : [Tile] = []
 
     init(_ core: Core)
     {
@@ -87,14 +111,32 @@ class Renderer
             return
         }
 
-        let cores = ProcessInfo().activeProcessorCount + 1
+        let cores = ProcessInfo().activeProcessorCount// + 1
         
-        //let width: Int = texture!.width
+        let width: Int = texture!.width
         let height: Int = texture!.height
         
-        lines = []
-        for i in 0..<height {
-            lines.append(i)
+        let tileSize: Int = 8
+        let columns = height / tileSize + 1
+        let rows = width / tileSize + 1
+        tiles = []
+        for h in 0..<columns {
+            for w in 0..<rows {
+                let tile = Tile(w * tileSize, h * tileSize, tileSize, tileSize)
+                if tile.y >= height { break }
+                if tile.x >= width { break }
+                if tile.right >= width {
+                    tile.width -= tile.right - width + 1
+                    tile.right = tile.x + tile.width
+                    tile.size = tile.width * tile.height
+                }
+                if tile.bottom >=  height {
+                    tile.height -= tile.bottom - height + 1
+                    tile.bottom = tile.y + tile.height
+                    tile.size = tile.width * tile.height
+                }
+                tiles.append(tile)
+            }
         }
         
         var lineCount : Int = 0
@@ -127,15 +169,15 @@ class Renderer
         }
     }
     
-    func getNextLine() -> Int?
+    func getNextTile() -> Tile?
     {
         semaphore.wait()
-        var line : Int? = nil
-        if lines.isEmpty == false {
-            line = lines.removeFirst()
+        var tile : Tile? = nil
+        if tiles.isEmpty == false {
+            tile = tiles.removeFirst()
         }
         semaphore.signal()
-        return line
+        return tile
     }
     
     func renderChunk(context1: GraphContext, chunk: SIMD4<Int>)
@@ -147,10 +189,10 @@ class Renderer
         let width: Float = Float(texture.width)
         let height: Float = Float(texture.height)
         
-        let widthInt : Int = texture.width
+        //let widthInt : Int = texture.width
         //let heightInt : Int = texture!.height
 
-        var texArray = Array<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: widthInt)
+        //var texArray = Array<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: widthInt)
         
         guard let main = core.assetFolder.getAsset("main", .Source) else {
             return
@@ -197,87 +239,93 @@ class Renderer
             }
         }
             
-        while let h = getNextLine() {
+        while let tile = getNextTile() {
+            
+            var texArray = Array<SIMD4<Float>>(repeating: SIMD4<Float>(0, 0, 0, 0), count: tile.size)
 
-            let fh : Float = Float(h) / height
-            for w in 0..<widthInt {
-                
-                if stopRunning {
-                    break
-                }
-                
-                context.reflectionDepth = 0
-                context.hasHitSomething = false
-                
-                context.normal.fromSIMD(float3(0.0, 0.0, 0.0))
-                context.rayPosition.fromSIMD(float3(0.0, 0.0, 0.0))
-                context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
+            for h in tile.y..<tile.bottom {
 
-                if renderType == .Normal {
-                    var tot = float4(0,0,0,0)
+                let fh : Float = Float(h) / height
+                for w in tile.x..<tile.right {
                     
-                    for m in 0..<AA {
-                        for n in 0..<AA {
+                    if stopRunning {
+                        break
+                    }
+                    
+                    context.reflectionDepth = 0
+                    context.hasHitSomething = false
+                    
+                    context.normal.fromSIMD(float3(0.0, 0.0, 0.0))
+                    context.rayPosition.fromSIMD(float3(0.0, 0.0, 0.0))
+                    context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
 
-                            if stopRunning {
-                                break
+                    if renderType == .Normal {
+                        var tot = float4(0,0,0,0)
+                        
+                        for m in 0..<AA {
+                            for n in 0..<AA {
+
+                                if stopRunning {
+                                    break
+                                }
+
+                                context.uv = float2(Float(w) / width, fh)
+                                context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
+
+                                if let cameraNode = context.cameraNode {
+                                    cameraNode.execute(context: context)
+                                }
+
+                                let camOrigin = context.rayOrigin.toSIMD()
+                                let camDir = context.rayDirection.toSIMD()
+
+                                let hit = context.hit()
+                                if hit.0 == Float.greatestFiniteMagnitude {
+                                    if let skyNode = context.skyNode {
+                                        skyNode.execute(context: context)
+                                    }
+                                } else {
+                                    context.hasHitSomething = true
+
+                                    context.normal.fromSIMD(hit.2)
+                                    
+                                    let p = camOrigin + hit.0 * camDir
+                                    context.rayPosition.fromSIMD(p)
+                                    
+                                    if let material = hit.1 {
+                                        context.executeMaterial(material)
+                                    }
+                                    context.executeRender()
+                                }
+                                
+                                let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
+                                tot += result
                             }
+                        }
+                        texArray[(h - tile.y) * tile.width + w - tile.x] = tot / Float(AA*AA)
+                    } else
+                    if renderType == .PathTracer {
+                        
+                        var tot = float4(0,0,0,0)
 
+                        for i in 0..<iterations {
+                            
                             context.uv = float2(Float(w) / width, fh)
-                            context.camOffset = float2(Float(m), Float(n)) / Float(AA) - 0.5
-
+                            //context.camOffset = float2(Float.random(in: 0...1), Float.random(in: 0...1))
                             if let cameraNode = context.cameraNode {
                                 cameraNode.execute(context: context)
                             }
-
-                            let camOrigin = context.rayOrigin.toSIMD()
-                            let camDir = context.rayDirection.toSIMD()
-
-                            let hit = context.hit()
-                            if hit.0 == Float.greatestFiniteMagnitude {
-                                if let skyNode = context.skyNode {
-                                    skyNode.execute(context: context)
-                                }
-                            } else {
-                                context.hasHitSomething = true
-
-                                context.normal.fromSIMD(hit.2)
-                                
-                                let p = camOrigin + hit.0 * camDir
-                                context.rayPosition.fromSIMD(p)
-                                
-                                if let material = hit.1 {
-                                    context.executeMaterial(material)
-                                }
-                                context.executeRender()
-                            }
                             
-                            let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
-                            tot += result
+                            context.executeRender()
+                            
+                            let result = context.outColor!.toSIMD()//.clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
+                            
+                            let k : Float = Float(i+1)
+                            tot = tot * (1.0 - 1.0/k) + result * (1.0/k)
                         }
+                        //texArray[w] = tot.clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
+                        texArray[(h - tile.y) * tile.width + w - tile.x] = tot.clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
                     }
-                    texArray[w] = tot / Float(AA*AA)
-                } else
-                if renderType == .PathTracer {
-                    
-                    var tot = float4(0,0,0,0)
-
-                    for i in 0..<iterations {
-                        
-                        context.uv = float2(Float(w) / width, fh)
-                        context.camOffset = float2(Float.random(in: 0...1), Float.random(in: 0...1))
-                        if let cameraNode = context.cameraNode {
-                            cameraNode.execute(context: context)
-                        }
-                        
-                        context.executeRender()
-                        
-                        let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
-                        
-                        let k : Float = Float(i+1)
-                        tot = tot * (1.0 - 1.0/k) + result * (1.0/k)
-                    }
-                    texArray[w] = tot.clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
                 }
             }
             
@@ -286,10 +334,10 @@ class Renderer
             }
             
             semaphore.wait()
-            let region = MTLRegionMake2D(0, h, widthInt, 1)
+            let region = MTLRegionMake2D(tile.x, tile.y, tile.width, tile.height)
             
             texArray.withUnsafeMutableBytes { texArrayPtr in
-                texture.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<Float>>.size * widthInt))
+                texture.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<Float>>.size * tile.width))
             }
             
             if renderMode == .Normal {
