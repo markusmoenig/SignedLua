@@ -112,7 +112,7 @@ final class GraphPrincipledPathNode : GraphNode
         var pdf                 : Float = 0
     }
     
-    let EPS                     : Float = 0.00001
+    let EPS                     : Float = 0.001
     var ctx                     : GraphContext!
     
     var maxDepth                : Int = 2
@@ -134,27 +134,65 @@ final class GraphPrincipledPathNode : GraphNode
         }
     }
     
+    override func setupMaterialVariables(context: GraphContext)
+    {
+        context.albedo = Float3("albedo", 0.5, 0.5, 0.5)
+        context.variables["albedo"] = context.albedo
+        context.specular = Float1("specular", 0.5)
+        context.variables["specular"] = context.specular
+        
+        context.emission = Float3("emission", 0, 0, 0)
+        context.variables["emission"] = context.emission
+        context.anisotropic = Float1("anisotropic", 0)
+        context.variables["anisotropic"] = context.anisotropic
+        
+        context.metallic = Float1("metallic", 0)
+        context.variables["metallic"] = context.metallic
+        context.roughness = Float1("roughness", 0.5)
+        context.variables["roughness"] = context.roughness
+        context.subsurface = Float1("subsurface", 0)
+        context.variables["subsurface"] = context.subsurface
+        context.specularTint = Float1("specularTint", 0)
+        context.variables["specularTint"] = context.specularTint
+        
+        context.sheen = Float1("sheen", 0)
+        context.variables["sheen"] = context.sheen
+        context.sheenTint = Float1("sheenTint", 0)
+        context.variables["sheenTint"] = context.sheenTint
+        context.clearcoat = Float1("clearcoat", 0)
+        context.variables["clearcoat"] = context.clearcoat
+        context.clearcoatGloss = Float1("clearcoatGloss", 0)
+        context.variables["clearcoatGloss"] = context.clearcoatGloss
+        
+        context.transmission = Float1("transmission", 0)
+        context.variables["transmission"] = context.transmission
+        context.ior = Float1("ior", 1.45)
+        context.variables["ior"] = context.ior
+        context.extinction = Float3("extinction", 1, 1, 1)
+        context.variables["extinction"] = context.extinction
+    }
+    
     override func resetMaterialVariables(context: GraphContext)
     {
-        context.variables["albedo"] = Float3("albedo", 0.5, 0.5, 0.5)
-        context.variables["specular"] = Float1("specular", 0.5)
+        context.albedo.fromSIMD(float3(0.5, 0.5, 0.5))
+        context.specular.fromSIMD(0.5)
         
-        context.variables["emission"] = Float3("emission", 0, 0, 0)
-        context.variables["anisotropic"] = Float1("anisotropic", 0)
+        context.emission.fromSIMD(float3(0, 0, 0))
+        context.anisotropic.fromSIMD(0)
         
-        context.variables["metallic"] = Float1("metallic", 0)
-        context.variables["roughness"] = Float1("roughness", 0.5)
-        context.variables["subsurface"] = Float1("subsurface", 0)
-        context.variables["specularTint"] = Float1("specularTint", 0)
+        context.metallic.fromSIMD(0)
+        context.roughness.fromSIMD(0.5)
+        context.subsurface.fromSIMD(0)
+        context.specularTint.fromSIMD(0)
         
-        context.variables["sheen"] = Float1("sheen", 0)
-        context.variables["sheenTint"] = Float1("sheenTint", 0)
-        context.variables["clearcoat"] = Float1("clearcoat", 0)
-        context.variables["clearcoatGloss"] = Float1("clearcoatGloss", 0)
+        context.sheen.fromSIMD(0)
+        context.sheenTint.fromSIMD(0)
+        context.clearcoat.fromSIMD(0)
+        context.clearcoatGloss.fromSIMD(0)
         
-        context.variables["transmission"] = Float1("transmission", 0)
-        context.variables["ior"] = Float1("ior", 1.45)
-        context.variables["extinction"] = Float3("extinction", 1, 1, 1)
+        context.transmission.fromSIMD(0)
+        context.ior.fromSIMD(1.45)
+        context.extinction.fromSIMD(float3(1, 1, 1))
     }
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
@@ -370,16 +408,17 @@ final class GraphPrincipledPathNode : GraphNode
         let VDotH = abs(dot(V, H))
         let LDotH = abs(dot(L, H))
         let NDotL = abs(dot(N, L))
-
+        let NDotV = abs(dot(N, V))
+        
         let specularAlpha = max(0.001, state.mat.roughness)
 
         // Handle transmission separately
         if (state.rayType == .Refraction)
         {
             let pdfGTR2 = GTR2(NDotH, specularAlpha) * NDotH
-            let F = DielectricFresnel(LDotH, state.eta)
+            let F = DielectricFresnel(NDotV, state.eta)
             let denomSqrt = LDotH + VDotH * state.eta
-            return pdfGTR2 * (1.0 - F) * LDotH / (denomSqrt * denomSqrt)
+            return pdfGTR2 * (1.0 - F) * LDotH / (denomSqrt * denomSqrt) * state.mat.transmission
         }
 
         // Reflection
@@ -405,7 +444,7 @@ final class GraphPrincipledPathNode : GraphNode
 
         // PDFs for bsdf
         let pdfGTR2 = GTR2(NDotH, specularAlpha) * NDotH
-        let F = DielectricFresnel(LDotH, state.eta)
+        let F = DielectricFresnel(NDotV, state.eta)
         bsdfPdf = pdfGTR2 * F / (4.0 * VDotH)
 
         return simd_mix(brdfPdf, bsdfPdf, state.mat.transmission)
@@ -432,17 +471,16 @@ final class GraphPrincipledPathNode : GraphNode
             H += state.bitangent * H.y
             H += N * H.z
 
-            let theta = abs(dot(N, V))
-            let cos2t = 1.0 - state.eta * state.eta * (1.0 - theta * theta)
-
-            let F = DielectricFresnel(theta, state.eta)
-
+            //let F = DielectricFresnel(theta, state.eta)
+            let T = simd_refract(-V, H, state.eta)
+            let F = DielectricFresnel(abs(dot(N, V)), state.eta)
+            
             // Reflection/Total internal reflection
-            if cos2t < 0.0 || ctx.rand() < F {
+            if ctx.rand() < F {
                 dir = normalize(simd_reflect(-V, H))
             } else {
                 // Transmission
-                dir = normalize(simd_refract(-V, H, state.eta))
+                dir = normalize(T)
                 state.specularBounce = true
                 state.rayType = .Refraction
             }
@@ -505,8 +543,7 @@ final class GraphPrincipledPathNode : GraphNode
             }
 
             let a = max(0.001, state.mat.roughness)
-            
-            let F = DielectricFresnel(abs(LDotH), state.eta)
+            let F = DielectricFresnel(NDotV, state.eta)
             let D = GTR2(NDotH, a)
             let G = SmithG_GGX(NDotL, a) * SmithG_GGX(NDotV, a)
             
@@ -520,7 +557,7 @@ final class GraphPrincipledPathNode : GraphNode
             }
         }
 
-        if (state.mat.transmission < 1.0 && NDotL > 0.0 && NDotV > 0.0)
+        if (state.mat.transmission < 1.0 && dot(N, L) > 0.0 && dot(N, V) > 0.0)
         {
             let Cdlin = state.mat.albedo
             let Cdlum = 0.3 * Cdlin.x + 0.6 * Cdlin.y + 0.1 * Cdlin.z // luminance approx.
@@ -543,6 +580,7 @@ final class GraphPrincipledPathNode : GraphNode
             let Fss = simd_mix(1.0, Fss90, FL) * simd_mix(1.0, Fss90, FV)
             let ss = 1.25 * (Fss * (1.0 / (NDotL + NDotV) - 0.5) + 0.5)
 
+            // TODO: Add anisotropic rotation
             // specular
             let aspect = sqrt(1.0 - state.mat.anisotropic * 0.9)
             let ax = max(0.001, state.mat.roughness / aspect)
@@ -594,12 +632,22 @@ final class GraphPrincipledPathNode : GraphNode
     }
     
     //-----------------------------------------------------------------------
-    func DielectricFresnel(_ theta: Float,_ eta: Float) -> Float
+    func DielectricFresnel(_ cos_theta_i: Float,_ eta: Float) -> Float
     //-----------------------------------------------------------------------
     {
-        var R0 = (eta - 1.0) / (eta + 1.0)
-        R0 *= R0
-        return R0 + (1.0 - R0) * SchlickFresnel(theta)
+        let sinThetaTSq = eta * eta * (1.0 - cos_theta_i * cos_theta_i)
+
+        // Total internal reflection
+        if sinThetaTSq > 1.0 {
+            return 1.0
+        }
+
+        let cos_theta_t = sqrt(max(1.0 - sinThetaTSq, 0.0))
+
+        let rs = (eta * cos_theta_t - cos_theta_i) / (eta * cos_theta_t + cos_theta_i)
+        let rp = (eta * cos_theta_i - cos_theta_t) / (eta * cos_theta_i + cos_theta_t)
+
+        return 0.5 * (rs * rs + rp * rp)
     }
     
     //-----------------------------------------------------------------------

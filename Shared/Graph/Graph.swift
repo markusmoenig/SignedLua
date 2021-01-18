@@ -126,7 +126,12 @@ class GraphNode : Equatable, Identifiable {
         return nil
     }
     
-    /// Implemented by renderers to init / reset the material variables
+    /// Implemented by renderers to initialize the variables the renderer needs
+    func setupMaterialVariables(context: GraphContext)
+    {
+    }
+    
+    /// Implemented by renderers to reset the material variables
     func resetMaterialVariables(context: GraphContext)
     {
     }
@@ -198,6 +203,28 @@ final class GraphContext    : VariableContainer
 
     var outColor            : Float4!
     var normal              : Float3!
+    
+    // Default Material Variables (Disney BSDF)
+
+    var albedo              : Float3!
+    var specular            : Float1!
+    
+    var emission            : Float3!
+    var anisotropic         : Float1!
+    
+    var metallic            : Float1!
+    var roughness           : Float1!
+    var subsurface          : Float1!
+    var specularTint        : Float1!
+    
+    var sheen               : Float1!
+    var sheenTint           : Float1!
+    var clearcoat           : Float1!
+    var clearcoatGloss      : Float1!
+
+    var transmission        : Float1!
+    var ior                 : Float1!
+    var extinction          : Float3!
 
     // Graph Values used for rendering
     
@@ -251,6 +278,13 @@ final class GraphContext    : VariableContainer
         hitMaterial.append(nil)
         
         super.init()
+    }
+    
+    func setupBeforeStart()
+    {
+        if let renderNode = renderNode {
+            renderNode.setupMaterialVariables(context: self)
+        }
     }
     
     func clear()

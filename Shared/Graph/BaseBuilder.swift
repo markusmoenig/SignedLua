@@ -333,7 +333,7 @@ class GraphBuilder
                                 if leave.name == possbibleCmd {
                                     
                                     if error.error == nil {
-                                        if let branch = currentBranch.last {
+                                        if let branch = currentBranch.last, branch.leaves != nil {
                                             let node = leave.createNode(nodeOptions)
                                             node.verifyOptions(context: asset.graph!, error: &error)
                                             if error.error == nil {

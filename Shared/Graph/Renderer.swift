@@ -160,6 +160,7 @@ class Renderer
         core.graphBuilder.compile(asset, silent: true)
         
         let context = asset.graph!
+        context.setupBeforeStart()
         
         context.viewSize = float2(width, height)
         
