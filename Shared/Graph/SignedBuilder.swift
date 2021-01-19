@@ -41,6 +41,13 @@ class SignedGraphBuilder: GraphBuilder {
     {
         var error = super.compile(asset, silent: silent)
         
+        // Insert the default rendering node
+        if asset.graph!.renderNode == nil {
+            let node = GraphPrincipledBSDFNode()
+            asset.graph!.renderNode = node
+            asset.graph!.nodes.append(node)
+        }
+        
         if silent == false {
             
             if asset.graph?.cameraNode == nil {

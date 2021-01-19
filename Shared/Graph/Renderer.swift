@@ -204,11 +204,6 @@ class Renderer
         
         let context = asset.graph!
         
-        // Enter default rendering node
-        if context.renderNode == nil {
-            context.renderNode = GraphPrincipledBSDFNode()
-        }
-        
         context.setupBeforeStart()
         context.renderQuality = core.renderQuality
         context.viewSize = float2(width, height)
@@ -326,11 +321,10 @@ class Renderer
                 texture.replace(region: region, mipmapLevel: 0, withBytes: texArrayPtr.baseAddress!, bytesPerRow: (MemoryLayout<SIMD4<Float>>.size * tile.width))
             }
             
-            if renderMode == .Normal {
-                DispatchQueue.main.async {
-                    self.core.updateOnce()
-                }
+            DispatchQueue.main.async {
+                self.core.updateOnce()
             }
+
             semaphore.signal()
         }
         
@@ -340,15 +334,17 @@ class Renderer
             let chunkTime = Double(Date().timeIntervalSince1970) - startTime
             totalTime += chunkTime
             
+            /*
             if renderMode == .Normal {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0 / 60.0) {
                     self.core.updateOnce()
                 }
             } else {
+            */
                 DispatchQueue.main.async {
                     self.core.updateOnce()
                 }
-            }
+            //}
             
             isRunning = false
             print(totalTime)
