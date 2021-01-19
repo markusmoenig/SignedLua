@@ -93,7 +93,7 @@ class GraphNode : Equatable, Identifiable {
     var name                : String = ""
     var givenName           : String = ""
     
-    var lineNr              : Int32 = 0
+    var lineNr              : Int32 = -1
     
     var renderType          : NodeRenderType = .Normal
     

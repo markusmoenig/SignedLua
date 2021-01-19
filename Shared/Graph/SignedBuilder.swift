@@ -16,7 +16,7 @@ class SignedGraphBuilder: GraphBuilder {
 
     var cursorTimer         : Timer? = nil
     var currentNode         : GraphNode? = nil
-    
+        
     init(_ core: Core)
     {
         self.core = core
@@ -40,13 +40,6 @@ class SignedGraphBuilder: GraphBuilder {
     @discardableResult override func compile(_ asset: Asset, silent: Bool = false) -> CompileError
     {
         var error = super.compile(asset, silent: silent)
-        
-        // Insert the default rendering node
-        if asset.graph!.renderNode == nil {
-            let node = GraphPrincipledBSDFNode()
-            asset.graph!.renderNode = node
-            asset.graph!.nodes.append(node)
-        }
         
         if silent == false {
             

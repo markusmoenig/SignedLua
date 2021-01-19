@@ -41,29 +41,29 @@ final class GraphSDFSphereNode : GraphDistanceNode
     
     @inlinable public override func sampleLight(context: GraphContext) -> GraphLightInfo?
     {
-        let light = GraphLightInfo(.Spherical)
+        let lightInfo = GraphLightInfo(.Spherical)
         
         let r = radius.toSIMD()
         
         if context.renderQuality == .Normal {
             let r2D = context.rand2()
-            light.surfacePos = position.toSIMD() + UniformSampleSphere(r2D.x, r2D.y) * r
-            light.normal = normalize(light.surfacePos - position.toSIMD())
+            lightInfo.surfacePos = position.toSIMD() + UniformSampleSphere(r2D.x, r2D.y) * r
+            lightInfo.normal = normalize(lightInfo.surfacePos - position.toSIMD())
         }
 
         if let material = materialNode {
             material.execute(context: context)
         }
         if let emission = context.variables["emission"]! as? Float3 {
-            light.emission = emission.toSIMD()// * float(numOfLights)
+            lightInfo.emission = emission.toSIMD()// * float(numOfLights)
         }
         
-        light.area = 4.0 * Float.pi * r * r
+        lightInfo.area = 4.0 * Float.pi * r * r
         
-        light.position = position.toSIMD()
-        light.radius = radius.toSIMD()
+        lightInfo.position = position.toSIMD()
+        lightInfo.radius = radius.toSIMD()
         
-        return light
+        return lightInfo
     }
     
     //-----------------------------------------------------------------------
@@ -123,6 +123,30 @@ final class GraphSDFBoxNode : GraphDistanceNode
         context.position -= position.toSIMD()
 
         return .Success
+    }
+    
+    @inlinable public override func sampleLight(context: GraphContext) -> GraphLightInfo?
+    {
+        let lightInfo = GraphLightInfo(.Spherical)
+                
+        if context.renderQuality == .Normal {
+            lightInfo.surfacePos = position.toSIMD() + size.x / 2 * context.rand() + size.y / 2 * context.rand() + size.z / 2 * context.rand()
+            lightInfo.normal = normalize(lightInfo.surfacePos - position.toSIMD())
+        }
+
+        if let material = materialNode {
+            material.execute(context: context)
+        }
+        if let emission = context.variables["emission"]! as? Float3 {
+            lightInfo.emission = emission.toSIMD()// * float(numOfLights)
+        }
+        
+        lightInfo.area = 2 * size.x * size.y + 2 * size.y * size.z + 2 * size.x * size.z //2ab + 2bc + 2ac
+        
+        lightInfo.position = position.toSIMD()
+        lightInfo.radius = size.x / 2
+        
+        return lightInfo
     }
     
     override func getHelp() -> String

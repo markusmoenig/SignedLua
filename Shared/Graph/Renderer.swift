@@ -334,17 +334,15 @@ class Renderer
             let chunkTime = Double(Date().timeIntervalSince1970) - startTime
             totalTime += chunkTime
             
-            /*
             if renderMode == .Normal {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0 / 60.0) {
                     self.core.updateOnce()
                 }
             } else {
-            */
                 DispatchQueue.main.async {
                     self.core.updateOnce()
                 }
-            //}
+            }
             
             isRunning = false
             print(totalTime)

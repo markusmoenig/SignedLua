@@ -120,7 +120,7 @@ final class GraphPrincipledBSDFNode : GraphNode
     init(_ options: [String:Any] = [:])
     {
         super.init(.Render, .None, options)
-        name = "Principled BSDF"
+        name = "renderPrincipledBSDF"
         givenName = "Principled BSDF"
         renderType = .PathTracer
         leaves = []
@@ -298,7 +298,6 @@ final class GraphPrincipledBSDFNode : GraphNode
             }
             
             //
-            
             if context.renderQuality == .Normal {
                 radiance += DirectLight(r, &state) * throughput
                 
@@ -311,6 +310,17 @@ final class GraphPrincipledBSDFNode : GraphNode
                 } else {
                     break
                 }
+                
+                // Russian roulette
+                /*
+                let RR_DEPTH = 2
+                if depth >= RR_DEPTH {
+                    let q = min(max(throughput.x, max(throughput.y, throughput.z)) * state.eta * state.eta + 0.001, 0.95)
+                    if rand() > q {
+                        break;
+                    }
+                    throughput /= q
+                }*/
                 
                 r.direction = bsdfSampleRec.bsdfDir
                 r.origin = state.fhp + r.direction * EPS
@@ -493,7 +503,7 @@ final class GraphPrincipledBSDFNode : GraphNode
         if (state.rayType == .Refraction)
         {
             let pdfGTR2 = GTR2(NDotH, specularAlpha) * NDotH
-            let F = DielectricFresnel(NDotV, state.eta)
+            let F = DielectricFresnel(VDotH, state.eta)
             let denomSqrt = LDotH + VDotH * state.eta
             return pdfGTR2 * (1.0 - F) * LDotH / (denomSqrt * denomSqrt) * state.mat.transmission
         }
@@ -521,7 +531,7 @@ final class GraphPrincipledBSDFNode : GraphNode
 
         // PDFs for bsdf
         let pdfGTR2 = GTR2(NDotH, specularAlpha) * NDotH
-        let F = DielectricFresnel(NDotV, state.eta)
+        let F = DielectricFresnel(VDotH, state.eta)
         bsdfPdf = pdfGTR2 * F / (4.0 * VDotH)
 
         return simd_mix(brdfPdf, bsdfPdf, state.mat.transmission)
@@ -548,16 +558,15 @@ final class GraphPrincipledBSDFNode : GraphNode
             H += state.bitangent * H.y
             H += N * H.z
 
-            //let F = DielectricFresnel(theta, state.eta)
-            let T = simd_refract(-V, H, state.eta)
-            let F = DielectricFresnel(abs(dot(N, V)), state.eta)
+            let R = simd_reflect(-V, H)
+            let F = DielectricFresnel(dot(R, H), state.eta)
             
             // Reflection/Total internal reflection
             if ctx.rand() < F {
-                dir = normalize(simd_reflect(-V, H))
+                dir = normalize(R)
             } else {
                 // Transmission
-                dir = normalize(T)
+                dir = normalize(simd_refract(-V, H, state.eta))
                 state.specularBounce = true
                 state.rayType = .Refraction
             }
@@ -620,7 +629,7 @@ final class GraphPrincipledBSDFNode : GraphNode
             }
 
             let a = max(0.001, state.mat.roughness)
-            let F = DielectricFresnel(NDotV, state.eta)
+            let F = DielectricFresnel(VDotH, state.eta)
             let D = GTR2(NDotH, a)
             let G = SmithG_GGX(NDotL, a) * SmithG_GGX(NDotV, a)
             
@@ -628,7 +637,7 @@ final class GraphPrincipledBSDFNode : GraphNode
             if state.rayType == .Refraction {
                 let denomSqrt = LDotH + VDotH * state.eta
                 bsdf = state.mat.albedo * transmittance * (1.0 - F) * D * G
-                bsdf *= VDotH * LDotH * 4.0 / (denomSqrt * denomSqrt)
+                bsdf *= VDotH * LDotH * 4.0 * state.eta * state.eta / (denomSqrt * denomSqrt)
             } else {
                 bsdf = state.mat.albedo * transmittance * F * D * G;
             }
