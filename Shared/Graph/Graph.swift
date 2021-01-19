@@ -54,6 +54,10 @@ class GraphLightInfo {
     // For directional lights
     var direction       = float3(0,0,0)
     
+    // For preview
+    var position        = float3(0,0,0)
+    var radius          = Float(1)
+
     init(_ lightType: LightType)
     {
         self.lightType = lightType
@@ -170,7 +174,13 @@ class GraphNode : Equatable, Identifiable {
 
 final class GraphContext    : VariableContainer
 {
-    var buffer              : Array<SIMD4<UInt8>>!
+    enum RenderQuality {
+        case Normal, Fast, Fastest
+    }
+    
+    var renderQuality       : RenderQuality = .Normal
+    
+    //var buffer              : Array<SIMD4<UInt8>>!
     
     var cameraNode          : GraphNode? = nil
     var skyNode             : GraphNode? = nil

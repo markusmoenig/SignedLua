@@ -87,6 +87,7 @@ public class Core       : ObservableObject
     var renderer        : Renderer!
     var graphBuilder    : SignedGraphBuilder!
     
+    var renderQuality   : GraphContext.RenderQuality = .Fast
 
     public init(_ frameworkId: String? = nil)
     {        

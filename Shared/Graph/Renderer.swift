@@ -135,6 +135,7 @@ class Renderer
                     tile.bottom = tile.y + tile.height
                     tile.size = tile.width * tile.height
                 }
+                if tile.width == 0 || tile.height == 0 { break }
                 tiles.append(tile)
             }
         }
@@ -156,7 +157,7 @@ class Renderer
 
             coresActive += 1
             dispatchGroup.enter()
-            DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.global(qos: core.renderQuality == .Normal ? .background : .userInitiated).async {
                 self.renderChunk(context1: context, chunk: chunk)
             }
         }
@@ -202,12 +203,18 @@ class Renderer
         core.graphBuilder.compile(asset, silent: true)
         
         let context = asset.graph!
-        context.setupBeforeStart()
         
+        // Enter default rendering node
+        if context.renderNode == nil {
+            context.renderNode = GraphPrincipledBSDFNode()
+        }
+        
+        context.setupBeforeStart()
+        context.renderQuality = core.renderQuality
         context.viewSize = float2(width, height)
         
         // Extract Render Options
-        var AA : Int = 1
+        var AA : Int = context.renderQuality == .Fast ? 2 : 1
         var iterations : Int = 10
         
         var renderType : GraphNode.NodeRenderType = .Normal
@@ -259,7 +266,7 @@ class Renderer
                     context.rayPosition.fromSIMD(float3(0.0, 0.0, 0.0))
                     context.outColor.fromSIMD(float4(0.0, 0.0, 0.0, 0.0))
 
-                    if renderType == .Normal {
+                    if context.renderQuality != .Normal {
                         var tot = float4(0,0,0,0)
                         
                         for m in 0..<AA {
@@ -275,36 +282,15 @@ class Renderer
                                 if let cameraNode = context.cameraNode {
                                     cameraNode.execute(context: context)
                                 }
-
-                                let camOrigin = context.rayOrigin.toSIMD()
-                                let camDir = context.rayDirection.toSIMD()
-
-                                let hit = context.hit()
-                                if hit.0 == Float.greatestFiniteMagnitude {
-                                    if let skyNode = context.skyNode {
-                                        skyNode.execute(context: context)
-                                    }
-                                } else {
-                                    context.hasHitSomething = true
-
-                                    context.normal.fromSIMD(hit.2)
-                                    
-                                    let p = camOrigin + hit.0 * camDir
-                                    context.rayPosition.fromSIMD(p)
-                                    
-                                    if let material = hit.1 {
-                                        context.executeMaterial(material)
-                                    }
-                                    context.executeRender()
-                                }
+                                
+                                context.executeRender()
                                 
                                 let result = context.outColor!.toSIMD().clamped(lowerBound: float4(0,0,0,0), upperBound: float4(1,1,1,1))
                                 tot += result
                             }
                         }
                         texArray[(h - tile.y) * tile.width + w - tile.x] = tot / Float(AA*AA)
-                    } else
-                    if renderType == .PathTracer {
+                    } else {
                         
                         var tot = float4(0,0,0,0)
 
@@ -374,7 +360,6 @@ class Renderer
     func restart(_ renderMode : RenderMode = .Normal)
     {
         stop()
-        dispatchGroup.wait()
             
         self.renderMode = renderMode
         self.start()
@@ -383,12 +368,12 @@ class Renderer
     func stop()
     {
         stopRunning = true
+        dispatchGroup.wait()
     }
     
     /// Render a preview during camera actions
     func previewRender()
     {
-        
     }
     
     func startDrawing(_ device: MTLDevice)

@@ -140,6 +140,20 @@ struct ContentView: View {
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
                 
+                // Render Quality
+                Button(action: {
+                    document.core.renderQuality = document.core.renderQuality == .Normal ? .Fast : .Normal
+                    updateView.toggle()
+                })
+                {
+                    Text(document.core.renderQuality == .Normal ? "Path Tracer" : "Preview")
+                    //Label("Run", systemImage: "viewfinder")
+                }
+                
+                Divider()
+                    .padding(.horizontal, 20)
+                    .opacity(0)
+                                
                 // Toggle preview size
                 Button(action: {
                     if screenState == .Mixed {
@@ -161,10 +175,23 @@ struct ContentView: View {
                     document.core.renderer.restart()
                 })
                 {
-                    Label("Run", systemImage: "play.fill")
+                    Label("Render", systemImage: "play.fill")
                 }
                 .keyboardShortcut("r")
+                
+                // Controls for Start Render / Stop Render
+                Button(action: {
+                    document.core.renderer.stop()
+                })
+                {
+                    Label("Stop", systemImage: "stop.fill")
+                }
+                .keyboardShortcut("t")
 
+                Divider()
+                    .padding(.horizontal, 20)
+                    .opacity(0)
+                
                 Menu {
                     HStack {
                         VStack(alignment: .leading) {

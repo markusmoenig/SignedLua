@@ -9,7 +9,7 @@ import Foundation
 import simd
 
 /// GraphPrincipledPathNode
-final class GraphPrincipledPathNode : GraphNode
+final class GraphPrincipledBSDFNode : GraphNode
 {
     // Disney BSDF Implementation based on https://github.com/knightcrawler25/GLSL-PathTracer
     
@@ -116,13 +116,11 @@ final class GraphPrincipledPathNode : GraphNode
     var ctx                     : GraphContext!
     
     var maxDepth                : Int = 2
-    
-    let preview = true
-    
+        
     init(_ options: [String:Any] = [:])
     {
         super.init(.Render, .None, options)
-        name = "renderPrincipledBSDF"
+        name = "Principled BSDF"
         givenName = "Principled BSDF"
         renderType = .PathTracer
         leaves = []
@@ -195,9 +193,11 @@ final class GraphPrincipledPathNode : GraphNode
         context.extinction.fromSIMD(float3(1, 1, 1))
     }
     
+    var lastLightPdf : Float = 0
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         ctx = context
+        lastLightPdf = 0
         
         var r = Ray(origin: context.rayOrigin.toSIMD(), direction: context.rayDirection.toSIMD())
         
@@ -248,10 +248,6 @@ final class GraphPrincipledPathNode : GraphNode
             
             state.texCoord = context.uv
             
-            //state.tangent = cross(state.ffnormal, float3(1,0,1))
-            //state.tangent = normalize(cross(state.ffnormal, state.tangent))
-            //state.bitangent = normalize(cross(state.ffnormal,state.tangent))
-            
             let UpVector = abs(state.ffnormal.z) < 0.999 ? float3(0, 0, 1) : float3(1, 0, 0)
             state.tangent = normalize(cross(UpVector, state.ffnormal))
             state.bitangent = cross(state.ffnormal, state.tangent)
@@ -286,27 +282,42 @@ final class GraphPrincipledPathNode : GraphNode
 
             // Light
             if state.mat.emission.x > 0 || state.mat.emission.y > 0 || state.mat.emission.z > 0 {
-                //radiance += float3(1,0,0) * throughput
-                //radiance += EmitterSample(r, state, lightSampleRec, bsdfSampleRec) * throughput;
+                
+                context.outColor!.w = 1
+
+                // EmitterSample
+                var Le : float3
+                if depth == 0 || state.specularBounce {
+                    Le = state.mat.emission
+                } else {
+                    Le = powerHeuristic(bsdfSampleRec.pdf, lastLightPdf) * state.mat.emission
+                }
+                
+                radiance += Le * throughput
                 break
             }
             
             //
             
-            radiance += DirectLight(r, &state) * throughput
-            
-            bsdfSampleRec.bsdfDir = DisneySample(r, &state)// simd_reflect(r.direction, state.ffnormal)
+            if context.renderQuality == .Normal {
+                radiance += DirectLight(r, &state) * throughput
+                
+                bsdfSampleRec.bsdfDir = DisneySample(r, &state)// simd_reflect(r.direction, state.ffnormal)
 
-            bsdfSampleRec.pdf = DisneyPdf(r, &state, bsdfSampleRec.bsdfDir)
-            
-            if (bsdfSampleRec.pdf > 0.0) {
-                throughput *= DisneyEval(r, &state, bsdfSampleRec.bsdfDir) * abs(dot(state.ffnormal, bsdfSampleRec.bsdfDir)) / bsdfSampleRec.pdf
+                bsdfSampleRec.pdf = DisneyPdf(r, &state, bsdfSampleRec.bsdfDir)
+                
+                if (bsdfSampleRec.pdf > 0.0) {
+                    throughput *= DisneyEval(r, &state, bsdfSampleRec.bsdfDir) * abs(dot(state.ffnormal, bsdfSampleRec.bsdfDir)) / bsdfSampleRec.pdf
+                } else {
+                    break
+                }
+                
+                r.direction = bsdfSampleRec.bsdfDir
+                r.origin = state.fhp + r.direction * EPS
             } else {
+                radiance += DirectLightPreview(r, &state) * throughput
                 break
             }
-            
-            r.direction = bsdfSampleRec.bsdfDir
-            r.origin = state.fhp + r.direction * EPS
         }
     
         context.outColor!.x = pow(radiance.x, 1.0 / 2.2)
@@ -314,6 +325,71 @@ final class GraphPrincipledPathNode : GraphNode
         context.outColor!.z = pow(radiance.z, 1.0 / 2.2)
 
         return .Success
+    }
+    
+    /// DirectLight for Preview
+    func DirectLightPreview(_ r: Ray,_ state: inout State) -> float3
+    {
+        var L = float3(0, 0, 0)
+        
+        let surfacePos = state.fhp + state.ffnormal * EPS
+                
+        for lightNode in ctx.lightNodes {
+            
+            guard let lightInfo = lightNode.sampleLight(context: ctx) else {
+                print("failed to sample light")
+                continue
+            }
+            
+            var lightDir : float3
+            var lightDistSq : Float = 0
+
+            if lightInfo.lightType == .Sun {
+                lightDir = lightInfo.direction
+                
+                if dot(lightDir, state.ffnormal) <= 0.0 {
+                    continue
+                }
+            } else {
+                
+                lightDir = lightInfo.position - surfacePos
+                let lightDist = length(lightDir)
+                lightDistSq = lightDist * lightDist
+                lightDir /= sqrt(lightDistSq)
+                
+                if dot(lightDir, state.ffnormal) <= 0.0 {//}|| dot(lightDir, lightInfo.normal) >= 0.0 {
+                    continue
+                }
+                
+                let LL = lightDir
+                let V = -normalize(ctx.rayDirection.toSIMD())
+                let rr = simd_reflect(V, ctx.normal.toSIMD())
+                let centerToRay = dot( LL, rr ) * rr - LL
+                let closestPoint = LL + centerToRay * simd_clamp( lightInfo.radius / length( centerToRay ), 0.0, 1.0 )
+                let wi = normalize(closestPoint)
+                
+                lightDir = normalize(lightDir)
+                //let bsdfPdf = DisneyPdf(r, &state, lightDir)
+                let f = DisneyEval(r, &state, lightDir)// * abs(dot(wi, ctx.normal.toSIMD()))
+                var weight : Float = 1
+                
+                let visibility = ctx.shadowRay(surfacePos, lightDir)
+                
+                var lightPdf : Float
+
+                if lightInfo.lightType == .Sun {
+                    lightPdf = 1.0 / 6.87E-2
+                    weight = 1.0
+                } else {
+                    lightPdf = lightDistSq / (lightInfo.area * abs(dot(wi, ctx.normal.toSIMD()))) //abs(dot(lightInfo.normal, lightDir)))
+                    weight = 1//powerHeuristic(lightPdf, bsdfPdf)
+                }
+                
+                L += (weight * f * abs(dot(state.ffnormal, lightDir)) * lightInfo.emission / lightPdf) * visibility
+            }
+        }
+        
+        return L
     }
     
     func DirectLight(_ r: Ray,_ state: inout State) -> float3
@@ -382,7 +458,8 @@ final class GraphPrincipledPathNode : GraphNode
                 lightPdf = lightDistSq / (lightInfo.area * abs(dot(lightInfo.normal, lightDir)))
                 weight = powerHeuristic(lightPdf, bsdfPdf)
             }
-
+            lastLightPdf = lightPdf
+            
             L += weight * f * abs(dot(state.ffnormal, lightDir)) * lightInfo.emission / lightPdf
         }
         

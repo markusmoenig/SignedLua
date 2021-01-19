@@ -43,12 +43,14 @@ final class GraphSDFSphereNode : GraphDistanceNode
     {
         let light = GraphLightInfo(.Spherical)
         
-        let r2D = context.rand2()
-
         let r = radius.toSIMD()
-        light.surfacePos = position.toSIMD() + UniformSampleSphere(r2D.x, r2D.y) * r
-        light.normal = normalize(light.surfacePos - position.toSIMD())
         
+        if context.renderQuality == .Normal {
+            let r2D = context.rand2()
+            light.surfacePos = position.toSIMD() + UniformSampleSphere(r2D.x, r2D.y) * r
+            light.normal = normalize(light.surfacePos - position.toSIMD())
+        }
+
         if let material = materialNode {
             material.execute(context: context)
         }
@@ -57,6 +59,9 @@ final class GraphSDFSphereNode : GraphDistanceNode
         }
         
         light.area = 4.0 * Float.pi * r * r
+        
+        light.position = position.toSIMD()
+        light.radius = radius.toSIMD()
         
         return light
     }
