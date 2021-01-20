@@ -495,7 +495,7 @@ final class GraphPrincipledBSDFNode : GraphNode
         let VDotH = abs(dot(V, H))
         let LDotH = abs(dot(L, H))
         let NDotL = abs(dot(N, L))
-        let NDotV = abs(dot(N, V))
+        //let NDotV = abs(dot(N, V))
         
         let specularAlpha = max(0.001, state.mat.roughness)
 

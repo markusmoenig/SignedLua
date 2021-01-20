@@ -87,6 +87,7 @@ public class Core       : ObservableObject
     var renderer        : Renderer!
     var graphBuilder    : SignedGraphBuilder!
     
+    var renderPipeline  : GPURenderPipeline!
     var renderQuality   : GraphContext.RenderQuality = .Fast
 
     public init(_ frameworkId: String? = nil)
@@ -139,6 +140,8 @@ public class Core       : ObservableObject
         textureLoader = MTKTextureLoader(device: device)
         view.enableSetNeedsDisplay = true
         view.isPaused = true
+        
+        renderPipeline = GPURenderPipeline(view)
 
         /*
         for fontName in availableFonts {
@@ -166,7 +169,7 @@ public class Core       : ObservableObject
             return
         }
         
-        if let texture = renderer.texture {            
+        if let texture = renderer.getTexture() {            
             startDrawing()
             let renderPassDescriptor = view.currentRenderPassDescriptor
             renderPassDescriptor?.colorAttachments[0].loadAction = .load

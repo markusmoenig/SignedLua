@@ -96,6 +96,8 @@
 		2B888B6325B42C2C00956C64 /* BestCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B6125B42C2B00956C64 /* BestCandidate.swift */; };
 		2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
 		2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
+		2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */; };
+		2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */; };
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
@@ -152,6 +154,7 @@
 		2B888B5625B15E7600956C64 /* SignedLightNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedLightNodes.swift; sourceTree = "<group>"; };
 		2B888B6125B42C2B00956C64 /* BestCandidate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BestCandidate.swift; sourceTree = "<group>"; };
 		2B8A692A25A4486A006B1B5C /* CameraHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraHelper.swift; sourceTree = "<group>"; };
+		2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPURenderPipeline.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -211,6 +214,7 @@
 				2B8A692A25A4486A006B1B5C /* CameraHelper.swift */,
 				2BE97DC025AC2A7200729833 /* Graph */,
 				2B2E02C7258C3F390073DAE9 /* Expression */,
+				2BB4E0AB25B7AAFF0028C76A /* GPURenderPipeline */,
 				2B224F8525844C2500F32354 /* Classes */,
 				2B224F9925844D0E00F32354 /* Files */,
 				2B224F302584485300F32354 /* Assets.xcassets */,
@@ -273,6 +277,14 @@
 				2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */,
 			);
 			path = Expression;
+			sourceTree = "<group>";
+		};
+		2BB4E0AB25B7AAFF0028C76A /* GPURenderPipeline */ = {
+			isa = PBXGroup;
+			children = (
+				2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */,
+			);
+			path = GPURenderPipeline;
 			sourceTree = "<group>";
 		};
 		2BE97DC025AC2A7200729833 /* Graph */ = {
@@ -439,6 +451,7 @@
 				2B224F452584485300F32354 /* ContentView.swift in Sources */,
 				2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
+				2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D4258C52B10073DAE9 /* Variables.swift in Sources */,
 				2B224F7F25844C1900F32354 /* ScriptEditor.swift in Sources */,
@@ -488,6 +501,7 @@
 				2B224F462584485300F32354 /* ContentView.swift in Sources */,
 				2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
+				2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */,
 				2B224F8025844C1900F32354 /* ScriptEditor.swift in Sources */,

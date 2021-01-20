@@ -37,10 +37,10 @@ class Tile
 class Renderer
 {
     enum RenderMode {
-        case Normal, Preview
+        case GPU, CPU
     }
     
-    var renderMode      : RenderMode = .Normal
+    var renderMode      : RenderMode = .GPU
     
     var texture         : MTLTexture? = nil
     var temp            : MTLTexture? = nil
@@ -72,7 +72,7 @@ class Renderer
     let core            : Core
             
     var tiles           : [Tile] = []
-
+    
     init(_ core: Core)
     {
         self.core = core
@@ -106,67 +106,84 @@ class Renderer
         guard let context = main.graph else {
             return
         }
-
-        if checkIfTextureIsValid(core, forceClear: true) == false {
-            return
-        }
-
-        let cores = ProcessInfo().activeProcessorCount// + 1
         
-        let width: Int = texture!.width
-        let height: Int = texture!.height
-        
-        let tileSize: Int = 8
-        let columns = height / tileSize + 1
-        let rows = width / tileSize + 1
-        tiles = []
-        for h in 0..<columns {
-            for w in 0..<rows {
-                let tile = Tile(w * tileSize, h * tileSize, tileSize, tileSize)
-                if tile.y >= height { break }
-                if tile.x >= width { break }
-                if tile.right >= width {
-                    tile.width -= tile.right - width + 1
-                    tile.right = tile.x + tile.width
-                    tile.size = tile.width * tile.height
+        if renderMode == .GPU {
+            core.renderPipeline.render()
+            texture = core.renderPipeline.texture
+            core.updateOnce()
+        } else {
+            
+            if checkIfTextureIsValid(core, forceClear: true) == false {
+                return
+            }
+
+            let cores = ProcessInfo().activeProcessorCount// + 1
+            
+            let width: Int = texture!.width
+            let height: Int = texture!.height
+            
+            let tileSize: Int = 8
+            let columns = height / tileSize + 1
+            let rows = width / tileSize + 1
+            tiles = []
+            for h in 0..<columns {
+                for w in 0..<rows {
+                    let tile = Tile(w * tileSize, h * tileSize, tileSize, tileSize)
+                    if tile.y >= height { break }
+                    if tile.x >= width { break }
+                    if tile.right >= width {
+                        tile.width -= tile.right - width + 1
+                        tile.right = tile.x + tile.width
+                        tile.size = tile.width * tile.height
+                    }
+                    if tile.bottom >=  height {
+                        tile.height -= tile.bottom - height + 1
+                        tile.bottom = tile.y + tile.height
+                        tile.size = tile.width * tile.height
+                    }
+                    if tile.width == 0 || tile.height == 0 { break }
+                    tiles.append(tile)
                 }
-                if tile.bottom >=  height {
-                    tile.height -= tile.bottom - height + 1
-                    tile.bottom = tile.y + tile.height
-                    tile.size = tile.width * tile.height
+            }
+            
+            var lineCount : Int = 0
+            let chunkHeight : Int = height / cores + cores
+            
+            //print("Cores", cores, chunkHeight)
+
+            startTime = Double(Date().timeIntervalSince1970)
+            totalTime = 0
+            coresActive = 0
+                    
+            isRunning = true
+            stopRunning = false
+
+            func startThread(_ chunk: SIMD4<Int>) {
+                //print("Chunk start", chunk.y, chunk.w)
+
+                coresActive += 1
+                dispatchGroup.enter()
+                DispatchQueue.global(qos: core.renderQuality == .Normal ? .background : .userInitiated).async {
+                    self.renderChunk(context1: context, chunk: chunk)
                 }
-                if tile.width == 0 || tile.height == 0 { break }
-                tiles.append(tile)
+            }
+
+            for _ in 0..<cores {
+                if lineCount < height {
+                    startThread(SIMD4<Int>(0, lineCount, 0, min(lineCount + chunkHeight, height)))
+                    lineCount += chunkHeight
+                }
             }
         }
-        
-        var lineCount : Int = 0
-        let chunkHeight : Int = height / cores + cores
-        
-        //print("Cores", cores, chunkHeight)
+    }
 
-        startTime = Double(Date().timeIntervalSince1970)
-        totalTime = 0
-        coresActive = 0
-                
-        isRunning = true
-        stopRunning = false
-
-        func startThread(_ chunk: SIMD4<Int>) {
-            //print("Chunk start", chunk.y, chunk.w)
-
-            coresActive += 1
-            dispatchGroup.enter()
-            DispatchQueue.global(qos: core.renderQuality == .Normal ? .background : .userInitiated).async {
-                self.renderChunk(context1: context, chunk: chunk)
-            }
-        }
-
-        for _ in 0..<cores {
-            if lineCount < height {
-                startThread(SIMD4<Int>(0, lineCount, 0, min(lineCount + chunkHeight, height)))
-                lineCount += chunkHeight
-            }
+    /// Gets the current GPU or CPU based texture
+    func getTexture() -> MTLTexture?
+    {
+        if renderMode == .GPU {
+            return core.renderPipeline.texture
+        } else {
+            return texture
         }
     }
     
@@ -334,15 +351,15 @@ class Renderer
             let chunkTime = Double(Date().timeIntervalSince1970) - startTime
             totalTime += chunkTime
             
-            if renderMode == .Normal {
+            //if renderMode == .Normal {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0 / 60.0) {
                     self.core.updateOnce()
                 }
-            } else {
-                DispatchQueue.main.async {
-                    self.core.updateOnce()
-                }
-            }
+            //} else {
+            //    DispatchQueue.main.async {
+            //        self.core.updateOnce()
+            //    }
+            //}
             
             isRunning = false
             print(totalTime)
@@ -351,11 +368,10 @@ class Renderer
         dispatchGroup.leave()
     }
     
-    func restart(_ renderMode : RenderMode = .Normal)
+    func restart()
     {
         stop()
             
-        self.renderMode = renderMode
         self.start()
     }
     
