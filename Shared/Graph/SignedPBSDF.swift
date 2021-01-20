@@ -434,7 +434,7 @@ final class GraphPrincipledBSDFNode : GraphNode
             lightDistSq = lightDist * lightDist
             lightDir /= sqrt(lightDistSq)
             
-            if dot(lightDir, state.ffnormal) <= 0.0 || dot(lightDir, lightInfo.normal) >= 0.0 {
+            if dot(lightDir, state.ffnormal) <= 0.0 {//}|| dot(lightDir, lightInfo.normal) >= 0.0 {
                 return L
             }
         }
@@ -443,7 +443,7 @@ final class GraphPrincipledBSDFNode : GraphNode
         ctx.rayOrigin.fromSIMD(surfacePos + lightDir * EPS)
         ctx.rayDirection.fromSIMD(lightDir)
 
-        let hit = ctx.hit(shadowRay: true)
+        let hit = ctx.hit(shadowRay: false)
         var inShadow : Bool = false
             
         if lightInfo.lightType == .Sun {
@@ -451,6 +451,13 @@ final class GraphPrincipledBSDFNode : GraphNode
         } else {
             if let material = hit.1 as? GraphMaterialNode {
                 inShadow = material.isEmitter == false
+            }
+            
+            lightInfo.surfacePos = ctx.rayOrigin.toSIMD() + hit.0 * ctx.rayDirection.toSIMD()
+            lightInfo.normal = hit.2
+            
+            if dot(lightDir, lightInfo.normal) >= 0.0 {
+                return L
             }
         }
         

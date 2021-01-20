@@ -57,6 +57,10 @@ class SignedGraphBuilder: GraphBuilder {
                 }
             }
             
+            if error.error == nil && core.renderer.renderMode == .GPU {
+                core.renderPipeline.compile(asset.graph!)
+            }
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.core.modelChanged.send()
             }

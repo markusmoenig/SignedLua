@@ -106,6 +106,9 @@ class GraphNode : Equatable, Identifiable {
     
     // The material for the node, if any
     var materialNode        : GraphNode? = nil
+    
+    // Shader implementation
+    var gpuShader           : AnyObject? = nil
         
     init(_ role: NodeRole,_ context: NodeContext,_ options: [String:Any] = [:])
     {

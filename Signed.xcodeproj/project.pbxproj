@@ -98,6 +98,10 @@
 		2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
 		2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */; };
 		2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */; };
+		2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */; };
+		2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */; };
+		2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0BA25B811360028C76A /* GPUCamera.swift */; };
+		2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0BA25B811360028C76A /* GPUCamera.swift */; };
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
@@ -155,6 +159,8 @@
 		2B888B6125B42C2B00956C64 /* BestCandidate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BestCandidate.swift; sourceTree = "<group>"; };
 		2B8A692A25A4486A006B1B5C /* CameraHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraHelper.swift; sourceTree = "<group>"; };
 		2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPURenderPipeline.swift; sourceTree = "<group>"; };
+		2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUBaseShader.swift; sourceTree = "<group>"; };
+		2BB4E0BA25B811360028C76A /* GPUCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUCamera.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -283,6 +289,8 @@
 			isa = PBXGroup;
 			children = (
 				2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */,
+				2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */,
+				2BB4E0BA25B811360028C76A /* GPUCamera.swift */,
 			);
 			path = GPURenderPipeline;
 			sourceTree = "<group>";
@@ -440,6 +448,8 @@
 				2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2B224F8B25844C3100F32354 /* Classes.swift in Sources */,
 				2B888B6225B42C2B00956C64 /* BestCandidate.swift in Sources */,
+				2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */,
+				2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */,
 				2B224F8125844C1900F32354 /* Metal.metal in Sources */,
 				2B4293BF259429AD00B56347 /* TexNodes.swift in Sources */,
 				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
@@ -490,6 +500,8 @@
 				2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2B224F8C25844C3100F32354 /* Classes.swift in Sources */,
 				2B888B6325B42C2C00956C64 /* BestCandidate.swift in Sources */,
+				2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */,
+				2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */,
 				2B224F8225844C1900F32354 /* Metal.metal in Sources */,
 				2B4293C0259429AD00B56347 /* TexNodes.swift in Sources */,
 				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,

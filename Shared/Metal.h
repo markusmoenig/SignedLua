@@ -69,4 +69,23 @@ typedef struct
     unsigned int    frame;
 } MetalData;
 
+typedef struct {
+    
+    simd_float3         cameraOrigin;
+    simd_float3         cameraLookAt;
+    
+    simd_float2         screenSize;
+    
+    simd_float4         ambientColor;
+    
+    float               time;
+
+    // bbox
+    simd_float3         P;
+    simd_float3         L;
+    matrix_float3x3     F;
+    
+    float               maxDistance;
+} GPUFragmentUniforms;
+
 #endif /* Metal_h */

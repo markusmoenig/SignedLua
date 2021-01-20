@@ -26,7 +26,10 @@ class GPURenderPipeline
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
     
-    var context         : GraphContext? = nil
+    var context         : GraphContext! = nil
+    
+    var quadVertexBuffer: MTLBuffer? = nil
+    var quadViewport    : MTLViewport? = nil
     
     init(_ view: MTKView)
     {
@@ -37,6 +40,10 @@ class GPURenderPipeline
     func compile(_ ctx: GraphContext)
     {
         context = ctx
+        
+        if let cameraNode = context.cameraNode {
+            cameraNode.gpuShader = GPUCameraShader(pipeline: self)
+        }
     }
     
     func render(_ size: SIMD2<Int>? = nil)
@@ -53,8 +60,15 @@ class GPURenderPipeline
         
         commandQueue = device.makeCommandQueue()
         commandBuffer = commandQueue.makeCommandBuffer()
+        quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(renderSize.x), Float(renderSize.y)))
+        quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0 )
         
         clearTexture(texture!, float4(1,0,0,1))
+        if let cameraNode = context.cameraNode {
+            if let cameraShader = cameraNode.gpuShader as? GPUCameraShader {
+                cameraShader.render(texture: texture!)
+            }
+        }
         
         commandBuffer.commit()
     }
@@ -88,7 +102,7 @@ class GPURenderPipeline
     }
     
     /// Allocate a texture of the given size
-    func allocateTexture2D(width: Int, height: Int, format: MTLPixelFormat = .rgba32Float) -> MTLTexture?
+    func allocateTexture2D(width: Int, height: Int, format: MTLPixelFormat = .rgba16Float) -> MTLTexture?
     {
         let textureDescriptor = MTLTextureDescriptor()
         textureDescriptor.textureType = MTLTextureType.type2D
@@ -98,5 +112,27 @@ class GPURenderPipeline
         
         textureDescriptor.usage = MTLTextureUsage.unknown
         return device.makeTexture(descriptor: textureDescriptor)
+    }
+    
+    /// Creates a vertex buffer for a quad shader
+    func getQuadVertexBuffer(_ rect: MMRect ) -> MTLBuffer?
+    {
+        let left = -rect.width / 2 + rect.x
+        let right = left + rect.width//self.width / 2 - x
+        
+        let top = rect.height / 2 - rect.y
+        let bottom = top - rect.height
+        
+        let quadVertices: [Float] = [
+            right, bottom, 1.0, 0.0,
+            left, bottom, 0.0, 0.0,
+            left, top, 0.0, 1.0,
+            
+            right, bottom, 1.0, 0.0,
+            left, top, 0.0, 1.0,
+            right, top, 1.0, 1.0,
+            ]
+        
+        return device.makeBuffer(bytes: quadVertices, length: quadVertices.count * MemoryLayout<Float>.stride, options: [])!
     }
 }
