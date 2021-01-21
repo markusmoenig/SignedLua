@@ -31,15 +31,12 @@ final class GraphSDFSphereNode : GraphDistanceNode
         context.position += position.toSIMD()
         
         if let index = position.dataIndex, index < context.data.count {
-            print(index, context.position.x)
             context.data[index] = float4(context.position.x, context.position.y, context.position.z, 0)
         }
-        /*
-        //print("in sphere", radius.toSIMD())
-        context.rayDist[context.rayIndex] = length(context.rayPosition.toSIMD() - context.position) - radius.toSIMD() - context.displacement.toSIMD()
-        context.hitMaterial[context.rayIndex] = context.activeMaterial
-        context.toggleRayIndex()
-        */
+        
+        if let index = radius.dataIndex, index < context.data.count {
+            context.data[index] = radius.toSIMD4()
+        }
         
         context.position -= position.toSIMD()
         return .Success
@@ -51,11 +48,12 @@ final class GraphSDFSphereNode : GraphDistanceNode
         var codeMap : [String:String] = [:]
         
         context.addDataVariable(position)
+        context.addDataVariable(radius)
 
         codeMap["map"] =
         """
 
-            d = length(position - data[\(position.dataIndex!)].xyz) - 1;
+            newDistance = float4(length(position - dataIn.data[\(position.dataIndex!)].xyz) - dataIn.data[\(radius.dataIndex!)].x, 0, -1, -1);
 
         """
                 
@@ -138,14 +136,37 @@ final class GraphSDFBoxNode : GraphDistanceNode
     {
         context.position += position.toSIMD()
 
-        let q : float3 = abs(context.rayPosition.toSIMD() - context.position) - size.toSIMD() - context.displacement.toSIMD()
-        context.rayDist[context.rayIndex] = length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
-        context.hitMaterial[context.rayIndex] = context.activeMaterial
-        context.toggleRayIndex()
-
+        if let index = position.dataIndex, index < context.data.count {
+            context.data[index] = float4(context.position.x, context.position.y, context.position.z, 0)
+        }
+        
+        if let index = size.dataIndex, index < context.data.count {
+            context.data[index] = size.toSIMD4()
+        }
+        
         context.position -= position.toSIMD()
-
         return .Success
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = [:]
+        
+        context.addDataVariable(position)
+        context.addDataVariable(size)
+
+        codeMap["map"] =
+        """
+
+            {
+                float3 q = abs(position - dataIn.data[\(position.dataIndex!)].xyz) - dataIn.data[\(size.dataIndex!)].xyz;
+                newDistance = length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+            }
+
+        """
+                
+        return codeMap
     }
     
     @inlinable public override func sampleLight(context: GraphContext) -> GraphLightInfo?

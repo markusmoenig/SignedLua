@@ -951,6 +951,8 @@ final class Float2 : BaseVariable
     }
 }
 
+// MARK: - Float1
+
 final class Float1 : BaseVariable
 {
     var x           : Float = 0
@@ -1013,6 +1015,12 @@ final class Float1 : BaseVariable
             }
         }
         return x
+    }
+    
+    @inlinable override func toSIMD4() -> SIMD4<Float>
+    {
+        let v = toSIMD()
+        return float4(v, 0, 0, 0)
     }
     
     override func getType() -> VariableType {

@@ -30,7 +30,7 @@ final class GPUCameraShader : GPUBaseShader
                                      constant FragmentUniforms &uniforms [[ buffer(1) ]],
                                      texture2d<float, access::write> camOriginTexture [[texture(2)]])
         {
-            float2 uv = float2(in.textureCoordinate.x, in.textureCoordinate.y);
+            float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
             float2 size = in.viewportSize;
 
             ushort2 textureUV = ushort2(uv.x * size.x, (1.0 - uv.y) * size.y);

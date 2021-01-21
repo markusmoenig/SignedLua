@@ -232,104 +232,9 @@ final class GraphCameraNode : GraphBaseCameraNode
     {
         context.updateDataVariable(origin)
         context.updateDataVariable(lookAt)
-        /*
-        seed = context.uv
-
-        position = origin.toSIMD()
-        pivot = lookAt.toSIMD()
-        
-        let dir = normalize(pivot - position)
-        pitch = asin(dir.y).radiansToDegrees
-        yaw = atan2(dir.z, dir.x).radiansToDegrees
-
-        radius = distance(position, pivot)
-
-        focalDist.fromSIMD(0.1)
-        aperture.fromSIMD(0.0)
-        
-        updateCamera()
-        generateRay(context: context)
-        */
-        /*
-        let ratio : Float = context.viewSize.x / context.viewSize.y
-        let pixelSize : float2 = float2(1.0, 1.0) / context.viewSize
-
-        let camOrigin = origin.toSIMD()
-        let camLookAt = lookAt.toSIMD()
-
-        let halfWidth : Float = tan(fov.x.degreesToRadians * 0.5)
-        let halfHeight : Float = halfWidth / ratio
-        
-        let upVector = float3(0.0, 1.0, 0.0)
-
-        let w : float3 = simd_normalize(camOrigin - camLookAt)
-        let u : float3 = simd_cross(upVector, w)
-        let v : float3 = simd_cross(w, u)
-
-        var lowerLeft : float3 = camOrigin - halfWidth * u
-        lowerLeft -= halfHeight * v - w
-        
-        let horizontal : float3 = u * halfWidth * 2.0
-        
-        let vertical : float3 = v * halfHeight * 2.0
-        var dir : float3 = lowerLeft - camOrigin
-
-        dir += horizontal * (pixelSize.x * context.camOffset.x + context.uv.x)
-        dir += vertical * (pixelSize.y * context.camOffset.y + context.uv.y)
-        
-        context.rayOrigin.fromSIMD(camOrigin)
-        context.rayDirection.fromSIMD(simd_normalize(-dir))
- 
-        */
+        context.updateDataVariable(fov)
         
         return .Success
-    }
-    
-    func updateCamera()
-    {
-        var forward_temp = float3()
-        
-        forward_temp.x = cos(yaw.degreesToRadians) * cos(pitch.degreesToRadians)
-        forward_temp.y = sin(pitch.degreesToRadians)
-        forward_temp.z = sin(yaw.degreesToRadians) * cos(pitch.degreesToRadians)
-
-        forward = normalize(forward_temp)
-        position = pivot + (forward * -1.0) * radius
-
-        right = normalize(cross(forward, worldUp))
-        up = normalize(cross(right, forward))
-    }
-    
-    func generateRay(context: GraphContext)
-    {
-        let r2D = 2.0 * context.rand2()
-
-        var jitter = float2()
-        if context.renderQuality == .Normal {
-            jitter.x = r2D.x < 1.0 ? sqrt(r2D.x) - 1.0 : 1.0 - sqrt(2.0 - r2D.x)
-            jitter.y = r2D.y < 1.0 ? sqrt(r2D.y) - 1.0 : 1.0 - sqrt(2.0 - r2D.y)
-        } else {
-            jitter = context.camOffset
-        }
-
-        jitter /= (context.viewSize * 0.5)
-        var d = (2.0 * context.uv - 1.0) + jitter
-
-        let scale = tan(fov.toSIMD() * 0.5)
-        d.y *= context.viewSize.y / context.viewSize.x * scale
-        d.x *= scale
-        let rayDir = normalize(d.x * right + d.y * up + forward)
-
-        let focalPoint = focalDist.toSIMD() * rayDir
-        let cam_r1 = context.rand() * Float.pi * 2
-        let cam_r2 = context.rand() * aperture.toSIMD()
-        let randomAperturePos = (cos(cam_r1) * right + sin(cam_r1) * up) * sqrt(cam_r2)
-        let finalRayDir = normalize(focalPoint - randomAperturePos)
-
-        context.rayOrigin.fromSIMD(position + randomAperturePos)
-        context.rayDirection.fromSIMD(finalRayDir)
-        
-        //Ray ray = Ray(camera.position + randomAperturePos, finalRayDir);
     }
     
     /// Returns the metal code for this node
@@ -339,45 +244,60 @@ final class GraphCameraNode : GraphBaseCameraNode
         
         context.addDataVariable(origin)
         context.addDataVariable(lookAt)
+        context.addDataVariable(fov)
 
         let cameraCode =
         
         """
 
-        float3 origin = data[\(origin.dataIndex!)].xyz;
-        float3 lookAt = data[\(lookAt.dataIndex!)].xyz;
+        const float fov = data[\(fov.dataIndex!)].x;
 
-        float ratio = size.x / size.y;
-        float2 pixelSize = float2(1.0) / size.xy;
-
-        // --- Camera
-
-        const float fov = 80;//uniforms.fov;
-        float halfWidth = tan(radians(fov) * 0.5);
-        float halfHeight = halfWidth / ratio;
-
-        float3 upVector = float3(0.0, 1.0, 0.0);
-
-        float3 w = normalize(origin - lookAt);
-        float3 u = cross(upVector, w);
-        float3 v = cross(w, u);
-
-        float3 lowerLeft = origin - halfWidth * u - halfHeight * v - w;
-        float3 horizontal = u * halfWidth * 2.0;
-        float3 vertical = v * halfHeight * 2.0;
-
-        // ---
-
-        float3 dir = lowerLeft - origin;
-        float2 rand = float2(0.5);
-
-        dir += horizontal * (pixelSize.x * rand.x + uv.x);
-        dir += vertical * (pixelSize.y * rand.y + uv.y);
+        float3 position = data[\(origin.dataIndex!)].xyz;
+        float3 pivot = data[\(lookAt.dataIndex!)].xyz;
+        float focalDist = 0.1;
+        float aperture = 0.0;
         
-        dir = normalize(dir);
+        float3 dir = normalize(pivot - position);
+        float pitch = asin(dir.y);
+        float yaw = atan2(dir.z, dir.x);
 
-        outOrigin = origin;
-        outDirection = dir;
+        float radius = distance(position, pivot);
+
+        float3 forward_temp = float3();
+        
+        forward_temp.x = cos(yaw) * cos(pitch);
+        forward_temp.y = sin(pitch);
+        forward_temp.z = sin(yaw) * cos(pitch);
+
+        float3 worldUp = float3(0,1,0);
+        float3 forward = normalize(forward_temp);
+        position = pivot + (forward * -1.0) * radius;
+
+        float3 right = normalize(cross(forward, worldUp));
+        float3 up = normalize(cross(right, forward));
+
+        float2 r2D = 2.0 * float2(0.5, 0.5);
+
+        float2 jitter = float2();
+        jitter.x = r2D.x < 1.0 ? sqrt(r2D.x) - 1.0 : 1.0 - sqrt(2.0 - r2D.x);
+        jitter.y = r2D.y < 1.0 ? sqrt(r2D.y) - 1.0 : 1.0 - sqrt(2.0 - r2D.y);
+
+        jitter /= (size * 0.5);
+        float2 d = (2.0 * uv - 1.0) + jitter;
+
+        float scale = tan(fov * 0.5);
+        d.y *= size.y / size.x * scale;
+        d.x *= scale;
+        float3 rayDir = normalize(d.x * right + d.y * up + forward);
+
+        float3 focalPoint = focalDist * rayDir;
+        float cam_r1 = 0.5 * PI * 2;
+        float cam_r2 = 0.5 * aperture;
+        float3 randomAperturePos = (cos(cam_r1) * right + sin(cam_r1) * up) * sqrt(cam_r2);
+        float3 finalRayDir = normalize(focalPoint - randomAperturePos);
+        
+        outOrigin = position + randomAperturePos;
+        outDirection = finalRayDir;
 
         """
         

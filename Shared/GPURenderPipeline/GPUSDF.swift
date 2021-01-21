@@ -22,19 +22,17 @@ final class GPUSDFShader : GPUBaseShader
     func createFragmentSource()
     {
         let codeMap = sdfObject.generateMetalCode(context: pipeline.context)
-        
-        print(codeMap)
-        
+                
         let fragmentCode =
         """
 
-        float4 map(float3 position, constant float4 *data)
+        float4 map(float3 position, DataIn dataIn)
         {
-            float d = 100000;
+            float4 distance = float4(100000, -1, -1, -1), newDistance = float4(100000, -1, -1, -1);
 
             \(codeMap["map"]!)
 
-            return float4(d, 0,0,0);
+            return distance;
         }
 
         fragment float4 procFragment(RasterizerData in [[stage_in]],
@@ -47,22 +45,25 @@ final class GPUSDFShader : GPUBaseShader
             float2 uv = float2(in.textureCoordinate.x, in.textureCoordinate.y);
             float2 size = in.viewportSize;
 
+            \(getDataInCode())
             ushort2 textureUV = ushort2(uv.x * size.x, (1.0 - uv.y) * size.y);
 
             float3 rayOrigin = float3(camOriginTexture.read(textureUV).xyz);
             float3 rayDir = float3(camDirTexture.read(textureUV).xyz);
+            float4 depth = float4(depthTexture.read(textureUV));
 
             float t = 0.001;
-
-            float4 depth = float4(0,0,1,1);
 
             for(int i = 0; i < 70; i++)
             {
                 float3 p = rayOrigin + rayDir * t;
-                float d = map(p, data).x;
+                float d = map(p, dataIn).x;
 
                 if (abs(d) < (0.0001*t)) {
-                    depth = float4(1,1,1,1);
+                    if (d < depth.x) {
+                        depth = float4(1,1,1,1);
+                        depthTexture.write(float4(1,1,1,1), textureUV);
+                    }
                     break;
                 }/* else
                 if t > maxDist {

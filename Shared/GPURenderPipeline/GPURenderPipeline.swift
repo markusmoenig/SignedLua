@@ -66,7 +66,8 @@ class GPURenderPipeline
     
     func compile(_ ctx: GraphContext)
     {
-        context = ctx
+        context = ctx        
+        context.data = [float4(0,0,0,0)]
         
         if let cameraNode = context.cameraNode {
             cameraNode.gpuShader = GPUCameraShader(pipeline: self)
@@ -101,6 +102,7 @@ class GPURenderPipeline
         
         update()
         
+        clearTexture(texture!, float4(0, 0, 0, 1))
         clearTexture(depthTexture!, float4(1000,-1,-1,-1))
         
         if let cameraNode = context.cameraNode {

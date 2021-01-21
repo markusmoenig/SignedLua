@@ -35,6 +35,21 @@ final class GraphBoolMergeNode : GraphNode
         return .Success
     }
     
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = [:]
+        
+        codeMap["map"] =
+        """
+
+            if (newDistance.x < distance.x) distance = newDistance;
+
+        """
+                
+        return codeMap
+    }
+    
     override func getHelp() -> String
     {
         return "Merges the two previous SDFs."
