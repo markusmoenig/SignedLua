@@ -1,5 +1,5 @@
 //
-//  GPUSDF.swift
+//  GPUMaterials.swift
 //  Signed
 //
 //  Created by Markus Moenig on 21/1/21.
@@ -7,13 +7,11 @@
 
 import MetalKit
 
-final class GPUSDFShader : GPUBaseShader
+final class GPUMaterialsShader : GPUBaseShader
 {
-    let sdfObject   : GraphNode
     
-    init(pipeline: GPURenderPipeline, object: GraphNode)
+    override init(pipeline: GPURenderPipeline)
     {
-        sdfObject = object
         super.init(pipeline: pipeline)
         
         createFragmentSource()
@@ -21,19 +19,38 @@ final class GPUSDFShader : GPUBaseShader
     
     func createFragmentSource()
     {
-        let codeMap = sdfObject.generateMetalCode(context: pipeline.context)
+        //let codeMap = sdfObject.generateMetalCode(context: pipeline.context)
+                
+        var findMaterialsCode = ""
+        var materialsCode = ""
+        for (index, node) in context.materialNodes.enumerated() {
+            node.index = index
+            materialsCode +=
+            """
+
+            Material material\(index)(DataIn dataIn)
+            {
+                Material material;
+
+            """
+            
+            let codeMap = node.generateMetalCode(context: pipeline.context)
+            materialsCode += "    " + codeMap["code"]!
+            materialsCode +=
+            """
+                return material;
+            }
+
+            """
+            
+            if findMaterialsCode != "" { findMaterialsCode += "else\n" }
+            findMaterialsCode += "    if (isEqual(depth.w, \(String(index)))) material = material\(String(index))(dataIn);\n"
+        }
                 
         let fragmentCode =
         """
 
-        float4 map(float3 position, DataIn dataIn)
-        {
-            float4 distance = float4(100000, -1, -1, -1), newDistance = float4(100000, -1, -1, -1);
-
-            \(codeMap["map"]!)
-
-            return distance;
-        }
+        \(materialsCode)
 
         fragment float4 procFragment(RasterizerData in [[stage_in]],
                                      constant float4 *data [[ buffer(0) ]],
@@ -52,28 +69,12 @@ final class GPUSDFShader : GPUBaseShader
             float3 rayDir = float3(camDirTexture.read(textureUV).xyz);
             float4 depth = float4(depthTexture.read(textureUV));
 
-            float t = 0.001;
+            Material material;
+            material.albedo = float4(0,0,0,1);
 
-            for(int i = 0; i < 70; i++)
-            {
-                float3 p = rayOrigin + rayDir * t;
-                float4 d = map(p, dataIn);
+            \(findMaterialsCode)
 
-                if (abs(d.x) < (0.0001*t)) {
-                    if (d.x < depth.x) {
-                        depth = d;
-                    }
-                    break;
-                }/* else
-                if t > maxDist {
-                    break
-                }*/
-                
-                t += d.x;
-            }
-
-            depthTexture.write(depth, textureUV);
-            return depth;
+            return material.albedo;
         }
 
         """

@@ -70,6 +70,11 @@ class BaseVariable {
         return "Invalid"
     }
     
+    /// Return the SIMD / Metal name of the variable, i.e. float2
+    func getSIMDName() -> String {
+        return "Invalid"
+    }
+    
     /// Return the variable in a readable form, like Float3<0, 1, 2>
     func toString() -> String {
         return ""
@@ -239,6 +244,7 @@ class BaseVariable {
     }
 }
 
+// MARK: - Float4
 final class Float4 : BaseVariable
 {
     var x           : Float = 1
@@ -404,6 +410,10 @@ final class Float4 : BaseVariable
         return "Float4"
     }
     
+    override func getSIMDName() -> String {
+        return "float4"
+    }
+    
     @inlinable override func isConstant() -> Bool {
         if let reference = reference {
             return reference.isConstant()
@@ -516,6 +526,7 @@ final class Float4 : BaseVariable
     }
 }
 
+// MARK: - Float3
 final class Float3 : BaseVariable
 {
     var x           : Float = 1
@@ -658,6 +669,10 @@ final class Float3 : BaseVariable
         return "Float3"
     }
     
+    override func getSIMDName() -> String {
+        return "float3"
+    }
+    
     @inlinable override func isConstant() -> Bool {
         if let reference = reference {
             return reference.isConstant()
@@ -771,6 +786,7 @@ final class Float3 : BaseVariable
     }
 }
 
+// MARK: - Float2
 final class Float2 : BaseVariable
 {
     var x           : Float = 0
@@ -869,6 +885,10 @@ final class Float2 : BaseVariable
         return "Float2"
     }
     
+    override func getSIMDName() -> String {
+        return "float2"
+    }
+    
     @inlinable override func isConstant() -> Bool {
         if let reference = reference {
             return reference.isConstant()
@@ -952,7 +972,6 @@ final class Float2 : BaseVariable
 }
 
 // MARK: - Float1
-
 final class Float1 : BaseVariable
 {
     var x           : Float = 0
@@ -1031,6 +1050,10 @@ final class Float1 : BaseVariable
         return "Float"
     }
     
+    override func getSIMDName() -> String {
+        return "float"
+    }
+    
     override func toString() -> String {
         return String(x)//format: "%.03f", x)
     }
@@ -1054,6 +1077,7 @@ final class Float1 : BaseVariable
     }
 }
 
+// MARK - Int1
 final class Int1 : BaseVariable
 {
     var x           : Int = 0
@@ -1109,6 +1133,10 @@ final class Int1 : BaseVariable
     
     override func getTypeName() -> String {
         return "Int"
+    }
+    
+    override func getSIMDName() -> String {
+        return "float"
     }
     
     override func toString() -> String {

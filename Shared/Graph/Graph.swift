@@ -83,6 +83,7 @@ class GraphNode : Equatable, Identifiable {
     }
     
     var id                  = UUID()
+    var index               : Int? = nil
     
     var role                : NodeRole = .Camera
     var context             : NodeContext = .None
@@ -349,6 +350,18 @@ final class GraphContext    : VariableContainer
         if let index = variable.dataIndex, index < data.count {
             data[index] = variable.toSIMD4()
         }
+    }
+    
+    /// Returns the index of the currently active material
+    func getMaterialIndex() -> String
+    {
+        var materialId = "-1"
+        if let material = activeMaterial {
+            if let index = material.index {
+                materialId = String(index)
+            }
+        }
+        return materialId
     }
 
     /// Creates the default variables for the graph

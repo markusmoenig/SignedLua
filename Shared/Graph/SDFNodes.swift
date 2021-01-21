@@ -49,11 +49,11 @@ final class GraphSDFSphereNode : GraphDistanceNode
         
         context.addDataVariable(position)
         context.addDataVariable(radius)
-
+        
         codeMap["map"] =
         """
 
-            newDistance = float4(length(position - dataIn.data[\(position.dataIndex!)].xyz) - dataIn.data[\(radius.dataIndex!)].x, 0, -1, -1);
+            newDistance = float4(length(position - dataIn.data[\(position.dataIndex!)].xyz) - dataIn.data[\(radius.dataIndex!)].x, 0, -1, \(context.getMaterialIndex()));
 
         """
                 
@@ -161,7 +161,7 @@ final class GraphSDFBoxNode : GraphDistanceNode
 
             {
                 float3 q = abs(position - dataIn.data[\(position.dataIndex!)].xyz) - dataIn.data[\(size.dataIndex!)].xyz;
-                newDistance = length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+                newDistance = float4(length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0), 0, -1, \(context.getMaterialIndex()));
             }
 
         """

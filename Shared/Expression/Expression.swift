@@ -546,6 +546,26 @@ class ExpressionContext
         }
     }
     
+    /// Converts the expression to metal code
+    func toMetal() -> String
+    {
+        var code = ""
+        
+        if nodes.isEmpty == false {
+            for node in nodes {
+                node.execute(self)
+            }
+        } else {
+            if values.count >= 1 {
+                if let result = values[values.count - 1] {
+                    code += "\(result.getSIMDName())(\(result.toString()));\n"
+                }
+            }
+        }
+        
+        return code
+    }
+    
     /// Returns a possible result
     @inlinable func execute() -> BaseVariable?
     {

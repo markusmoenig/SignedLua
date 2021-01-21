@@ -900,6 +900,25 @@ class GPUBaseShader
             float               reflectionDist;
             float               reflectionBlur;
         };
+
+        typedef struct
+        {
+            float4 albedo;
+            float specular;
+            float3 emission;
+            float anisotropic;
+            float metallic;
+            float roughness;
+            float subsurface;
+            float specularTint;
+            float sheen;
+            float sheenTint;
+            float clearcoat;
+            float clearcoatGloss;
+            float transmission;
+            float ior;
+            float3 extinction;
+        } Material;
         
         struct PatternOut
         {

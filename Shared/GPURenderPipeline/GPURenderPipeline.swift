@@ -36,6 +36,8 @@ class GPURenderPipeline
     
     var dataBuffer      : MTLBuffer? = nil
     
+    var materialsShader : GPUMaterialsShader? = nil
+    
     // Global Uniforms
     var cameraOrigin    = float3()
     var cameraLookAt    = float3()
@@ -78,9 +80,12 @@ class GPURenderPipeline
             node.gpuShader = GPUAnalyticalShader(pipeline: self, object: node)
         }*/
         
+        materialsShader = GPUMaterialsShader(pipeline: self)
+        
         for node in context.sdfNodes {
             node.gpuShader = GPUSDFShader(pipeline: self, object: node)
         }
+        
     }
     
     func render(_ size: SIMD2<Int>? = nil)
@@ -102,7 +107,7 @@ class GPURenderPipeline
         
         update()
         
-        clearTexture(texture!, float4(0, 0, 0, 1))
+        clearTexture(texture!, float4(0, 0, 0, -1))
         clearTexture(depthTexture!, float4(1000,-1,-1,-1))
         
         if let cameraNode = context.cameraNode {
@@ -122,6 +127,8 @@ class GPURenderPipeline
                 object.render()
             }
         }
+        
+        materialsShader!.render()
         
         commandBuffer.commit()
     }

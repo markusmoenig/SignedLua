@@ -104,6 +104,10 @@ final class GraphSDFObject : GraphDistanceNode
     {
         var codeMap : [String:String] = ["map":""]
         
+        if let materialName = materialName {
+            context.activeMaterial = context.getMaterial(materialName)
+        }
+        
         for leave in leaves {
             let map = leave.generateMetalCode(context: context)
             
@@ -256,6 +260,10 @@ final class GraphAnalyticalObject : GraphDistanceNode
     {
         var codeMap : [String:String] = ["map":""]
         
+        if let materialName = materialName {
+            context.activeMaterial = context.getMaterial(materialName)
+        }
+            
         for leave in leaves {
             let map = leave.generateMetalCode(context: context)
             
@@ -325,6 +333,25 @@ final class GraphMaterialNode : GraphNode
         }
         context.variables["outColor"] = buffer
         return .Success
+    }
+    
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = ["map":""]
+        
+        for leave in leaves {
+            let map = leave.generateMetalCode(context: context)
+            
+            for (key, code) in map {
+                if codeMap[key] != nil {
+                    codeMap[key]! += code
+                } else {
+                    codeMap[key] = code
+                }
+            }
+        }
+                
+        return codeMap
     }
     
     override func getHelp() -> String

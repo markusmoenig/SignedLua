@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B0F923225B9775B00677A38 /* GPUMaterials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F923125B9775B00677A38 /* GPUMaterials.swift */; };
+		2B0F923325B9775B00677A38 /* GPUMaterials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F923125B9775B00677A38 /* GPUMaterials.swift */; };
 		2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1EAD1425A6FAD500E59CFB /* Tool.swift */; };
 		2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1EAD1425A6FAD500E59CFB /* Tool.swift */; };
 		2B224D9825A40C3D006C5C2F /* ScriptProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */; };
@@ -112,6 +114,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2B0F923125B9775B00677A38 /* GPUMaterials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUMaterials.swift; sourceTree = "<group>"; };
 		2B1EAD1425A6FAD500E59CFB /* Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
 		2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptProcessor.swift; sourceTree = "<group>"; };
 		2B224F2D2584485100F32354 /* SignedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedApp.swift; sourceTree = "<group>"; };
@@ -296,6 +299,7 @@
 			children = (
 				2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */,
 				2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */,
+				2B0F923125B9775B00677A38 /* GPUMaterials.swift */,
 				2BB4E0BA25B811360028C76A /* GPUCamera.swift */,
 				2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */,
 				2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */,
@@ -479,6 +483,7 @@
 				2B224F7B25844C1900F32354 /* File.swift in Sources */,
 				2B400E9D25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
+				2B0F923225B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
 				2B888B5725B15E7600956C64 /* SignedLightNodes.swift in Sources */,
 				2B224FEC2588A6BD00F32354 /* Nodes.swift in Sources */,
@@ -533,6 +538,7 @@
 				2B224F7C25844C1900F32354 /* File.swift in Sources */,
 				2B400E9E25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,
+				2B0F923325B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
 				2B888B5825B15E7600956C64 /* SignedLightNodes.swift in Sources */,
 				2B224FED2588A6BD00F32354 /* Nodes.swift in Sources */,

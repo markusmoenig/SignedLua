@@ -58,6 +58,37 @@ final class GraphVariableAssignmentNode : GraphNode
         return .Success
     }
     
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = ["code":""]
+        let materialNames : [String] = ["albedo", "specular","emission","anisotropic","metallic","roughness","subsurface","specularTint","sheen","sheenTint","clearcoat","clearcoatGloss","transmission","ior","extinction"]
+                        
+        func assignmentCode() -> String {
+            if assignmentType == .Copy { return "=" }
+            if assignmentType == .Add { return "+=" }
+            if assignmentType == .Subtract { return "-=" }
+            if assignmentType == .Divide { return "/=" }
+            if assignmentType == .Multiply { return "*=" }
+            return "Invalid Assignment"
+        }
+        
+        if let expression = expression {
+            if let v = expression.execute() {
+                if materialNames.contains(givenName) {
+                    codeMap["code"] = "material.\(givenName) \(assignmentCode()) \(expression.toMetal())"
+                } else {
+                    if codeMap[givenName] == nil {
+                        codeMap["code"] = "\(v.getSIMDName()) \(givenName) = \(expression.toMetal())"
+                    } else {
+                        codeMap["code"] = "\(givenName) \(assignmentCode()) \(expression.toMetal())"
+                    }
+                }
+            }
+        }
+                
+        return codeMap
+    }
+    
     override func getHelp() -> String
     {
         return "Creates or modifies a variable."
