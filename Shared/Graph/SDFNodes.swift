@@ -30,13 +30,36 @@ final class GraphSDFSphereNode : GraphDistanceNode
     {
         context.position += position.toSIMD()
         
+        if let index = position.dataIndex, index < context.data.count {
+            print(index, context.position.x)
+            context.data[index] = float4(context.position.x, context.position.y, context.position.z, 0)
+        }
+        /*
         //print("in sphere", radius.toSIMD())
         context.rayDist[context.rayIndex] = length(context.rayPosition.toSIMD() - context.position) - radius.toSIMD() - context.displacement.toSIMD()
         context.hitMaterial[context.rayIndex] = context.activeMaterial
         context.toggleRayIndex()
+        */
         
         context.position -= position.toSIMD()
         return .Success
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = [:]
+        
+        context.addDataVariable(position)
+
+        codeMap["map"] =
+        """
+
+            d = length(position - data[\(position.dataIndex!)].xyz) - 1;
+
+        """
+                
+        return codeMap
     }
     
     @inlinable public override func sampleLight(context: GraphContext) -> GraphLightInfo?

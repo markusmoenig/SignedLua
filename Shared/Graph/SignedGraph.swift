@@ -230,6 +230,9 @@ final class GraphCameraNode : GraphBaseCameraNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
+        context.updateDataVariable(origin)
+        context.updateDataVariable(lookAt)
+        /*
         seed = context.uv
 
         position = origin.toSIMD()
@@ -246,6 +249,7 @@ final class GraphCameraNode : GraphBaseCameraNode
         
         updateCamera()
         generateRay(context: context)
+        */
         /*
         let ratio : Float = context.viewSize.x / context.viewSize.y
         let pixelSize : float2 = float2(1.0, 1.0) / context.viewSize
@@ -326,6 +330,60 @@ final class GraphCameraNode : GraphBaseCameraNode
         context.rayDirection.fromSIMD(finalRayDir)
         
         //Ray ray = Ray(camera.position + randomAperturePos, finalRayDir);
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = [:]
+        
+        context.addDataVariable(origin)
+        context.addDataVariable(lookAt)
+
+        let cameraCode =
+        
+        """
+
+        float3 origin = data[\(origin.dataIndex!)].xyz;
+        float3 lookAt = data[\(lookAt.dataIndex!)].xyz;
+
+        float ratio = size.x / size.y;
+        float2 pixelSize = float2(1.0) / size.xy;
+
+        // --- Camera
+
+        const float fov = 80;//uniforms.fov;
+        float halfWidth = tan(radians(fov) * 0.5);
+        float halfHeight = halfWidth / ratio;
+
+        float3 upVector = float3(0.0, 1.0, 0.0);
+
+        float3 w = normalize(origin - lookAt);
+        float3 u = cross(upVector, w);
+        float3 v = cross(w, u);
+
+        float3 lowerLeft = origin - halfWidth * u - halfHeight * v - w;
+        float3 horizontal = u * halfWidth * 2.0;
+        float3 vertical = v * halfHeight * 2.0;
+
+        // ---
+
+        float3 dir = lowerLeft - origin;
+        float2 rand = float2(0.5);
+
+        dir += horizontal * (pixelSize.x * rand.x + uv.x);
+        dir += vertical * (pixelSize.y * rand.y + uv.y);
+        
+        dir = normalize(dir);
+
+        outOrigin = origin;
+        outDirection = dir;
+
+        """
+        
+        codeMap["camera"] = cameraCode
+        
+        return codeMap
     }
     
     /// toolTouchDown

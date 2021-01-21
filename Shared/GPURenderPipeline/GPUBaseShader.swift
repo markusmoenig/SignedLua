@@ -239,7 +239,8 @@ class GPUBaseShader
     }
     
     
-    func render(texture: MTLTexture)
+    /// The main render operation of the shader
+    func render()
     {
     }
     
@@ -876,6 +877,7 @@ class GPUBaseShader
         typedef struct {
             simd_float3         cameraOrigin;
             simd_float3         cameraLookAt;
+            float               fov;
             
             simd_float2         screenSize;
 

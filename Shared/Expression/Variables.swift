@@ -51,6 +51,9 @@ class BaseVariable {
     var reference   : BaseVariable? = nil
     var qualifiers  : [Int] = []
     
+    // The data index of the variable
+    var dataIndex   : Int? = nil
+    
     init(_ name: String, components: Int = 1)
     {
         self.name = name
@@ -685,6 +688,12 @@ final class Float3 : BaseVariable
     @inlinable override func toSIMD3() -> SIMD3<Float>
     {
         return toSIMD()
+    }
+    
+    @inlinable override func toSIMD4() -> SIMD4<Float>
+    {
+        let v = toSIMD()
+        return float4(v.x, v.y, v.z, 0)
     }
     
     @inlinable func toSIMD() -> SIMD3<Float>

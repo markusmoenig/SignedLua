@@ -102,6 +102,10 @@
 		2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */; };
 		2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0BA25B811360028C76A /* GPUCamera.swift */; };
 		2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0BA25B811360028C76A /* GPUCamera.swift */; };
+		2BB4E0C225B90DAD0028C76A /* GPUSDF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */; };
+		2BB4E0C325B90DAD0028C76A /* GPUSDF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */; };
+		2BB4E0C725B929DC0028C76A /* GPUAnalytical.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */; };
+		2BB4E0C825B929DC0028C76A /* GPUAnalytical.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */; };
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
@@ -161,6 +165,8 @@
 		2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPURenderPipeline.swift; sourceTree = "<group>"; };
 		2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUBaseShader.swift; sourceTree = "<group>"; };
 		2BB4E0BA25B811360028C76A /* GPUCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUCamera.swift; sourceTree = "<group>"; };
+		2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUSDF.swift; sourceTree = "<group>"; };
+		2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUAnalytical.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -291,6 +297,8 @@
 				2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */,
 				2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */,
 				2BB4E0BA25B811360028C76A /* GPUCamera.swift */,
+				2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */,
+				2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */,
 			);
 			path = GPURenderPipeline;
 			sourceTree = "<group>";
@@ -446,6 +454,7 @@
 				2B224FAF2585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F6F25844C1900F32354 /* Core.swift in Sources */,
 				2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */,
+				2BB4E0C725B929DC0028C76A /* GPUAnalytical.swift in Sources */,
 				2B224F8B25844C3100F32354 /* Classes.swift in Sources */,
 				2B888B6225B42C2B00956C64 /* BestCandidate.swift in Sources */,
 				2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */,
@@ -464,6 +473,7 @@
 				2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D4258C52B10073DAE9 /* Variables.swift in Sources */,
+				2BB4E0C225B90DAD0028C76A /* GPUSDF.swift in Sources */,
 				2B224F7F25844C1900F32354 /* ScriptEditor.swift in Sources */,
 				2B76D82B25AC46F000AF6FF2 /* SignedGraph.swift in Sources */,
 				2B224F7B25844C1900F32354 /* File.swift in Sources */,
@@ -498,6 +508,7 @@
 				2B224FB02585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F7025844C1900F32354 /* Core.swift in Sources */,
 				2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */,
+				2BB4E0C825B929DC0028C76A /* GPUAnalytical.swift in Sources */,
 				2B224F8C25844C3100F32354 /* Classes.swift in Sources */,
 				2B888B6325B42C2C00956C64 /* BestCandidate.swift in Sources */,
 				2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */,
@@ -516,6 +527,7 @@
 				2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */,
+				2BB4E0C325B90DAD0028C76A /* GPUSDF.swift in Sources */,
 				2B224F8025844C1900F32354 /* ScriptEditor.swift in Sources */,
 				2B76D82C25AC46F000AF6FF2 /* SignedGraph.swift in Sources */,
 				2B224F7C25844C1900F32354 /* File.swift in Sources */,

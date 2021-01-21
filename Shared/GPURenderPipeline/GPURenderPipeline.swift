@@ -21,8 +21,11 @@ class GPURenderPipeline
     var renderSize      = SIMD2<Int>()
     
     var texture         : MTLTexture? = nil
-    var backTexture     : MTLTexture? = nil
-    
+    var depthTexture    : MTLTexture? = nil
+
+    var camOriginTexture: MTLTexture? = nil
+    var camDirTexture   : MTLTexture? = nil
+
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
     
@@ -31,10 +34,34 @@ class GPURenderPipeline
     var quadVertexBuffer: MTLBuffer? = nil
     var quadViewport    : MTLViewport? = nil
     
+    var dataBuffer      : MTLBuffer? = nil
+    
+    // Global Uniforms
+    var cameraOrigin    = float3()
+    var cameraLookAt    = float3()
+    
     init(_ view: MTKView)
     {
         self.view = view
         device = view.device!
+    }
+    
+    func update()
+    {
+        if let cameraNode = context.cameraNode {
+            cameraNode.execute(context: context)
+        }
+        
+        for node in context.sdfNodes {
+            node.execute(context: context)
+        }
+                
+        if dataBuffer != nil {
+            dataBuffer!.setPurgeableState(.empty)
+            dataBuffer = nil
+        }
+        
+        dataBuffer = device.makeBuffer(bytes: context.data, length: context.data.count * MemoryLayout<SIMD4<Float>>.stride, options: [])!
     }
     
     func compile(_ ctx: GraphContext)
@@ -43,6 +70,15 @@ class GPURenderPipeline
         
         if let cameraNode = context.cameraNode {
             cameraNode.gpuShader = GPUCameraShader(pipeline: self)
+        }
+        
+        /*
+        for node in context.analyticalNodes {
+            node.gpuShader = GPUAnalyticalShader(pipeline: self, object: node)
+        }*/
+        
+        for node in context.sdfNodes {
+            node.gpuShader = GPUSDFShader(pipeline: self, object: node)
         }
     }
     
@@ -63,14 +99,46 @@ class GPURenderPipeline
         quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(renderSize.x), Float(renderSize.y)))
         quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0 )
         
-        clearTexture(texture!, float4(1,0,0,1))
+        update()
+        
+        clearTexture(depthTexture!, float4(1000,-1,-1,-1))
+        
         if let cameraNode = context.cameraNode {
             if let cameraShader = cameraNode.gpuShader as? GPUCameraShader {
-                cameraShader.render(texture: texture!)
+                cameraShader.render()
+            }
+        }
+        /*
+        for node in context.analyticalNodes {
+            if let object = node.gpuShader as? GPUAnalyticalShader {
+                object.render()
+            }
+        }*/
+        
+        for node in context.sdfNodes {
+            if let object = node.gpuShader as? GPUSDFShader {
+                object.render()
             }
         }
         
         commandBuffer.commit()
+    }
+    
+    /// Create a uniform buffer containing general information about the current project
+    func createFragmentUniform() -> GPUFragmentUniforms
+    {
+        var fragmentUniforms = GPUFragmentUniforms()
+
+        fragmentUniforms.cameraOrigin = cameraOrigin
+        fragmentUniforms.cameraLookAt = cameraLookAt
+        
+        /*
+        fragmentUniforms.screenSize = prtInstance.screenSize
+        if let ambient = getGlobalVariableValue(withName: "World.worldAmbient") {
+            fragmentUniforms.ambientColor = ambient
+        }*/
+        
+        return fragmentUniforms
     }
     
     /// Clears the textures
@@ -85,6 +153,7 @@ class GPURenderPipeline
         renderEncoder.endEncoding()
     }
     
+    /// Check and allocate all textures
     func checkTextures()
     {
         func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
@@ -99,6 +168,9 @@ class GPURenderPipeline
         }
 
         texture = checkTexture(texture)
+        depthTexture = checkTexture(depthTexture)
+        camOriginTexture = checkTexture(camOriginTexture)
+        camDirTexture = checkTexture(camDirTexture)
     }
     
     /// Allocate a texture of the given size

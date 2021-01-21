@@ -75,6 +75,7 @@ final class GraphSDFObject : GraphDistanceNode
     {
         context.position += position.toSIMD()
                     
+        /*
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
             if let material = context.activeMaterial as? GraphMaterialNode {
@@ -88,6 +89,8 @@ final class GraphSDFObject : GraphDistanceNode
             context.activeMaterial = nil
             context.displacement.fromSIMD(0)
         }
+ 
+        */
         
         for leave in leaves {
             leave.execute(context: context)
@@ -95,6 +98,25 @@ final class GraphSDFObject : GraphDistanceNode
         
         context.position -= position.toSIMD()
         return .Success
+    }
+    
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = ["map":""]
+        
+        for leave in leaves {
+            let map = leave.generateMetalCode(context: context)
+            
+            for (key, code) in map {
+                if codeMap[key] != nil {
+                    codeMap[key]! += code
+                } else {
+                    codeMap[key] = code
+                }
+            }
+        }
+                
+        return codeMap
     }
     
     override func getHelp() -> String
@@ -228,6 +250,27 @@ final class GraphAnalyticalObject : GraphDistanceNode
         
         context.position -= position.toSIMD()
         return .Success
+    }
+    
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = ["map":""]
+        
+        for leave in leaves {
+            let map = leave.generateMetalCode(context: context)
+            
+            for (key, code) in map {
+                if codeMap[key] != nil {
+                    codeMap[key]! += code
+                } else {
+                    codeMap[key] = code
+                }
+            }
+        }
+        
+        print(codeMap)
+        
+        return codeMap
     }
     
     override func getHelp() -> String

@@ -143,6 +143,14 @@ class GraphNode : Equatable, Identifiable {
     {
     }
     
+    /// Returns the metal code for this node
+    func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        let codeMap : [String:String] = [:]
+        
+        return codeMap
+    }
+    
     /// Get help text
     func getHelp() -> String
     {
@@ -275,6 +283,8 @@ final class GraphContext    : VariableContainer
     
     var distance2D          : [Float] = []                      // The distance to a 2D SDF
     var distance2DIndex     : Int = 0
+    
+    var data                : [float4] = []
         
     var sampler             = BestCandidateSampler1D()
     var sampler2D           = BestCandidateSampler2D()
@@ -289,12 +299,13 @@ final class GraphContext    : VariableContainer
         
         hitMaterial.append(nil)
         hitMaterial.append(nil)
-        
+                
         super.init()
     }
     
     func setupBeforeStart()
     {
+        data = []
         if let renderNode = renderNode {
             renderNode.setupMaterialVariables(context: self)
         }
@@ -321,8 +332,25 @@ final class GraphContext    : VariableContainer
         
         blendMaterial = nil
         materialBlend = 0
+        
+        data = []
     }
     
+    /// Add a variable to the data stack
+    func addDataVariable(_ variable: BaseVariable)
+    {
+        variable.dataIndex = data.count
+        data.append(float4())
+    }
+    
+    /// Update the variable data value in the stack
+    func updateDataVariable(_ variable: BaseVariable)
+    {
+        if let index = variable.dataIndex, index < data.count {
+            data[index] = variable.toSIMD4()
+        }
+    }
+
     /// Creates the default variables for the graph
     func createDefaultVariables()
     {

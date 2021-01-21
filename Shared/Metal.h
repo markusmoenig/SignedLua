@@ -73,6 +73,7 @@ typedef struct {
     
     simd_float3         cameraOrigin;
     simd_float3         cameraLookAt;
+    float               fov;
     
     simd_float2         screenSize;
     
