@@ -33,6 +33,9 @@ class GPURenderPipeline
     var paramsTexture4  : MTLTexture? = nil
     var paramsTexture5  : MTLTexture? = nil
     var paramsTexture6  : MTLTexture? = nil
+    
+    var utilityTexture1 : MTLTexture? = nil
+    var utilityTexture2 : MTLTexture? = nil
 
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
@@ -122,7 +125,7 @@ class GPURenderPipeline
         
         update()
         
-        clearTexture(texture!, float4(0, 0, 0, -1))
+        clearTexture(texture!, float4(0, 0, 0, 0))
         clearTexture(depthTexture!, float4(1000,-1,-1,-1))
         
         if let cameraNode = context.cameraNode {
@@ -133,17 +136,35 @@ class GPURenderPipeline
         
         for node in context.analyticalNodes {
             if let object = node.gpuShader as? GPUAnalyticalShader {
-                object.render()
+                object.render(camOriginTexture: camOriginTexture!, camDirTexture: camDirTexture!, depthTexture: depthTexture!, normalTexture: normalTexture!)
             }
         }
         
         for node in context.sdfNodes {
             if let object = node.gpuShader as? GPUSDFShader {
-                object.render()
+                object.render(camOriginTexture: camOriginTexture!, camDirTexture: camDirTexture!, depthTexture: depthTexture!, normalTexture: normalTexture!)
             }
         }
         
         materialsShader!.render()
+        
+        // New we have the new hit in camOrigin and the light sampling direction in params5: Shadow pass
+        
+        clearTexture(utilityTexture1!, float4(1000,-1,-1,-1))
+
+        for node in context.analyticalNodes {
+            if let object = node.gpuShader as? GPUAnalyticalShader {
+                object.render(camOriginTexture: camOriginTexture!, camDirTexture: paramsTexture5!, depthTexture: utilityTexture1!, normalTexture: utilityTexture2!)
+            }
+        }
+        
+        for node in context.sdfNodes {
+            if let object = node.gpuShader as? GPUSDFShader {
+                object.render(camOriginTexture: camOriginTexture!, camDirTexture: paramsTexture5!, depthTexture: utilityTexture1!, normalTexture: utilityTexture2!)
+            }
+        }
+        
+        materialsShader!.directLight(depthTexture: depthTexture!, normalTexture: normalTexture!, lightDepthTexture: utilityTexture1!, lightNormalTexture: utilityTexture2!)
         
         commandBuffer.commit()
     }
@@ -202,6 +223,9 @@ class GPURenderPipeline
         paramsTexture4 = checkTexture(paramsTexture4)
         paramsTexture5 = checkTexture(paramsTexture5)
         paramsTexture6 = checkTexture(paramsTexture6)
+        
+        utilityTexture1 = checkTexture(utilityTexture1)
+        utilityTexture2 = checkTexture(utilityTexture2)
     }
     
     /// Allocate a texture of the given size

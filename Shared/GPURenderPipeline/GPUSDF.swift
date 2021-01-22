@@ -60,10 +60,10 @@ final class GPUSDFShader : GPUBaseShader
             \(getDataInCode())
             ushort2 textureUV = ushort2(uv.x * size.x, (1.0 - uv.y) * size.y);
 
-            float3 rayOrigin = float3(camOriginTexture.read(textureUV).xyz);
-            float3 rayDir = float3(camDirTexture.read(textureUV).xyz);
-            float4 depth = float4(depthTexture.read(textureUV));
-            float4 normal = float4(normalTexture.read(textureUV));
+            float3 rayOrigin = camOriginTexture.read(textureUV).xyz;
+            float3 rayDir = camDirTexture.read(textureUV).xyz;
+            float4 depth = depthTexture.read(textureUV);
+            float4 normal = normalTexture.read(textureUV);
 
             float t = 0.001;
 
@@ -99,7 +99,7 @@ final class GPUSDFShader : GPUBaseShader
         ])
     }
     
-    override func render()
+    func render(camOriginTexture: MTLTexture, camDirTexture: MTLTexture, depthTexture: MTLTexture, normalTexture: MTLTexture)
     {
         //updateData()
         
@@ -122,10 +122,10 @@ final class GPUSDFShader : GPUBaseShader
 
             renderEncoder.setFragmentBuffer(pipeline.dataBuffer, offset: 0, index: 0)
             renderEncoder.setFragmentBytes(&fragmentUniforms, length: MemoryLayout<GPUFragmentUniforms>.stride, index: 1)
-            renderEncoder.setFragmentTexture(pipeline.camOriginTexture!, index: 2)
-            renderEncoder.setFragmentTexture(pipeline.camDirTexture!, index: 3)
-            renderEncoder.setFragmentTexture(pipeline.depthTexture!, index: 4)
-            renderEncoder.setFragmentTexture(pipeline.normalTexture!, index: 5)
+            renderEncoder.setFragmentTexture(camOriginTexture, index: 2)
+            renderEncoder.setFragmentTexture(camDirTexture, index: 3)
+            renderEncoder.setFragmentTexture(depthTexture, index: 4)
+            renderEncoder.setFragmentTexture(normalTexture, index: 5)
             // ---
             
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)

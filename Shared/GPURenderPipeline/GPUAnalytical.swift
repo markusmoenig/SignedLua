@@ -66,7 +66,7 @@ final class GPUAnalyticalShader : GPUBaseShader
         ])
     }
     
-    override func render()
+    func render(camOriginTexture: MTLTexture, camDirTexture: MTLTexture, depthTexture: MTLTexture, normalTexture: MTLTexture)
     {
         //updateData()
         
@@ -89,10 +89,10 @@ final class GPUAnalyticalShader : GPUBaseShader
 
             renderEncoder.setFragmentBuffer(buffer, offset: 0, index: 0)
             renderEncoder.setFragmentBytes(&fragmentUniforms, length: MemoryLayout<GPUFragmentUniforms>.stride, index: 1)
-            renderEncoder.setFragmentTexture(pipeline.camOriginTexture!, index: 2)
-            renderEncoder.setFragmentTexture(pipeline.camDirTexture!, index: 3)
-            renderEncoder.setFragmentTexture(pipeline.depthTexture!, index: 4)
-            renderEncoder.setFragmentTexture(pipeline.normalTexture!, index: 5)
+            renderEncoder.setFragmentTexture(camOriginTexture, index: 2)
+            renderEncoder.setFragmentTexture(camDirTexture, index: 3)
+            renderEncoder.setFragmentTexture(depthTexture, index: 4)
+            renderEncoder.setFragmentTexture(normalTexture, index: 5)
             // ---
             
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
