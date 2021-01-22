@@ -221,7 +221,7 @@ class Renderer
         
         let context = asset.graph!
         
-        context.setupBeforeStart()
+        context.setupBeforeCompiling()
         context.renderQuality = core.renderQuality
         context.viewSize = float2(width, height)
         

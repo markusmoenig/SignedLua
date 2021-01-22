@@ -50,6 +50,8 @@ final class GraphSDFSphereNode : GraphDistanceNode
         context.addDataVariable(position)
         context.addDataVariable(radius)
         
+        context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius.toSIMD())
+        
         codeMap["map"] =
         """
 

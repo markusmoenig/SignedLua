@@ -26,12 +26,13 @@ final class GPUAnalyticalShader : GPUBaseShader
         let fragmentCode =
         """
 
-        fragment void procFragment(RasterizerData in [[stage_in]],
+        fragment float4 procFragment(RasterizerData in [[stage_in]],
                                      constant float4 *__data [[ buffer(0) ]],
                                      constant FragmentUniforms &uniforms [[ buffer(1) ]],
                                      texture2d<float, access::read> camOriginTexture [[texture(2)]],
                                      texture2d<float, access::read> camDirTexture [[texture(3)]],
-                                     texture2d<float, access::read_write> depthTexture [[texture(4)]])
+                                     texture2d<float, access::read_write> depthTexture [[texture(4)]],
+                                     texture2d<float, access::read_write> normalTexture [[texture(5)]])
         {
             float2 uv = float2(in.textureCoordinate.x, in.textureCoordinate.y);
             float2 size = in.viewportSize;
@@ -40,32 +41,26 @@ final class GPUAnalyticalShader : GPUBaseShader
 
             float3 rayOrigin = float3(camOriginTexture.read(textureUV).xyz);
             float3 rayDir = float3(camDirTexture.read(textureUV).xyz);
+            float4 depth = float4(depthTexture.read(textureUV));
+            float4 normal = float4(normalTexture.read(textureUV));
 
-            float t = 0.001;
+            float4 analyticalMap = float4(10000, 0, -1, -1);
+            float3 analyticalNormal = float3();
 
-            float4 depth = float4(0,0,1,1);
+            \(codeMap["analytical"] != nil ? codeMap["analytical"]! : "")
 
-            for(int i = 0; i < 70; i++)
-            {
-                float3 p = rayOrigin + rayDir * t;
-                float d = length(p - float3(0,0,0)) - 2;
-
-                if (abs(d) < (0.0001*t)) {
-                    depth = float4(1,1,1,1);
-                    break;
-                }/* else
-                if t > maxDist {
-                    break
-                }*/
-                
-                t += d;
+            if (analyticalMap.x < depth.x) {
+                depth = analyticalMap;
+                normal.xyz = analyticalNormal;
             }
 
-            //return depth;
+            depthTexture.write(depth, textureUV);
+            normalTexture.write(normal, textureUV);
+            return depth;
         }
 
         """
-        
+                
         compile(code: GPUBaseShader.getQuadVertexSource() + fragmentCode, shaders: [
                 GPUShader(id: "MAIN", blending: false),
         ])
@@ -97,6 +92,7 @@ final class GPUAnalyticalShader : GPUBaseShader
             renderEncoder.setFragmentTexture(pipeline.camOriginTexture!, index: 2)
             renderEncoder.setFragmentTexture(pipeline.camDirTexture!, index: 3)
             renderEncoder.setFragmentTexture(pipeline.depthTexture!, index: 4)
+            renderEncoder.setFragmentTexture(pipeline.normalTexture!, index: 5)
             // ---
             
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)

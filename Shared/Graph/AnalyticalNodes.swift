@@ -11,8 +11,6 @@ import simd
 /// Analytical  Ground Plane
 final class GraphAnalyticalGroundPlaneNode : GraphDistanceNode
 {
-    var normal    : Float3 = Float3(0, 1, 0)
-
     init(_ options: [String:Any] = [:])
     {
         super.init(.Utility, .Analytical, options)
@@ -20,26 +18,31 @@ final class GraphAnalyticalGroundPlaneNode : GraphDistanceNode
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
-        verifyTranslationOptions(context: context, error: &error)
-        if let value = extractFloat3Value(options, container: context, error: &error, name: "normal", isOptional: true) {
-            normal = value
-        }
     }
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        let camOrigin = context.rayOrigin.toSIMD()
-        let camDir = context.rayDirection.toSIMD()
-        
-        let groundT : Float = (0.0 - camOrigin.y) / camDir.y
-        if groundT > 0.0 {
-            if groundT < context.analyticalDist {
-                context.analyticalDist = groundT
-                context.analyticalNormal = float3(0,1,0)
-                context.analyticalMaterial = context.activeMaterial
-            }
-        }
+
         return .Success
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = [:]
+        
+        codeMap["analytical"] =
+        """
+
+        float groundT = (0.0 - rayOrigin.y) / rayDir.y;
+        if (groundT > 0.0) {
+            analyticalMap = float4(groundT, 0, -1, \(context.getMaterialIndex()));
+            analyticalNormal = float3(0,1,0);
+        }
+
+        """
+                
+        return codeMap
     }
     
     override func getHelp() -> String

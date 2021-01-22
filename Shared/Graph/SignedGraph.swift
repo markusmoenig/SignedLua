@@ -276,7 +276,7 @@ final class GraphCameraNode : GraphBaseCameraNode
         float3 right = normalize(cross(forward, worldUp));
         float3 up = normalize(cross(right, forward));
 
-        float2 r2D = 2.0 * float2(0.5, 0.5);
+        float2 r2D = 2.0 * float2(rand(dataIn), rand(dataIn));
 
         float2 jitter = float2();
         jitter.x = r2D.x < 1.0 ? sqrt(r2D.x) - 1.0 : 1.0 - sqrt(2.0 - r2D.x);
@@ -291,8 +291,8 @@ final class GraphCameraNode : GraphBaseCameraNode
         float3 rayDir = normalize(d.x * right + d.y * up + forward);
 
         float3 focalPoint = focalDist * rayDir;
-        float cam_r1 = 0.5 * PI * 2;
-        float cam_r2 = 0.5 * aperture;
+        float cam_r1 = rand(dataIn) * TWO_PI;
+        float cam_r2 = rand(dataIn) * aperture;
         float3 randomAperturePos = (cos(cam_r1) * right + sin(cam_r1) * up) * sqrt(cam_r2);
         float3 finalRayDir = normalize(focalPoint - randomAperturePos);
         

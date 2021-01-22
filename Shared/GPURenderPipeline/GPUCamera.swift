@@ -33,6 +33,7 @@ final class GPUCameraShader : GPUBaseShader
             float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
             float2 size = in.viewportSize;
 
+            \(getDataInCode())
             ushort2 textureUV = ushort2(uv.x * size.x, (1.0 - uv.y) * size.y);
 
             float3 outOrigin = float3();

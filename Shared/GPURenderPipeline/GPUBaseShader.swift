@@ -856,6 +856,8 @@ class GPUBaseShader
         return """
         DataIn dataIn;
         dataIn.time = data[0].x;
+        dataIn.seed = uv;
+        dataIn.randomVector = uniforms.randomVector;
         dataIn.data = data;
         """
     }
@@ -872,17 +874,15 @@ class GPUBaseShader
         typedef struct
         {
             float               time;
+            
+            float2              seed;
+            float3              randomVector;
             constant float4    *data;
         } DataIn;
 
         typedef struct {
-            simd_float3         cameraOrigin;
-            simd_float3         cameraLookAt;
-            float               fov;
-            
-            simd_float2         screenSize;
 
-            simd_float4         ambientColor;
+            simd_float3         randomVector;
 
             // bbox
             simd_float3         P;
@@ -903,19 +903,24 @@ class GPUBaseShader
 
         typedef struct
         {
-            float4 albedo;
+            float3 albedo;
             float specular;
+
             float3 emission;
             float anisotropic;
+
             float metallic;
             float roughness;
             float subsurface;
             float specularTint;
+
             float sheen;
             float sheenTint;
             float clearcoat;
             float clearcoatGloss;
+
             float transmission;
+
             float ior;
             float3 extinction;
         } Material;
@@ -927,8 +932,10 @@ class GPUBaseShader
             float               id;
         };
         
-        #define PI 3.1415926535897932384626422832795028841971
-        
+        #define PI        3.14159265358979323
+        #define TWO_PI    6.28318530717958648
+        #define EPS       0.001
+
         bool isEqual(float a, float b, float epsilon = 0.00001)
         {
             return abs(a-b) < epsilon;
@@ -977,6 +984,12 @@ class GPUBaseShader
         float3 translate(float3 p, float3 t)
         {
             return p - t;
+        }
+
+        float rand(DataIn dataIn)
+        {
+            dataIn.seed -= dataIn.randomVector.xy;
+            return fract(sin(dot(dataIn.seed, float2(12.9898, 78.233))) * 43758.5453);
         }
 
         """

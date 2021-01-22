@@ -74,23 +74,10 @@ final class GraphSDFObject : GraphDistanceNode
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         context.position += position.toSIMD()
-                    
-        /*
+        
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
-            if let material = context.activeMaterial as? GraphMaterialNode {
-                if material.hasDisplacement {
-                    material.onlyDisplacement = true
-                    material.execute(context: context)
-                    material.onlyDisplacement = false
-                }
-            }
-        } else {
-            context.activeMaterial = nil
-            context.displacement.fromSIMD(0)
         }
- 
-        */
         
         for leave in leaves {
             leave.execute(context: context)
@@ -134,81 +121,6 @@ final class GraphSDFObject : GraphDistanceNode
             GraphOption(Text1("Object"), "Name", "The name of the object.")
         ]
         return options + GraphDistanceNode.getObjectOptions()
-    }
-    
-    /// Checks if the object is visible by testing against its (optional) bbox
-    func isVisible(_ ro: float3,_ rd: float3) -> Bool {
-        if maxBox != nil {
-            return intersect(ro, rd, maxDimensions: maxBox!.toSIMD3())
-        } else {
-            return true
-        }
-    }
-    
-    /// Ray - Box intersection
-    func intersect(_ ro: float3,_ rd: float3, maxDimensions: float3) -> Bool
-    {
-        let bounds = [position.toSIMD() - maxDimensions / 2, position.toSIMD() + maxDimensions / 2]
-        
-        var tmin : Float = 0
-        var tmax : Float = 0
-        
-        var tymin : Float = 0
-        var tymax : Float = 0
-        var tzmin : Float = 0
-        var tzmax : Float = 0
-
-        if (rd.x >= 0.0) {
-            tmin = (bounds[0].x - ro.x) / rd.x;
-            tmax = (bounds[1].x - ro.x) / rd.x;
-        }
-        else {
-            tmin = (bounds[1].x - ro.x) / rd.x;
-            tmax = (bounds[0].x - ro.x) / rd.x;
-        }
-
-        if (rd.y >= 0.0) {
-            tymin = (bounds[0].y - ro.y) / rd.y;
-            tymax = (bounds[1].y - ro.y) / rd.y;
-        }
-        else {
-            tymin = (bounds[1].y - ro.y) / rd.y;
-            tymax = (bounds[0].y - ro.y) / rd.y;
-        }
-
-        if ( (tmin > tymax) || (tymin > tmax) ) {
-            return false
-        }
-
-        if (tymin > tmin) {
-            tmin = tymin
-        }
-        if (tymax < tmax) {
-            tmax = tymax
-        }
-
-        if (rd.z >= 0.0 ) {
-            tzmin = (bounds[0].z - ro.z) / rd.z;
-            tzmax = (bounds[1].z - ro.z) / rd.z;
-        }
-        else {
-            tzmin = (bounds[1].z - ro.z) / rd.z;
-            tzmax = (bounds[0].z - ro.z) / rd.z;
-        }
-
-        if ( (tmin > tzmax) || (tzmin > tmax) ) {
-            return false
-        }
-
-        /*
-        if (tzmin > tmin)
-            tmin = tzmin;
-        if (tzmax < tmax)
-            tmax = tzmax;
-        */
-
-        //return tmin < tmax;
-        return true
     }
 }
 
@@ -258,12 +170,12 @@ final class GraphAnalyticalObject : GraphDistanceNode
     
     override func generateMetalCode(context: GraphContext) -> [String: String]
     {
-        var codeMap : [String:String] = ["map":""]
+        var codeMap : [String:String] = ["analytical":""]
         
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
         }
-            
+        
         for leave in leaves {
             let map = leave.generateMetalCode(context: context)
             
@@ -275,15 +187,13 @@ final class GraphAnalyticalObject : GraphDistanceNode
                 }
             }
         }
-        
-        print(codeMap)
-        
+                
         return codeMap
     }
     
     override func getHelp() -> String
     {
-        return "Defines an analytical object. Analytical objects contain lists of analytical primitives can also contain child objects."
+        return "Defines an analytical object. Analytical objects contain lists of analytical primitives and also contain child objects."
     }
     
     override func getOptions() -> [GraphOption]
@@ -303,6 +213,7 @@ final class GraphMaterialNode : GraphNode
 
     /// Material emits light
     var isEmitter       : Bool = false
+    var emission        = float3()
 
     /// Material should only output displacement
     var onlyDisplacement : Bool = false

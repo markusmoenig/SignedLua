@@ -35,12 +35,24 @@ final class GPUSDFShader : GPUBaseShader
             return distance;
         }
 
+        float3 calcNormal(float3 p, DataIn dataIn)
+        {
+            float3 epsilon = float3(0.001, 0., 0.);
+            
+            float3 n = float3(map(p + epsilon.xyy, dataIn).x - map(p - epsilon.xyy, dataIn).x,
+                          map(p + epsilon.yxy, dataIn).x - map(p - epsilon.yxy, dataIn).x,
+                          map(p + epsilon.yyx, dataIn).x - map(p - epsilon.yyx, dataIn).x);
+            
+            return normalize(n);
+        }
+
         fragment float4 procFragment(RasterizerData in [[stage_in]],
                                      constant float4 *data [[ buffer(0) ]],
                                      constant FragmentUniforms &uniforms [[ buffer(1) ]],
                                      texture2d<float, access::read> camOriginTexture [[texture(2)]],
                                      texture2d<float, access::read> camDirTexture [[texture(3)]],
-                                     texture2d<float, access::read_write> depthTexture [[texture(4)]])
+                                     texture2d<float, access::read_write> depthTexture [[texture(4)]],
+                                     texture2d<float, access::read_write> normalTexture [[texture(5)]])
         {
             float2 uv = float2(in.textureCoordinate.x, in.textureCoordinate.y);
             float2 size = in.viewportSize;
@@ -51,6 +63,7 @@ final class GPUSDFShader : GPUBaseShader
             float3 rayOrigin = float3(camOriginTexture.read(textureUV).xyz);
             float3 rayDir = float3(camDirTexture.read(textureUV).xyz);
             float4 depth = float4(depthTexture.read(textureUV));
+            float4 normal = float4(normalTexture.read(textureUV));
 
             float t = 0.001;
 
@@ -60,8 +73,10 @@ final class GPUSDFShader : GPUBaseShader
                 float4 d = map(p, dataIn);
 
                 if (abs(d.x) < (0.0001*t)) {
-                    if (d.x < depth.x) {
+                    if (t < depth.x) {
                         depth = d;
+                        depth.x = t;
+                        normal.xyz = calcNormal(p, dataIn);
                     }
                     break;
                 }/* else
@@ -73,6 +88,7 @@ final class GPUSDFShader : GPUBaseShader
             }
 
             depthTexture.write(depth, textureUV);
+            normalTexture.write(normal, textureUV);
             return depth;
         }
 
@@ -109,6 +125,7 @@ final class GPUSDFShader : GPUBaseShader
             renderEncoder.setFragmentTexture(pipeline.camOriginTexture!, index: 2)
             renderEncoder.setFragmentTexture(pipeline.camDirTexture!, index: 3)
             renderEncoder.setFragmentTexture(pipeline.depthTexture!, index: 4)
+            renderEncoder.setFragmentTexture(pipeline.normalTexture!, index: 5)
             // ---
             
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)

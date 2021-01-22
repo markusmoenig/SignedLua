@@ -286,7 +286,8 @@ final class GraphContext    : VariableContainer
     var distance2DIndex     : Int = 0
     
     var data                : [float4] = []
-        
+    var lightsData          : [float4] = []
+
     var sampler             = BestCandidateSampler1D()
     var sampler2D           = BestCandidateSampler2D()
 
@@ -304,12 +305,14 @@ final class GraphContext    : VariableContainer
         super.init()
     }
     
-    func setupBeforeStart()
+    func setupBeforeCompiling()
     {
-        data = []
-        if let renderNode = renderNode {
-            renderNode.setupMaterialVariables(context: self)
-        }
+        data = [float4(0,0,0,0)]
+        lightsData = [float4(0,0,0,0)]
+        
+        //if let renderNode = renderNode {
+        //    renderNode.setupMaterialVariables(context: self)
+        //}
     }
     
     func clear()
@@ -335,6 +338,29 @@ final class GraphContext    : VariableContainer
         materialBlend = 0
         
         data = []
+    }
+    
+    func checkForPossibleLight(atPositionIndex: Int, material: GraphNode? = nil, radius: Float? = nil, rect: float3? = nil) {
+        if let materialNode = material as? GraphMaterialNode {
+            if materialNode.isEmitter && materialNode.index != nil {
+                print("light at data index", atPositionIndex, materialNode.index!)
+                
+                var data1 = float4()
+                var data2 = float4()
+                
+                data1.y = Float(atPositionIndex)
+                data1.z = Float(materialNode.index!)
+                
+                if let radius = radius {
+                    data1.x = 1
+                    data1.w = radius
+                }
+                
+                lightsData[0].x += 1
+                lightsData.append(data1)
+                lightsData.append(data2)
+            }
+        }
     }
     
     /// Add a variable to the data stack
@@ -635,43 +661,26 @@ final class GraphContext    : VariableContainer
         
         let maxDist : Float = analyticalDist//12.0//simd_min(12.0, analyticalDist)
         var material : GraphNode? = nil
-
-        var filteredNodes : [GraphNode] = []
-        
-        for n in sdfNodes {
-            if let sdf = n as? GraphSDFObject {
-                if sdf.isVisible(camOrigin, camDir) {
-                    filteredNodes.append(sdf)
-                }
-            }
-        }
-        
-        let backup = sdfNodes
-        sdfNodes = filteredNodes
         
         // Raymarch
         var hit = false
         var t : Float = 0.001;
 
-        if filteredNodes.isEmpty == false {
-            for _ in 0..<70
-            {
-                executeSDF(camOrigin + t * camDir)
+        for _ in 0..<70
+        {
+            executeSDF(camOrigin + t * camDir)
 
-                if abs(rayDist[rayIndex]) < (0.0001*t) {
-                    hit = true
-                    material = hitMaterial[rayIndex]
-                    break
-                } else
-                if t > maxDist {
-                    break
-                }
-                
-                t += rayDist[rayIndex]
+            if abs(rayDist[rayIndex]) < (0.0001*t) {
+                hit = true
+                material = hitMaterial[rayIndex]
+                break
+            } else
+            if t > maxDist {
+                break
             }
+            
+            t += rayDist[rayIndex]
         }
-        
-        sdfNodes = backup
         
         if hit && t < analyticalDist {
             rc.0 = t

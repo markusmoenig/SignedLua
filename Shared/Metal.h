@@ -71,15 +71,7 @@ typedef struct
 
 typedef struct {
     
-    simd_float3         cameraOrigin;
-    simd_float3         cameraLookAt;
-    float               fov;
-    
-    simd_float2         screenSize;
-    
-    simd_float4         ambientColor;
-    
-    float               time;
+    simd_float3         randomVector;
 
     // bbox
     simd_float3         P;

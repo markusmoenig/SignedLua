@@ -22,9 +22,17 @@ class GPURenderPipeline
     
     var texture         : MTLTexture? = nil
     var depthTexture    : MTLTexture? = nil
+    var normalTexture   : MTLTexture? = nil
 
     var camOriginTexture: MTLTexture? = nil
     var camDirTexture   : MTLTexture? = nil
+    
+    var paramsTexture1  : MTLTexture? = nil
+    var paramsTexture2  : MTLTexture? = nil
+    var paramsTexture3  : MTLTexture? = nil
+    var paramsTexture4  : MTLTexture? = nil
+    var paramsTexture5  : MTLTexture? = nil
+    var paramsTexture6  : MTLTexture? = nil
 
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
@@ -35,7 +43,8 @@ class GPURenderPipeline
     var quadViewport    : MTLViewport? = nil
     
     var dataBuffer      : MTLBuffer? = nil
-    
+    var lightsDataBuffer: MTLBuffer? = nil
+
     var materialsShader : GPUMaterialsShader? = nil
     
     // Global Uniforms
@@ -64,23 +73,29 @@ class GPURenderPipeline
         }
         
         dataBuffer = device.makeBuffer(bytes: context.data, length: context.data.count * MemoryLayout<SIMD4<Float>>.stride, options: [])!
+        
+        if lightsDataBuffer != nil {
+            lightsDataBuffer!.setPurgeableState(.empty)
+            lightsDataBuffer = nil
+        }
+        lightsDataBuffer = device.makeBuffer(bytes: context.lightsData, length: context.lightsData.count * MemoryLayout<SIMD4<Float>>.stride, options: [])!
     }
     
     func compile(_ ctx: GraphContext)
     {
         context = ctx        
-        context.data = [float4(0,0,0,0)]
+        
+        context.setupBeforeCompiling()
         
         if let cameraNode = context.cameraNode {
             cameraNode.gpuShader = GPUCameraShader(pipeline: self)
         }
         
-        /*
+        materialsShader = GPUMaterialsShader(pipeline: self)
+        
         for node in context.analyticalNodes {
             node.gpuShader = GPUAnalyticalShader(pipeline: self, object: node)
-        }*/
-        
-        materialsShader = GPUMaterialsShader(pipeline: self)
+        }
         
         for node in context.sdfNodes {
             node.gpuShader = GPUSDFShader(pipeline: self, object: node)
@@ -115,12 +130,12 @@ class GPURenderPipeline
                 cameraShader.render()
             }
         }
-        /*
+        
         for node in context.analyticalNodes {
             if let object = node.gpuShader as? GPUAnalyticalShader {
                 object.render()
             }
-        }*/
+        }
         
         for node in context.sdfNodes {
             if let object = node.gpuShader as? GPUSDFShader {
@@ -138,8 +153,7 @@ class GPURenderPipeline
     {
         var fragmentUniforms = GPUFragmentUniforms()
 
-        fragmentUniforms.cameraOrigin = cameraOrigin
-        fragmentUniforms.cameraLookAt = cameraLookAt
+        fragmentUniforms.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
         
         /*
         fragmentUniforms.screenSize = prtInstance.screenSize
@@ -178,8 +192,16 @@ class GPURenderPipeline
 
         texture = checkTexture(texture)
         depthTexture = checkTexture(depthTexture)
+        normalTexture = checkTexture(normalTexture)
         camOriginTexture = checkTexture(camOriginTexture)
         camDirTexture = checkTexture(camDirTexture)
+        
+        paramsTexture1 = checkTexture(paramsTexture1)
+        paramsTexture2 = checkTexture(paramsTexture2)
+        paramsTexture3 = checkTexture(paramsTexture3)
+        paramsTexture4 = checkTexture(paramsTexture4)
+        paramsTexture5 = checkTexture(paramsTexture5)
+        paramsTexture6 = checkTexture(paramsTexture6)
     }
     
     /// Allocate a texture of the given size
