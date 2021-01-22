@@ -73,6 +73,10 @@ typedef struct {
     
     simd_float3         randomVector;
 
+    int                 passes;
+    int                 depth;
+    int                 maxDepth;
+    
     // bbox
     simd_float3         P;
     simd_float3         L;

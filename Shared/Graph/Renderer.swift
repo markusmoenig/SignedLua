@@ -181,7 +181,7 @@ class Renderer
     func getTexture() -> MTLTexture?
     {
         if renderMode == .GPU {
-            return core.renderPipeline.texture
+            return core.renderPipeline.finalTexture
         } else {
             return texture
         }

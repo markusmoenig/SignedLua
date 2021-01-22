@@ -20,6 +20,8 @@ class GPURenderPipeline
     
     var renderSize      = SIMD2<Int>()
     
+    var finalTexture    : MTLTexture? = nil
+
     var texture         : MTLTexture? = nil
     var depthTexture    : MTLTexture? = nil
     var normalTexture   : MTLTexture? = nil
@@ -54,6 +56,12 @@ class GPURenderPipeline
     var cameraOrigin    = float3()
     var cameraLookAt    = float3()
     
+    var gpuAccum        : GPUAccumShader!
+    
+    var passes          : Int = 0
+    var depth           : Int = 0
+    var maxDepth        : Int = 0
+
     init(_ view: MTKView)
     {
         self.view = view
@@ -90,6 +98,8 @@ class GPURenderPipeline
         
         context.setupBeforeCompiling()
         
+        gpuAccum = GPUAccumShader(pipeline: self)
+
         if let cameraNode = context.cameraNode {
             cameraNode.gpuShader = GPUCameraShader(pipeline: self)
         }
@@ -117,14 +127,27 @@ class GPURenderPipeline
         }
         
         checkTextures()
+                
+        update()
         
+        startRendering()
+        
+        clearTexture(finalTexture!, float4(0, 0, 0, 0))
+
+        passes = 0;
+        computeL()
+    }
+    
+    func startRendering()
+    {
         commandQueue = device.makeCommandQueue()
         commandBuffer = commandQueue.makeCommandBuffer()
         quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(renderSize.x), Float(renderSize.y)))
         quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0 )
-        
-        update()
-        
+    }
+    
+    func computeL()
+    {
         clearTexture(texture!, float4(0, 0, 0, 0))
         clearTexture(depthTexture!, float4(1000,-1,-1,-1))
         
@@ -166,7 +189,28 @@ class GPURenderPipeline
         
         materialsShader!.directLight(depthTexture: depthTexture!, normalTexture: normalTexture!, lightDepthTexture: utilityTexture1!, lightNormalTexture: utilityTexture2!)
         
+        gpuAccum.render(finalTexture: finalTexture!, sampleTexture: texture!)
+        passes += 1
+        
+        print(passes)
+        
         commandBuffer.commit()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+            self.startRendering()
+            self.computeL()
+            self.updateOnce()
+        }
+    }
+    
+    func updateOnce()
+    {
+        #if os(OSX)
+        let nsrect : NSRect = NSRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+        self.view.setNeedsDisplay(nsrect)
+        #else
+        self.view.setNeedsDisplay()
+        #endif
     }
     
     /// Create a uniform buffer containing general information about the current project
@@ -175,6 +219,10 @@ class GPURenderPipeline
         var fragmentUniforms = GPUFragmentUniforms()
 
         fragmentUniforms.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
+        
+        fragmentUniforms.maxDepth = Int32(maxDepth);
+        fragmentUniforms.depth = Int32(depth);
+        fragmentUniforms.passes = Int32(passes);
         
         /*
         fragmentUniforms.screenSize = prtInstance.screenSize
@@ -210,6 +258,8 @@ class GPURenderPipeline
                 return texture
             }
         }
+
+        finalTexture = checkTexture(finalTexture)
 
         texture = checkTexture(texture)
         depthTexture = checkTexture(depthTexture)

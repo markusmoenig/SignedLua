@@ -84,6 +84,8 @@
 		2B400EF225AD9A7D006493A0 /* SignedPBR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EF025AD9A7D006493A0 /* SignedPBR.swift */; };
 		2B4293BF259429AD00B56347 /* TexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* TexNodes.swift */; };
 		2B4293C0259429AD00B56347 /* TexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* TexNodes.swift */; };
+		2B6312D925BAC308002C1FDD /* GPUMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6312D825BAC308002C1FDD /* GPUMisc.swift */; };
+		2B6312DA25BAC308002C1FDD /* GPUMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6312D825BAC308002C1FDD /* GPUMisc.swift */; };
 		2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
 		2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
 		2B6D5D02259C664A003F7DD8 /* SignedSpecific.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */; };
@@ -158,6 +160,7 @@
 		2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDFNodes2D.swift; sourceTree = "<group>"; };
 		2B400EF025AD9A7D006493A0 /* SignedPBR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedPBR.swift; sourceTree = "<group>"; };
 		2B4293BE259429AD00B56347 /* TexNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TexNodes.swift; sourceTree = "<group>"; };
+		2B6312D825BAC308002C1FDD /* GPUMisc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUMisc.swift; sourceTree = "<group>"; };
 		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 		2B6D5D01259C664A003F7DD8 /* SignedSpecific.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedSpecific.swift; sourceTree = "<group>"; };
 		2B76D82A25AC46F000AF6FF2 /* SignedGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedGraph.swift; sourceTree = "<group>"; };
@@ -303,6 +306,7 @@
 				2BB4E0BA25B811360028C76A /* GPUCamera.swift */,
 				2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */,
 				2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */,
+				2B6312D825BAC308002C1FDD /* GPUMisc.swift */,
 			);
 			path = GPURenderPipeline;
 			sourceTree = "<group>";
@@ -443,6 +447,7 @@
 				2B224F7525844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA82585EB7F00F32354 /* SignedBuilder.swift in Sources */,
 				2B224FF72589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
+				2B6312D925BAC308002C1FDD /* GPUMisc.swift in Sources */,
 				2B224F432584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC62586EA1800F32354 /* SDFNodes.swift in Sources */,
 				2B888B5225B1361100956C64 /* SignedPBSDF.swift in Sources */,
@@ -498,6 +503,7 @@
 				2B224F7625844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA92585EB7F00F32354 /* SignedBuilder.swift in Sources */,
 				2B224FF82589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
+				2B6312DA25BAC308002C1FDD /* GPUMisc.swift in Sources */,
 				2B224F442584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC72586EA1800F32354 /* SDFNodes.swift in Sources */,
 				2B888B5325B1361100956C64 /* SignedPBSDF.swift in Sources */,
