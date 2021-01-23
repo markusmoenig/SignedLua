@@ -79,36 +79,56 @@ final class GraphAnalyticalDomeNode : GraphDistanceNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        let camOrigin = context.rayOrigin.toSIMD()
-        let camDir = context.rayDirection.toSIMD()
+        context.position = position.toSIMD()
         
-        let center = position.toSIMD()
-        let radius = self.radius.toSIMD()
-        
-        let L = camOrigin - center
-        let B = dot(camDir, L)
-        let C = dot(L,L) - radius * radius
-        let det = B * B - C
-        let I = sqrt(det) - B
-        let hitP = camOrigin + camDir * I
-        
-        
-        if I > 0 && I < context.analyticalDist {
-            context.analyticalNormal = -normalize(hitP - center)
-            context.analyticalDist = I
-            context.analyticalMaterial = context.activeMaterial
+        if let index = position.dataIndex, index < context.data.count {
+            context.data[index] = float4(context.position.x, context.position.y, context.position.z, 0)
         }
-
-        let groundT : Float = (0.0 - camOrigin.y) / camDir.y
-        if groundT > 0.0 && groundT < I {
-            if groundT < context.analyticalDist {
-                context.analyticalDist = groundT
-                context.analyticalNormal = float3(0,1,0)
-                context.analyticalMaterial = context.activeMaterial
-            }
+        
+        if let index = radius.dataIndex, index < context.data.count {
+            context.data[index] = radius.toSIMD4()
         }
+        
+        context.position -= position.toSIMD()
         
         return .Success
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = [:]
+        
+        context.addDataVariable(position)
+        context.addDataVariable(radius)
+        
+        codeMap["analytical"] =
+        """
+        
+        float3 center = dataIn.data[\(position.dataIndex!)].xyz;
+        float radius = dataIn.data[\(radius.dataIndex!)].x;
+        
+        float3 L = rayOrigin - center;
+        float B = dot(rayDir, L);
+        float C = dot(L,L) - radius * radius;
+        float det = B * B - C;
+        float I = sqrt(det) - B;
+        float3 hitP = rayOrigin + rayDir * I;
+        
+        if (I > 0) {
+            analyticalMap = float4(I, 0, -1, \(context.getMaterialIndex()));
+            analyticalNormal = -normalize(hitP - center);
+        }
+
+        float groundT = (0.0 - rayOrigin.y) / rayDir.y;
+        if (groundT > 0.0 && groundT < I) {
+            analyticalMap = float4(groundT, 0, -1, \(context.getMaterialIndex()));
+            analyticalNormal = float3(0,1,0);
+        }
+
+        """
+                
+        return codeMap
     }
     
     override func getHelp() -> String

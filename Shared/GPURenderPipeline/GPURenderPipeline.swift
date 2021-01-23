@@ -22,6 +22,9 @@ class GPURenderPipeline
     
     var finalTexture    : MTLTexture? = nil
 
+    var radianceTexture : MTLTexture? = nil
+    var throughputTexture: MTLTexture? = nil
+
     var texture         : MTLTexture? = nil
     var depthTexture    : MTLTexture? = nil
     var normalTexture   : MTLTexture? = nil
@@ -60,7 +63,7 @@ class GPURenderPipeline
     
     var passes          : Int = 0
     var depth           : Int = 0
-    var maxDepth        : Int = 0
+    var maxDepth        : Int = 4
 
     init(_ view: MTKView)
     {
@@ -72,6 +75,10 @@ class GPURenderPipeline
     {
         if let cameraNode = context.cameraNode {
             cameraNode.execute(context: context)
+        }
+        
+        for node in context.analyticalNodes {
+            node.execute(context: context)
         }
         
         for node in context.sdfNodes {
@@ -134,8 +141,8 @@ class GPURenderPipeline
         
         clearTexture(finalTexture!, float4(0, 0, 0, 0))
 
-        passes = 0;
-        computeL()
+        passes = 0
+        computePass()
     }
     
     func startRendering()
@@ -146,16 +153,42 @@ class GPURenderPipeline
         quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0 )
     }
     
-    func computeL()
+    func computePass()
     {
-        clearTexture(texture!, float4(0, 0, 0, 0))
-        clearTexture(depthTexture!, float4(1000,-1,-1,-1))
-        
         if let cameraNode = context.cameraNode {
             if let cameraShader = cameraNode.gpuShader as? GPUCameraShader {
                 cameraShader.render()
             }
         }
+        
+        clearTexture(radianceTexture!, float4(0, 0, 0, 0))
+        clearTexture(throughputTexture!, float4(1, 1, 1, 1))
+
+        depth = 0
+
+        for _ in 0..<2 {
+            computeL()
+            materialsShader!.pathTracer()
+        }
+            
+        gpuAccum.render(finalTexture: finalTexture!, sampleTexture: radianceTexture!)
+
+        commandBuffer.commit()
+        
+        passes += 1
+        
+        /*
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+            self.startRendering()
+            self.computePass()
+            self.updateOnce()
+        }*/
+    }
+    
+    func computeL()
+    {
+        clearTexture(texture!, float4(0, 0, 0, 0))
+        clearTexture(depthTexture!, float4(1000,-1,-1,-1))
         
         for node in context.analyticalNodes {
             if let object = node.gpuShader as? GPUAnalyticalShader {
@@ -171,7 +204,7 @@ class GPURenderPipeline
         
         materialsShader!.render()
         
-        // New we have the new hit in camOrigin and the light sampling direction in params5: Shadow pass
+        // Now we have the new hit in camOrigin and the light sampling direction in params5: Shadow pass
         
         clearTexture(utilityTexture1!, float4(1000,-1,-1,-1))
 
@@ -188,19 +221,6 @@ class GPURenderPipeline
         }
         
         materialsShader!.directLight(depthTexture: depthTexture!, normalTexture: normalTexture!, lightDepthTexture: utilityTexture1!, lightNormalTexture: utilityTexture2!)
-        
-        gpuAccum.render(finalTexture: finalTexture!, sampleTexture: texture!)
-        passes += 1
-        
-        print(passes)
-        
-        commandBuffer.commit()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            self.startRendering()
-            self.computeL()
-            self.updateOnce()
-        }
     }
     
     func updateOnce()
@@ -262,6 +282,10 @@ class GPURenderPipeline
         finalTexture = checkTexture(finalTexture)
 
         texture = checkTexture(texture)
+        
+        radianceTexture = checkTexture(radianceTexture)
+        throughputTexture = checkTexture(throughputTexture)
+
         depthTexture = checkTexture(depthTexture)
         normalTexture = checkTexture(normalTexture)
         camOriginTexture = checkTexture(camOriginTexture)

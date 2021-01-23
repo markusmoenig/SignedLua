@@ -303,3 +303,57 @@ uint2 gid                               [[thread_position_in_grid]])
     color.xyz = pow(color.xyz, 2.2);
     outTexture.write(color, gid);
 }
+
+typedef struct
+{
+    float3 albedo;
+    float specular;
+
+    float3 emission;
+    float anisotropic;
+
+    float metallic;
+    float roughness;
+    float subsurface;
+    float specularTint;
+
+    float sheen;
+    float sheenTint;
+    float clearcoat;
+    float clearcoatGloss;
+
+    float transmission;
+
+    float ior;
+    float3 extinction;
+} Material;
+
+struct State
+{
+    int depth;
+    float eta;
+    float hitDist;
+
+    float3 fhp;
+    float3 normal;
+    float3 ffnormal;
+    float3 tangent;
+    float3 bitangent;
+
+    bool isEmitter;
+    bool specularBounce;
+    int rayType;
+
+    float2 texCoord;
+    Material mat;
+};
+
+struct Ray
+{
+    float3 origin;
+    float3 direction;
+};
+
+#define REFL 0
+#define REFR 1
+

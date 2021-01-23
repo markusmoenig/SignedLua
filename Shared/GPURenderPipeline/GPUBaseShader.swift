@@ -895,15 +895,9 @@ class GPUBaseShader
 
             float               maxDistance;
         } FragmentUniforms;
-        
-        struct MaterialOut
-        {
-            float4              color;
-            float3              mask;
-            float3              reflectionDir;
-            float               reflectionDist;
-            float               reflectionBlur;
-        };
+
+        #define REFL 0
+        #define REFR 1
 
         typedef struct
         {
@@ -928,6 +922,47 @@ class GPUBaseShader
             float ior;
             float3 extinction;
         } Material;
+
+        struct State
+        {
+            int depth;
+            float eta;
+            float hitDist;
+
+            float3 fhp;
+            float3 normal;
+            float3 ffnormal;
+            float3 tangent;
+            float3 bitangent;
+
+            bool isEmitter;
+            bool specularBounce;
+            int rayType;
+
+            float2 texCoord;
+            Material mat;
+        };
+
+        struct Ray
+        {
+            float3 origin;
+            float3 direction;
+        };
+
+        struct BsdfSampleRec
+        {
+            float3 bsdfDir;
+            float  pdf;
+        };
+        
+        struct MaterialOut
+        {
+            float4              color;
+            float3              mask;
+            float3              reflectionDir;
+            float               reflectionDist;
+            float               reflectionBlur;
+        };
         
         struct PatternOut
         {

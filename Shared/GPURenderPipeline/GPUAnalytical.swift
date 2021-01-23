@@ -27,7 +27,7 @@ final class GPUAnalyticalShader : GPUBaseShader
         """
 
         fragment float4 procFragment(RasterizerData in [[stage_in]],
-                                     constant float4 *__data [[ buffer(0) ]],
+                                     constant float4 *data [[ buffer(0) ]],
                                      constant FragmentUniforms &uniforms [[ buffer(1) ]],
                                      texture2d<float, access::read> camOriginTexture [[texture(2)]],
                                      texture2d<float, access::read> camDirTexture [[texture(3)]],
@@ -38,6 +38,7 @@ final class GPUAnalyticalShader : GPUBaseShader
             float2 size = in.viewportSize;
 
             ushort2 textureUV = ushort2(uv.x * size.x, (1.0 - uv.y) * size.y);
+            \(getDataInCode())
 
             float3 rayOrigin = float3(camOriginTexture.read(textureUV).xyz);
             float3 rayDir = float3(camDirTexture.read(textureUV).xyz);
@@ -87,7 +88,7 @@ final class GPUAnalyticalShader : GPUBaseShader
             
             var fragmentUniforms = pipeline.createFragmentUniform()
 
-            renderEncoder.setFragmentBuffer(buffer, offset: 0, index: 0)
+            renderEncoder.setFragmentBuffer(pipeline.dataBuffer, offset: 0, index: 0)
             renderEncoder.setFragmentBytes(&fragmentUniforms, length: MemoryLayout<GPUFragmentUniforms>.stride, index: 1)
             renderEncoder.setFragmentTexture(camOriginTexture, index: 2)
             renderEncoder.setFragmentTexture(camDirTexture, index: 3)
