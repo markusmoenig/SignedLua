@@ -193,8 +193,8 @@ final class GraphCameraNode : GraphBaseCameraNode
 
     var pivot        = float3(0, 0, 0)
     let worldUp      = float3(0, 1, 0)
-        
-    var focalDist    = Float1(0.1)
+    
+    var focalDistance = Float1(0.1)
     var aperture     = Float1(0)
 
     var pitch        : Float = 0
@@ -226,6 +226,12 @@ final class GraphCameraNode : GraphBaseCameraNode
         if let value = extractFloat1Value(options, container: context, error: &error, name: "fov", isOptional: true) {
             fov = value
         }
+        if let value = extractFloat1Value(options, container: context, error: &error, name: "focaldistance", isOptional: true) {
+            focalDistance = value
+        }
+        if let value = extractFloat1Value(options, container: context, error: &error, name: "aperture", isOptional: true) {
+            aperture = value
+        }
     }
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
@@ -233,7 +239,9 @@ final class GraphCameraNode : GraphBaseCameraNode
         context.updateDataVariable(origin)
         context.updateDataVariable(lookAt)
         context.updateDataVariable(fov)
-        
+        context.updateDataVariable(focalDistance)
+        context.updateDataVariable(aperture)
+
         return .Success
     }
     
@@ -245,6 +253,8 @@ final class GraphCameraNode : GraphBaseCameraNode
         context.addDataVariable(origin)
         context.addDataVariable(lookAt)
         context.addDataVariable(fov)
+        context.addDataVariable(focalDistance)
+        context.addDataVariable(aperture)
 
         let cameraCode =
         
@@ -254,8 +264,8 @@ final class GraphCameraNode : GraphBaseCameraNode
 
         float3 position = data[\(origin.dataIndex!)].xyz;
         float3 pivot = data[\(lookAt.dataIndex!)].xyz;
-        float focalDist = 0.1;
-        float aperture = 0.0;
+        float focalDist = data[\(focalDistance.dataIndex!)].x;
+        float aperture = data[\(aperture.dataIndex!)].x;
         
         float3 dir = normalize(pivot - position);
         float pitch = asin(dir.y);
@@ -348,7 +358,9 @@ final class GraphCameraNode : GraphBaseCameraNode
         let options = [
             GraphOption(Float3(0, 0, -5), "Origin", "The camera origin (viewer position)."),
             GraphOption(Float3(0, 0, 0), "LookAt", "The position the camera is looking at."),
-            GraphOption(Float1(80), "Fov", "The field of view of the camera.")
+            GraphOption(Float1(80), "Fov", "The field of view of the camera."),
+            GraphOption(Float1(0.1), "FocalDistance", "The focal distance."),
+            GraphOption(Float1(80), "Aperture", "The aperture of the camera.")
         ]
         return options
     }

@@ -259,8 +259,11 @@ final class GPUMaterialsShader : GPUBaseShader
                 float3 f = DisneyEval(r, state, lightDir);
                 float lightPdf = lightDistSq / (lightArea * abs(dot(lightNormal, lightDir)));
 
-                state.mat.emission = float3(1);
-                L.xyz += powerHeuristic(lightPdf, bsdfPdf) * f * abs(dot(state.ffnormal, lightDir)) * state.mat.emission / lightPdf;
+                Material material;
+                depth.w = lightMaterialIndex;
+                \(findMaterialsCode)
+
+                L.xyz += powerHeuristic(lightPdf, bsdfPdf) * f * abs(dot(state.ffnormal, lightDir)) * material.emission / lightPdf;
             }
 
             return L;
