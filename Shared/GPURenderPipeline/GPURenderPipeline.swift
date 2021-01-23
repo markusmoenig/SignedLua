@@ -166,7 +166,7 @@ class GPURenderPipeline
 
         depth = 0
 
-        for _ in 0..<2 {
+        for _ in 0..<4 {
             computeL()
             materialsShader!.pathTracer()
         }
@@ -177,12 +177,11 @@ class GPURenderPipeline
         
         passes += 1
         
-        /*
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
             self.startRendering()
             self.computePass()
             self.updateOnce()
-        }*/
+        }
     }
     
     func computeL()
@@ -273,7 +272,9 @@ class GPURenderPipeline
                 if texture != nil {
                     texture!.setPurgeableState(.empty)
                 }
-                return allocateTexture2D(width: renderSize.x, height: renderSize.y)
+                let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
+                if texture == nil { print("error allocating texture") }
+                return texture
             } else {
                 return texture
             }

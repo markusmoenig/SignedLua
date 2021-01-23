@@ -31,6 +31,27 @@ final class GPUMaterialsShader : GPUBaseShader
             {
                 Material material;
 
+                material.albedo = float3(0);
+                material.specular = 0;
+
+                material.emission = float3(0);
+                material.anisotropic = 0;
+
+                material.metallic = 0;
+                material.roughness = 0.5;
+                material.subsurface = 0;
+                material.specularTint = 0;
+
+                material.sheen = 0;
+                material.sheenTint = 0;
+                material.clearcoat = 0;
+                material.clearcoatGloss = 0;
+
+                material.transmission = 0.0;
+
+                material.ior = 1.45;
+                material.extinction = float3(1);
+
             """
             
             let codeMap = node.generateMetalCode(context: pipeline.context)
@@ -75,26 +96,6 @@ final class GPUMaterialsShader : GPUBaseShader
             float4 depth = float4(depthTexture.read(textureUV));
 
             Material material;
-            material.albedo = float3(0);
-            material.specular = 0;
-
-            material.emission = float3(0);
-            material.anisotropic = 0;
-
-            material.metallic = 0;
-            material.roughness = 0.5;
-            material.subsurface = 0;
-            material.specularTint = 0;
-
-            material.sheen = 0;
-            material.sheenTint = 0;
-            material.clearcoat = 0;
-            material.clearcoatGloss = 0;
-
-            material.transmission = 0.0;
-
-            material.ior = 1.45;
-            material.extinction = float3(1);
 
             float3 lightDir = float3(0,0,0);
 
@@ -258,6 +259,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 float3 f = DisneyEval(r, state, lightDir);
                 float lightPdf = lightDistSq / (lightArea * abs(dot(lightNormal, lightDir)));
 
+                state.mat.emission = float3(1);
                 L.xyz += powerHeuristic(lightPdf, bsdfPdf) * f * abs(dot(state.ffnormal, lightDir)) * state.mat.emission / lightPdf;
             }
 
@@ -347,8 +349,8 @@ final class GPUMaterialsShader : GPUBaseShader
 
             // ---
 
-            //radiance += state.mat.emission * throughput;
-            radiance = directLight;// * throughput;
+            radiance += state.mat.emission * throughput;
+            radiance += directLight * throughput;
 
             float3 bsdfDir = DisneySample(r, state, dataIn);
 
