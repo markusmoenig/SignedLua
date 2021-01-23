@@ -154,7 +154,7 @@ final class GraphPinholeCameraNode : GraphBaseCameraNode
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2 ) {
                 toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin])
-                toolContext.core.renderer.restart()
+                toolContext.core.renderPipeline.restart()
                 self.updateStarted = false
             }
         }
@@ -163,7 +163,7 @@ final class GraphPinholeCameraNode : GraphBaseCameraNode
     /// toolTouchUp
     override func toolTouchUp(_ pos: float2,_ toolContext: GraphToolContext)
     {
-        toolContext.core.renderer.restart()
+        toolContext.core.renderPipeline.restart()
     }
     
     override func getHelp() -> String
@@ -335,7 +335,7 @@ final class GraphCameraNode : GraphBaseCameraNode
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2 ) {
                 toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin])
-                toolContext.core.renderer.restart()
+                toolContext.core.renderPipeline.restart()
                 self.updateStarted = false
             }
         }
@@ -345,7 +345,7 @@ final class GraphCameraNode : GraphBaseCameraNode
     override func toolTouchUp(_ pos: float2,_ toolContext: GraphToolContext)
     {
         toolContext.core.renderQuality = .Fast
-        toolContext.core.renderer.restart()
+        toolContext.core.renderPipeline.restart()
     }
     
     override func getHelp() -> String

@@ -84,7 +84,6 @@ public class Core       : ObservableObject
     
     var frameworkId     : String? = nil
     
-    var renderer        : Renderer!
     var graphBuilder    : SignedGraphBuilder!
     
     var renderPipeline  : GPURenderPipeline!
@@ -118,9 +117,7 @@ public class Core       : ObservableObject
         } catch let error {
             print(error.localizedDescription)
         }
-        #endif
-        
-        renderer = Renderer(self)
+        #endif        
     }
     
     public func setupView(_ view: DMTKView)
@@ -165,11 +162,11 @@ public class Core       : ObservableObject
             return
         }
                         
-        if renderer.checkIfTextureIsValid(self) == false {
+        if renderPipeline.checkIfTextureIsValid() == false {
             return
         }
         
-        if let texture = renderer.getTexture() {            
+        if let texture = renderPipeline.getTexture() {
             startDrawing()
             let renderPassDescriptor = view.currentRenderPassDescriptor
             renderPassDescriptor?.colorAttachments[0].loadAction = .load

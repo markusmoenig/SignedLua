@@ -57,7 +57,7 @@ class SignedGraphBuilder: GraphBuilder {
                 }
             }
             
-            if error.error == nil && core.renderer.renderMode == .GPU {
+            if error.error == nil {
                 core.renderPipeline.compile(asset.graph!)
             }
             

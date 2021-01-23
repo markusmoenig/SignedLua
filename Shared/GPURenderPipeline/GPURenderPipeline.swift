@@ -61,6 +61,10 @@ class GPURenderPipeline
     
     var gpuAccum        : GPUAccumShader!
     
+    var semaphore       : DispatchSemaphore!
+
+    var stopRendering   : Bool = false
+    
     var passes          : Int = 0
     var depth           : Int = 0
     var maxDepth        : Int = 4
@@ -69,9 +73,10 @@ class GPURenderPipeline
     {
         self.view = view
         device = view.device!
+        semaphore = DispatchSemaphore(value: 1000)
     }
     
-    func update()
+    func update() -> Bool
     {
         if let cameraNode = context.cameraNode {
             cameraNode.execute(context: context)
@@ -90,6 +95,7 @@ class GPURenderPipeline
             dataBuffer = nil
         }
         
+        if context.data.count == 0 { return false }
         dataBuffer = device.makeBuffer(bytes: context.data, length: context.data.count * MemoryLayout<SIMD4<Float>>.stride, options: [])!
         
         if lightsDataBuffer != nil {
@@ -97,12 +103,16 @@ class GPURenderPipeline
             lightsDataBuffer = nil
         }
         lightsDataBuffer = device.makeBuffer(bytes: context.lightsData, length: context.lightsData.count * MemoryLayout<SIMD4<Float>>.stride, options: [])!
+        
+        return true
     }
     
     func compile(_ ctx: GraphContext)
     {
         context = ctx        
         
+        stop()
+        status = .Compiling
         context.setupBeforeCompiling()
         
         gpuAccum = GPUAccumShader(pipeline: self)
@@ -121,10 +131,20 @@ class GPURenderPipeline
             node.gpuShader = GPUSDFShader(pipeline: self, object: node)
         }
         
+        status = .Idle
+        restart()
+    }
+    
+    func getTexture() -> MTLTexture? {
+        return finalTexture
     }
     
     func render(_ size: SIMD2<Int>? = nil)
     {
+        if status == .Compiling {
+            return
+        }
+        
         if let rSize = size {
             renderSize.x = rSize.x
             renderSize.y = rSize.y
@@ -134,15 +154,35 @@ class GPURenderPipeline
         }
         
         checkTextures()
-                
-        update()
+        
+        if update() == false {
+            return
+        }
+        
+        stopRendering = false
+        status = .Rendering
+        
         
         startRendering()
-        
+
         clearTexture(finalTexture!, float4(0, 0, 0, 0))
 
         passes = 0
         computePass()
+    }
+    
+    func stop()
+    {
+        if status == .Rendering {
+            stopRendering = true
+            semaphore.wait()
+        }
+    }
+    
+    func restart()
+    {
+        stop()
+        render()
     }
     
     func startRendering()
@@ -155,33 +195,45 @@ class GPURenderPipeline
     
     func computePass()
     {
-        if let cameraNode = context.cameraNode {
-            if let cameraShader = cameraNode.gpuShader as? GPUCameraShader {
-                cameraShader.render()
+        if depth == 0 {
+            
+            clearTexture(radianceTexture!, float4(0, 0, 0, 0))
+            clearTexture(throughputTexture!, float4(1, 1, 1, 1))
+            
+            if let cameraNode = context.cameraNode {
+                if let cameraShader = cameraNode.gpuShader as? GPUCameraShader {
+                    cameraShader.render()
+                }
+            }
+        }
+
+        computeL()
+        materialsShader!.pathTracer()
+        
+        depth += 1
+        
+        if depth >= 4 {
+            gpuAccum.render(finalTexture: finalTexture!, sampleTexture: radianceTexture!)
+            depth = 0
+            passes += 1
+        }
+        
+        commandBuffer.addCompletedHandler { cb in
+            print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+            
+            if self.stopRendering == false {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                    self.startRendering()
+                    self.computePass()
+                    self.updateOnce()
+                }
+            } else {
+                self.status = .Idle
+                self.semaphore.signal()
             }
         }
         
-        clearTexture(radianceTexture!, float4(0, 0, 0, 0))
-        clearTexture(throughputTexture!, float4(1, 1, 1, 1))
-
-        depth = 0
-
-        for _ in 0..<4 {
-            computeL()
-            materialsShader!.pathTracer()
-        }
-            
-        gpuAccum.render(finalTexture: finalTexture!, sampleTexture: radianceTexture!)
-
         commandBuffer.commit()
-        
-        passes += 1
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            self.startRendering()
-            self.computePass()
-            self.updateOnce()
-        }
     }
     
     func computeL()
@@ -262,6 +314,11 @@ class GPURenderPipeline
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
         renderEncoder.endEncoding()
+    }
+    
+    func checkIfTextureIsValid() -> Bool
+    {
+        return true
     }
     
     /// Check and allocate all textures

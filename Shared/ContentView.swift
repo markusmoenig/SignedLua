@@ -172,7 +172,7 @@ struct ContentView: View {
                 
                 // Controls for Start Render / Stop Render
                 Button(action: {
-                    document.core.renderer.restart()
+                    document.core.renderPipeline.restart()
                 })
                 {
                     Label("Render", systemImage: "play.fill")
@@ -181,7 +181,7 @@ struct ContentView: View {
                 
                 // Controls for Start Render / Stop Render
                 Button(action: {
-                    document.core.renderer.stop()
+                    document.core.renderPipeline.stop()
                 })
                 {
                     Label("Stop", systemImage: "stop.fill")
