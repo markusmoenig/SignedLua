@@ -7,63 +7,6 @@
 
 import Foundation
 
-/// DefaultSkyNode
-final class GraphDefaultSkyNode : GraphNode
-{
-    var sunDirection       : Float3 = Float3(0.243, 0.075, 0.512)
-    var sunColor           : Float3 = Float3(0.966, 0.966, 0.966)
-    var worldHorizonColor  : Float3 = Float3(0.852, 0.591, 0.367)
-    var sunStrength        : Float1 = Float1(5)
-
-    init(_ options: [String:Any] = [:])
-    {
-        super.init(.Sky, .None, options)
-        name = "DefaultSky"
-        givenName = "Default Sky"
-    }
-    
-    override func verifyOptions(context: GraphContext, error: inout CompileError) {
-        //if let value = extractFloat1Value(options, context: context, error: &error, name: "radius", isOptional: true) {
-        //    radius = value
-        //}
-    }
-    
-    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
-    {
-        let camDir = context.rayDirection.toSIMD()
-        
-        let sunDir = sunDirection.toSIMD()
-        let skyColor = float3(0.38, 0.6, 1.0)
-        let sunColor = self.sunColor.toSIMD()
-        let horizonColor = worldHorizonColor.toSIMD()
-        
-        let sun : Float = simd_max(simd_dot(camDir, simd_normalize(sunDir)), 0.0)
-        let hor : Float = pow(1.0 - simd_max(camDir.y, 0.0), 3.0)
-        var col : float3 = simd_mix(skyColor, sunColor, sun * float3(0.5, 0.5, 0.5))
-        col = simd_mix(col, horizonColor, float3(hor, hor, hor))
-        
-        col += 0.25 * float3(1.0, 0.7, 0.4) * pow(sun, 5.0)
-        col += 0.25 * float3(1.0, 0.8, 0.6) * pow(sun, 5.0)
-        col += 0.15 * float3(1.0, 0.9, 0.7) * simd_max(pow(sun, 512.0), 0.25)
-
-        context.outColor.fromSIMD(float4(col.x, col.y, col.z, 1))
-        return .Success
-    }
-    
-    override func getHelp() -> String
-    {
-        return "Creates a sphere of a given radius."
-    }
-    
-    override func getOptions() -> [GraphOption]
-    {
-        let options = [
-            GraphOption(Float1(1), "Radius", "The radius of the sphere.")
-        ]
-        return options
-    }
-}
-
 /// BaseCameraNode
 class GraphBaseCameraNode : GraphNode
 {

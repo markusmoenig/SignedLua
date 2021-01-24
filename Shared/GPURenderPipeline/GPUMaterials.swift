@@ -66,6 +66,18 @@ final class GPUMaterialsShader : GPUBaseShader
             if findMaterialsCode != "" { findMaterialsCode += "else\n" }
             findMaterialsCode += "    if (isEqual(depth.w, \(String(index)))) material = material\(String(index))(dataIn);\n"
         }
+        
+        // --- Background / Sky code
+        
+        var backgroundCode = ""
+        
+        if let skyNode = context.skyNode {
+        
+            var codeMap : [String:String] = [:]
+            
+            codeMap = skyNode.generateMetalCode(context: context)
+            backgroundCode = codeMap["sky"]!
+        }
                 
         let fragmentCode =
         """
@@ -352,25 +364,42 @@ final class GPUMaterialsShader : GPUBaseShader
 
             // ---
 
-            radiance += state.mat.emission * throughput;
-            radiance += directLight * throughput;
+            if (depth.w > -1) {
 
-            float3 bsdfDir = DisneySample(r, state, dataIn);
+                // We hit something, get the direct light and calculate the new throughput
 
-            float pdf = DisneyPdf(r, state, bsdfDir);
+                radiance += state.mat.emission * throughput;
+                radiance += directLight * throughput;
 
-            if (pdf > 0.0)
-                throughput *= DisneyEval(r, state, bsdfDir) * abs(dot(state.ffnormal, bsdfDir)) / pdf;
-            else
-                throughput = float3(0);
+                float3 bsdfDir = DisneySample(r, state, dataIn);
 
-            radianceTexture.write(float4(radiance, 1), textureUV);
-            throughputTexture.write(float4(throughput, 1), textureUV);
+                float pdf = DisneyPdf(r, state, bsdfDir);
 
-            surfacePos += EPS * bsdfDir;
+                if (pdf > 0.0)
+                    throughput *= DisneyEval(r, state, bsdfDir) * abs(dot(state.ffnormal, bsdfDir)) / pdf;
+                else
+                    throughput = float3(0);
 
-            camOriginTexture.write(float4(surfacePos, 1), textureUV);
-            camDirTexture.write(float4(bsdfDir, 1), textureUV);
+                radianceTexture.write(float4(radiance, 1), textureUV);
+                throughputTexture.write(float4(throughput, 1), textureUV);
+
+                surfacePos += EPS * bsdfDir;
+
+                camOriginTexture.write(float4(surfacePos, 1), textureUV);
+                camDirTexture.write(float4(bsdfDir, 1), textureUV);
+            } else {
+
+                // We did not hit something, calculate background
+                // Have to find a way to terminate processing for these pixels
+
+                float3 rayDir = camDir;
+                float4 outColor = float4(0,0,0,1);
+
+                \(backgroundCode)
+                
+                outColor.xyz *= throughput;
+                radianceTexture.write(outColor, textureUV);
+            }
 
             return float4(1);
         }

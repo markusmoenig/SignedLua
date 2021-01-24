@@ -82,6 +82,10 @@ class GPURenderPipeline
             cameraNode.execute(context: context)
         }
         
+        if let skyNode = context.skyNode {
+            skyNode.execute(context: context)
+        }
+        
         for node in context.analyticalNodes {
             node.execute(context: context)
         }
@@ -161,7 +165,6 @@ class GPURenderPipeline
         
         stopRendering = false
         status = .Rendering
-        
         
         startRendering()
 
