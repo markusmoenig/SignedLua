@@ -263,7 +263,6 @@ final class GraphCameraNode : GraphBaseCameraNode
     override func toolTouchDown(_ pos: float2,_ toolContext: GraphToolContext)
     {
         mouseDownPos = pos
-        toolContext.core.renderQuality = .Fastest
         toolContext.checkIfTextureIsValid()
     }
     
@@ -287,7 +286,6 @@ final class GraphCameraNode : GraphBaseCameraNode
     /// toolTouchUp
     override func toolTouchUp(_ pos: float2,_ toolContext: GraphToolContext)
     {
-        toolContext.core.renderQuality = .Fast
         toolContext.core.renderPipeline.restart()
     }
     
