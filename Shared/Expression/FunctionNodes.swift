@@ -46,6 +46,11 @@ class DotFuncNode : ExpressionNode {
         }
     }
     
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "dot(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)))"
+    }
+    
     override func getHelp() -> String
     {
         return "Dot product between two vectors."
@@ -95,6 +100,11 @@ class MixFuncNode : ExpressionNode {
             }
             context.values[destIndex] = v
         }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "mix(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)), \(argumentsIn[2].toMetal(embedded: true)))"
     }
     
     override func getHelp() -> String
@@ -147,6 +157,11 @@ class ClampFuncNode : ExpressionNode {
         }
     }
     
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "clamp(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)), \(argumentsIn[2].toMetal(embedded: true)))"
+    }
+    
     override func getHelp() -> String
     {
         return "Clamps a value between a lower and upper bound."
@@ -194,6 +209,11 @@ class PowFuncNode : ExpressionNode {
         }
     }
     
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "pow(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)))"
+    }
+    
     override func getHelp() -> String
     {
         return "Raises the value of the first parameter to the power of the second."
@@ -204,6 +224,57 @@ class PowFuncNode : ExpressionNode {
         let options = [
             GraphOption(Float3(1,1,1), "Value", "", optionals: [Float1(), Float2(), Float4()]),
             GraphOption(Float1(0), "Power", "")
+        ]
+        return options
+    }
+}
+
+class ModFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("mod")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        if let p = argumentsIn[1].executeForFloat1() {
+            guard let input = argumentsIn[0].execute() else {
+                return
+            }
+            
+            let v = input.createType()
+            
+            for i in 0..<v.components {
+                v[i] = fmod(input[i], p.x)
+            }
+            context.values[destIndex] = v
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "mod(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Computes the value of one parameter modulo another."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(1,1,1), "Value", "", optionals: [Float1(), Float2(), Float4()]),
+            GraphOption(Float1(0), "Modulo", "")
         ]
         return options
     }
@@ -240,6 +311,11 @@ class StepFuncNode : ExpressionNode {
         }
     }
     
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "step(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)))"
+    }
+    
     override func getHelp() -> String
     {
         return "Generate a step function by comparing two values."
@@ -255,6 +331,59 @@ class StepFuncNode : ExpressionNode {
     }
 }
 
+class AbsFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("abs")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        guard let result = argumentsIn[0].execute() else {
+            return
+        }
+        
+        if result.getType() == .Float3 {
+            context.values[destIndex] = Float3(abs(result.toSIMD3()))
+        } else
+        if result.getType() == .Float4 {
+            context.values[destIndex] = Float4(abs(result.toSIMD4()))
+        } else
+        if result.getType() == .Float2 {
+            context.values[destIndex] = Float2(abs(result.toSIMD2()))
+        } else
+        if result.getType() == .Float {
+            context.values[destIndex] = Float1(abs(result.toSIMD1()))
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "abs(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns the absolute value of the parameter."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(1,1,1), "Value", "", optionals: [Float1(), Float2(), Float4()])
+        ]
+        return options
+    }
+}
 
 class NormalizeFuncNode : ExpressionNode {
     
@@ -286,6 +415,11 @@ class NormalizeFuncNode : ExpressionNode {
         if result.getType() == .Float2 {
             context.values[destIndex] = Float2(simd_normalize(result.toSIMD2()))
         }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "normalize(\(argumentsIn[0].toMetal(embedded: true)))"
     }
     
     override func getHelp() -> String
@@ -328,6 +462,11 @@ class ReflectFuncNode : ExpressionNode {
         }
         
         context.values[destIndex] = Float3(simd_reflect(leftResult.toSIMD3(), rightResult.toSIMD3()))
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "reflect(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)))"
     }
     
     override func getHelp() -> String

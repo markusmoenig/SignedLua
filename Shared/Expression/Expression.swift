@@ -66,6 +66,11 @@ class ExpressionNode {
     {
     }
     
+    func toMetal(_ context: ExpressionContext) -> String
+    {
+        return ""
+    }
+    
     /// Get help text
     func getHelp() -> String
     {
@@ -90,7 +95,7 @@ class ExpressionNode {
             error.error = "Wrong number of parameters for \(functionName): \(array.count). Should be \(options.count)."
             return false
         }
-        
+                
         for i in 0..<options.count {
             let context = ExpressionContext()
             context.parse(expression: array[i], container: container, error: &error)
@@ -116,6 +121,7 @@ class ExpressionNode {
                         var passesRules = false
                         if options[i].rules == .SameTypeAsPrevious && type != lastType && lastType != nil {
                             error.error = "Wrong type \(type) for parameter \(i+1) of \(functionName). Needs to be \(lastType!)."
+                            return false
                         } else {
                             passesRules = true
                         }
@@ -137,74 +143,12 @@ class ExpressionNode {
             }
         }
         
+        if argumentsIn.count != options.count {
+            error.error = "Wrong number of parameters for \(functionName): \(argumentsIn.count). Should be \(options.count)."
+            return false
+        }
+        
         return true
-    }
-    
-    // Utilities
-    func splitIntoOne(_ functionName : String,_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> ExpressionContext?
-    {
-        let array = splitParameters(parameters)
-        if array.count == 1 {
-            let arg1Context = ExpressionContext()
-            arg1Context.parse(expression: array[0], container: container, error: &error)
-            
-            if error.error != nil { return nil }
-            
-            return arg1Context
-        } else {
-            error.error = "Wrong number of parameters for \(functionName)"
-        }
-        
-        return nil
-    }
-    
-    func splitIntoTwo(_ functionName : String,_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> (ExpressionContext, ExpressionContext)?
-    {
-        let array = splitParameters(parameters)
-        if array.count == 2 {
-            let arg1Context = ExpressionContext()
-            arg1Context.parse(expression: array[0], container: container, error: &error)
-            
-            if error.error != nil { return nil }
-            
-            let arg2Context = ExpressionContext()
-            arg2Context.parse(expression: array[1], container: container, error: &error)
-            
-            if error.error != nil { return nil }
-            
-            return (arg1Context, arg2Context)
-        } else {
-            error.error = "Wrong number of parameters for \(functionName)"
-        }
-        
-        return nil
-    }
-    
-    func splitIntoThree(_ functionName : String,_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> (ExpressionContext, ExpressionContext, ExpressionContext)?
-    {
-        let array = splitParameters(parameters)
-        if array.count == 3 {
-            let arg1Context = ExpressionContext()
-            arg1Context.parse(expression: array[0], container: container, error: &error)
-            
-            if error.error != nil { return nil }
-            
-            let arg2Context = ExpressionContext()
-            arg2Context.parse(expression: array[1], container: container, error: &error)
-            
-            if error.error != nil { return nil }
-            
-            let arg3Context = ExpressionContext()
-            arg3Context.parse(expression: array[2], container: container, error: &error)
-            
-            if error.error != nil { return nil }
-            
-            return (arg1Context, arg2Context, arg3Context)
-        } else {
-            error.error = "Wrong number of parameters for \(functionName)"
-        }
-        
-        return nil
     }
     
     /**
@@ -279,6 +223,8 @@ class ExpressionContext
     
     var functions           : [ExpressionNodeItem] =
     [
+        ExpressionNodeItem("abs", {() -> ExpressionNode in return AbsFuncNode() }),
+        ExpressionNodeItem("mod", {() -> ExpressionNode in return ModFuncNode() }),
         ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() }),
         ExpressionNodeItem("pow", {() -> ExpressionNode in return PowFuncNode() }),
         ExpressionNodeItem("clamp", {() -> ExpressionNode in return ClampFuncNode() }),
@@ -547,20 +493,28 @@ class ExpressionContext
     }
     
     /// Converts the expression to metal code
-    func toMetal() -> String
+    func toMetal(embedded: Bool = false) -> String
     {
         var code = ""
         
         if nodes.isEmpty == false {
             for node in nodes {
-                node.execute(self)
+                code += node.toMetal(self)
             }
         } else {
             if values.count >= 1 {
                 if let result = values[values.count - 1] {
-                    code += "\(result.getSIMDName())(\(result.toString()));\n"
+                    if result.components > 1 && result.name.isEmpty {
+                        code += "\(result.getSIMDName())(\(result.toString()))"
+                    } else {
+                        code += "\(result.toString())"
+                    }
                 }
             }
+        }
+        
+        if embedded == false {
+            code += ";\n"
         }
         
         return code
@@ -792,7 +746,7 @@ class ExpressionContext
         }
         
         if let variable = container.getVariableValue(variableExpression) {
-            
+                        
             if qualifierExpression == "" {
                 return variable
             } else {

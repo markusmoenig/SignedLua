@@ -346,7 +346,7 @@ final class GraphContext    : VariableContainer
                 print("light at data index", atPositionIndex, materialNode.index!)
                 
                 var data1 = float4()
-                var data2 = float4()
+                let data2 = float4()
                 
                 data1.y = Float(atPositionIndex)
                 data1.z = Float(materialNode.index!)
@@ -394,6 +394,15 @@ final class GraphContext    : VariableContainer
     func createDefaultVariables()
     {
         // Insert default variables
+        
+        parameters = []
+        let uv = Float2("uv", 0, 0)
+        uv.role = .System
+        parameters!.append(uv)
+        
+        let viewSize = Float2("viewSize", 0, 0)
+        viewSize.role = .System
+        parameters!.append(viewSize)
         
         outColor = Float4("outColor", 0.0, 0.0, 0.0, 0.0)
         outColor.role = .System

@@ -43,7 +43,7 @@ class BaseVariable {
     
     var context     : ExpressionContext? = nil
     var name        : String = ""
-    
+        
     // How many components does this variable have
     var components  : Int = 1
     
@@ -684,7 +684,44 @@ final class Float3 : BaseVariable
     }
     
     override func toString() -> String {
-        return "\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z))"
+        if name.isEmpty == false {
+            return name
+        } else
+        if isConstant() {
+            return "\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z))"
+        } else
+        if expressions == 0 {
+            if let context = context {
+                return context.toMetal()
+            }
+        } else
+        if expressions == 3 {
+        
+            var stringX = "0"
+            var stringY = "0"
+            var stringZ = "0"
+            
+            if let c1 = context1 {
+                stringX = c1.toMetal(embedded: true)
+            } else {
+                stringX = String(format: "%.03g", x)
+             }
+            
+            if let c2 = context2 {
+                stringY = c2.toMetal(embedded: true)
+            } else {
+                stringY = String(format: "%.03g", y)
+             }
+            
+            if let c3 = context3 {
+                stringZ = c3.toMetal(embedded: true)
+            } else {
+               stringZ = String(format: "%.03g", z)
+            }
+            
+            return "\(stringX), \(stringY), \(stringZ)"
+        }
+        return ""
     }
     
     func toHexString() -> String {
@@ -900,7 +937,25 @@ final class Float2 : BaseVariable
     }
     
     override func toString() -> String {
-        return "\(String(x)), \((String(y)))"
+        if name.isEmpty == false {
+            return name
+        } else
+        if isConstant() {
+            return "\(String(x)), \((String(y)))"
+        } else {
+            var stringX = "0"
+            var stringY = "0"
+            
+            if let c1 = context1 {
+                stringX = c1.toMetal()
+            }
+            
+            if let c2 = context1 {
+                stringY = c2.toMetal()
+            }
+            
+            return "\(stringX), \(stringY)"
+        }
     }
     
     @inlinable override func toSIMD2() -> SIMD2<Float>
@@ -1055,7 +1110,27 @@ final class Float1 : BaseVariable
     }
     
     override func toString() -> String {
-        return String(x)//format: "%.03f", x)
+        if name.isEmpty == false {
+            return name
+        } else
+        if isConstant() {
+            return String(x)//format: "%.03f", x)
+        } else {
+            var stringX = "0"
+            
+            if let ref = reference {
+                stringX = ref.name
+                if qualifiers.count == 1 {
+                    let a = ["x", "y", "z", "w"]
+                    stringX += "." + a[qualifiers[0]]
+                }
+            } else
+            if let c = context {
+                stringX = c.toMetal()
+            }
+            
+            return "\(stringX)"
+        }
     }
     
     @inlinable func fromSIMD(_ v: Float)

@@ -222,7 +222,7 @@ class GPURenderPipeline
         }
         
         commandBuffer.addCompletedHandler { cb in
-            print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+            //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
             
             if self.stopRendering == false {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {

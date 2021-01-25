@@ -30,6 +30,9 @@ final class GPUMaterialsShader : GPUBaseShader
             Material material\(index)(DataIn dataIn)
             {
                 Material material;
+                
+                float2 uv = dataIn.uv;
+                float2 viewSize = dataIn.viewSize;
 
                 material.albedo = float3(0);
                 material.specular = 0;
@@ -62,6 +65,8 @@ final class GPUMaterialsShader : GPUBaseShader
             }
 
             """
+            
+            print(codeMap["code"]!)
             
             if findMaterialsCode != "" { findMaterialsCode += "else\n" }
             findMaterialsCode += "    if (isEqual(depth.w, \(String(index)))) material = material\(String(index))(dataIn);\n"

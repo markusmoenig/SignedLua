@@ -77,6 +77,8 @@ typedef struct {
     int                 depth;
     int                 maxDepth;
     
+    int                 counter;
+    
     // bbox
     simd_float3         P;
     simd_float3         L;

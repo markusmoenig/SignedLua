@@ -856,7 +856,9 @@ class GPUBaseShader
         return """
         DataIn dataIn;
         dataIn.time = data[0].x;
+        dataIn.uv = uv;
         dataIn.seed = uv;
+        dataIn.viewSize = size;
         dataIn.randomVector = uniforms.randomVector;
         dataIn.data = data;
         """
@@ -874,6 +876,9 @@ class GPUBaseShader
         typedef struct
         {
             float               time;
+
+            float2              uv;
+            float2              viewSize;
             
             float2              seed;
             float3              randomVector;
@@ -887,6 +892,8 @@ class GPUBaseShader
             int                 passes;
             int                 depth;
             int                 maxDepth;
+
+            int                 counter;
 
             // bbox
             simd_float3         P;
@@ -954,23 +961,23 @@ class GPUBaseShader
             float3 bsdfDir;
             float  pdf;
         };
-        
-        struct MaterialOut
-        {
-            float4              color;
-            float3              mask;
-            float3              reflectionDir;
-            float               reflectionDist;
-            float               reflectionBlur;
-        };
-        
-        struct PatternOut
-        {
-            float4              color;
-            float               mask;
-            float               id;
-        };
-        
+
+        float mod(float x, float y) {
+            return x - y * floor(x / y);
+        }
+
+        float2 mod(float2 x, float y) {
+            return x - y * floor(x / y);
+        }
+
+        float3 mod(float3 x, float y) {
+            return x - y * floor(x / y);
+        }
+
+        float4 mod(float4 x, float y) {
+            return x - y * floor(x / y);
+        }
+
         #define PI        3.14159265358979323
         #define TWO_PI    6.28318530717958648
         #define EPS       0.001

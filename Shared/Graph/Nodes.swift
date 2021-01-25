@@ -47,6 +47,7 @@ final class GraphVariableAssignmentNode : GraphNode
                     if context.variables[givenName] == nil {
                         let v = result.createType()
                         v.role = expression.isConstant() ? .User : .System
+                        v.name = givenName
                         context.variables[givenName] = v
                     }
                     context.variables[givenName]!.assign(from: result, using: assignmentType)
@@ -85,7 +86,7 @@ final class GraphVariableAssignmentNode : GraphNode
                 }
             }
         }
-                
+
         return codeMap
     }
     
