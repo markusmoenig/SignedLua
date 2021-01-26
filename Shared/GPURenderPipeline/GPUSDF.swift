@@ -65,14 +65,16 @@ final class GPUSDFShader : GPUBaseShader
             float4 depth = depthTexture.read(textureUV);
             float4 normal = normalTexture.read(textureUV);
 
-            float t = 0.001;
+            if (depth.x < 0.0) { return float4(0); }
+
+            float t = 0.120;
 
             for(int i = 0; i < 70; i++)
             {
                 float3 p = rayOrigin + rayDir * t;
                 float4 d = map(p, dataIn);
 
-                if (abs(d.x) < 0.001) {//(0.0001*t)) {
+                if (abs(d.x) < (0.0001*t)) {
                     if (t < depth.x) {
                         depth = d;
                         depth.x = t;

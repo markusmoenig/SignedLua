@@ -101,8 +101,9 @@ final class GPUMaterialsShader : GPUBaseShader
                                      texture2d<float, access::write> paramsTexture4 [[texture(7)]],
                                      texture2d<float, access::write> paramsTexture5 [[texture(8)]],
                                      texture2d<float, access::write> paramsTexture6 [[texture(9)]],
-                                     texture2d<float, access::read_write> camOriginTexture [[texture(10)]],
-                                     texture2d<float, access::read> camDirTexture [[texture(11)]])
+                                     texture2d<float, access::read> camOriginTexture [[texture(10)]],
+                                     texture2d<float, access::read> camDirTexture [[texture(11)]],
+                                     texture2d<float, access::write> camOriginTexture2 [[texture(12)]])
         {
             float2 uv = float2(in.textureCoordinate.x, in.textureCoordinate.y);
             float2 size = in.viewportSize;
@@ -112,13 +113,17 @@ final class GPUMaterialsShader : GPUBaseShader
 
             float4 depth = float4(depthTexture.read(textureUV));
 
+            if (depth.x < 0.0) { return float4(0); }
+
+            float4 camOrigin = camOriginTexture.read(textureUV);
+
             Material material;
 
             float3 lightDir = float3(0,0,0);
 
             if (depth.w > -1) {
 
-                float3 rayOrigin = camOriginTexture.read(textureUV).xyz;
+                float3 rayOrigin = camOrigin.xyz;
                 float3 rayDir = camDirTexture.read(textureUV).xyz;
 
                 float3 surfacePosition = rayOrigin + rayDir * depth.x;
@@ -148,9 +153,9 @@ final class GPUMaterialsShader : GPUBaseShader
                         lightDir /= sqrt(lightDistSq);
                         //lightDir = normalize(lightDir);
 
-                        surfacePosition += lightDir * 0.025;
+                        surfacePosition += lightDir * 0.120;
 
-                        camOriginTexture.write(float4(surfacePosition, float(lightIndex)), textureUV);
+                        camOriginTexture2.write(float4(surfacePosition, float(lightIndex)), textureUV);
 
                         /*
                         if (dot(lightDir, state.ffnormal) <= 0.0 || dot(lightDir, lightSampleRec.normal) >= 0.0)
@@ -168,7 +173,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 paramsTexture6.write(float4(material.ior, material.extinction), textureUV);
             }
 
-            return float4(material.albedo, 1.0);
+            return float4(1);
         }
 
         fragment float4 directLight( RasterizerData in [[stage_in]],
@@ -199,6 +204,8 @@ final class GPUMaterialsShader : GPUBaseShader
 
             float4 depth = depthTexture.read(textureUV);
             float3 normal = normalTexture.read(textureUV).xyz;
+
+            if (depth.x < 0.0) { return float4(0); }
 
             float4 camOrigin = camOriginTexture.read(textureUV);
             float3 surfacePosition = camOrigin.xyz;
@@ -291,7 +298,7 @@ final class GPUMaterialsShader : GPUBaseShader
                                      constant FragmentUniforms &uniforms [[ buffer(1) ]],
                                      texture2d<float, access::read_write> radianceTexture [[texture(2)]],
                                      texture2d<float, access::read_write> throughputTexture [[texture(3)]],
-                                     texture2d<float, access::read> depthTexture [[texture(4)]],
+                                     texture2d<float, access::read_write> depthTexture [[texture(4)]],
                                      texture2d<float, access::read> normalTexture [[texture(5)]],
                                      texture2d<float, access::read_write> camOriginTexture [[texture(6)]],
                                      texture2d<float, access::read_write> camDirTexture [[texture(7)]],
@@ -315,14 +322,16 @@ final class GPUMaterialsShader : GPUBaseShader
             float4 depth = depthTexture.read(textureUV);
             float3 normal = normalTexture.read(textureUV).xyz;
 
+            if (depth.x < 0.0) { return float4(0); }
+
             float3 directLight = directLightTexture.read(textureUV).xyz;
 
             State state;
 
             float4 camOrigin = camOriginTexture.read(textureUV);
-            float3 surfacePos = camOrigin.xyz;
-
             float3 camDir = camDirTexture.read(textureUV).xyz;
+
+            float3 surfacePos = camOrigin.xyz + camDir.xyz * depth.x;
 
             float4 params1 = paramsTexture1.read(textureUV);
             float4 params2 = paramsTexture2.read(textureUV);
@@ -374,6 +383,16 @@ final class GPUMaterialsShader : GPUBaseShader
                 // We hit something, get the direct light and calculate the new throughput
 
                 radiance += state.mat.emission * throughput;
+
+                if (length(state.mat.emission) > 0) {
+                    throughput = float3(0);
+                    depth.x = -10;
+                    depthTexture.write(depth, textureUV);
+                    radianceTexture.write(float4(radiance, 1), textureUV);
+                    throughputTexture.write(float4(throughput, 1), textureUV);
+                    return float4(1);
+                }
+
                 radiance += directLight * throughput;
 
                 float3 bsdfDir = DisneySample(r, state, dataIn);
@@ -382,13 +401,16 @@ final class GPUMaterialsShader : GPUBaseShader
 
                 if (pdf > 0.0)
                     throughput *= DisneyEval(r, state, bsdfDir) * abs(dot(state.ffnormal, bsdfDir)) / pdf;
-                else
+                else {
                     throughput = float3(0);
+                    depth.x = -10;
+                    depthTexture.write(depth, textureUV);
+                }
 
                 radianceTexture.write(float4(radiance, 1), textureUV);
                 throughputTexture.write(float4(throughput, 1), textureUV);
 
-                //surfacePos += 0.25 * bsdfDir;
+                surfacePos += 0.120 * bsdfDir;
 
                 camOriginTexture.write(float4(surfacePos, 1), textureUV);
                 camDirTexture.write(float4(bsdfDir, 1), textureUV);
@@ -404,6 +426,12 @@ final class GPUMaterialsShader : GPUBaseShader
                 
                 outColor.xyz *= throughput;
                 radianceTexture.write(outColor, textureUV);
+
+                //throughput = float3(0);
+                throughputTexture.write(float4(throughput, 1), textureUV);
+
+                depth.x = -10;
+                depthTexture.write(depth, textureUV);
             }
 
             return float4(1);
@@ -449,6 +477,7 @@ final class GPUMaterialsShader : GPUBaseShader
             renderEncoder.setFragmentTexture(pipeline.paramsTexture6!, index: 9)
             renderEncoder.setFragmentTexture(pipeline.camOriginTexture!, index: 10)
             renderEncoder.setFragmentTexture(pipeline.camDirTexture!, index: 11)
+            renderEncoder.setFragmentTexture(pipeline.camOriginTexture2!, index: 12)
             // ---
             
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
@@ -482,7 +511,7 @@ final class GPUMaterialsShader : GPUBaseShader
             renderEncoder.setFragmentTexture(normalTexture, index: 4)
             renderEncoder.setFragmentTexture(lightDepthTexture, index: 5)
             renderEncoder.setFragmentTexture(lightNormalTexture, index: 6)
-            renderEncoder.setFragmentTexture(pipeline.camOriginTexture!, index: 7)
+            renderEncoder.setFragmentTexture(pipeline.camOriginTexture2!, index: 7)
             renderEncoder.setFragmentTexture(pipeline.camDirTexture!, index: 8)
             renderEncoder.setFragmentTexture(pipeline.paramsTexture1!, index: 9)
             renderEncoder.setFragmentTexture(pipeline.paramsTexture2!, index: 10)

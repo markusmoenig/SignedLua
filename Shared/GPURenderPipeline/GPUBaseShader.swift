@@ -889,11 +889,9 @@ class GPUBaseShader
 
             simd_float3         randomVector;
 
-            int                 passes;
+            int                 samples;
             int                 depth;
             int                 maxDepth;
-
-            int                 counter;
 
             // bbox
             simd_float3         P;

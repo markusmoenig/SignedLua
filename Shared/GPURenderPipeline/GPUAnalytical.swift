@@ -45,6 +45,8 @@ final class GPUAnalyticalShader : GPUBaseShader
             float4 depth = float4(depthTexture.read(textureUV));
             float4 normal = float4(normalTexture.read(textureUV));
 
+            if (depth.x < 0.0) { return float4(0); }
+
             float4 analyticalMap = float4(10000, 0, -1, -1);
             float3 analyticalNormal = float3();
 

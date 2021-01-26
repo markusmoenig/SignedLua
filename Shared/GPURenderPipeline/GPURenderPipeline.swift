@@ -30,6 +30,7 @@ class GPURenderPipeline
     var normalTexture   : MTLTexture? = nil
 
     var camOriginTexture: MTLTexture? = nil
+    var camOriginTexture2: MTLTexture? = nil
     var camDirTexture   : MTLTexture? = nil
     
     var paramsTexture1  : MTLTexture? = nil
@@ -266,13 +267,13 @@ class GPURenderPipeline
 
         for node in context.analyticalNodes {
             if let object = node.gpuShader as? GPUAnalyticalShader {
-                object.render(camOriginTexture: camOriginTexture!, camDirTexture: paramsTexture5!, depthTexture: utilityTexture1!, normalTexture: utilityTexture2!)
+                object.render(camOriginTexture: camOriginTexture2!, camDirTexture: paramsTexture5!, depthTexture: utilityTexture1!, normalTexture: utilityTexture2!)
             }
         }
         
         for node in context.sdfNodes {
             if let object = node.gpuShader as? GPUSDFShader {
-                object.render(camOriginTexture: camOriginTexture!, camDirTexture: paramsTexture5!, depthTexture: utilityTexture1!, normalTexture: utilityTexture2!)
+                object.render(camOriginTexture: camOriginTexture2!, camDirTexture: paramsTexture5!, depthTexture: utilityTexture1!, normalTexture: utilityTexture2!)
             }
         }
         
@@ -298,7 +299,7 @@ class GPURenderPipeline
         
         fragmentUniforms.maxDepth = Int32(maxDepth);
         fragmentUniforms.depth = Int32(depth);
-        fragmentUniforms.passes = Int32(samples);
+        fragmentUniforms.samples = Int32(samples);
         
         /*
         fragmentUniforms.screenSize = prtInstance.screenSize
@@ -352,6 +353,7 @@ class GPURenderPipeline
         depthTexture = checkTexture(depthTexture)
         normalTexture = checkTexture(normalTexture)
         camOriginTexture = checkTexture(camOriginTexture)
+        camOriginTexture2 = checkTexture(camOriginTexture2)
         camDirTexture = checkTexture(camDirTexture)
         
         paramsTexture1 = checkTexture(paramsTexture1)

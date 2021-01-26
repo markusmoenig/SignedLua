@@ -79,7 +79,7 @@ final class GraphDefaultSkyNode : GraphNode
         col += 0.25 * float3(1.0, 0.8, 0.6) * pow(sun, 5.0);
         col += 0.15 * float3(1.0, 0.9, 0.7) * max(pow(sun, 512.0), 0.25);
 
-        outColor = float4(col,1);
+        outColor = float4(pow(col, 2.2),1);
 
         """
                 

@@ -77,6 +77,9 @@ final class GraphVariableAssignmentNode : GraphNode
             if let v = expression.execute() {
                 if materialNames.contains(givenName) {
                     codeMap["code"] = "material.\(givenName) \(assignmentCode()) \(expression.toMetal())"
+                    //if givenName == "albedo" {
+                    //    codeMap["code"] = "material.albedo = pow(material.albedo, 2.2);\n"
+                    //}
                 } else {
                     if codeMap[givenName] == nil {
                         codeMap["code"] = "\(v.getSIMDName()) \(givenName) = \(expression.toMetal())"
