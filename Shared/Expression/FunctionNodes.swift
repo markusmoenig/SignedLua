@@ -331,6 +331,57 @@ class StepFuncNode : ExpressionNode {
     }
 }
 
+class MinFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("min")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        if let edge = argumentsIn[0].executeForFloat1() {
+            guard let value = argumentsIn[1].execute() else {
+                return
+            }
+            
+            let v = value.createType()
+            
+            for i in 0..<v.components {
+                v[i] = min(edge.x, value[i])
+            }
+            context.values[destIndex] = v
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "min(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns the minimum of the two values."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float1(0), "Value1", "", optionals: [Float2(), Float3(), Float4()]),
+            GraphOption(Float1(1), "Value2", "", optionals: [Float2(), Float3(), Float4()], rules: .SameTypeAsPrevious)
+        ]
+        return options
+    }
+}
+
 class AbsFuncNode : ExpressionNode {
     
     init()

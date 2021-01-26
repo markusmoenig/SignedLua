@@ -49,6 +49,7 @@ class GraphBuilder
         GraphNodeItem("sdfCircle2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFCircleNode2D(options) }),
         
         GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return GraphBoolMergeNode(options) }),
+        GraphNodeItem("boolSmoothMerge", { (_ options: [String:Any]) -> GraphNode in return GraphBoolSmoothMergeNode(options) }),
         
         GraphNodeItem("texColor", { (_ options: [String:Any]) -> GraphNode in return GraphTexColorNode(options) }),
         GraphNodeItem("texChecker", { (_ options: [String:Any]) -> GraphNode in return GraphTexCheckerNode(options) }),

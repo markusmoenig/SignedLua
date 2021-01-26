@@ -39,7 +39,8 @@ final class GPUAccumShader : GPUBaseShader
             sample = clamp(sample, 0, 1);
 
             float k = float(uniforms.passes + 1);
-            final = final * (1.0 - 1.0/k) + sample * (1.0/k);
+            final.xyz = final.xyz * (1.0 - 1.0/k) + sample.xyz * (1.0/k);
+            final.w = 1.0;
 
             finalTexture.write(final, textureUV);
 

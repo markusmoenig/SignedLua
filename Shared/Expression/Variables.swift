@@ -54,6 +54,9 @@ class BaseVariable {
     // The data index of the variable
     var dataIndex   : Int? = nil
     
+    // If the variables is chained in an expression (i.e. the temporary output of a function)
+    var chained     = false
+    
     init(_ name: String, components: Int = 1)
     {
         self.name = name
@@ -938,7 +941,12 @@ final class Float2 : BaseVariable
     
     override func toString() -> String {
         if name.isEmpty == false {
-            return name
+            var qual = ""
+            if qualifiers.count == 2 {
+                let a = ["x", "y", "z", "w"]
+                qual += "." + a[qualifiers[0]] + a[qualifiers[1]]
+            }
+            return name + qual
         } else
         if isConstant() {
             return "\(String(x)), \((String(y)))"
@@ -1111,7 +1119,12 @@ final class Float1 : BaseVariable
     
     override func toString() -> String {
         if name.isEmpty == false {
-            return name
+            var qual = ""
+            if qualifiers.count == 1 {
+                let a = ["x", "y", "z", "w"]
+                qual += "." + a[qualifiers[0]]
+            }
+            return name + qual
         } else
         if isConstant() {
             return String(x)//format: "%.03f", x)

@@ -404,6 +404,10 @@ final class GraphContext    : VariableContainer
         viewSize.role = .System
         parameters!.append(viewSize)
         
+        let rP = Float3("rayPosition", 0, 0, 0)
+        rP.role = .System
+        parameters!.append(rP)
+        
         outColor = Float4("outColor", 0.0, 0.0, 0.0, 0.0)
         outColor.role = .System
         variables["outColor"] = outColor

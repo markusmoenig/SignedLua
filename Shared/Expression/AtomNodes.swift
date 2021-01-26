@@ -92,7 +92,7 @@ class MultiplyAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
-        return left.toString() + " * " + right.toString()
+        return (left.chained ? "" : left.toString()) + " * " + right.toString()
     }
 }
 
@@ -173,8 +173,8 @@ class DivisionAtomNode : ExpressionNode {
     {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
-        
-        return left.toString() + " / " + right.toString()
+
+        return (left.chained ? "" : left.toString()) + " / " + right.toString()
     }
 }
 
@@ -192,7 +192,7 @@ class MinusAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
-        if left.components != right.components {
+        if left.components != right.components && left.components != 1 && right.components != 1 {
             error.error = "Cannot subtract \(right.getTypeName()) from \(left.getTypeName())"
         }
     }
@@ -256,7 +256,7 @@ class MinusAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
-        return left.toString() + " - " + right.toString()
+        return (left.chained ? "" : left.toString()) + " - " + right.toString()
     }
 }
 
@@ -338,6 +338,6 @@ class AddAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
-        return left.toString() + " + " + right.toString()
+        return (left.chained ? "" : left.toString()) + " + " + right.toString()
     }
 }

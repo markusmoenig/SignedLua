@@ -65,7 +65,9 @@ class GPURenderPipeline
 
     var stopRendering   : Bool = false
     
-    var passes          : Int = 0
+    var samples         : Int = 0
+    var maxSamples      : Int = 10000
+    
     var depth           : Int = 0
     var maxDepth        : Int = 4
 
@@ -170,7 +172,7 @@ class GPURenderPipeline
 
         clearTexture(finalTexture!, float4(0, 0, 0, 0))
 
-        passes = 0
+        samples = 0
         computePass()
     }
     
@@ -218,13 +220,13 @@ class GPURenderPipeline
         if depth >= 4 {
             gpuAccum.render(finalTexture: finalTexture!, sampleTexture: radianceTexture!)
             depth = 0
-            passes += 1
+            samples += 1
         }
         
         commandBuffer.addCompletedHandler { cb in
             //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
             
-            if self.stopRendering == false {
+            if self.stopRendering == false && self.samples < self.maxSamples {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
                     self.startRendering()
                     self.computePass()
@@ -296,7 +298,7 @@ class GPURenderPipeline
         
         fragmentUniforms.maxDepth = Int32(maxDepth);
         fragmentUniforms.depth = Int32(depth);
-        fragmentUniforms.passes = Int32(passes);
+        fragmentUniforms.passes = Int32(samples);
         
         /*
         fragmentUniforms.screenSize = prtInstance.screenSize

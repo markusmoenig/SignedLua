@@ -27,7 +27,7 @@ final class GPUMaterialsShader : GPUBaseShader
             materialsCode +=
             """
 
-            Material material\(index)(DataIn dataIn)
+            Material material\(index)(DataIn dataIn, float3 rayPosition)
             {
                 Material material;
                 
@@ -69,7 +69,7 @@ final class GPUMaterialsShader : GPUBaseShader
             print(codeMap["code"]!)
             
             if findMaterialsCode != "" { findMaterialsCode += "else\n" }
-            findMaterialsCode += "    if (isEqual(depth.w, \(String(index)))) material = material\(String(index))(dataIn);\n"
+            findMaterialsCode += "    if (isEqual(depth.w, \(String(index)))) material = material\(String(index))(dataIn, surfacePosition);\n"
         }
         
         // --- Background / Sky code
@@ -118,10 +118,12 @@ final class GPUMaterialsShader : GPUBaseShader
 
             if (depth.w > -1) {
 
-                \(findMaterialsCode)
-
                 float3 rayOrigin = camOriginTexture.read(textureUV).xyz;
                 float3 rayDir = camDirTexture.read(textureUV).xyz;
+
+                float3 surfacePosition = rayOrigin + rayDir * depth.x;
+
+                \(findMaterialsCode)
 
                 int lightsCount = int(lightsData[0].x);
                 if (lightsCount > 0) {
@@ -136,8 +138,6 @@ final class GPUMaterialsShader : GPUBaseShader
                         float lightRadius = lightData1.w;
                         float lightMaterialIndex = lightData1.z;
 
-                        float3 surfacePosition = rayOrigin + rayDir * depth.x;
-
                         float3 lightSurfacePos = lightPosition + UniformSampleSphere(rand(dataIn), rand(dataIn)) * lightRadius;
                         //lightSampleRec.normal = normalize(lightSampleRec.surfacePos - light.position);
                         //lightSampleRec.emission = light.emission * float(numOfLights);
@@ -148,7 +148,7 @@ final class GPUMaterialsShader : GPUBaseShader
                         lightDir /= sqrt(lightDistSq);
                         //lightDir = normalize(lightDir);
 
-                        //surfacePosition += lightDir * EPS;
+                        surfacePosition += lightDir * 0.025;
 
                         camOriginTexture.write(float4(surfacePosition, float(lightIndex)), textureUV);
 
@@ -201,7 +201,7 @@ final class GPUMaterialsShader : GPUBaseShader
             float3 normal = normalTexture.read(textureUV).xyz;
 
             float4 camOrigin = camOriginTexture.read(textureUV);
-            float3 surfacePos = camOrigin.xyz;
+            float3 surfacePosition = camOrigin.xyz;
             int lightIndex = int(camOrigin.w);
 
             float3 camDir = camDirTexture.read(textureUV).xyz;
@@ -263,9 +263,9 @@ final class GPUMaterialsShader : GPUBaseShader
                 state.bitangent = cross(state.ffnormal, state.tangent);
 
                 float3 lightDir = params5.xyz;
-                float3 lightSurfacePos = surfacePos + lightDir * depth.x;
+                float3 lightSurfacePos = surfacePosition + lightDir * depth.x;
 
-                float3 ld = lightSurfacePos - surfacePos;
+                float3 ld = lightSurfacePos - surfacePosition;
                 float lightDist = length(ld);
                 float lightDistSq = lightDist * lightDist;
 
@@ -388,7 +388,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 radianceTexture.write(float4(radiance, 1), textureUV);
                 throughputTexture.write(float4(throughput, 1), textureUV);
 
-                surfacePos += EPS * bsdfDir;
+                //surfacePos += 0.25 * bsdfDir;
 
                 camOriginTexture.write(float4(surfacePos, 1), textureUV);
                 camDirTexture.write(float4(bsdfDir, 1), textureUV);

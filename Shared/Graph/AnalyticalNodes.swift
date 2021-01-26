@@ -62,8 +62,10 @@ final class GraphAnalyticalGroundPlaneNode : GraphDistanceNode
 /// Analytical Dome
 final class GraphAnalyticalDomeNode : GraphDistanceNode
 {
-    var radius      : Float1 = Float1(20)
+    var radius                  : Float1 = Float1(20)
+    var ceilingMaterialName     : String? = nil
 
+    
     init(_ options: [String:Any] = [:])
     {
         super.init(.Utility, .Analytical, options)
@@ -74,6 +76,9 @@ final class GraphAnalyticalDomeNode : GraphDistanceNode
         verifyTranslationOptions(context: context, error: &error)
         if let value = extractFloat1Value(options, container: context, error: &error, name: "radius", isOptional: true) {
             radius = value
+        }
+        if let ceilingMaterial = options["ceilingmaterial"] as? String {
+            ceilingMaterialName = ceilingMaterial.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         }
     }
     
@@ -102,6 +107,14 @@ final class GraphAnalyticalDomeNode : GraphDistanceNode
         context.addDataVariable(position)
         context.addDataVariable(radius)
         
+        let materialIndex = context.getMaterialIndex()
+        var ceilingMaterialIndex = materialIndex
+        if let ceilingMaterialName = ceilingMaterialName {
+            if let ceilingMateral = context.getMaterial(ceilingMaterialName) {
+                ceilingMaterialIndex = String(ceilingMateral.index!)
+            }
+        }
+        
         codeMap["analytical"] =
         """
         
@@ -116,13 +129,13 @@ final class GraphAnalyticalDomeNode : GraphDistanceNode
         float3 hitP = rayOrigin + rayDir * I;
         
         if (I > 0) {
-            analyticalMap = float4(I, 0, -1, \(context.getMaterialIndex()));
+            analyticalMap = float4(I, 0, -1, \(ceilingMaterialIndex));
             analyticalNormal = -normalize(hitP - center);
         }
 
         float groundT = (0.0 - rayOrigin.y) / rayDir.y;
         if (groundT > 0.0 && groundT < I) {
-            analyticalMap = float4(groundT, 0, -1, \(context.getMaterialIndex()));
+            analyticalMap = float4(groundT, 0, -1, \(materialIndex));
             analyticalNormal = float3(0,1,0);
         }
 

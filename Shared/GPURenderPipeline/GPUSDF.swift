@@ -72,7 +72,7 @@ final class GPUSDFShader : GPUBaseShader
                 float3 p = rayOrigin + rayDir * t;
                 float4 d = map(p, dataIn);
 
-                if (abs(d.x) < (0.0001*t)) {
+                if (abs(d.x) < 0.001) {//(0.0001*t)) {
                     if (t < depth.x) {
                         depth = d;
                         depth.x = t;

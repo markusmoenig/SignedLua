@@ -63,7 +63,7 @@ final class GraphSDFObject : GraphDistanceNode
         } else {
             self.givenName = "SDF Object"
         }
-        if let materialName = options["materialname"] as? String {
+        if let materialName = options["material"] as? String {
             self.materialName = materialName.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         }
         if let value = extractFloat3Value(options, container: context, error: &error, name: "maxbox", isOptional: true) {
@@ -145,7 +145,7 @@ final class GraphAnalyticalObject : GraphDistanceNode
         } else {
             self.givenName = "Analytical Object"
         }
-        if let materialName = options["materialname"] as? String {
+        if let materialName = options["material"] as? String {
             self.materialName = materialName.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         }
     }

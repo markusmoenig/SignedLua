@@ -44,7 +44,7 @@ class ExpressionNode {
     var resultType          : ExpressionContext.ResultType = .Constant
 
     /// The destination index for the result
-    var destIndex : Int = 0
+    var destIndex : Int! = nil
 
     init(_ name: String)
     {
@@ -224,6 +224,7 @@ class ExpressionContext
     var functions           : [ExpressionNodeItem] =
     [
         ExpressionNodeItem("abs", {() -> ExpressionNode in return AbsFuncNode() }),
+        ExpressionNodeItem("min", {() -> ExpressionNode in return MinFuncNode() }),
         ExpressionNodeItem("mod", {() -> ExpressionNode in return ModFuncNode() }),
         ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() }),
         ExpressionNodeItem("pow", {() -> ExpressionNode in return PowFuncNode() }),
@@ -435,6 +436,7 @@ class ExpressionContext
                 // Test for an atom: *, +, etc
                 if let atomNode = getAtom(element) {
                     currentAtom = atomNode
+                    
                 } else
                 // Test for variable reference
                 if let variableRef = getVariableReference(element, container: container, error: &error) {
@@ -499,7 +501,20 @@ class ExpressionContext
         
         if nodes.isEmpty == false {
             for node in nodes {
+                node.execute(self)
                 code += node.toMetal(self)
+                
+                if node.destIndex != nil {
+                    // Function node
+                    values[node.destIndex]?.chained = true
+                } else {
+                    // Atom
+                    
+                    let index = node.indices[1] + 1
+                    if index < values.count {
+                        values[index]?.chained = true
+                    }
+                }
             }
         } else {
             if values.count >= 1 {
@@ -772,24 +787,28 @@ class ExpressionContext
                 
                 if indices.count == 1 {
                     let ref = Float1()
+                    ref.name = variable.name
                     ref.reference = variable
                     ref.qualifiers = indices
                     return ref
                 } else
                 if indices.count == 2 {
                     let ref = Float2()
+                    ref.name = variable.name
                     ref.reference = variable
                     ref.qualifiers = indices
                     return ref
                 } else
                 if indices.count == 3 {
                     let ref = Float3()
+                    ref.name = variable.name
                     ref.reference = variable
                     ref.qualifiers = indices
                     return ref
                 } else
                 if indices.count == 4 {
                     let ref = Float4()
+                    ref.name = variable.name
                     ref.reference = variable
                     ref.qualifiers = indices
                     return ref
