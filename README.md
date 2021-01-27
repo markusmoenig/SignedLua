@@ -4,9 +4,9 @@
 
 ## Abstract
 
-Signed will be an GPL licensed editor and renderer for procedural Signed Distance Functions (SDFs). Signed will be available for macOS and iOS and is heavily optimized for Metal.
+Signed will be an GPL licensed editor and renderer for procedural Signed Distance Fields (SDFs). Signed will be available for macOS and iOS and is heavily optimized for Metal.
 
-Signed features workflows for developers via a meta language which gets transpiled to Metal, but will also feature artist workflows via nodes and artist specfic tools for modeling.
+Signed features workflows for developers via a meta language which gets compiled to Metal (and in some cases to the CPU), but will also feature artist workflows via nodes and artist specfic tools for modeling.
 
 Signed uses an Principled BSDF path tracer for rendering.
 
