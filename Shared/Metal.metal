@@ -239,7 +239,7 @@ fragment float4 m4mCopyTextureDrawable(RasterizerData in [[stage_in]],
     
     const half4 colorSample = inTexture.read(uint2(uv));
     float4 sample = float4( colorSample );
-
+    
     sample.w *= data->globalAlpha;
 
     return float4(sample.x / sample.w, sample.y / sample.w, sample.z / sample.w, sample.w);
