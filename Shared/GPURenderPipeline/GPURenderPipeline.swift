@@ -128,6 +128,10 @@ class GPURenderPipeline
             cameraNode.gpuShader = GPUCameraShader(pipeline: self)
         }
         
+        if let sunNode = context.sunNode {
+            _ = sunNode.generateMetalCode(context: context)
+        }
+        
         materialsShader = GPUMaterialsShader(pipeline: self)
         
         for node in context.analyticalNodes {

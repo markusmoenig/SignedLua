@@ -85,6 +85,29 @@ struct ContentView: View {
                     updateView.toggle()
                 }
                 
+            HStack(spacing: 1) {
+
+                Button(action: {
+                })
+                {
+                    Text("Meta View")
+                    //Label("Run", systemImage: "viewfinder")
+                }
+                .foregroundColor(Color.accentColor)
+                .padding(4)
+                .padding(.leading, 10)
+                
+                Button(action: {
+                })
+                {
+                    Text("Node View")
+                    //Label("Run", systemImage: "viewfinder")
+                }
+                .padding(4)
+
+                Spacer()
+            }
+            
             if screenState == .Mixed || screenState == .SourceOnly {
 
                 HStack(spacing: 1) {

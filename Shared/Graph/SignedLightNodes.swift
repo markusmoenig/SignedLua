@@ -54,8 +54,8 @@ final class GraphSunLightNode : GraphLightNode {
 
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Light, .None, options)
-        name = "lightSun"
+        super.init(.Sun, .None, options)
+        name = "Sun"
         leaves = []
         lightType = .Sun
     }
@@ -75,6 +75,38 @@ final class GraphSunLightNode : GraphLightNode {
         emission = emissionIn.toSIMD()// * float(numOfLights)
 
         return .Success
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        let codeMap : [String:String] = [:]
+                
+        context.addDataVariable(directionIn)
+        context.addDataVariable(emissionIn)
+             
+        var data1 = float4()
+        var data2 = float4()
+        
+        data1.x = 0
+        
+        let direction = normalize(directionIn.toSIMD())
+        data1.y = direction.x
+        data1.z = direction.y
+        data1.w = direction.z
+        
+        //print(direction.x, direction.y, direction.z)
+        let emission = emissionIn.toSIMD()
+
+        data2.x = emission.x
+        data2.y = emission.y
+        data2.z = emission.z
+        
+        context.lightsData[0].x += 1
+        context.lightsData.append(data1)
+        context.lightsData.append(data2)
+        
+        return codeMap
     }
     
     override func getHelp() -> String

@@ -27,8 +27,8 @@ class SignedGraphBuilder: GraphBuilder {
         
         branches.append(GraphNodeItem("analyticalDome", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalDomeNode(options) }))
 
-        branches.append(GraphNodeItem("lightSun", { (_ options: [String:Any]) -> GraphNode in return GraphSunLightNode(options) }))
-        branches.append(GraphNodeItem("lightSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSphereLightNode(options) }))
+        branches.append(GraphNodeItem("Sun", { (_ options: [String:Any]) -> GraphNode in return GraphSunLightNode(options) }))
+        //branches.append(GraphNodeItem("lightSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSphereLightNode(options) }))
 
         branches.append(GraphNodeItem("renderPrincipledBSDF", { (_ options: [String:Any]) -> GraphNode in return GraphPrincipledBSDFNode(options) }))
         branches.append(GraphNodeItem("renderPBR", { (_ options: [String:Any]) -> GraphNode in return GraphPBRNode(options) }))

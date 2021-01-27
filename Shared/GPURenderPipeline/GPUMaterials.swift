@@ -136,7 +136,20 @@ final class GPUMaterialsShader : GPUBaseShader
 
                     float4 lightData1 = lightsData[lightIndex];
 
+                    if (isEqual(lightData1.x, 0.0)) {
+                        // Sun Light
+
+                        lightDir = lightData1.yzw;
+
+                        float lightDist = length(lightDir);
+                        float lightDistSq = lightDist * lightDist;
+                        lightDir /= sqrt(lightDistSq);
+                        //surfacePosition += lightDir * 0.120;
+
+                        camOriginTexture2.write(float4(float3(surfacePosition), float(lightIndex)), textureUV);
+                    } else
                     if (isEqual(lightData1.x, 1.0)) {
+                    
                         // Sphere Light
 
                         float3 lightPosition = data[int(lightData1.y)].xyz;
@@ -156,12 +169,6 @@ final class GPUMaterialsShader : GPUBaseShader
                         surfacePosition += lightDir * 0.120;
 
                         camOriginTexture2.write(float4(surfacePosition, float(lightIndex)), textureUV);
-
-                        /*
-                        if (dot(lightDir, state.ffnormal) <= 0.0 || dot(lightDir, lightSampleRec.normal) >= 0.0)
-                            return L;
-                        */
-
                     }
                 }
 
@@ -214,6 +221,7 @@ final class GPUMaterialsShader : GPUBaseShader
             float3 camDir = camDirTexture.read(textureUV).xyz;
 
             float4 lightData1 = lightsData[lightIndex];
+            float4 lightData2 = lightsData[lightIndex+1];
 
             float3 lightPosition = data[int(lightData1.y)].xyz;
             float lightRadius = lightData1.w;
@@ -230,7 +238,23 @@ final class GPUMaterialsShader : GPUBaseShader
             float4 params5 = paramsTexture5.read(textureUV);
             float4 params6 = paramsTexture6.read(textureUV);
 
-            bool isVisible = isEqual(lightDepth.w, lightMaterialIndex);
+            bool isVisible = false;
+
+            if (isEqual(lightData1.x, 0.0)) {
+                // Sun Light
+
+                if (lightDepth.x >= 1000) {
+                    isVisible = true;
+
+                    float3 lightDir = params5.xyz;
+                    lightRadius = 10000000;
+                    lightNormal = normalize((surfacePosition + 100.0 * lightDir) - surfacePosition);
+                    lightArea = 4.0 * M_PI_F * lightRadius * lightRadius;
+                }
+            } else {
+                // Any other light has to be hit
+                isVisible = isEqual(lightDepth.w, lightMaterialIndex);
+            }
             
             if (isVisible) {
                 state.mat.albedo = params1.xyz;
@@ -283,11 +307,19 @@ final class GPUMaterialsShader : GPUBaseShader
                 float3 f = DisneyEval(r, state, lightDir);
                 float lightPdf = lightDistSq / (lightArea * abs(dot(lightNormal, lightDir)));
 
-                Material material;
-                depth.w = lightMaterialIndex;
-                \(findMaterialsCode)
+                float3 emission = float3(0);
+                
+                if (isEqual(lightData1.x, 0.0)) {
+                    // Sun Light
+                    emission = lightData2.xyz * lightsData[0].x;
+                } else {
+                    Material material;
+                    depth.w = lightMaterialIndex;
+                    \(findMaterialsCode)
+                    emission = material.emission * lightsData[0].x;
+                }
 
-                L.xyz += powerHeuristic(lightPdf, bsdfPdf) * f * abs(dot(state.ffnormal, lightDir)) * material.emission / lightPdf;
+                L.xyz += powerHeuristic(lightPdf, bsdfPdf) * f * abs(dot(state.ffnormal, lightDir)) * emission / lightPdf;
             }
 
             return L;

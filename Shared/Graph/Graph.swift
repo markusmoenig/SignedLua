@@ -71,7 +71,7 @@ class GraphNode : Equatable, Identifiable {
     }
     
     enum NodeRole {
-        case Camera, Sky, Utility, Variable, Render, Light, Boolean, SDF
+        case Camera, Sky, Utility, Variable, Render, Light, Boolean, SDF, Sun
     }
     
     enum NodeContext {
@@ -195,6 +195,7 @@ final class GraphContext    : VariableContainer
     //var buffer              : Array<SIMD4<UInt8>>!
     
     var cameraNode          : GraphNode? = nil
+    var sunNode             : GraphNode? = nil
     var skyNode             : GraphNode? = nil
     var renderNode          : GraphNode? = nil
 
@@ -329,6 +330,7 @@ final class GraphContext    : VariableContainer
         
         cameraNode = nil
         skyNode = nil
+        sunNode = nil
                 
         analyticalMaterial = nil
         hitMaterial[0] = nil

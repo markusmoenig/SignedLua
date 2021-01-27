@@ -453,6 +453,22 @@ struct LeftPanelView: View {
                                 } else { Color.clear }
                             })
                         }
+                        if let sunNode = context.sunNode {
+                            Button(action: {
+                                core.graphBuilder.gotoNode(sunNode)
+                            })
+                            {
+                                Label(sunNode.name, systemImage: "sun.max")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .listRowBackground(Group {
+                                if selection == sunNode.id {
+                                    Color.gray.mask(RoundedRectangle(cornerRadius: 4))
+                                } else { Color.clear }
+                            })
+                        }
                         if let skyNode = context.skyNode {
                             Button(action: {
                                 core.graphBuilder.gotoNode(skyNode)
