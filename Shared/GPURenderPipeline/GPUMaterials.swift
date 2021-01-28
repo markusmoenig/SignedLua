@@ -141,11 +141,27 @@ final class GPUMaterialsShader : GPUBaseShader
 
                         lightDir = lightData1.yzw;
 
-                        float lightDist = length(lightDir);
-                        float lightDistSq = lightDist * lightDist;
-                        lightDir /= sqrt(lightDistSq);
-                        //surfacePosition += lightDir * 0.120;
+                        float sunDist = 100;
+                        float sunRadius = 10;
+                        float sunAngle = 0.0047; //0.54 / 2 in radians
 
+                        float2 hash = float2(rand(dataIn), rand(dataIn));
+
+                        // Sample disk
+                        float2 diskSample = sqrt(hash.x) * cos( 2. * M_PI_F * hash.y + float2( 0, M_PI_F / 2.) );
+
+                        float a = sunAngle;
+                        float2 r = a * diskSample;
+
+                        float3 sampleDir = lightDir;
+
+                        float b = 1./sqrt(1.+dot(r,r));
+                        float c = 1. - a * a;
+                        float d = b * b - c;
+                        if (d > 0.0)
+                            lightDir = normalize(surfacePosition - (sunDist * ( -b - sqrt(d) ) * sampleDir));
+
+                        surfacePosition += lightDir * EPS;//0.025;//120;
                         camOriginTexture2.write(float4(float3(surfacePosition), float(lightIndex)), textureUV);
                     } else
                     if (isEqual(lightData1.x, 1.0)) {
@@ -166,7 +182,7 @@ final class GPUMaterialsShader : GPUBaseShader
                         lightDir /= sqrt(lightDistSq);
                         //lightDir = normalize(lightDir);
 
-                        surfacePosition += lightDir * 0.120;
+                        surfacePosition += lightDir * EPS;//0.120;
 
                         camOriginTexture2.write(float4(surfacePosition, float(lightIndex)), textureUV);
                     }
@@ -247,8 +263,8 @@ final class GPUMaterialsShader : GPUBaseShader
                     isVisible = true;
 
                     float3 lightDir = params5.xyz;
-                    lightRadius = 10000000;
-                    lightNormal = normalize((surfacePosition + 100.0 * lightDir) - surfacePosition);
+                    lightRadius = 10;
+                    lightNormal = normalize(surfacePosition - (surfacePosition + 100.0 * lightDir));
                     lightArea = 4.0 * M_PI_F * lightRadius * lightRadius;
                 }
             } else {
@@ -298,6 +314,20 @@ final class GPUMaterialsShader : GPUBaseShader
 
                 float3 ld = lightSurfacePos - surfacePosition;
                 float lightDist = length(ld);
+
+                float3 emission = float3(0);
+                
+                if (isEqual(lightData1.x, 0.0)) {
+                    // Sun Light
+                    emission = lightData2.xyz * lightsData[0].x;
+                    lightDist = 1;
+                } else {
+                    Material material;
+                    depth.w = lightMaterialIndex;
+                    \(findMaterialsCode)
+                    emission = material.emission * lightsData[0].x;
+                }
+
                 float lightDistSq = lightDist * lightDist;
 
                 if (dot(lightDir, state.ffnormal) <= 0.0 || dot(lightDir, lightNormal) >= 0.0)
@@ -306,18 +336,6 @@ final class GPUMaterialsShader : GPUBaseShader
                 float bsdfPdf = DisneyPdf(r, state, lightDir);
                 float3 f = DisneyEval(r, state, lightDir);
                 float lightPdf = lightDistSq / (lightArea * abs(dot(lightNormal, lightDir)));
-
-                float3 emission = float3(0);
-                
-                if (isEqual(lightData1.x, 0.0)) {
-                    // Sun Light
-                    emission = lightData2.xyz * lightsData[0].x;
-                } else {
-                    Material material;
-                    depth.w = lightMaterialIndex;
-                    \(findMaterialsCode)
-                    emission = material.emission * lightsData[0].x;
-                }
 
                 L.xyz += powerHeuristic(lightPdf, bsdfPdf) * f * abs(dot(state.ffnormal, lightDir)) * emission / lightPdf;
             }
@@ -442,7 +460,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 radianceTexture.write(float4(radiance, 1), textureUV);
                 throughputTexture.write(float4(throughput, 1), textureUV);
 
-                surfacePos += 0.120 * bsdfDir;
+                surfacePos += bsdfDir * 0.120;
 
                 camOriginTexture.write(float4(surfacePos, 1), textureUV);
                 camDirTexture.write(float4(bsdfDir, 1), textureUV);

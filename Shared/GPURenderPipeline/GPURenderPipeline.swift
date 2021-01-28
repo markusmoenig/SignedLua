@@ -70,7 +70,7 @@ class GPURenderPipeline
     var maxSamples      : Int = 10000
     
     var depth           : Int = 0
-    var maxDepth        : Int = 4
+    var maxDepth        : Int = 1
 
     init(_ view: MTKView)
     {
@@ -222,7 +222,7 @@ class GPURenderPipeline
         
         depth += 1
         
-        if depth >= 4 {
+        if depth >= maxDepth {
             gpuAccum.render(finalTexture: finalTexture!, sampleTexture: radianceTexture!)
             depth = 0
             samples += 1

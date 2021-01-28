@@ -66,9 +66,9 @@ final class GraphDefaultSkyNode : GraphNode
         float3 sunColor = dataIn.data[\(sunColor.dataIndex!)].xyz;
         float3 horizonColor = dataIn.data[\(worldHorizonColor.dataIndex!)].xyz;
 
-        skyColor = pow(skyColor, 1 / 2.2);
-        sunColor = pow(sunColor, 1 / 2.2);
-        horizonColor = pow(horizonColor, 1 / 2.2);
+        //skyColor = pow(skyColor, 1 / 2.2);
+        //sunColor = pow(sunColor, 1 / 2.2);
+        //horizonColor = pow(horizonColor, 1 / 2.2);
 
         float sun = max(dot(rayDir, normalize(sunDir)), 0.0);
         float hor = pow(1.0 - max(rayDir.y, 0.0), 3.0);
@@ -79,7 +79,7 @@ final class GraphDefaultSkyNode : GraphNode
         col += 0.25 * float3(1.0, 0.8, 0.6) * pow(sun, 5.0);
         col += 0.15 * float3(1.0, 0.9, 0.7) * max(pow(sun, 512.0), 0.25);
 
-        outColor = float4(pow(col, 2.2),1);
+        outColor = float4(col, 1);//float4(pow(col, 2.2),1);
 
         """
                 
