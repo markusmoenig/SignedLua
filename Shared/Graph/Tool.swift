@@ -28,6 +28,14 @@ class GraphToolContext {
         if texture != nil { texture!.setPurgeableState(.empty); texture = nil }
     }
     
+    func validate()
+    {
+        if texture == nil {
+            texture = allocateTexture(core.device, width: Int(core.view.frame.width), height: Int(core.view.frame.height))
+        }
+        checkIfTextureIsValid(forceClear: true)
+    }
+    
     func startDrawing(_ device: MTLDevice)
     {
         if commandQueue == nil {
@@ -105,12 +113,12 @@ class GraphToolContext {
             texture = allocateTexture(core.device, width: size.x, height: size.y)
             
             startDrawing(core.device)
-            clearTexture(texture!)
+            clearTexture()
             stopDrawing(syncTexture: texture!, waitUntilCompleted: true)
         } else {
             if forceClear {
                 startDrawing(core.device)
-                clearTexture(texture!)
+                clearTexture()
                 stopDrawing(syncTexture: texture!, waitUntilCompleted: true)
             }
         }
@@ -118,14 +126,16 @@ class GraphToolContext {
     }
     
     /// Clears the textures
-    func clearTexture(_ texture: MTLTexture, _ color: float4 = SIMD4<Float>(0,0,0,0))
+    func clearTexture(_ color: float4 = SIMD4<Float>(0,0,0,0))
     {
-        let renderPassDescriptor = MTLRenderPassDescriptor()
+        if let texture = texture {
+            let renderPassDescriptor = MTLRenderPassDescriptor()
 
-        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(Double(color.x), Double(color.y), Double(color.z), Double(color.w))
-        renderPassDescriptor.colorAttachments[0].texture = texture
-        renderPassDescriptor.colorAttachments[0].loadAction = .clear
-        let renderEncoder = commandBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-        renderEncoder.endEncoding()
+            renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(Double(color.x), Double(color.y), Double(color.z), Double(color.w))
+            renderPassDescriptor.colorAttachments[0].texture = texture
+            renderPassDescriptor.colorAttachments[0].loadAction = .clear
+            let renderEncoder = commandBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
+            renderEncoder.endEncoding()
+        }
     }
 }

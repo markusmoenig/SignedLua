@@ -26,6 +26,12 @@ struct ContentView: View {
     @State private var contextText                      : String = ""
     
     @State var updateView                               : Bool = false
+    
+    @State private var showCustomResPopover             : Bool = false
+    @State private var customResWidth                   : String = ""
+    @State private var customResHeight                  : String = ""
+
+    @State private var exportingImage                   : Bool = false
 
     #if os(macOS)
     let leftPanelWidth                      : CGFloat = 180
@@ -69,7 +75,6 @@ struct ContentView: View {
                         
                     }
 
-                    
                     if rightSideBarIsVisible == true {
                         RightPanelView(document.core)
                             .frame(minWidth: rightPanelWidth, idealWidth: rightPanelWidth, maxWidth: rightPanelWidth)
@@ -80,10 +85,6 @@ struct ContentView: View {
             }
             
             Divider()
-                .onReceive(self.document.core.updateUI) { state in
-                    screenState = .Mixed
-                    updateView.toggle()
-                }
                 
             HStack(spacing: 1) {
 
@@ -162,7 +163,49 @@ struct ContentView: View {
         
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
-                                
+                          
+                Menu {
+                    Section(header: Text("Preview")) {
+                        Button("Small", action: {
+                            screenState = .Mixed
+                            updateView.toggle()
+                        })
+                        Button("Large", action: {
+                            screenState = .RenderOnly
+                            updateView.toggle()
+                        })
+                        .keyboardShortcut("3")
+                        Button("Set Custom", action: {
+                            
+                
+                            customResWidth = String(document.core.renderPipeline.renderSize.x)
+                            customResHeight = String(document.core.renderPipeline.renderSize.y)
+                            
+                            showCustomResPopover = true
+                            updateView.toggle()
+                        })
+                        
+                        Button("Clear Custom", action: {
+                            document.core.customRenderSize = nil
+                            document.core.renderPipeline.restart()
+                            updateView.toggle()
+                        })
+                    }
+                    Section(header: Text("Export")) {
+                        Button("Export Image...", action: {
+                            exportingImage = true
+                        })
+                    }
+                }
+                label: {
+                    Text("\(document.core.renderPipeline == nil ? "" : String(document.core.renderPipeline.renderSize.x) + " x " + String(document.core.renderPipeline.renderSize.y))")
+                    //Label("View", systemImage: "viewfinder")
+                }
+                .onReceive(self.document.core.updateUI) { state in
+                    updateView.toggle()
+                }
+
+                /*
                 // Toggle preview size
                 Button(action: {
                     if screenState == .Mixed {
@@ -178,6 +221,11 @@ struct ContentView: View {
                     Label("Run", systemImage: "viewfinder")
                 }
                 .keyboardShortcut("e")
+                */
+                
+                Divider()
+                    .padding(.horizontal, 20)
+                    .opacity(0)
                 
                 // Controls for Start Render / Stop Render
                 Button(action: {
@@ -249,6 +297,65 @@ struct ContentView: View {
                 }
             }
         })
+        // Custom Resolution Popover
+        .popover(isPresented: self.$showCustomResPopover,
+                 arrowEdge: .top
+        ) {
+            VStack(alignment: .leading) {
+                Text("Resolution:")
+                TextField("Width", text: $customResWidth, onEditingChanged: { (changed) in
+                })
+                TextField("Height", text: $customResHeight, onEditingChanged: { (changed) in
+                    /*
+                    if let width = Int(customResWidth), width > 0 {
+                        if let height = Int(customResHeight), height > 0 {
+                            document.core.customRenderSize = SIMD2<Int>(width, height)
+                        }
+                    }*/
+                })
+                Button(action: {
+                    if let width = Int(customResWidth), width > 0 {
+                        if let height = Int(customResHeight), height > 0 {
+                            document.core.customRenderSize = SIMD2<Int>(width, height)
+                            document.core.renderPipeline.restart()
+                        }
+                    }
+                })
+                {
+                    Text("Apply")
+                    //Label("Run", systemImage: "viewfinder")
+                }
+                .foregroundColor(Color.accentColor)
+                .padding(4)
+                .padding(.leading, 10)
+                .frame(minWidth: 200)
+            }.padding()
+        }
+        
+        // Export Image
+        .fileExporter(
+            isPresented: $exportingImage,
+            document: document,
+            contentType: .png,
+            defaultFilename: "Image"
+        ) { result in
+            do {
+                let url = try result.get()
+                let core = document.core
+                if let texture = core.renderPipeline.getTexture() {
+                    if let cgiTexture = core.makeCGIImage(texture) {
+                        if let image = makeCGIImage(texture: cgiTexture, forImage: true) {
+                            if let imageDestination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) {
+                                CGImageDestinationAddImage(imageDestination, image, nil)
+                                CGImageDestinationFinalize(imageDestination)
+                            }
+                        }
+                    }
+                }
+            } catch {
+                // Handle failure.
+            }
+        }
     }
 }
 

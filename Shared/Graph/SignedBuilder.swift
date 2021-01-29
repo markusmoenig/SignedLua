@@ -30,10 +30,6 @@ class SignedGraphBuilder: GraphBuilder {
         branches.append(GraphNodeItem("Sun", { (_ options: [String:Any]) -> GraphNode in return GraphSunLightNode(options) }))
         //branches.append(GraphNodeItem("lightSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSphereLightNode(options) }))
 
-        branches.append(GraphNodeItem("renderPrincipledBSDF", { (_ options: [String:Any]) -> GraphNode in return GraphPrincipledBSDFNode(options) }))
-        branches.append(GraphNodeItem("renderPBR", { (_ options: [String:Any]) -> GraphNode in return GraphPBRNode(options) }))
-        branches.append(GraphNodeItem("renderCustom", { (_ options: [String:Any]) -> GraphNode in return GraphCustomRenderNode(options) }))
-        
         branches.append(GraphNodeItem("Camera", { (_ options: [String:Any]) -> GraphNode in return GraphCameraNode(options) }))
     }
     
@@ -134,6 +130,10 @@ class SignedGraphBuilder: GraphBuilder {
                                     self.core.contextText = self.generateNodeHelpText(node)
                                     self.core.contextTextChanged.send(self.core.contextText)
                                     self.lastContextHelpId = node.id
+                                    if node.hasToolUI {
+                                        // Validate the Tool UI Texture
+                                        self.core.toolContext.validate()
+                                    }
                                 }
                             } else {
                                 if self.lastContextHelpId != nil {

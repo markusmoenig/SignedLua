@@ -10,7 +10,7 @@ import MetalKit
 class MetalStates {
     
     enum States : Int {
-        case DrawDisc, CopyTexture, DrawTexture, DrawBox, DrawBoxExt, DrawTextChar, DrawBackPattern
+        case DrawDisc, CopyTexture, DrawTexture, DrawBox, DrawBoxExt, DrawTextChar, DrawBackPattern, MakeCGIImage
     }
     
     enum ComputeStates : Int {
@@ -63,8 +63,9 @@ class MetalStates {
         states[States.DrawBoxExt.rawValue] = createQuadState(name: "m4mBoxDrawableExt")
         states[States.DrawTextChar.rawValue] = createQuadState(name: "m4mTextDrawable")
         states[States.DrawBackPattern.rawValue] = createQuadState(name: "m4mBoxPatternDrawable")
-        
-        computeStates[ComputeStates.MakeCGIImage.rawValue] = createComputeState(name: "makeCGIImage")
+        states[States.MakeCGIImage.rawValue] = createQuadState(name: "m4mMakeCGIImage")
+
+        //computeStates[ComputeStates.MakeCGIImage.rawValue] = createComputeState(name: "makeCGIImage")
     }
     
     /// Creates a quad state from an optional library and the function name

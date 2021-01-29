@@ -14,6 +14,7 @@ typedef struct
 {
     float4 clipSpacePosition [[position]];
     float2 textureCoordinate;
+    float2 viewportSize;
 } RasterizerData;
 
 // Quad Vertex Function
@@ -32,6 +33,7 @@ m4mQuadVertexShader(uint vertexID [[ vertex_id ]],
     out.clipSpacePosition.w = 1.0;
     
     out.textureCoordinate = vertexArray[vertexID].textureCoordinate;
+    out.viewportSize = viewportSize;
     return out;
 }
 
@@ -240,6 +242,9 @@ fragment float4 m4mCopyTextureDrawable(RasterizerData in [[stage_in]],
     const half4 colorSample = inTexture.read(uint2(uv));
     float4 sample = float4( colorSample );
     
+    sample.xyz = pow(sample.xyz, 1.0 / 2.2);
+    sample = clamp(sample, 0, 1);
+    
     sample.w *= data->globalAlpha;
 
     return float4(sample.x / sample.w, sample.y / sample.w, sample.z / sample.w, sample.w);
@@ -293,67 +298,17 @@ fragment float4 m4mTextDrawable(RasterizerData in [[stage_in]],
     return float4( data->color.x, data->color.y, data->color.z, w * data->color.w );
 }
 
-kernel void makeCGIImage(
-texture2d<half, access::write>          outTexture  [[texture(0)]],
-texture2d<half, access::read>           inTexture [[texture(2)]],
-uint2 gid                               [[thread_position_in_grid]])
+fragment float4 m4mMakeCGIImage(RasterizerData in [[stage_in]],
+                             texture2d<float, access::read> inTexture [[ texture(0) ]])
 {
-    //float2 size = float2( outTexture.get_width(), outTexture.get_height() );
-    half4 color = inTexture.read(gid).zyxw;
-    color.xyz = pow(color.xyz, 2.2);
-    outTexture.write(color, gid);
+    float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
+    float2 size = in.viewportSize;
+
+    ushort2 textureUV = ushort2(uv.x * size.x, uv.y * size.y);
+    float4 color = inTexture.read(textureUV).zyxw;
+    //color.xyz = pow(color.xyz, 2.2);
+    color.xyz = clamp(color.xyz, 0, 1);
+
+    return color;
 }
-
-typedef struct
-{
-    float3 albedo;
-    float specular;
-
-    float3 emission;
-    float anisotropic;
-
-    float metallic;
-    float roughness;
-    float subsurface;
-    float specularTint;
-
-    float sheen;
-    float sheenTint;
-    float clearcoat;
-    float clearcoatGloss;
-
-    float transmission;
-
-    float ior;
-    float3 extinction;
-} Material;
-
-struct State
-{
-    int depth;
-    float eta;
-    float hitDist;
-
-    float3 fhp;
-    float3 normal;
-    float3 ffnormal;
-    float3 tangent;
-    float3 bitangent;
-
-    bool isEmitter;
-    bool specularBounce;
-    int rayType;
-
-    float2 texCoord;
-    Material mat;
-};
-
-struct Ray
-{
-    float3 origin;
-    float3 direction;
-};
-
-#define REFL 0
-#define REFR 1
 

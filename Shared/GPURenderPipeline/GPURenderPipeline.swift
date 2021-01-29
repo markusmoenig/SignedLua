@@ -70,13 +70,22 @@ class GPURenderPipeline
     var maxSamples      : Int = 10000
     
     var depth           : Int = 0
-    var maxDepth        : Int = 1
+    var maxDepth        : Int = 4
+    
+    var resChanged      = true
+    
+    var core            : Core
 
-    init(_ view: MTKView)
+    init(_ view: MTKView,_ core: Core)
     {
         self.view = view
+        self.core = core
         device = view.device!
         semaphore = DispatchSemaphore(value: 1000)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.core.updateUI.send()
+        }
     }
     
     func update() -> Bool
@@ -150,13 +159,13 @@ class GPURenderPipeline
         return finalTexture
     }
     
-    func render(_ size: SIMD2<Int>? = nil)
+    func render()
     {
         if status == .Compiling {
             return
         }
         
-        if let rSize = size {
+        if let rSize = core.customRenderSize {
             renderSize.x = rSize.x
             renderSize.y = rSize.y
         } else {
@@ -197,10 +206,20 @@ class GPURenderPipeline
     
     func startRendering()
     {
-        commandQueue = device.makeCommandQueue()
+        if commandQueue == nil {
+            commandQueue = device.makeCommandQueue()
+        }
         commandBuffer = commandQueue.makeCommandBuffer()
         quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(renderSize.x), Float(renderSize.y)))
-        quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0 )
+        quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0)
+    }
+    
+    func commitAndStopRendering()
+    {
+        commandBuffer.commit()
+        commandBuffer = nil
+        quadVertexBuffer = nil
+        quadViewport = nil
     }
     
     func computePass()
@@ -229,7 +248,8 @@ class GPURenderPipeline
         }
         
         commandBuffer.addCompletedHandler { cb in
-            //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+            print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+            print(self.samples, self.renderSize.x, self.renderSize.y)
             
             if self.stopRendering == false && self.samples < self.maxSamples {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
@@ -242,8 +262,8 @@ class GPURenderPipeline
                 self.semaphore.signal()
             }
         }
-        
-        commandBuffer.commit()
+            
+        commitAndStopRendering()
     }
     
     func computeL()
@@ -326,19 +346,34 @@ class GPURenderPipeline
         renderEncoder.endEncoding()
     }
     
+    /// Checks if the current texture size is valid
     func checkIfTextureIsValid() -> Bool
     {
+        if texture == nil { return false }
+        
+        if let customRenderSize = core.customRenderSize {
+            if customRenderSize.x != texture?.width || customRenderSize.y != texture?.height {
+                return false
+            }
+        } else {
+            if Int(view.frame.width) != texture?.width || Int(view.frame.height) != texture?.height {
+                return false
+            }
+        }
         return true
     }
     
     /// Check and allocate all textures
     func checkTextures()
     {
+        resChanged = false
+
         func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
             if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
-                if texture != nil {
-                    texture!.setPurgeableState(.empty)
+                if let texture = texture {
+                    texture.setPurgeableState(.empty)
                 }
+                resChanged = true
                 let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
                 if texture == nil { print("error allocating texture") }
                 return texture
@@ -369,6 +404,12 @@ class GPURenderPipeline
         
         utilityTexture1 = checkTexture(utilityTexture1)
         utilityTexture2 = checkTexture(utilityTexture2)
+                
+        if resChanged {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.core.updateUI.send()
+            }
+        }
     }
     
     /// Allocate a texture of the given size

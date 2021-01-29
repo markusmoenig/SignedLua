@@ -69,7 +69,7 @@ public class DMTKView       : MTKView
             setMousePos(event)
         }
 
-        if let node = core.graphBuilder.currentNode {
+        if let node = core.graphBuilder.currentNode, node.hasToolUI {
             node.toolTouchDown(mousePos, core.toolContext)
         }
     }

@@ -96,8 +96,8 @@ class GraphNode : Equatable, Identifiable {
     
     var lineNr              : Int32 = -1
     
-    var renderType          : NodeRenderType = .Normal
-    
+    var hasToolUI           : Bool = false
+
     // Options
     var options             : [String:Any]
     
@@ -162,6 +162,11 @@ class GraphNode : Equatable, Identifiable {
     func getOptions() -> [GraphOption]
     {
         return []
+    }
+    
+    /// toolActivated, draw the initial UI state
+    func toolActivated(_ toolContext: GraphToolContext)
+    {
     }
     
     /// toolTouchDown

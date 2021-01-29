@@ -87,6 +87,8 @@ public class Core       : ObservableObject
     var graphBuilder    : SignedGraphBuilder!
     
     var renderPipeline  : GPURenderPipeline!
+    
+    var customRenderSize : SIMD2<Int>? = nil
 
     public init(_ frameworkId: String? = nil)
     {        
@@ -137,7 +139,7 @@ public class Core       : ObservableObject
         view.enableSetNeedsDisplay = true
         view.isPaused = true
         
-        renderPipeline = GPURenderPipeline(view)
+        renderPipeline = GPURenderPipeline(view, self)
 
         /*
         for fontName in availableFonts {
@@ -162,6 +164,9 @@ public class Core       : ObservableObject
         }
                         
         if renderPipeline.checkIfTextureIsValid() == false {
+            if renderPipeline.status == .Rendering {
+                renderPipeline.restart()
+            }
             return
         }
         
@@ -172,8 +177,14 @@ public class Core       : ObservableObject
             let renderEncoder = gameCmdBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor!)
             
             drawTexture(texture, renderEncoder: renderEncoder!)
-            renderEncoder?.endEncoding()
             
+            if let currentNode = graphBuilder.currentNode, currentNode.hasToolUI {
+                if let toolTexture = toolContext.texture {
+                    drawTexture(toolTexture, renderEncoder: renderEncoder!)
+                }
+            }
+            
+            renderEncoder?.endEncoding()
             gameCmdBuffer!.present(drawable)
             stopDrawing()
         }
@@ -192,10 +203,19 @@ public class Core       : ObservableObject
         gameCmdBuffer = gameCmdQueue!.makeCommandBuffer()
     }
     
-    func stopDrawing(deleteQueue: Bool = false)
+    func stopDrawing(deleteQueue: Bool = false, syncTexture: MTLTexture? = nil, waitUntilCompleted: Bool = false)
     {
+        #if os(OSX)
+        if let texture = syncTexture {
+            let blitEncoder = gameCmdBuffer!.makeBlitCommandEncoder()!
+            blitEncoder.synchronize(texture: texture, slice: 0, level: 0)
+            blitEncoder.endEncoding()
+        }
+        #endif
         gameCmdBuffer?.commit()
-
+        if waitUntilCompleted {
+            gameCmdBuffer?.waitUntilCompleted()
+        }
         if deleteQueue {
             self.gameCmdQueue = nil
         }
@@ -288,4 +308,57 @@ public class Core       : ObservableObject
         
         return quadVertices
     }
+    
+    func makeCGIImage(_ texture: MTLTexture) -> MTLTexture?
+    {
+        func allocateTexture(width: Int, height: Int) -> MTLTexture?
+        {
+            let textureDescriptor = MTLTextureDescriptor()
+            textureDescriptor.textureType = MTLTextureType.type2D
+            textureDescriptor.pixelFormat = MTLPixelFormat.bgra8Unorm
+            textureDescriptor.width = width == 0 ? 1 : width
+            textureDescriptor.height = height == 0 ? 1 : height
+            
+            textureDescriptor.usage = MTLTextureUsage.unknown
+            return device.makeTexture(descriptor: textureDescriptor)
+        }
+        
+        if let temp = allocateTexture(width: texture.width, height: texture.height) {
+        
+            let renderPassDescriptor = MTLRenderPassDescriptor()
+            renderPassDescriptor.colorAttachments[0].texture = temp
+            renderPassDescriptor.colorAttachments[0].loadAction = .load
+            
+            startDrawing()
+            let renderEncoder = gameCmdBuffer!.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
+            renderEncoder.setRenderPipelineState(metalStates.getState(state: .MakeCGIImage))
+
+            // ---
+            
+            let width : Float = Float(texture.width)
+            let height: Float = Float(texture.height)
+            
+            let rect = MMRect( 0, 0, width, height, scale: 1 )
+            let vertexData = createVertexData(texture: texture, rect: rect)
+            
+            var viewportSize = vector_uint2( UInt32(texture.width), UInt32(texture.height))
+
+            renderEncoder.setVertexBytes(vertexData, length: vertexData.count * MemoryLayout<Float>.stride, index: 0)
+            renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_uint2>.stride, index: 1)
+            
+            renderEncoder.setFragmentTexture(texture, index: 0)
+
+            renderEncoder.setRenderPipelineState(metalStates.getState(state: .MakeCGIImage))
+            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
+            
+            renderEncoder.endEncoding()
+
+            stopDrawing(syncTexture: temp, waitUntilCompleted: true)
+            
+            return temp
+        } else {
+            return nil
+        }
+    }
+    
 }

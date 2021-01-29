@@ -22,6 +22,7 @@ struct SignedDocument: FileDocument {
     }
 
     static var readableContentTypes: [UTType] { [.signedProject] }
+    static var writableContentTypes: [UTType] { [.signedProject, .png] }
 
     init(configuration: ReadConfiguration) throws {
         guard let data = configuration.file.regularFileContents,

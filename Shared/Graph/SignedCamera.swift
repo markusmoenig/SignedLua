@@ -157,6 +157,7 @@ final class GraphCameraNode : GraphBaseCameraNode
         givenName = "Camera"
         
         cameraHelper = CameraHelper(self)
+        hasToolUI = true
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
