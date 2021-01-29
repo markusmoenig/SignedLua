@@ -18,7 +18,9 @@ Signed uses an Principled BSDF path tracer for rendering.
 
 * Various artist tools specific for modeling (todo).
 
-* A large library of procedural materials and objects (todo).
+* Being able to create new SDF primitives and other procedural elements (Sky, clouds etc) using the meta language and share them with the community.
+
+* A library for procedural materials and objects (todo).
 
 * A terrain editor and renderer (todo).
 
@@ -26,7 +28,7 @@ Signed uses an Principled BSDF path tracer for rendering.
 
 ## Sponsors
 
-Sponsors for this project are very welcome.
+Corporate sponsors for this project are very welcome.
 
 ## Status
 
