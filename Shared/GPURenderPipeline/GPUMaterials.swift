@@ -460,7 +460,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 radianceTexture.write(float4(radiance, 1), textureUV);
                 throughputTexture.write(float4(throughput, 1), textureUV);
 
-                surfacePos += bsdfDir * 0.120;
+                surfacePos += bsdfDir * EPS;
 
                 camOriginTexture.write(float4(surfacePos, 1), textureUV);
                 camDirTexture.write(float4(bsdfDir, 1), textureUV);

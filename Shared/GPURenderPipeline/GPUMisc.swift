@@ -36,7 +36,7 @@ final class GPUAccumShader : GPUBaseShader
             float4 final = finalTexture.read(textureUV);
 
             //sample.xyz = pow(sample.xyz, 1.0 / 2.2);
-            sample = clamp(sample, 0, 1);
+            sample = clamp(sample, 0, 5);
 
             float k = float(uniforms.samples + 1);
             final = final * (1.0 - 1.0/k) + sample * (1.0/k);

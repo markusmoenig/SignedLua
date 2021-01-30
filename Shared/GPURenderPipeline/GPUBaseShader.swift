@@ -978,7 +978,7 @@ class GPUBaseShader
 
         #define PI        3.14159265358979323
         #define TWO_PI    6.28318530717958648
-        #define EPS       0.001
+        #define EPS       0.01
 
         bool isEqual(float a, float b, float epsilon = 0.00001)
         {

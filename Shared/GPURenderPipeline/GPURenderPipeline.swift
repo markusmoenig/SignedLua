@@ -62,12 +62,12 @@ class GPURenderPipeline
     
     var gpuAccum        : GPUAccumShader!
     
-    var semaphore       : DispatchSemaphore!
-
     var stopRendering   : Bool = false
     
     var samples         : Int = 0
     var maxSamples      : Int = 10000
+    
+    var isStopped       = false
     
     var depth           : Int = 0
     var maxDepth        : Int = 4
@@ -81,11 +81,6 @@ class GPURenderPipeline
         self.view = view
         self.core = core
         device = view.device!
-        semaphore = DispatchSemaphore(value: 1000)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.core.updateUI.send()
-        }
     }
     
     func update() -> Bool
@@ -156,15 +151,23 @@ class GPURenderPipeline
     }
     
     func getTexture() -> MTLTexture? {
-        return finalTexture
+        if samples < 1 {
+            // Return nil if no sample has been calculated yet
+            return nil
+        } else {
+            return finalTexture
+        }
     }
     
     func render()
     {
-        if status == .Compiling {
+        if status != .Idle && isStopped == false {
             return
         }
-        
+
+        status = .Rendering
+        stopRendering = false
+
         if let rSize = core.customRenderSize {
             renderSize.x = rSize.x
             renderSize.y = rSize.y
@@ -178,14 +181,13 @@ class GPURenderPipeline
         if update() == false {
             return
         }
-        
-        stopRendering = false
-        status = .Rendering
-        
+                
         startRendering()
-
         clearTexture(finalTexture!, float4(0, 0, 0, 0))
 
+        startRendering()
+
+        depth = 0
         samples = 0
         computePass()
     }
@@ -194,7 +196,6 @@ class GPURenderPipeline
     {
         if status == .Rendering {
             stopRendering = true
-            semaphore.wait()
         }
     }
     
@@ -243,8 +244,8 @@ class GPURenderPipeline
         
         if depth >= maxDepth {
             gpuAccum.render(finalTexture: finalTexture!, sampleTexture: radianceTexture!)
-            depth = 0
-            samples += 1
+            self.depth = 0
+            self.samples += 1
         }
         
         commandBuffer.addCompletedHandler { cb in
@@ -252,14 +253,18 @@ class GPURenderPipeline
             print(self.samples, self.renderSize.x, self.renderSize.y)
             
             if self.stopRendering == false && self.samples < self.maxSamples {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
                     self.startRendering()
                     self.computePass()
                     self.updateOnce()
                 }
             } else {
                 self.status = .Idle
-                self.semaphore.signal()
+                if self.stopRendering == true && self.isStopped == false {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
+                        self.render()
+                    }
+                }
             }
         }
             

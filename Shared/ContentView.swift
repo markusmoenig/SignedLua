@@ -229,6 +229,7 @@ struct ContentView: View {
                 
                 // Controls for Start Render / Stop Render
                 Button(action: {
+                    document.core.renderPipeline.isStopped = false
                     document.core.renderPipeline.restart()
                 })
                 {
@@ -238,6 +239,7 @@ struct ContentView: View {
                 
                 // Controls for Start Render / Stop Render
                 Button(action: {
+                    document.core.renderPipeline.isStopped = true
                     document.core.renderPipeline.stop()
                 })
                 {
