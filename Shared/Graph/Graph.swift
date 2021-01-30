@@ -184,6 +184,17 @@ class GraphNode : Equatable, Identifiable {
     {
     }
     
+    /// toolScrollWheel (macOSOnly)
+    func toolScrollWheel(_ delta: float3,_ toolContext: GraphToolContext)
+    {
+    }
+    
+    /// toolPinchGesture (macOSOnly)
+    func toolPinchGesture(_ scale: Float,_ firstTouch: Bool,_ toolContext: GraphToolContext)
+    {
+        print(scale)
+    }
+    
     static func ==(lhs:GraphNode, rhs:GraphNode) -> Bool { // Implement Equatable
         return lhs.id == rhs.id
     }

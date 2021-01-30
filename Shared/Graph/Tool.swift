@@ -13,6 +13,12 @@ class GraphToolContext {
     var commandQueue        : MTLCommandQueue? = nil
     var commandBuffer       : MTLCommandBuffer? = nil
     
+    // --- Key States
+    var shiftIsDown         : Bool = false
+    var commandIsDown       : Bool = false
+    
+    var aspectRatio         : Float = 0
+    
     let core                : Core
 
     init(_ core: Core)
@@ -34,6 +40,7 @@ class GraphToolContext {
             texture = allocateTexture(core.device, width: Int(core.view.frame.width), height: Int(core.view.frame.height))
         }
         checkIfTextureIsValid(forceClear: true)
+        aspectRatio = Float(core.view.frame.width) / Float(core.view.frame.height)
     }
     
     func startDrawing(_ device: MTLDevice)

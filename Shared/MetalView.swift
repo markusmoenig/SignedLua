@@ -32,6 +32,22 @@ public class DMTKView       : MTKView
         buttonDown = nil
         swipeDirection = nil
     }
+    
+    /// Returns the cameraNode of the current project
+    func getCameraNode() -> GraphNode?
+    {
+        guard let asset = core.assetFolder.getAsset("main", .Source) else {
+            return nil
+        }
+        
+        if let context = asset.graph {
+            if let cameraNode = context.cameraNode {
+                return cameraNode
+            }
+        }
+        
+        return nil
+    }
 
     #if os(OSX)
         
@@ -91,6 +107,40 @@ public class DMTKView       : MTKView
             node.toolTouchUp(mousePos, core.toolContext)
         }
     }
+    
+    // Mouse scroll wheel
+    override public func scrollWheel(with event: NSEvent) {
+        
+        guard let asset = core.assetFolder.getAsset("main", .Source) else {
+            return
+        }
+        
+        if let context = asset.graph {
+            if let cameraNode = context.cameraNode {
+                
+                if core.graphBuilder.currentNode != cameraNode {
+                    core.graphBuilder.gotoNode(cameraNode)
+                }
+                
+                cameraNode.toolScrollWheel(float3(Float(event.deltaX), Float(event.deltaY), Float(event.deltaZ)), core.toolContext)
+            }
+        }
+    }
+    
+    override public func flagsChanged(with event: NSEvent) {
+        //https://stackoverflow.com/questions/9268045/how-can-i-detect-that-the-shift-key-has-been-pressed
+        if event.modifierFlags.contains(.shift) {
+            core.toolContext.shiftIsDown = true
+        } else {
+            core.toolContext.shiftIsDown = false
+        }
+        
+        if event.modifierFlags.contains(.command) {
+            core.toolContext.commandIsDown = true
+        } else {
+            core.toolContext.commandIsDown = false
+        }
+    }
     #elseif os(iOS)
     
     func platformInit()
@@ -98,6 +148,13 @@ public class DMTKView       : MTKView
         let tapRecognizer = UITapGestureRecognizer(target: self, action:(#selector(self.handleTapGesture(_:))))
         tapRecognizer.numberOfTapsRequired = 1
         addGestureRecognizer(tapRecognizer)
+        
+        let panRecognizer = UIPanGestureRecognizer(target: self, action:(#selector(self.handlePanGesture(_:))))
+        panRecognizer.minimumNumberOfTouches = 2
+        addGestureRecognizer(panRecognizer)
+        
+        let pinchRecognizer = UIPinchGestureRecognizer(target: self, action:(#selector(self.handlePinchGesture(_:))))
+        addGestureRecognizer(pinchRecognizer)
     }
     
     @objc func handleTapGesture(_ recognizer: UITapGestureRecognizer)
@@ -116,6 +173,38 @@ public class DMTKView       : MTKView
         }
     }
     
+    var lastX, lastY    : Float?
+    @objc func handlePanGesture(_ recognizer: UIPanGestureRecognizer)
+    {
+        if recognizer.numberOfTouches > 1 {
+            let translation = recognizer.translation(in: self)
+            
+            if ( recognizer.state == .began ) {
+                lastX = 0
+                lastY = 0
+            }
+            
+            let delta = float3(Float(translation.x) - lastX!, Float(translation.y) - lastY!, Float(recognizer.numberOfTouches))
+            
+            lastX = Float(translation.x)
+            lastY = Float(translation.y)
+            
+            if let cameraNode = getCameraNode() {
+                cameraNode.toolScrollWheel(delta, core.toolContext)
+            }
+        }
+    }
+    
+    var firstTouch      : Bool = false
+    @objc func handlePinchGesture(_ recognizer: UIPinchGestureRecognizer)
+    {
+        if let cameraNode = getCameraNode() {
+            cameraNode.toolPinchGesture(Float(recognizer.scale), firstTouch, core.toolContext)
+        }
+        
+        firstTouch = false
+    }
+    
     func setMousePos(_ x: Float, _ y: Float)
     {
         mousePos.x = x
@@ -127,6 +216,7 @@ public class DMTKView       : MTKView
     
     override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         mouseIsDown = true
+        firstTouch = true
         if let touch = touches.first {
             let point = touch.location(in: self)
             setMousePos(Float(point.x), Float(point.y))

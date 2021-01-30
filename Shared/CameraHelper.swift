@@ -26,6 +26,13 @@ class CameraHelper
         fov = node.fov.toSIMD()
     }
     
+    func update()
+    {
+        eye = cameraNode.origin.toSIMD()
+        center = cameraNode.lookAt.toSIMD()
+        fov = cameraNode.fov.toSIMD()
+    }
+    
     func calculateDirXY() -> (SIMD3<Float>, SIMD3<Float>)
     {
         let c_eye = center - eye

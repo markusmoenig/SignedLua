@@ -263,13 +263,14 @@ final class GraphCameraNode : GraphBaseCameraNode
     /// toolTouchDown
     override func toolTouchDown(_ pos: float2,_ toolContext: GraphToolContext)
     {
-        mouseDownPos = pos
-        toolContext.checkIfTextureIsValid()
+        //mouseDownPos = pos
+        //toolContext.validate()
     }
     
     /// toolTouchMove
     override func toolTouchMove(_ pos: float2,_ toolContext: GraphToolContext)
     {
+        /*
         cameraHelper.move(dx: (mouseDownPos.x - pos.x) * 0.003, dy: (mouseDownPos.y - pos.y) * 0.003, aspect: Float(toolContext.texture!.width) / Float(toolContext.texture!.height))
         mouseDownPos = pos
         
@@ -281,12 +282,106 @@ final class GraphCameraNode : GraphBaseCameraNode
                 toolContext.core.renderPipeline.restart()
                 self.updateStarted = false
             }
-        }
+        }*/
     }
     
     /// toolTouchUp
     override func toolTouchUp(_ pos: float2,_ toolContext: GraphToolContext)
     {
+        //toolContext.core.renderPipeline.restart()
+    }
+    
+    var maxDepthBuffer  : Int = 0
+    var lastChanged     : Double? = nil
+     
+    var zoomBuffer      : SIMD3<Float> = SIMD3<Float>(0,0,0)
+
+    override func toolPinchGesture(_ scale: Float,_ firstTouch: Bool,_ toolContext: GraphToolContext)
+    {
+        func testEnd() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
+                let time = Double(Date().timeIntervalSince1970)
+                if let lastChanged = self.lastChanged {
+                
+                    if time - lastChanged > 1 {
+                        toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin, "LookAt": self.lookAt])
+                        toolContext.core.renderPipeline.maxDepth = self.maxDepthBuffer
+                        toolContext.core.renderPipeline.restart()
+                        self.lastChanged = nil
+                    } else {
+                        testEnd()
+                    }
+                }
+            }
+        }
+        
+        if lastChanged == nil {
+            maxDepthBuffer = toolContext.core.renderPipeline.maxDepth
+            toolContext.core.renderPipeline.maxDepth = 1
+            testEnd()
+            cameraHelper.update()
+        }
+
+        lastChanged = Double(Date().timeIntervalSince1970)
+        
+        if firstTouch == true {
+            zoomBuffer = origin.toSIMD() - lookAt.toSIMD()
+        }
+        
+        cameraHelper.zoomRelative(dx: 0, dy: scale, start: zoomBuffer)
+        toolContext.core.renderPipeline.restart()
+    }
+    
+    override func toolScrollWheel(_ delta: float3,_ toolContext: GraphToolContext)
+    {
+        toolContext.validate()
+        
+        func testEnd() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
+                let time = Double(Date().timeIntervalSince1970)
+                if let lastChanged = self.lastChanged {
+                
+                    if time - lastChanged > 1 {
+                        toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin, "LookAt": self.lookAt])
+                        toolContext.core.renderPipeline.maxDepth = self.maxDepthBuffer
+                        toolContext.core.renderPipeline.restart()
+                        self.lastChanged = nil
+                    } else {
+                        testEnd()
+                    }
+                }
+            }
+        }
+        
+        if lastChanged == nil {
+            maxDepthBuffer = toolContext.core.renderPipeline.maxDepth
+            toolContext.core.renderPipeline.maxDepth = 1
+            testEnd()
+            cameraHelper.update()
+        }
+
+        lastChanged = Double(Date().timeIntervalSince1970)
+
+        #if os(iOS)
+        let clickCount = Int(delta.z)
+        if clickCount == 2 {
+            cameraHelper.rotate(dx: delta.x * 0.003, dy: delta.y * 0.003)
+        } else {
+            cameraHelper.move(dx: delta.x * 0.0006, dy: delta.y * 0.0006, aspect: toolContext.aspectRatio)
+        }
+        #elseif os(OSX)
+        if toolContext.commandIsDown {
+            if delta.y != 0 {
+                cameraHelper.zoom(dx: 0, dy: delta.y * 0.03)
+            }
+        } else
+        if toolContext.shiftIsDown {
+            cameraHelper.rotate(dx: delta.x * 0.003, dy: delta.y * 0.003)
+        } else {
+            cameraHelper.move(dx: delta.x * 0.003, dy: delta.y * 0.003, aspect: toolContext.aspectRatio)
+        }
+        #endif
+        
         toolContext.core.renderPipeline.restart()
     }
     

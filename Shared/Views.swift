@@ -439,8 +439,10 @@ struct RightPanelView: View {
                         },
                         onCommit: {
                             if let intValue = Int(rendererMaxReflections) {
-                                core.renderPipeline.maxDepth = intValue
-                                core.renderPipeline.restart()
+                                if core.renderPipeline.maxDepth != intValue {
+                                    core.renderPipeline.maxDepth = intValue
+                                    core.renderPipeline.restart()
+                                }
                             }
                         } )
                             .padding(4)
@@ -449,11 +451,14 @@ struct RightPanelView: View {
                         },
                         onCommit: {
                             if let intValue = Int(rendererMaxSamples) {
-                                core.renderPipeline.maxSamples = intValue
-                                core.renderPipeline.restart()
+                                if core.renderPipeline.maxSamples != intValue {
+                                    core.renderPipeline.maxSamples = intValue
+                                    core.renderPipeline.restart()
+                                }
                             }
                         } )
                             .padding(4)
+                        Divider()
                         Text(currentSamples)
                             .onReceive(self.core.samplesChanged) { samples in
                                 currentSamples = String("Samples: \(Int(samples.x))")
