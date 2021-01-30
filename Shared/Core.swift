@@ -61,7 +61,7 @@ public class Core       : ObservableObject
     let updateUI        = PassthroughSubject<Void, Never>()
     var didSend         = false
     
-    let timeChanged     = PassthroughSubject<Float, Never>()
+    let samplesChanged  = PassthroughSubject<SIMD2<Double>, Never>()
 
     let createPreview   = PassthroughSubject<Void, Never>()
 

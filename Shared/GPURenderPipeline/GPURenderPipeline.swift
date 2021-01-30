@@ -248,15 +248,13 @@ class GPURenderPipeline
             self.samples += 1
         }
         
-        commandBuffer.addCompletedHandler { cb in
-            print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
-            print(self.samples, self.renderSize.x, self.renderSize.y)
-            
+        commandBuffer.addCompletedHandler { cb in            
             if self.stopRendering == false && self.samples < self.maxSamples {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
                     self.startRendering()
                     self.computePass()
                     self.updateOnce()
+                    self.core.samplesChanged.send(SIMD2<Double>(Double(self.samples), (cb.gpuEndTime - cb.gpuStartTime) * 1000))
                 }
             } else {
                 self.status = .Idle

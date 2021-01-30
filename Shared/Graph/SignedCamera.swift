@@ -302,7 +302,7 @@ final class GraphCameraNode : GraphBaseCameraNode
             GraphOption(Float3(0, 0, 0), "LookAt", "The position the camera is looking at."),
             GraphOption(Float1(80), "Fov", "The field of view of the camera."),
             GraphOption(Float1(0.1), "FocalDistance", "The focal distance."),
-            GraphOption(Float1(80), "Aperture", "The aperture of the camera.")
+            GraphOption(Float1(0), "Aperture", "The aperture of the camera.")
         ]
         return options
     }

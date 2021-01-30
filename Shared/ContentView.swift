@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+#if os(iOS)
+import MobileCoreServices
+#endif
+
 struct ContentView: View {
     
     enum ScreenState {

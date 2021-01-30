@@ -356,20 +356,41 @@ struct ParameterView: View {
                 options = [GraphOption(v,"Color","")]
                 updateView.toggle()
             }
+            .onAppear(perform: {
+                options = core.scriptProcessor.getOptions()
+            })
         }
     }
 }
 
 struct RightPanelView: View {
     
+    enum Status {
+        case ParameterList, Renderer
+    }
+    
     let core                                : Core
     
-    @State var radius                       : String = "1"
+    @State var status                       : Status = .ParameterList
     
     @State var updateView                   : Bool = false
     
-    @State var options                      : [GraphOption] = []
+    @State var rendererMaxReflections       = String(4)
+    @State var rendererMaxSamples           = String(10000)
 
+    @State var currentSamples               = String("Samples: 0")
+    @State var currentTimePerSample         = String("Time per Sample: 0")
+
+    #if os(macOS)
+    let toolBarIconSize                     : CGFloat = 13
+    let toolBarTopPadding                   : CGFloat = 4
+    let toolBarSpacing                      : CGFloat = 4
+    #else
+    let toolBarIconSize                     : CGFloat = 16
+    let toolBarTopPadding                   : CGFloat = 8
+    let toolBarSpacing                      : CGFloat = 6
+    #endif
+    
     init(_ core: Core)
     {
         self.core = core
@@ -377,7 +398,73 @@ struct RightPanelView: View {
     
     var body: some View {
         
-        ParameterView(core)
+        VStack {
+            HStack(spacing: toolBarSpacing) {
+                Button(action: {
+                    status = .ParameterList
+                    updateView.toggle()
+                })
+                {
+                    Label("", systemImage: "list.bullet")
+                        .font(.system(size: toolBarIconSize + 4))
+                        .foregroundColor(status == .ParameterList ? Color.accentColor : Color.gray)
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Button(action: {
+                    status = .Renderer
+                    updateView.toggle()
+                })
+                {
+                    Label("", systemImage: "atom")
+                        .font(.system(size: toolBarIconSize))
+                        .foregroundColor(status == .Renderer ? Color.accentColor : Color.gray)
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Spacer()
+            }
+            .padding(.top, toolBarTopPadding)
+            .padding(.bottom, 2)
+            Divider()
+        
+            if status == .ParameterList {
+                ParameterView(core)
+            } else
+            if status == .Renderer {
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        Text("Maximum Reflections")
+                        TextField("Max Reflection Depth", text: $rendererMaxReflections, onEditingChanged: { (changed) in
+                        },
+                        onCommit: {
+                            if let intValue = Int(rendererMaxReflections) {
+                                core.renderPipeline.maxDepth = intValue
+                                core.renderPipeline.restart()
+                            }
+                        } )
+                            .padding(4)
+                        Text("Maximum Samples")
+                        TextField("Maximum Samples", text: $rendererMaxSamples, onEditingChanged: { (changed) in
+                        },
+                        onCommit: {
+                            if let intValue = Int(rendererMaxSamples) {
+                                core.renderPipeline.maxSamples = intValue
+                                core.renderPipeline.restart()
+                            }
+                        } )
+                            .padding(4)
+                        Text(currentSamples)
+                            .onReceive(self.core.samplesChanged) { samples in
+                                currentSamples = String("Samples: \(Int(samples.x))")
+                                currentTimePerSample = String("Time per Sample: \(Int(samples.y + 0.5))ms")
+                            }
+                        Text(currentTimePerSample)
+                        Spacer()
+                    }
+                }
+            }
+        }
     }
 }
 
