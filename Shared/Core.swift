@@ -19,6 +19,8 @@ public class Core       : ObservableObject
     
     var view            : DMTKView!
     var device          : MTLDevice!
+    
+    var toolView        : DMTKView!
 
     var metalStates     : MetalStates!
     
@@ -148,6 +150,12 @@ public class Core       : ObservableObject
         }*/
         
         view.platformInit()
+    }
+    
+    public func setupToolView(_ view: DMTKView)
+    {
+        self.toolView = view
+        view.core = self
     }
     
     public func load(_ data: Data)

@@ -14,7 +14,7 @@ import MobileCoreServices
 struct ContentView: View {
     
     enum ScreenState {
-        case Mixed, RenderOnly, SourceOnly
+        case Mixed, RenderOnly
     }
     
     @Binding var document                               : SignedDocument
@@ -36,6 +36,8 @@ struct ContentView: View {
     @State private var customResHeight                  : String = ""
 
     @State private var exportingImage                   : Bool = false
+    
+    @State private var toolsAreOn                       : Bool = false
 
     #if os(macOS)
     let leftPanelWidth                      : CGFloat = 180
@@ -65,18 +67,8 @@ struct ContentView: View {
                             .animation(.easeInOut)
                         
                         MetalView(document.core)
-                            //.zIndex(2)
-                            /*
-                            .frame(minWidth: 0,
-                                   maxWidth: geometry.size.width / document.game.previewFactor,
-                                   minHeight: 0,
-                                   maxHeight: geometry.size.height / document.game.previewFactor,
-                                   alignment: .topTrailing)
-                            */
-                            //.opacity(helpIsVisible ? 0 : (document.game.state == .Running ? 1 : document.game.previewOpacity))
                             .animation(.default)
                             .allowsHitTesting(true)
-                        
                     }
 
                     if rightSideBarIsVisible == true {
@@ -88,32 +80,43 @@ struct ContentView: View {
                 }
             }
             
-            Divider()
+            if screenState == .Mixed {
                 
-            HStack(spacing: 1) {
+                Divider()
+                    
+                HStack(spacing: 1) {
 
-                Button(action: {
-                })
-                {
-                    Text("Meta View")
-                    //Label("Run", systemImage: "viewfinder")
-                }
-                .foregroundColor(Color.accentColor)
-                .padding(4)
-                .padding(.leading, 10)
-                
-                Button(action: {
-                })
-                {
-                    Text("Node View")
-                    //Label("Run", systemImage: "viewfinder")
-                }
-                .padding(4)
+                    Button(action: {
+                    })
+                    {
+                        Text("Meta View")
+                        //Label("Run", systemImage: "viewfinder")
+                    }
+                    .foregroundColor(Color.accentColor)
+                    .padding(4)
+                    .padding(.leading, 10)
+                    
+                    Button(action: {
+                    })
+                    {
+                        Text("Node View")
+                        //Label("Run", systemImage: "viewfinder")
+                    }
+                    .padding(4)
+                    
+                    Spacer()
 
-                Spacer()
-            }
-            
-            if screenState == .Mixed || screenState == .SourceOnly {
+                    Button(action: {
+                        toolsAreOn.toggle()
+                    })
+                    {
+                        Text("Tools: \(toolsAreOn ? "On" : "Off")")
+                        //Label("Run", systemImage: "viewfinder")
+                    }
+                    .padding(4)
+
+                    Spacer()
+                }
 
                 HStack(spacing: 1) {
                     GeometryReader { geometry in
@@ -137,7 +140,8 @@ struct ContentView: View {
                         }
                     }
                     
-                    if rightSideBarIsVisible == true {
+                    if toolsAreOn == false {
+                        // If no tools are visible show the context sensitive help
                         if let asset = document.core.assetFolder.current {
                             ScrollView {
                                 if asset.type == .Source {
@@ -160,6 +164,11 @@ struct ContentView: View {
                             }
                             .animation(.easeInOut)
                         }
+                    } else {
+                        // Show tools
+                        MetalView(document.core, toolView: true)
+                            .animation(.default)
+                            .allowsHitTesting(true)
                     }
                 }
             }
@@ -208,24 +217,6 @@ struct ContentView: View {
                 .onReceive(self.document.core.updateUI) { state in
                     updateView.toggle()
                 }
-
-                /*
-                // Toggle preview size
-                Button(action: {
-                    if screenState == .Mixed {
-                        screenState = .RenderOnly
-                    } else
-                    if screenState == .RenderOnly {
-                        screenState = .SourceOnly
-                    } else {
-                        screenState = .Mixed
-                    }
-                })
-                {
-                    Label("Run", systemImage: "viewfinder")
-                }
-                .keyboardShortcut("e")
-                */
                 
                 Divider()
                     .padding(.horizontal, 20)

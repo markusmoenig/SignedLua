@@ -310,12 +310,16 @@ public class DMTKView       : MTKView
 
 #if os(OSX)
 struct MetalView: NSViewRepresentable {
+    
     var core                : Core!
     var trackingArea        : NSTrackingArea?
+    
+    var toolView            : Bool
 
-    init(_ core: Core)
+    init(_ core: Core, toolView: Bool = false)
     {
         self.core = core
+        self.toolView = toolView
     }
     
     func makeCoordinator() -> Coordinator {
@@ -337,7 +341,11 @@ struct MetalView: NSViewRepresentable {
         mtkView.enableSetNeedsDisplay = true
         mtkView.isPaused = true
                 
-        core.setupView(mtkView)
+        if toolView == false {
+            core.setupView(mtkView)
+        } else {
+            core.setupToolView(mtkView)
+        }
         
         return mtkView
     }
@@ -369,12 +377,16 @@ struct MetalView: NSViewRepresentable {
 }
 #else
 struct MetalView: UIViewRepresentable {
+    
     typealias UIViewType = MTKView
     var core             : Core!
+    
+    var toolView         : Bool
 
-    init(_ core: Core)
+    init(_ core: Core, toolView: Bool)
     {
         self.core = core
+        self.toolView = toolView
     }
     
     func makeCoordinator() -> Coordinator {
@@ -396,7 +408,11 @@ struct MetalView: UIViewRepresentable {
         mtkView.enableSetNeedsDisplay = true
         mtkView.isPaused = true
                 
-        core.setupView(mtkView)
+        if toolView == false {
+            core.setupView(mtkView)
+        } else {
+            core.setupToolView(mtkView)
+        }
         
         return mtkView
     }
