@@ -192,30 +192,35 @@ struct Float3View: View {
         VStack(alignment: .leading) {
             Text(option.name)
             if isColor == false {
-                TextField(option.name, text: $valueText1, onEditingChanged: { (changed) in
-                    if Float(valueText1) != nil {
-                        option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
-                    }
-                },
-                onCommit: {
-                    core.scriptProcessor.replaceOptionInLine(option)
-                } )
-                TextField(option.name, text: $valueText2, onEditingChanged: { (changed) in
-                    if Float(valueText2) != nil {
-                        option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
-                    }
-                },
-                onCommit: {
-                    core.scriptProcessor.replaceOptionInLine(option)
-                } )
-                TextField(option.name, text: $valueText3, onEditingChanged: { (changed) in
-                    if Float(valueText3) != nil {
-                        option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
-                    }
-                },
-                onCommit: {
-                    core.scriptProcessor.replaceOptionInLine(option)
-                } )
+                HStack() {
+                    TextField(option.name, text: $valueText1, onEditingChanged: { (changed) in
+                        if Float(valueText1) != nil {
+                            option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
+                        }
+                    },
+                    onCommit: {
+                        core.scriptProcessor.replaceOptionInLine(option)
+                    } )
+                    .border(Color.red)
+                    TextField(option.name, text: $valueText2, onEditingChanged: { (changed) in
+                        if Float(valueText2) != nil {
+                            option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
+                        }
+                    },
+                    onCommit: {
+                        core.scriptProcessor.replaceOptionInLine(option)
+                    } )
+                    .border(Color.green)
+                    TextField(option.name, text: $valueText3, onEditingChanged: { (changed) in
+                        if Float(valueText3) != nil {
+                            option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
+                        }
+                    },
+                    onCommit: {
+                        core.scriptProcessor.replaceOptionInLine(option)
+                    } )
+                    .border(Color.blue)
+                }
             } else {
                 ColorPicker("", selection: $selectedColor, supportsOpacity: false)
                     .onChange(of: selectedColor) { color in

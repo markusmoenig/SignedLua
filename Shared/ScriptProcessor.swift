@@ -23,6 +23,10 @@ class ScriptProcessor
     
     func replaceOptionInLine(_ option: GraphOption) {
         
+        guard let asset = core.assetFolder.getAsset("main", .Source) else {
+            return
+        }
+        
         if let node = core.graphBuilder.currentNode {
             if var line = getLine(node.lineNr) {
                 
@@ -49,11 +53,9 @@ class ScriptProcessor
                         let end = String.Index(utf16Offset: endIndex, in: line)                        
                         line.replaceSubrange(range.lowerBound..<end, with: "\(option.name): \(option.variable.toString())")
                     }
-                    
-                    //setLine(node.lineNr, line)
-                    guard let asset = core.assetFolder.getAsset("main", .Source) else {
-                        return
-                    }
+                    core.scriptEditor.setAssetLine(asset, line: line)
+                } else {
+                    line.append("<\(option.name): \(option.variable.toString())>")
                     core.scriptEditor.setAssetLine(asset, line: line)
                 }
             }
@@ -147,15 +149,33 @@ class ScriptProcessor
     }
     
     /// Get the graph options for the current node
-    func getOptions() -> [GraphOption]
+    func getOptions(_ all: Bool = true) -> [GraphOption]
     {
         var options : [GraphOption] = []
         
         if let node = core.graphBuilder.currentNode {
-            //options += node.getOptions()
             if let line = getLine(node.lineNr) {
-                //print(line)
                 options += extractOptionsFromLine(node, line)
+            }
+            
+            func containsOption(_ name: String) -> Bool
+            {
+                for o in options {
+                    if o.name == name {
+                        return true
+                    }
+                }
+                return false
+            }
+            
+            if all {
+                // Add the node options which are currently not present in the script
+                let opts = node.getOptions()
+                for o in opts {
+                    if containsOption(o.name) == false {
+                        options.append(o)
+                    }
+                }
             }
         }
         
@@ -166,7 +186,8 @@ class ScriptProcessor
     func extractOptionsFromLine(_ node: GraphNode, _ str: String) -> [GraphOption]
     {
         var graphOptions : [GraphOption] = []
-        var options      : [String: String] = [:]
+        var ops          : [String: String] = [:]
+        var options      : [(String, String)] = []
 
         var leftOfComment: String
 
@@ -214,7 +235,8 @@ class ScriptProcessor
                         } else {
                             values = String(values.dropLast())
                         }
-                        options[optionName] = String(values)
+                        ops[optionName] = values
+                        options.append((optionName, values))
                     } else { rightValueArray = [] }
                 }
             }
@@ -228,31 +250,31 @@ class ScriptProcessor
                 for nO in nodeOptions {
                     if nO.name.lowercased() == key {
                         if nO.variable.getType() == .Int {
-                            if let i1 = extractInt1Value(options, container: asset.graph!, error: &error, name: key) {
+                            if let i1 = extractInt1Value(ops, container: asset.graph!, error: &error, name: key) {
                                 nO.variable = i1
                                 graphOptions.append(nO)
                             }
                         } else
                         if nO.variable.getType() == .Float {
-                            if let f1 = extractFloat1Value(options, container: asset.graph!, error: &error, name: key) {
+                            if let f1 = extractFloat1Value(ops, container: asset.graph!, error: &error, name: key) {
                                 nO.variable = f1
                                 graphOptions.append(nO)
                             }
                         } else
                         if nO.variable.getType() == .Float2 {
-                            if let f2 = extractFloat2Value(options, container: asset.graph!, error: &error, name: key) {
+                            if let f2 = extractFloat2Value(ops, container: asset.graph!, error: &error, name: key) {
                                 nO.variable = f2
                                 graphOptions.append(nO)
                             }
                         } else
                         if nO.variable.getType() == .Float3 {
-                            if let f3 = extractFloat3Value(options, container: asset.graph!, error: &error, name: key) {
+                            if let f3 = extractFloat3Value(ops, container: asset.graph!, error: &error, name: key) {
                                 nO.variable = f3
                                 graphOptions.append(nO)
                             }
                         } else
                         if nO.variable.getType() == .Float4 {
-                            if let f4 = extractFloat4Value(options, container: asset.graph!, error: &error, name: key) {
+                            if let f4 = extractFloat4Value(ops, container: asset.graph!, error: &error, name: key) {
                                 nO.variable = f4
                                 graphOptions.append(nO)
                             }
