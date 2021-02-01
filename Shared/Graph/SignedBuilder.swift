@@ -22,7 +22,7 @@ class SignedGraphBuilder: GraphBuilder {
         self.core = core
         super.init()
         
-        branches.append(GraphNodeItem("PinholeCamera", { (_ options: [String:Any]) -> GraphNode in return GraphPinholeCameraNode(options) }))
+        branches.append(GraphNodeItem("IsometricCamera", { (_ options: [String:Any]) -> GraphNode in return GraphIsometricCameraNode(options) }))
         branches.append(GraphNodeItem("DefaultSky", { (_ options: [String:Any]) -> GraphNode in return GraphDefaultSkyNode(options) }))
         
         branches.append(GraphNodeItem("analyticalDome", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalDomeNode(options) }))

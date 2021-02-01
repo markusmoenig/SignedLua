@@ -15,116 +15,6 @@ class GraphBaseCameraNode : GraphNode
     var fov          = Float1(80)
 }
 
-/// PinholeCameraNode
-final class GraphPinholeCameraNode : GraphBaseCameraNode
-{
-    var mouseDownPos          = float2(0,0)
-    
-    var cameraHelper          : CameraHelper!
-    
-    var updateStarted         = false
-    
-    init(_ options: [String:Any] = [:])
-    {
-        super.init(.Camera, .None, options)
-        name = "PinholeCamera"
-        givenName = "Pinhole Camera"
-        
-        cameraHelper = CameraHelper(self)
-    }
-    
-    override func verifyOptions(context: GraphContext, error: inout CompileError) {
-        if let value = extractFloat3Value(options, container: context, error: &error, name: "origin", isOptional: true) {
-            origin = value
-        }
-        if let value = extractFloat3Value(options, container: context, error: &error, name: "lookat", isOptional: true) {
-            lookAt = value
-        }
-        if let value = extractFloat1Value(options, container: context, error: &error, name: "fov", isOptional: true) {
-            fov = value
-        }
-    }
-    
-    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
-    {
-        let ratio : Float = context.viewSize.x / context.viewSize.y
-        let pixelSize : float2 = float2(1.0, 1.0) / context.viewSize
-
-        let camOrigin = origin.toSIMD()
-        let camLookAt = lookAt.toSIMD()
-
-        let halfWidth : Float = tan(fov.x.degreesToRadians * 0.5)
-        let halfHeight : Float = halfWidth / ratio
-        
-        let upVector = float3(0.0, 1.0, 0.0)
-
-        let w : float3 = simd_normalize(camOrigin - camLookAt)
-        let u : float3 = simd_cross(upVector, w)
-        let v : float3 = simd_cross(w, u)
-
-        var lowerLeft : float3 = camOrigin - halfWidth * u
-        lowerLeft -= halfHeight * v - w
-        
-        let horizontal : float3 = u * halfWidth * 2.0
-        
-        let vertical : float3 = v * halfHeight * 2.0
-        var dir : float3 = lowerLeft - camOrigin
-
-        dir += horizontal * (pixelSize.x * context.camOffset.x + context.uv.x)
-        dir += vertical * (pixelSize.y * context.camOffset.y + context.uv.y)
-        
-        context.rayOrigin.fromSIMD(camOrigin)
-        context.rayDirection.fromSIMD(simd_normalize(-dir))
-        
-        return .Success
-    }
-    
-    /// toolTouchDown
-    override func toolTouchDown(_ pos: float2,_ toolContext: GraphToolContext)
-    {
-        mouseDownPos = pos
-        toolContext.checkIfTextureIsValid()
-    }
-    
-    /// toolTouchMove
-    override func toolTouchMove(_ pos: float2,_ toolContext: GraphToolContext)
-    {
-        cameraHelper.move(dx: (mouseDownPos.x - pos.x) * 0.003, dy: (mouseDownPos.y - pos.y) * 0.003, aspect: Float(toolContext.texture!.width) / Float(toolContext.texture!.height))
-        mouseDownPos = pos
-        
-        if updateStarted == false {
-            updateStarted = true
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2 ) {
-                toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin])
-                toolContext.core.renderPipeline.restart()
-                self.updateStarted = false
-            }
-        }
-    }
-    
-    /// toolTouchUp
-    override func toolTouchUp(_ pos: float2,_ toolContext: GraphToolContext)
-    {
-        toolContext.core.renderPipeline.restart()
-    }
-    
-    override func getHelp() -> String
-    {
-        return "A standard Pinhole camera (the default camera for *Signed*)."
-    }
-    
-    override func getOptions() -> [GraphOption]
-    {
-        let options = [
-            GraphOption(Float3(0, 0, -5), "Origin", "The camera origin (viewer position)."),
-            GraphOption(Float3(0, 0, 0), "LookAt", "The position the camera is looking at."),
-            GraphOption(Float1(80), "Fov", "The field of view of the camera.")
-        ]
-        return options
-    }
-}
-
 /// CameraNode
 final class GraphCameraNode : GraphBaseCameraNode
 {
@@ -387,7 +277,7 @@ final class GraphCameraNode : GraphBaseCameraNode
     
     override func getHelp() -> String
     {
-        return "A standard Pinhole camera (the default camera for *Signed*)."
+        return "A pinhole camera supporting focal distance and aperture."
     }
     
     override func getOptions() -> [GraphOption]
@@ -398,6 +288,108 @@ final class GraphCameraNode : GraphBaseCameraNode
             GraphOption(Float1(80), "Fov", "The field of view of the camera."),
             GraphOption(Float1(0.1), "FocalDistance", "The focal distance."),
             GraphOption(Float1(0), "Aperture", "The aperture of the camera.")
+        ]
+        return options
+    }
+}
+
+/// IsometricCameraNode
+final class GraphIsometricCameraNode : GraphBaseCameraNode
+{
+    var mouseDownPos          = float2(0,0)
+    
+    var cameraHelper          : CameraHelper!
+    
+    var updateStarted         = false
+    
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.Camera, .None, options)
+        name = "Isometric Camera"
+        givenName = "Isometric Camera"
+        
+        cameraHelper = CameraHelper(self)
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+        if let value = extractFloat3Value(options, container: context, error: &error, name: "origin", isOptional: true) {
+            origin = value
+        }
+        if let value = extractFloat3Value(options, container: context, error: &error, name: "lookat", isOptional: true) {
+            lookAt = value
+        }
+        if let value = extractFloat1Value(options, container: context, error: &error, name: "fov", isOptional: true) {
+            fov = value
+        }
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        context.updateDataVariable(origin)
+        context.updateDataVariable(lookAt)
+        context.updateDataVariable(fov)
+
+        return .Success
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> [String: String]
+    {
+        var codeMap : [String:String] = [:]
+        
+        context.addDataVariable(origin)
+        context.addDataVariable(lookAt)
+        context.addDataVariable(fov)
+
+        let cameraCode =
+        
+        """
+
+        float ratio = size.x / size.y;
+        float2 pixelSize = float2(1) / size;
+        float2 jitter = float2(rand(dataIn), rand(dataIn));
+
+        float3 origin = data[\(origin.dataIndex!)].xyz;
+        float3 lookAt = data[\(lookAt.dataIndex!)].xyz;
+        const float fov = data[\(fov.dataIndex!)].x;
+
+        float halfWidth = tan(radians(fov) * 0.5) * fov;
+        float halfHeight = halfWidth / ratio;
+        
+        float3 upVector = float3(0,1,0);
+        
+        float3 w = normalize(origin - lookAt);
+        float3 u = cross(upVector, w);
+        float3 v = cross(w,u);
+
+        float3 horizontal = u * halfWidth * 2.0;
+        float3 vertical = v * halfHeight * 2.0;
+        
+        float3 dir = -w;
+
+        outOrigin = origin;
+        outOrigin += horizontal * (pixelSize.x * jitter.x + uv.x - 0.5);
+        outOrigin += vertical * (pixelSize.y * jitter.y + uv.y - 0.5);
+        outDirection = normalize(dir);
+
+        """
+        
+        codeMap["camera"] = cameraCode
+        
+        return codeMap
+    }
+    
+    override func getHelp() -> String
+    {
+        return "An isometric camera. Use the field of view to zoom in / out."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(0, 0, -5), "Origin", "The camera origin (viewer position)."),
+            GraphOption(Float3(0, 0, 0), "LookAt", "The position the camera is looking at."),
+            GraphOption(Float1(80), "Fov", "The field of view of the camera.")
         ]
         return options
     }
