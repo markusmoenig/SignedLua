@@ -106,6 +106,8 @@
 		2BB4E0C325B90DAD0028C76A /* GPUSDF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */; };
 		2BB4E0C725B929DC0028C76A /* GPUAnalytical.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */; };
 		2BB4E0C825B929DC0028C76A /* GPUAnalytical.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */; };
+		2BBA16E525C7B2B4002E9B7C /* ToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA16E425C7B2B4002E9B7C /* ToolView.swift */; };
+		2BBA16E625C7B2B4002E9B7C /* ToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA16E425C7B2B4002E9B7C /* ToolView.swift */; };
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
@@ -167,6 +169,7 @@
 		2BB4E0BA25B811360028C76A /* GPUCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUCamera.swift; sourceTree = "<group>"; };
 		2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUSDF.swift; sourceTree = "<group>"; };
 		2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUAnalytical.swift; sourceTree = "<group>"; };
+		2BBA16E425C7B2B4002E9B7C /* ToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolView.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -211,6 +214,7 @@
 				2B224F2E2584485100F32354 /* SignedDocument.swift */,
 				2B224F2F2584485100F32354 /* ContentView.swift */,
 				2B224FDD25888B4D00F32354 /* Views.swift */,
+				2BBA16E425C7B2B4002E9B7C /* ToolView.swift */,
 				2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */,
 				2B224F6525844C1800F32354 /* Asset.swift */,
 				2B224F6925844C1800F32354 /* File.swift */,
@@ -470,6 +474,7 @@
 				2B224F452584485300F32354 /* ContentView.swift in Sources */,
 				2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
+				2BBA16E525C7B2B4002E9B7C /* ToolView.swift in Sources */,
 				2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D4258C52B10073DAE9 /* Variables.swift in Sources */,
@@ -524,6 +529,7 @@
 				2B224F462584485300F32354 /* ContentView.swift in Sources */,
 				2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
+				2BBA16E625C7B2B4002E9B7C /* ToolView.swift in Sources */,
 				2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */,

@@ -7,11 +7,23 @@
 
 import MetalKit
 
+struct ToolViewButton {
+    
+    enum State {
+        case Down, Move, Up
+    }
+    
+    var id                  = UUID()
+    var name                = ""
+}
+
 class GraphToolContext {
     var texture             : MTLTexture? = nil
 
     var commandQueue        : MTLCommandQueue? = nil
     var commandBuffer       : MTLCommandBuffer? = nil
+    
+    var lastLocation        = float2()
     
     // --- Key States
     var shiftIsDown         : Bool = false

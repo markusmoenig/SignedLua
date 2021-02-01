@@ -26,7 +26,8 @@ struct ContentView: View {
     
     @State private var screenState                      : ScreenState = .Mixed
 
-    @State private var rightSideBarIsVisible            : Bool = true
+    @State private var rightSideParamsAreVisible        : Bool = true
+    @State private var rightSideHelpIsVisible           : Bool = true
     @State private var contextText                      : String = ""
     
     @State var updateView                               : Bool = false
@@ -66,12 +67,18 @@ struct ContentView: View {
                             .layoutPriority(0)
                             .animation(.easeInOut)
                         
-                        MetalView(document.core)
-                            .animation(.default)
-                            .allowsHitTesting(true)
+                        ZStack(alignment: .bottomLeading) {
+                            // Show tools
+                            MetalView(document.core, .Main)
+                                .zIndex(0)
+                                .animation(.default)
+                                .allowsHitTesting(true)
+                            ToolsView(document.core)
+                                .zIndex(1)
+                        }
                     }
 
-                    if rightSideBarIsVisible == true {
+                    if rightSideParamsAreVisible == true {
                         RightPanelView(document.core)
                             .frame(minWidth: rightPanelWidth, idealWidth: rightPanelWidth, maxWidth: rightPanelWidth)
                             .layoutPriority(0)
@@ -89,59 +96,63 @@ struct ContentView: View {
                     Button(action: {
                     })
                     {
-                        Text("Meta View")
-                        //Label("Run", systemImage: "viewfinder")
+                        //Text("Meta View")
+                        //Label("Meta View", systemImage: "curlybraces")
+                        Image(systemName: "list.dash")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 13.0, height: 13.0)
                     }
-                    .foregroundColor(Color.accentColor)
+                    .padding(4)
+                    .padding(.leading, 20)
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Button(action: {
+                    })
+                    {
+                        //Text("Node View")
+                        //Label("Run", systemImage: "viewfinder")
+                        Image(systemName: "square.grid.2x2")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 16.0, height: 16.0)
+                        //Label("Node View", systemImage: "square.grid.2x2.fill")
+
+                    }
                     .padding(4)
                     .padding(.leading, 10)
-                    
-                    Button(action: {
-                    })
-                    {
-                        Text("Node View")
-                        //Label("Run", systemImage: "viewfinder")
-                    }
-                    .padding(4)
-                    
-                    Spacer()
-
-                    Button(action: {
-                        toolsAreOn.toggle()
-                    })
-                    {
-                        Text("Tools: \(toolsAreOn ? "On" : "Off")")
-                        //Label("Run", systemImage: "viewfinder")
-                    }
-                    .padding(4)
+                    .buttonStyle(PlainButtonStyle())
 
                     Spacer()
+                    
+                    // Toggle the Right sidebar
+                    Button(action: { rightSideHelpIsVisible.toggle() }, label: {
+                        Image(systemName: "sidebar.right")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 16.0, height: 16.0)
+                    })
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.trailing, 20)
                 }
 
                 HStack(spacing: 1) {
                     GeometryReader { geometry in
-                        ZStack(alignment: .topTrailing) {
+                        ScrollView {
 
-                            GeometryReader { geometry in
-                                ScrollView {
-
-                                    WebView(document.core, deviceColorScheme).tabItem {
-                                    }
-                                        .frame(height: geometry.size.height)
-                                        .tag(1)
-                                        .onChange(of: deviceColorScheme) { newValue in
-                                            document.core.scriptEditor?.setTheme(newValue)
-                                        }
-                                }
-                                .zIndex(0)
-                                .frame(maxWidth: .infinity)
-                                .layoutPriority(2)
+                            WebView(document.core, deviceColorScheme).tabItem {
                             }
+                                .frame(height: geometry.size.height)
+                                .tag(1)
+                                .onChange(of: deviceColorScheme) { newValue in
+                                    document.core.scriptEditor?.setTheme(newValue)
+                                }
                         }
+                        .frame(maxWidth: .infinity)
+                        .layoutPriority(2)
                     }
                     
-                    if toolsAreOn == false {
-                        // If no tools are visible show the context sensitive help
+                    if rightSideHelpIsVisible == true {
                         if let asset = document.core.assetFolder.current {
                             ScrollView {
                                 if asset.type == .Source {
@@ -164,11 +175,6 @@ struct ContentView: View {
                             }
                             .animation(.easeInOut)
                         }
-                    } else {
-                        // Show tools
-                        MetalView(document.core, toolView: true)
-                            .animation(.default)
-                            .allowsHitTesting(true)
                     }
                 }
             }
@@ -282,7 +288,7 @@ struct ContentView: View {
                 }
                 
                 // Toggle the Right sidebar
-                Button(action: { rightSideBarIsVisible.toggle() }, label: {
+                Button(action: { rightSideParamsAreVisible.toggle() }, label: {
                     Image(systemName: "sidebar.right")
                 })
             }

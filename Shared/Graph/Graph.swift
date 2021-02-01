@@ -192,7 +192,17 @@ class GraphNode : Equatable, Identifiable {
     /// toolPinchGesture (macOSOnly)
     func toolPinchGesture(_ scale: Float,_ firstTouch: Bool,_ toolContext: GraphToolContext)
     {
-        print(scale)
+    }
+    
+    /// The state of a tool view button has changed
+    func toolViewButtonAction(_ button: ToolViewButton, state: ToolViewButton.State, delta: float2, toolContext: GraphToolContext)
+    {
+    }
+
+    /// The buttons visible as overlay in the tool window
+    func getToolViewButtons() -> [ToolViewButton]
+    {
+        return []
     }
     
     static func ==(lhs:GraphNode, rhs:GraphNode) -> Bool { // Implement Equatable

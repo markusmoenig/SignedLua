@@ -10,9 +10,141 @@ import Foundation
 /// BaseCameraNode
 class GraphBaseCameraNode : GraphNode
 {
-    var origin       : Float3 = Float3(0, 0, -5)
-    var lookAt       : Float3 = Float3(0, 0, 0)
-    var fov          = Float1(80)
+    var origin                : Float3 = Float3(0, 0, -5)
+    var lookAt                : Float3 = Float3(0, 0, 0)
+    var fov                   = Float1(80)
+    
+    var cameraHelper          : CameraHelper!
+    
+    override func getToolViewButtons() -> [ToolViewButton]
+    {
+        return [ToolViewButton(name: "Zoom"), ToolViewButton(name: "Move"), ToolViewButton(name: "Rotate")]
+    }
+    
+    var maxDepthBuffer  : Int = 0
+    var lastChanged     : Double? = nil
+     
+    var zoomBuffer      : SIMD3<Float> = SIMD3<Float>(0,0,0)
+    
+    override func toolViewButtonAction(_ button: ToolViewButton, state: ToolViewButton.State, delta: float2, toolContext: GraphToolContext)
+    {
+        if state == .Down || delta == float2(0,0) {
+            toolContext.validate()
+            maxDepthBuffer = toolContext.core.renderPipeline.maxDepth
+            toolContext.core.renderPipeline.maxDepth = 1
+            cameraHelper.update()
+        } else
+        if state == .Move {
+            cameraHelper.update()
+            if button.name == "Move" {
+                let diffX : Float = delta.x * 0.003
+                let diffY : Float = -delta.y * 0.003
+                
+                cameraHelper.move(dx: diffX, dy: diffY, aspect: toolContext.aspectRatio)
+            } else
+            if button.name == "Zoom" {
+                cameraHelper.zoom(dx: 0, dy: delta.x * 0.003)
+            } else
+            if button.name == "Rotate" {
+                cameraHelper.rotate(dx: delta.x * 0.003, dy: -delta.y * 0.003)
+            }
+            toolContext.core.renderPipeline.restart()
+        } else
+        if state == .Up {
+            toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": origin, "LookAt": lookAt])
+            toolContext.core.renderPipeline.maxDepth = maxDepthBuffer
+            toolContext.core.renderPipeline.restart()
+        }        
+    }
+
+    override func toolPinchGesture(_ scale: Float,_ firstTouch: Bool,_ toolContext: GraphToolContext)
+    {
+        func testEnd() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2 ) {
+                let time = Double(Date().timeIntervalSince1970)
+                if let lastChanged = self.lastChanged {
+                
+                    if time - lastChanged > 1 {
+                        toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin, "LookAt": self.lookAt])
+                        toolContext.core.renderPipeline.maxDepth = self.maxDepthBuffer
+                        toolContext.core.renderPipeline.restart()
+                        self.lastChanged = nil
+                    } else {
+                        testEnd()
+                    }
+                }
+            }
+        }
+        
+        if lastChanged == nil {
+            maxDepthBuffer = toolContext.core.renderPipeline.maxDepth
+            toolContext.core.renderPipeline.maxDepth = 1
+            testEnd()
+            cameraHelper.update()
+        }
+
+        lastChanged = Double(Date().timeIntervalSince1970)
+        
+        if firstTouch == true {
+            zoomBuffer = origin.toSIMD() - lookAt.toSIMD()
+        }
+        
+        cameraHelper.zoomRelative(dx: 0, dy: scale, start: zoomBuffer)
+        toolContext.core.renderPipeline.restart()
+    }
+    
+    override func toolScrollWheel(_ delta: float3,_ toolContext: GraphToolContext)
+    {
+        toolContext.validate()
+        
+        func testEnd() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2 ) {
+                let time = Double(Date().timeIntervalSince1970)
+                if let lastChanged = self.lastChanged {
+                
+                    if time - lastChanged > 1 {
+                        toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin, "LookAt": self.lookAt])
+                        toolContext.core.renderPipeline.maxDepth = self.maxDepthBuffer
+                        toolContext.core.renderPipeline.restart()
+                        self.lastChanged = nil
+                    } else {
+                        testEnd()
+                    }
+                }
+            }
+        }
+        
+        if lastChanged == nil {
+            maxDepthBuffer = toolContext.core.renderPipeline.maxDepth
+            toolContext.core.renderPipeline.maxDepth = 1
+            testEnd()
+            cameraHelper.update()
+        }
+
+        lastChanged = Double(Date().timeIntervalSince1970)
+
+        #if os(iOS)
+        let clickCount = Int(delta.z)
+        if clickCount == 2 {
+            cameraHelper.rotate(dx: delta.x * 0.003, dy: delta.y * 0.003)
+        } else {
+            cameraHelper.move(dx: delta.x * 0.0006, dy: delta.y * 0.0006, aspect: toolContext.aspectRatio)
+        }
+        #elseif os(OSX)
+        if toolContext.commandIsDown {
+            if delta.y != 0 {
+                cameraHelper.zoom(dx: 0, dy: delta.y * 0.03)
+            }
+        } else
+        if toolContext.shiftIsDown {
+            cameraHelper.rotate(dx: delta.x * 0.003, dy: delta.y * 0.003)
+        } else {
+            cameraHelper.move(dx: delta.x * 0.003, dy: delta.y * 0.003, aspect: toolContext.aspectRatio)
+        }
+        #endif
+        
+        toolContext.core.renderPipeline.restart()
+    }
 }
 
 /// CameraNode
@@ -37,7 +169,6 @@ final class GraphCameraNode : GraphBaseCameraNode
     var seed         = float2()
 
     var mouseDownPos          = float2(0,0)
-    var cameraHelper          : CameraHelper!
     var updateStarted         = false
     
     init(_ options: [String:Any] = [:])
@@ -181,100 +312,6 @@ final class GraphCameraNode : GraphBaseCameraNode
         //toolContext.core.renderPipeline.restart()
     }
     
-    var maxDepthBuffer  : Int = 0
-    var lastChanged     : Double? = nil
-     
-    var zoomBuffer      : SIMD3<Float> = SIMD3<Float>(0,0,0)
-
-    override func toolPinchGesture(_ scale: Float,_ firstTouch: Bool,_ toolContext: GraphToolContext)
-    {
-        func testEnd() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
-                let time = Double(Date().timeIntervalSince1970)
-                if let lastChanged = self.lastChanged {
-                
-                    if time - lastChanged > 1 {
-                        toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin, "LookAt": self.lookAt])
-                        toolContext.core.renderPipeline.maxDepth = self.maxDepthBuffer
-                        toolContext.core.renderPipeline.restart()
-                        self.lastChanged = nil
-                    } else {
-                        testEnd()
-                    }
-                }
-            }
-        }
-        
-        if lastChanged == nil {
-            maxDepthBuffer = toolContext.core.renderPipeline.maxDepth
-            toolContext.core.renderPipeline.maxDepth = 1
-            testEnd()
-            cameraHelper.update()
-        }
-
-        lastChanged = Double(Date().timeIntervalSince1970)
-        
-        if firstTouch == true {
-            zoomBuffer = origin.toSIMD() - lookAt.toSIMD()
-        }
-        
-        cameraHelper.zoomRelative(dx: 0, dy: scale, start: zoomBuffer)
-        toolContext.core.renderPipeline.restart()
-    }
-    
-    override func toolScrollWheel(_ delta: float3,_ toolContext: GraphToolContext)
-    {
-        toolContext.validate()
-        
-        func testEnd() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 ) {
-                let time = Double(Date().timeIntervalSince1970)
-                if let lastChanged = self.lastChanged {
-                
-                    if time - lastChanged > 1 {
-                        toolContext.core.scriptProcessor.replaceFloat3InLine(["Origin": self.origin, "LookAt": self.lookAt])
-                        toolContext.core.renderPipeline.maxDepth = self.maxDepthBuffer
-                        toolContext.core.renderPipeline.restart()
-                        self.lastChanged = nil
-                    } else {
-                        testEnd()
-                    }
-                }
-            }
-        }
-        
-        if lastChanged == nil {
-            maxDepthBuffer = toolContext.core.renderPipeline.maxDepth
-            toolContext.core.renderPipeline.maxDepth = 1
-            testEnd()
-            cameraHelper.update()
-        }
-
-        lastChanged = Double(Date().timeIntervalSince1970)
-
-        #if os(iOS)
-        let clickCount = Int(delta.z)
-        if clickCount == 2 {
-            cameraHelper.rotate(dx: delta.x * 0.003, dy: delta.y * 0.003)
-        } else {
-            cameraHelper.move(dx: delta.x * 0.0006, dy: delta.y * 0.0006, aspect: toolContext.aspectRatio)
-        }
-        #elseif os(OSX)
-        if toolContext.commandIsDown {
-            if delta.y != 0 {
-                cameraHelper.zoom(dx: 0, dy: delta.y * 0.03)
-            }
-        } else
-        if toolContext.shiftIsDown {
-            cameraHelper.rotate(dx: delta.x * 0.003, dy: delta.y * 0.003)
-        } else {
-            cameraHelper.move(dx: delta.x * 0.003, dy: delta.y * 0.003, aspect: toolContext.aspectRatio)
-        }
-        #endif
-        
-        toolContext.core.renderPipeline.restart()
-    }
-    
     override func getHelp() -> String
     {
         return "A pinhole camera supporting focal distance and aperture."
@@ -297,8 +334,6 @@ final class GraphCameraNode : GraphBaseCameraNode
 final class GraphIsometricCameraNode : GraphBaseCameraNode
 {
     var mouseDownPos          = float2(0,0)
-    
-    var cameraHelper          : CameraHelper!
     
     var updateStarted         = false
     

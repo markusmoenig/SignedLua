@@ -10,8 +10,14 @@ import MetalKit
 
 public class DMTKView       : MTKView
 {
+    enum MetalViewType {
+        case Main, Tools, Nodes
+    }
+    
     var core                : Core!
 
+    var viewType            : MetalViewType = .Main
+    
     var keysDown            : [Float] = []
     
     var mouseIsDown         : Bool = false
@@ -109,21 +115,9 @@ public class DMTKView       : MTKView
     }
     
     // Mouse scroll wheel
-    override public func scrollWheel(with event: NSEvent) {
-        
-        guard let asset = core.assetFolder.getAsset("main", .Source) else {
-            return
-        }
-        
-        if let context = asset.graph {
-            if let cameraNode = context.cameraNode {
-                
-                if core.graphBuilder.currentNode != cameraNode {
-                    core.graphBuilder.gotoNode(cameraNode)
-                }
-                
-                cameraNode.toolScrollWheel(float3(Float(event.deltaX), Float(event.deltaY), Float(event.deltaZ)), core.toolContext)
-            }
+    override public func scrollWheel(with event: NSEvent) {        
+        if let node = core.graphBuilder.currentNode {
+            node.toolScrollWheel(float3(Float(event.deltaX), Float(event.deltaY), Float(event.deltaZ)), core.toolContext)
         }
     }
     
@@ -189,8 +183,8 @@ public class DMTKView       : MTKView
             lastX = Float(translation.x)
             lastY = Float(translation.y)
             
-            if let cameraNode = getCameraNode() {
-                cameraNode.toolScrollWheel(delta, core.toolContext)
+            if let node = core.graphBuilder.currentNode {
+                node.toolScrollWheel(delta, core.toolContext)
             }
         }
     }
@@ -314,12 +308,12 @@ struct MetalView: NSViewRepresentable {
     var core                : Core!
     var trackingArea        : NSTrackingArea?
     
-    var toolView            : Bool
+    var viewType            : DMTKView.MetalViewType
 
-    init(_ core: Core, toolView: Bool = false)
+    init(_ core: Core,_ viewType: DMTKView.MetalViewType)
     {
         self.core = core
-        self.toolView = toolView
+        self.viewType = viewType
     }
     
     func makeCoordinator() -> Coordinator {
@@ -341,9 +335,13 @@ struct MetalView: NSViewRepresentable {
         mtkView.enableSetNeedsDisplay = true
         mtkView.isPaused = true
                 
-        if toolView == false {
+        mtkView.viewType = viewType
+        
+        if viewType == .Main {
             core.setupView(mtkView)
-        } else {
+        } else
+        if viewType == .Tools
+        {
             core.setupToolView(mtkView)
         }
         
@@ -381,12 +379,12 @@ struct MetalView: UIViewRepresentable {
     typealias UIViewType = MTKView
     var core             : Core!
     
-    var toolView         : Bool
+    var viewType            : DMTKView.MetalViewType
 
-    init(_ core: Core, toolView: Bool)
+    init(_ core: Core,_ viewType: DMTKView.MetalViewType)
     {
         self.core = core
-        self.toolView = toolView
+        self.viewType = viewType
     }
     
     func makeCoordinator() -> Coordinator {
@@ -408,9 +406,13 @@ struct MetalView: UIViewRepresentable {
         mtkView.enableSetNeedsDisplay = true
         mtkView.isPaused = true
                 
-        if toolView == false {
+        mtkView.viewType = viewType
+        
+        if viewType == .Main {
             core.setupView(mtkView)
-        } else {
+        } else
+        if viewType == .Tools
+        {
             core.setupToolView(mtkView)
         }
         
