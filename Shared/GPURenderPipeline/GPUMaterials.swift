@@ -132,6 +132,8 @@ final class GPUMaterialsShader : GPUBaseShader
 
                 \(findMaterialsCode)
 
+                material.roughness = max(material.roughness, 0.0001);
+
                 int lightsCount = int(lightsData[0].x);
                 if (lightsCount > 0) {
                     int lightIndex = 1 + int((rand(dataIn) * lightsCount)) * 2;
@@ -481,7 +483,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 if (bsdfSampleRec.pdf > 0.0)
                     throughput *= bsdfSampleRec.f * abs(dot(state.ffnormal, bsdfSampleRec.L)) / bsdfSampleRec.pdf;
                 else {
-                    //throughput = float3(0);
+                    throughput = float3(0);
                     depth.x = -10;
                     depthTexture.write(depth, textureUV);
                 }

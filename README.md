@@ -28,7 +28,7 @@ Signed uses an Principled BSDF path tracer for rendering.
 
 ## Sponsors
 
-Corporate sponsors for this project are very welcome.
+Sponsors for this project are very welcome.
 
 ## Status
 
