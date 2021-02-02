@@ -44,7 +44,6 @@ class GraphBuilder
 
         GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSDFSphereNode(options) }),
         GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return GraphSDFBoxNode(options) }),
-        GraphNodeItem("sdfPlane", { (_ options: [String:Any]) -> GraphNode in return GraphSDFPlaneNode(options) }),
         
         GraphNodeItem("sdfCircle2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFCircleNode2D(options) }),
         

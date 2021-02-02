@@ -9,7 +9,7 @@ import Foundation
 import simd
 
 /// Analytical  Ground Plane
-final class GraphAnalyticalGroundPlaneNode : GraphDistanceNode
+final class GraphAnalyticalGroundPlaneNode : GraphTransformationNode
 {
     init(_ options: [String:Any] = [:])
     {
@@ -55,12 +55,12 @@ final class GraphAnalyticalGroundPlaneNode : GraphDistanceNode
         let options = [
             GraphOption(Float3(0,1,0), "Normal", "The normal defines the orientation of the plane.")
         ]
-        return options + GraphDistanceNode.getSDFOptions()
+        return options + GraphTransformationNode.getTransformationOptions()
     }
 }
 
 /// Analytical Dome
-final class GraphAnalyticalDomeNode : GraphDistanceNode
+final class GraphAnalyticalDomeNode : GraphTransformationNode
 {
     var radius                  : Float1 = Float1(20)
     var ceilingMaterialName     : String? = nil
@@ -154,7 +154,7 @@ final class GraphAnalyticalDomeNode : GraphDistanceNode
         let options = [
             GraphOption(Float3(0,1,0), "Normal", "The normal defines the orientation of the plane.")
         ]
-        return options + GraphDistanceNode.getSDFOptions()
+        return options + GraphTransformationNode.getTransformationOptions()
     }
 }
 

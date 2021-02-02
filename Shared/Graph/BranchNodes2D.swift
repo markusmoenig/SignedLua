@@ -8,7 +8,7 @@
 import Foundation
 
 /// Distance Base Node 2D
-class GraphDistanceNode2D : GraphNode
+class GraphTransformationNode2D : GraphNode
 {
     var position        : Float2 = Float2(0,0)
     var rotation        : Float2 = Float2(0,0)
@@ -26,23 +26,16 @@ class GraphDistanceNode2D : GraphNode
         }
     }
     
-    static func getObjectOptions() -> [GraphOption]
+    static func getTransformationOptions() -> [GraphOption]
     {
         return [
             GraphOption(Float3(0,0,0), "Position", "The position of the object. If this is a child object the position is relative to it's parent.")
         ]
     }
-    
-    static func getSDFOptions() -> [GraphOption]
-    {
-        return [
-            GraphOption(Float3(0,0,0), "Position", "The position of the SDF relative to it's parent object.")
-        ]
-    }
 }
 
 /// SDFObject2D
-final class GraphSDFObject2D : GraphDistanceNode2D
+final class GraphSDFObject2D : GraphTransformationNode2D
 {
     var positionStore : Float2!
     
@@ -95,6 +88,6 @@ final class GraphSDFObject2D : GraphDistanceNode2D
         let options = [
             GraphOption(Text1("Object"), "Name", "The name of the object.")
         ]
-        return options + GraphDistanceNode.getObjectOptions()
+        return options + GraphTransformationNode2D.getTransformationOptions()
     }
 }

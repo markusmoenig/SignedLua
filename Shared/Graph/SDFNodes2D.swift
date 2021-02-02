@@ -9,7 +9,7 @@ import Foundation
 import simd
 
 /// SDFSphereNode2D
-final class GraphSDFCircleNode2D : GraphDistanceNode2D
+final class GraphSDFCircleNode2D : GraphTransformationNode2D
 {
     var radius        : Float1 = Float1(1)
 
@@ -48,6 +48,6 @@ final class GraphSDFCircleNode2D : GraphDistanceNode2D
         let options = [
             GraphOption(Float1(1), "Radius", "The radius of the circle.")
         ]
-        return options + GraphDistanceNode.getSDFOptions()
+        return options + GraphTransformationNode2D.getTransformationOptions()
     }
 }

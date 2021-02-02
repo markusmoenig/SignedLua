@@ -119,7 +119,7 @@ final class GraphSunLightNode : GraphLightNode {
         let options = [
             GraphOption(Float3("direction"), "Direction", "The direction of the sun light.")
         ]
-        return options + GraphDistanceNode.getObjectOptions()
+        return options + GraphTransformationNode.getTransformationOptions()
     }
 }
 
@@ -187,6 +187,6 @@ final class GraphSphereLightNode : GraphLightNode {
         let options = [
             GraphOption(Text1("Object"), "Name", "The name of the object.")
         ]
-        return options + GraphDistanceNode.getObjectOptions()
+        return options + GraphTransformationNode.getTransformationOptions()
     }
 }

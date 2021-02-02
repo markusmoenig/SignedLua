@@ -94,10 +94,16 @@ class GPURenderPipeline
         }
         
         for node in context.analyticalNodes {
+            context.position = float3(0,0,0)
+            context.rotation = float3(0,0,0)
+            context.scale = 1
             node.execute(context: context)
         }
         
         for node in context.sdfNodes {
+            context.position = float3(0,0,0)
+            context.rotation = float3(0,0,0)
+            context.scale = 1
             node.execute(context: context)
         }
                 

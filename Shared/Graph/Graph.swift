@@ -283,6 +283,9 @@ final class GraphContext    : VariableContainer
     var adjustedUV          = float2(0,0)                       // The adjusted UV between 0..100 with 0,0 at the upper left corner
 
     var position            = float3(0,0,0)                     // Current object position
+    var rotation            = float3(0,0,0)                     // Current object rotation
+    var scale               = Float(1)                          // Current object scale
+    
     var position2D          = float2(0,0)                       // Current object position for 2D objects
 
     var camOffset           = float2(0,0)                       // Camera AA uv offset

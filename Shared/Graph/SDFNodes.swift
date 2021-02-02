@@ -9,7 +9,7 @@ import MetalKit
 import simd
 
 /// SDFSphereNode
-final class GraphSDFSphereNode : GraphDistanceNode
+final class GraphSDFSphereNode : GraphTransformationNode
 {
     var radius        : Float1 = Float1(1)
 
@@ -28,17 +28,13 @@ final class GraphSDFSphereNode : GraphDistanceNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        context.position += position.toSIMD()
-        
-        if let index = position.dataIndex, index < context.data.count {
-            context.data[index] = float4(context.position.x, context.position.y, context.position.z, 0)
-        }
+        checkIn(context: context)
         
         if let index = radius.dataIndex, index < context.data.count {
             context.data[index] = radius.toSIMD4()
         }
         
-        context.position -= position.toSIMD()
+        checkOut(context: context)
         return .Success
     }
     
@@ -47,17 +43,21 @@ final class GraphSDFSphereNode : GraphDistanceNode
     {
         var codeMap : [String:String] = [:]
         
-        context.addDataVariable(position)
         context.addDataVariable(radius)
-        
-        context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius.toSIMD())
-        
+                
         codeMap["map"] =
         """
 
-            newDistance = float4(length(position - dataIn.data[\(position.dataIndex!)].xyz) - dataIn.data[\(radius.dataIndex!)].x, 0, -1, \(context.getMaterialIndex()));
+            {
+                \(generateMetalTransformCode(context: context))
+
+                newDistance = float4(length(transformedPosition) - dataIn.data[\(radius.dataIndex!)].x, 0, -1, \(context.getMaterialIndex()));
+            }
 
         """
+        
+        context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius.toSIMD())
+
                 
         return codeMap
     }
@@ -112,12 +112,12 @@ final class GraphSDFSphereNode : GraphDistanceNode
         let options = [
             GraphOption(Float1(1), "Radius", "The radius of the sphere.")
         ]
-        return options + GraphDistanceNode.getSDFOptions()
+        return options + GraphTransformationNode.getTransformationOptions()
     }
 }
 
 /// SDFBoxNode
-final class GraphSDFBoxNode : GraphDistanceNode
+final class GraphSDFBoxNode : GraphTransformationNode
 {
     var size    : Float3 = Float3(1)
 
@@ -136,17 +136,13 @@ final class GraphSDFBoxNode : GraphDistanceNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        context.position += position.toSIMD()
-
-        if let index = position.dataIndex, index < context.data.count {
-            context.data[index] = float4(context.position.x, context.position.y, context.position.z, 0)
-        }
+        checkIn(context: context)
         
         if let index = size.dataIndex, index < context.data.count {
             context.data[index] = size.toSIMD4()
         }
         
-        context.position -= position.toSIMD()
+        checkOut(context: context)
         return .Success
     }
     
@@ -155,14 +151,15 @@ final class GraphSDFBoxNode : GraphDistanceNode
     {
         var codeMap : [String:String] = [:]
         
-        context.addDataVariable(position)
         context.addDataVariable(size)
 
         codeMap["map"] =
         """
 
             {
-                float3 q = abs(position - dataIn.data[\(position.dataIndex!)].xyz) - dataIn.data[\(size.dataIndex!)].xyz;
+                \(generateMetalTransformCode(context: context))
+
+                float3 q = abs(transformedPosition) - dataIn.data[\(size.dataIndex!)].xyz;
                 newDistance = float4(length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0), 0, -1, \(context.getMaterialIndex()));
             }
 
@@ -205,51 +202,6 @@ final class GraphSDFBoxNode : GraphDistanceNode
         let options = [
             GraphOption(Float3(1,1,1), "Size", "The size of the cube.")
         ]
-        return options + GraphDistanceNode.getSDFOptions()
+        return options + GraphTransformationNode.getTransformationOptions()
     }
 }
-
-/// SDFPlaneNode
-final class GraphSDFPlaneNode : GraphDistanceNode
-{
-    var normal    : Float3 = Float3(0, 1, 0)
-
-    init(_ options: [String:Any] = [:])
-    {
-        super.init(.Utility, .SDF, options)
-        name = "sdfPlane"
-    }
-    
-    override func verifyOptions(context: GraphContext, error: inout CompileError) {
-        verifyTranslationOptions(context: context, error: &error)
-        if let value = extractFloat3Value(options, container: context, error: &error, name: "normal", isOptional: true) {
-            normal = value
-        }
-    }
-    
-    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
-    {
-        context.position += position.toSIMD()
-
-        context.rayDist[context.rayIndex] = dot(context.rayPosition.toSIMD(), normal.toSIMD())
-        context.toggleRayIndex()
-
-        context.position -= position.toSIMD()
-
-        return .Success
-    }
-    
-    override func getHelp() -> String
-    {
-        return "Creates a plane."
-    }
-    
-    override func getOptions() -> [GraphOption]
-    {
-        let options = [
-            GraphOption(Float3(0,1,0), "Normal", "The normal defines the orientation of the plane.")
-        ]
-        return options + GraphDistanceNode.getSDFOptions()
-    }
-}
-

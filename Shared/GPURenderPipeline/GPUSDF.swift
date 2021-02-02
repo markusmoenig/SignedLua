@@ -29,6 +29,7 @@ final class GPUSDFShader : GPUBaseShader
         float4 map(float3 position, DataIn dataIn)
         {
             float4 distance = float4(100000, -1, -1, -1), newDistance = float4(100000, -1, -1, -1);
+            float3 objectPosition = float3(0);
 
             \(codeMap["map"]!)
 
