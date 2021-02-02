@@ -48,7 +48,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 material.sheen = 0;
                 material.sheenTint = 0;
                 material.clearcoat = 0;
-                material.clearcoatGloss = 0;
+                material.clearcoatRoughness = 0;
 
                 material.transmission = 0.0;
 
@@ -66,7 +66,7 @@ final class GPUMaterialsShader : GPUBaseShader
 
             """
             
-            print(codeMap["code"]!)
+            //print(codeMap["code"]!)
             
             if findMaterialsCode != "" { findMaterialsCode += "else\n" }
             findMaterialsCode += "    if (isEqual(depth.w, \(String(index)))) material = material\(String(index))(dataIn, surfacePosition);\n"
@@ -103,7 +103,8 @@ final class GPUMaterialsShader : GPUBaseShader
                                      texture2d<float, access::write> paramsTexture6 [[texture(9)]],
                                      texture2d<float, access::read> camOriginTexture [[texture(10)]],
                                      texture2d<float, access::read> camDirTexture [[texture(11)]],
-                                     texture2d<float, access::write> camOriginTexture2 [[texture(12)]])
+                                     texture2d<float, access::write> camOriginTexture2 [[texture(12)]],
+                                     texture2d<float, access::read> normalTexture[[texture(13)]])
         {
             float2 uv = float2(in.textureCoordinate.x, in.textureCoordinate.y);
             float2 size = in.viewportSize;
@@ -111,7 +112,8 @@ final class GPUMaterialsShader : GPUBaseShader
             \(getDataInCode())
             ushort2 textureUV = ushort2(uv.x * size.x, (1.0 - uv.y) * size.y);
 
-            float4 depth = float4(depthTexture.read(textureUV));
+            float4 depth = depthTexture.read(textureUV);
+            float3 normal = normalTexture.read(textureUV).xyz;
 
             if (depth.x < 0.0) { return float4(0); }
 
@@ -161,7 +163,7 @@ final class GPUMaterialsShader : GPUBaseShader
                         if (d > 0.0)
                             lightDir = normalize(surfacePosition - (sunDist * ( -b - sqrt(d) ) * sampleDir));
 
-                        surfacePosition += lightDir * EPS;//0.025;//120;
+                        surfacePosition += FaceForward(normal, lightDir) * EPS;//0.120;
                         camOriginTexture2.write(float4(float3(surfacePosition), float(lightIndex)), textureUV);
                     } else
                     if (isEqual(lightData1.x, 1.0)) {
@@ -182,8 +184,7 @@ final class GPUMaterialsShader : GPUBaseShader
                         lightDir /= sqrt(lightDistSq);
                         //lightDir = normalize(lightDir);
 
-                        surfacePosition += lightDir * EPS;//0.120;
-
+                        surfacePosition += FaceForward(normal, lightDir) * EPS;//0.120;
                         camOriginTexture2.write(float4(surfacePosition, float(lightIndex)), textureUV);
                     }
                 }
@@ -191,7 +192,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 paramsTexture1.write(float4(material.albedo, material.specular), textureUV);
                 paramsTexture2.write(float4(material.emission, material.anisotropic), textureUV);
                 paramsTexture3.write(float4(material.metallic, material.roughness, material.subsurface, material.specularTint), textureUV);
-                paramsTexture4.write(float4(material.sheen, material.sheenTint, material.clearcoat, material.clearcoatGloss), textureUV);
+                paramsTexture4.write(float4(material.sheen, material.sheenTint, material.clearcoat, material.clearcoatRoughness), textureUV);
                 paramsTexture5.write(float4(lightDir, material.transmission), textureUV);
                 paramsTexture6.write(float4(material.ior, material.extinction), textureUV);
             }
@@ -219,7 +220,7 @@ final class GPUMaterialsShader : GPUBaseShader
             float2 uv = float2(in.textureCoordinate.x, in.textureCoordinate.y);
             float2 size = in.viewportSize;
 
-            float4 L = float4(0,0,0,1);
+            float4 Li = float4(0,0,0,1);
             State state;
 
             \(getDataInCode())
@@ -287,12 +288,16 @@ final class GPUMaterialsShader : GPUBaseShader
                 state.mat.sheen = params4.x;
                 state.mat.sheenTint = params4.y;
                 state.mat.clearcoat = params4.z;
-                state.mat.clearcoatGloss = params4.w;
+                state.mat.clearcoatRoughness = params4.w;
 
                 state.mat.transmission = params5.w;
 
                 state.mat.ior = params6.x;
                 state.mat.extinction = params6.yzw;
+
+                state.isSubsurface = false;
+                state.isEmitter = false;
+                state.specularBounce = false;
 
                 Ray r;
                 r.direction = camDir;
@@ -301,7 +306,10 @@ final class GPUMaterialsShader : GPUBaseShader
                 state.normal = normal;
                 state.ffnormal = dot(normal, r.direction) <= 0.0 ? normal : normal * -1.0;
                 state.hitDist = depth.x;
-                state.rayType = REFL;
+
+                float aspect = sqrt(1.0 - state.mat.anisotropic * 0.9);
+                state.mat.ax = max(0.001, state.mat.roughness / aspect);
+                state.mat.ay = max(0.001, state.mat.roughness * aspect);
 
                 state.eta = dot(state.normal, state.ffnormal) > 0.0 ? (1.0 / state.mat.ior) : state.mat.ior;
 
@@ -330,17 +338,19 @@ final class GPUMaterialsShader : GPUBaseShader
 
                 float lightDistSq = lightDist * lightDist;
 
-                if (dot(lightDir, state.ffnormal) <= 0.0 || dot(lightDir, lightNormal) >= 0.0)
-                    return L;
+                if (!state.isSubsurface && (dot(lightDir, state.ffnormal) <= 0.0 || dot(lightDir, lightNormal) >= 0.0))
+                    return Li;
 
-                float bsdfPdf = DisneyPdf(r, state, lightDir);
-                float3 f = DisneyEval(r, state, lightDir);
+                BsdfSampleRec bsdfSampleRec;
+                bsdfSampleRec.f = DisneyEval(state, -r.direction, state.ffnormal, lightDir, bsdfSampleRec.pdf);
                 float lightPdf = lightDistSq / (lightArea * abs(dot(lightNormal, lightDir)));
 
-                L.xyz += powerHeuristic(lightPdf, bsdfPdf) * f * abs(dot(state.ffnormal, lightDir)) * emission / lightPdf;
+                if (bsdfSampleRec.pdf > 0.0)
+                    Li.xyz += powerHeuristic(lightPdf, bsdfSampleRec.pdf) * bsdfSampleRec.f * abs(dot(state.ffnormal, lightDir)) * emission / lightPdf;
+
             }
 
-            return L;
+            return Li;
         }
 
         fragment float4 pathTrace(   RasterizerData in [[stage_in]],
@@ -404,12 +414,16 @@ final class GPUMaterialsShader : GPUBaseShader
             state.mat.sheen = params4.x;
             state.mat.sheenTint = params4.y;
             state.mat.clearcoat = params4.z;
-            state.mat.clearcoatGloss = params4.w;
+            state.mat.clearcoatRoughness = params4.w;
 
             state.mat.transmission = params5.w;
 
             state.mat.ior = params6.x;
             state.mat.extinction = params6.yzw;
+
+            state.isSubsurface = false;
+            state.isEmitter = false;
+            state.specularBounce = false;
 
             Ray r;
             r.direction = camDir;
@@ -418,7 +432,10 @@ final class GPUMaterialsShader : GPUBaseShader
             state.normal = normal;
             state.ffnormal = dot(normal, r.direction) <= 0.0 ? normal : normal * -1.0;
             state.hitDist = depth.x;
-            state.rayType = REFL;
+
+            float aspect = sqrt(1.0 - state.mat.anisotropic * 0.9);
+            state.mat.ax = max(0.001, state.mat.roughness / aspect);
+            state.mat.ay = max(0.001, state.mat.roughness * aspect);
 
             state.eta = dot(state.normal, state.ffnormal) > 0.0 ? (1.0 / state.mat.ior) : state.mat.ior;
 
@@ -426,14 +443,24 @@ final class GPUMaterialsShader : GPUBaseShader
             state.tangent = normalize(cross(UpVector, state.ffnormal));
             state.bitangent = cross(state.ffnormal, state.tangent);
 
+            BsdfSampleRec bsdfSampleRec;
+            float3 absorption = float3(0.0);
+
             // ---
 
             if (depth.w > -1) {
 
                 // We hit something, get the direct light and calculate the new throughput
 
+                // Reset absorption when ray is going out of surface
+                if (dot(state.normal, state.ffnormal) > 0.0)
+                    absorption = float3(0.0);
+
                 radiance += state.mat.emission * throughput;
 
+                // Add absoption
+                //throughput *= exp(-absorption * depth.x);
+            
                 if (length(state.mat.emission) > 0) {
                     throughput = float3(0);
                     depth.x = -10;
@@ -445,14 +472,16 @@ final class GPUMaterialsShader : GPUBaseShader
 
                 radiance += directLight * throughput;
 
-                float3 bsdfDir = DisneySample(r, state, dataIn);
+                bsdfSampleRec.f = DisneySample(state, -r.direction, state.ffnormal, bsdfSampleRec.L, bsdfSampleRec.pdf, dataIn);
 
-                float pdf = DisneyPdf(r, state, bsdfDir);
+                // Set absorption only if the ray is currently inside the object.
+                if (dot(state.ffnormal, bsdfSampleRec.L) < 0.0)
+                    absorption = -log(state.mat.extinction) / float3(0.2); // TODO: Add atDistance
 
-                if (pdf > 0.0)
-                    throughput *= DisneyEval(r, state, bsdfDir) * abs(dot(state.ffnormal, bsdfDir)) / pdf;
+                if (bsdfSampleRec.pdf > 0.0)
+                    throughput *= bsdfSampleRec.f * abs(dot(state.ffnormal, bsdfSampleRec.L)) / bsdfSampleRec.pdf;
                 else {
-                    throughput = float3(0);
+                    //throughput = float3(0);
                     depth.x = -10;
                     depthTexture.write(depth, textureUV);
                 }
@@ -460,10 +489,10 @@ final class GPUMaterialsShader : GPUBaseShader
                 radianceTexture.write(float4(radiance, 1), textureUV);
                 throughputTexture.write(float4(throughput, 1), textureUV);
 
-                surfacePos += bsdfDir * EPS;
+                surfacePos += bsdfSampleRec.L * EPS;
 
                 camOriginTexture.write(float4(surfacePos, 1), textureUV);
-                camDirTexture.write(float4(bsdfDir, 1), textureUV);
+                camDirTexture.write(float4(bsdfSampleRec.L, 1), textureUV);
             } else {
 
                 // We did not hit something, calculate background
@@ -528,6 +557,7 @@ final class GPUMaterialsShader : GPUBaseShader
             renderEncoder.setFragmentTexture(pipeline.camOriginTexture!, index: 10)
             renderEncoder.setFragmentTexture(pipeline.camDirTexture!, index: 11)
             renderEncoder.setFragmentTexture(pipeline.camOriginTexture2!, index: 12)
+            renderEncoder.setFragmentTexture(pipeline.normalTexture!, index: 13)
             // ---
             
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
@@ -623,318 +653,421 @@ final class GPUMaterialsShader : GPUBaseShader
     {
         return """
 
-        float3 ImportanceSampleGGX(float rgh, float r1, float r2)
+        /*
+         * MIT License
+         *
+         * Copyright(c) 2019-2021 Asif Ali
+         *
+         * Permission is hereby granted, free of charge, to any person obtaining a copy
+         * of this softwareand associated documentation files(the "Software"), to deal
+         * in the Software without restriction, including without limitation the rights
+         * to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+         * copies of the Software, and to permit persons to whom the Software is
+         * furnished to do so, subject to the following conditions :
+         *
+         * The above copyright notice and this permission notice shall be included in all
+         * copies or substantial portions of the Software.
+         *
+         * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+         * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+         * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+         * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+         * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+         * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+         * SOFTWARE.
+         */
+
+
+        float3 ImportanceSampleGTR1(float rgh, float r1, float r2)
         {
-            float a = max(0.001, rgh);
+           float a = max(0.001, rgh);
+           float a2 = a * a;
 
-            float phi = r1 * M_2_PI_F;
+           float phi = r1 * M_2_PI_F;
 
-            float cosTheta = sqrt((1.0 - r2) / (1.0 + (a * a - 1.0) * r2));
-            float sinTheta = clamp(sqrt(1.0 - (cosTheta * cosTheta)), 0.0, 1.0);
-            float sinPhi = sin(phi);
-            float cosPhi = cos(phi);
+           float cosTheta = sqrt((1.0 - pow(a2, 1.0 - r1)) / (1.0 - a2));
+           float sinTheta = clamp(sqrt(1.0 - (cosTheta * cosTheta)), 0.0, 1.0);
+           float sinPhi = sin(phi);
+           float cosPhi = cos(phi);
 
-            return float3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
+           return float3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
+        }
+
+        float3 ImportanceSampleGTR2_aniso(float ax, float ay, float r1, float r2)
+        {
+           float phi = r1 * M_2_PI_F;
+
+           float sinPhi = ay * sin(phi);
+           float cosPhi = ax * cos(phi);
+           float tanTheta = sqrt(r2 / (1 - r2));
+
+           return float3(tanTheta * cosPhi, tanTheta * sinPhi, 1.0);
+        }
+
+        float3 ImportanceSampleGTR2(float rgh, float r1, float r2)
+        {
+           float a = max(0.001, rgh);
+
+           float phi = r1 * M_2_PI_F;
+
+           float cosTheta = sqrt((1.0 - r2) / (1.0 + (a * a - 1.0) * r2));
+           float sinTheta = clamp(sqrt(1.0 - (cosTheta * cosTheta)), 0.0, 1.0);
+           float sinPhi = sin(phi);
+           float cosPhi = cos(phi);
+
+           return float3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
         }
 
         float SchlickFresnel(float u)
         {
-            float m = clamp(1.0 - u, 0.0, 1.0);
-            float m2 = m * m;
-            return m2 * m2 * m; // pow(m,5)
+           float m = clamp(1.0 - u, 0.0, 1.0);
+           float m2 = m * m;
+           return m2 * m2 * m; // pow(m,5)
         }
 
         float DielectricFresnel(float cos_theta_i, float eta)
         {
-            float sinThetaTSq = eta * eta * (1.0f - cos_theta_i * cos_theta_i);
+           float sinThetaTSq = eta * eta * (1.0f - cos_theta_i * cos_theta_i);
 
-            // Total internal reflection
-            if (sinThetaTSq > 1.0)
-                return 1.0;
+           // Total internal reflection
+           if (sinThetaTSq > 1.0)
+               return 1.0;
 
-            float cos_theta_t = sqrt(max(1.0 - sinThetaTSq, 0.0));
+           float cos_theta_t = sqrt(max(1.0 - sinThetaTSq, 0.0));
 
-            float rs = (eta * cos_theta_t - cos_theta_i) / (eta * cos_theta_t + cos_theta_i);
-            float rp = (eta * cos_theta_i - cos_theta_t) / (eta * cos_theta_i + cos_theta_t);
+           float rs = (eta * cos_theta_t - cos_theta_i) / (eta * cos_theta_t + cos_theta_i);
+           float rp = (eta * cos_theta_i - cos_theta_t) / (eta * cos_theta_i + cos_theta_t);
 
-            return 0.5f * (rs * rs + rp * rp);
+           return 0.5f * (rs * rs + rp * rp);
         }
 
         float GTR1(float NDotH, float a)
         {
-            if (a >= 1.0)
-                return (1.0 / M_PI_F);
-            float a2 = a * a;
-            float t = 1.0 + (a2 - 1.0) * NDotH * NDotH;
-            return (a2 - 1.0) / (M_PI_F * log(a2) * t);
+           if (a >= 1.0)
+               return (1.0 / M_PI_F);
+           float a2 = a * a;
+           float t = 1.0 + (a2 - 1.0) * NDotH * NDotH;
+           return (a2 - 1.0) / (M_PI_F * log(a2) * t);
         }
 
         float GTR2(float NDotH, float a)
         {
-            float a2 = a * a;
-            float t = 1.0 + (a2 - 1.0) * NDotH * NDotH;
-            return a2 / (M_PI_F * t * t);
+           float a2 = a * a;
+           float t = 1.0 + (a2 - 1.0) * NDotH * NDotH;
+           return a2 / (M_PI_F * t * t);
         }
 
         float GTR2_aniso(float NDotH, float HDotX, float HDotY, float ax, float ay)
         {
-            float a = HDotX / ax;
-            float b = HDotY / ay;
-            float c = a * a + b * b + NDotH * NDotH;
-            return 1.0 / (M_PI_F * ax * ay * c * c);
+           float a = HDotX / ax;
+           float b = HDotY / ay;
+           float c = a * a + b * b + NDotH * NDotH;
+           return 1.0 / (M_PI_F * ax * ay * c * c);
         }
 
         float SmithG_GGX(float NDotV, float alphaG)
         {
-            float a = alphaG * alphaG;
-            float b = NDotV * NDotV;
-            return 1.0 / (NDotV + sqrt(a + b - a * b));
+           float a = alphaG * alphaG;
+           float b = NDotV * NDotV;
+           return 1.0 / (NDotV + sqrt(a + b - a * b));
         }
 
         float SmithG_GGX_aniso(float NDotV, float VDotX, float VDotY, float ax, float ay)
         {
-            float a = VDotX * ax;
-            float b = VDotY * ay;
-            float c = NDotV;
-            return 1.0 / (NDotV + sqrt(a * a + b * b + c * c));
+           float a = VDotX * ax;
+           float b = VDotY * ay;
+           float c = NDotV;
+           return 1.0 / (NDotV + sqrt(a * a + b * b + c * c));
         }
 
-        float3 CosineSampleHemisphere(float u1, float u2)
+        float3 CosineSampleHemisphere(float r1, float r2)
         {
-            float3 dir;
-            float r = sqrt(u1);
-            float phi = 2.0 * M_PI_F * u2;
-            dir.x = r * cos(phi);
-            dir.y = r * sin(phi);
-            dir.z = sqrt(max(0.0, 1.0 - dir.x * dir.x - dir.y * dir.y));
+           float3 dir;
+           float r = sqrt(r1);
+           float phi = M_2_PI_F * r2;
+           dir.x = r * cos(phi);
+           dir.y = r * sin(phi);
+           dir.z = sqrt(max(0.0, 1.0 - dir.x * dir.x - dir.y * dir.y));
 
-            return dir;
+           return dir;
         }
 
-        float3 UniformSampleSphere(float u1, float u2)
+        float3 UniformSampleHemisphere(float r1, float r2)
         {
-            float z = 1.0 - 2.0 * u1;
-            float r = sqrt(max(0.f, 1.0 - z * z));
-            float phi = 2.0 * M_PI_F * u2;
-            float x = r * cos(phi);
-            float y = r * sin(phi);
+           float r = sqrt(max(0.0, 1.0 - r1 * r1));
+           float phi = M_2_PI_F * r2;
 
-            return float3(x, y, z);
+           return float3(r * cos(phi), r * sin(phi), r1);
+        }
+
+        float3 UniformSampleSphere(float r1, float r2)
+        {
+           float z = 1.0 - 2.0 * r1;
+           float r = sqrt(max(0.0, 1.0 - z * z));
+           float phi = M_2_PI_F * r2;
+
+           return float3(r * cos(phi), r * sin(phi), z);
         }
 
         float powerHeuristic(float a, float b)
         {
-            float t = a * a;
-            return t / (b * b + t);
+           float t = a * a;
+           return t / (b * b + t);
         }
 
-        float DisneyPdf(Ray ray, State state, float3 bsdfDir)
+        float3 EvalDielectricReflection(State state, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
         {
-            float3 N = state.ffnormal;
-            float3 V = -ray.direction;
-            float3 L = bsdfDir;
-            float3 H;
+            if (dot(N, L) < 0.0) return float3(0.0);
 
-            if (state.rayType == REFR)
-                H = normalize(L + V * state.eta);
-            else
-                H = normalize(L + V);
+            float F = DielectricFresnel(dot(V, H), state.eta);
+            float D = GTR2(dot(N, H), state.mat.roughness);
+            
+            pdf = D * dot(N, H) * F / (4.0 * dot(V, H));
 
-            float NDotH = abs(dot(N, H));
-            float VDotH = abs(dot(V, H));
-            float LDotH = abs(dot(L, H));
-            float NDotL = abs(dot(N, L));
-            float NDotV = abs(dot(N, V));
-
-            float specularAlpha = max(0.001, state.mat.roughness);
-
-            // Handle transmission separately
-            if (state.rayType == REFR)
-            {
-                float pdfGTR2 = GTR2(NDotH, specularAlpha) * NDotH;
-                float F = DielectricFresnel(VDotH, state.eta);
-                float denomSqrt = LDotH + VDotH * state.eta;
-                return pdfGTR2 * (1.0 - F) * LDotH / (denomSqrt * denomSqrt) * state.mat.transmission;
-            }
-
-            // Reflection
-            float brdfPdf = 0.0;
-            float bsdfPdf = 0.0;
-
-            float clearcoatAlpha = mix(0.1, 0.001, state.mat.clearcoatGloss);
-
-            float diffuseRatio = 0.5 * (1.0 - state.mat.metallic);
-            float specularRatio = 1.0 - diffuseRatio;
-
-            float aspect = sqrt(1.0 - state.mat.anisotropic * 0.9);
-            float ax = max(0.001, state.mat.roughness / aspect);
-            float ay = max(0.001, state.mat.roughness * aspect);
-
-            // PDFs for brdf
-            float pdfGTR2_aniso = GTR2_aniso(NDotH, dot(H, state.tangent), dot(H, state.bitangent), ax, ay) * NDotH;
-            float pdfGTR1 = GTR1(NDotH, clearcoatAlpha) * NDotH;
-            float ratio = 1.0 / (1.0 + state.mat.clearcoat);
-            float pdfSpec = mix(pdfGTR1, pdfGTR2_aniso, ratio) / (4.0 * VDotH);
-            float pdfDiff = NDotL * (1.0 / M_PI_F);
-            brdfPdf = diffuseRatio * pdfDiff + specularRatio * pdfSpec;
-
-            // PDFs for bsdf
-            float pdfGTR2 = GTR2(NDotH, specularAlpha) * NDotH;
-            float F = DielectricFresnel(VDotH, state.eta);
-            bsdfPdf = pdfGTR2 * F / (4.0 * VDotH);
-
-            return mix(brdfPdf, bsdfPdf, state.mat.transmission);
+            float G = SmithG_GGX(abs(dot(N, L)), state.mat.roughness) * SmithG_GGX(dot(N, V), state.mat.roughness);
+            return state.mat.albedo * F * D * G;
         }
 
-        float3 DisneySample(Ray ray, State state, DataIn dataIn)
+        float3 EvalDielectricRefraction(State state, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
         {
-            float3 N = state.ffnormal;
-            float3 V = -ray.direction;
-            state.specularBounce = false;
-            state.rayType = REFL;
+            float F = DielectricFresnel(abs(dot(V, H)), state.eta);
+            float D = GTR2(dot(N, H), state.mat.roughness);
 
-            float3 dir;
+            float denomSqrt = dot(L, H) * state.eta + dot(V, H);
+            pdf = D * dot(N, H) * (1.0 - F) * abs(dot(L, H)) / (denomSqrt * denomSqrt);
+
+            float G = SmithG_GGX(abs(dot(N, L)), state.mat.roughness) * SmithG_GGX(dot(N, V), state.mat.roughness);
+            return state.mat.albedo * (1.0 - F) * D * G * abs(dot(V, H)) * abs(dot(L, H)) * 4.0 * state.eta * state.eta / (denomSqrt * denomSqrt);
+        }
+
+        float3 EvalSpecular(State state, float3 Cspec0, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
+        {
+            if (dot(N, L) < 0.0) return float3(0.0);
+
+            float D = GTR2_aniso(dot(N, H), dot(H, state.tangent), dot(H, state.bitangent), state.mat.ax, state.mat.ay);
+            pdf = D * dot(N, H) / (4.0 * dot(V, H));
+
+            float FH = SchlickFresnel(dot(L, H));
+            float3 F = mix(Cspec0, float3(1.0), FH);
+            float G = SmithG_GGX_aniso(dot(N, L), dot(L, state.tangent), dot(L, state.bitangent), state.mat.ax, state.mat.ay);
+            G *= SmithG_GGX_aniso(dot(N, V), dot(V, state.tangent), dot(V, state.bitangent), state.mat.ax, state.mat.ay);
+            return F * D * G;
+        }
+
+        float3 EvalClearcoat(State state, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
+        {
+            if (dot(N, L) < 0.0) return float3(0.0);
+
+            float D = GTR1(dot(N, H), state.mat.clearcoatRoughness);
+            pdf = D * dot(N, H) / (4.0 * dot(V, H));
+
+            float FH = SchlickFresnel(dot(L, H));
+            float F = mix(0.04, 1.0, FH);
+            float G = SmithG_GGX(dot(N, L), 0.25) * SmithG_GGX(dot(N, V), 0.25);
+            return float3(0.25 * state.mat.clearcoat * F * D * G);
+        }
+
+        float3 EvalDiffuse(State state, float3 Csheen, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
+        {
+            if (dot(N, L) < 0.0) return float3(0.0);
+
+            pdf = dot(N, L) * (1.0 / M_PI_F);
+
+            float FL = SchlickFresnel(dot(N, L));
+            float FV = SchlickFresnel(dot(N, V));
+            float FH = SchlickFresnel(dot(L, H));
+            float Fd90 = 0.5 + 2.0 * dot(L, H) * dot(L, H) * state.mat.roughness;
+            float Fd = mix(1.0, Fd90, FL) * mix(1.0, Fd90, FV);
+            float3 Fsheen = FH * state.mat.sheen * Csheen;
+            return ((1.0 / M_PI_F) * Fd * (1.0 - state.mat.subsurface) * state.mat.albedo + Fsheen) * (1.0 - state.mat.metallic);
+        }
+
+        float3 EvalSubsurface(State state, float3 V, float3 N, float3 L, thread float &pdf)
+        {
+            pdf = (1.0 / M_2_PI_F);
+
+            float FL = SchlickFresnel(abs(dot(N, L)));
+            float FV = SchlickFresnel(dot(N, V));
+            float Fd = (1.0f - 0.5f * FL) * (1.0f - 0.5f * FV);
+            return sqrt(state.mat.albedo) * state.mat.subsurface * (1.0 / M_PI_F) * Fd * (1.0 - state.mat.metallic) * (1.0 - state.mat.transmission);
+        }
+
+        float3 DisneySample(thread State &state, float3 V, float3 N, thread float3 &L, thread float &pdf, DataIn dataIn)
+        {
+            state.isSubsurface = false;
+            pdf = 0.0;
+            float3 f = float3(0.0);
 
             float r1 = rand(dataIn);
             float r2 = rand(dataIn);
 
+            float diffuseRatio = 0.5 * (1.0 - state.mat.metallic);
+            float transWeight = (1.0 - state.mat.metallic) * state.mat.transmission;
+
+            float3 Cdlin = state.mat.albedo;
+            float Cdlum = 0.3 * Cdlin.x + 0.6 * Cdlin.y + 0.1 * Cdlin.z; // luminance approx.
+
+            float3 Ctint = Cdlum > 0.0 ? Cdlin / Cdlum : float3(1.0f); // normalize lum. to isolate hue+sat
+            float3 Cspec0 = mix(state.mat.specular * 0.08 * mix(float3(1.0), Ctint, state.mat.specularTint), Cdlin, state.mat.metallic);
+            float3 Csheen = mix(float3(1.0), Ctint, state.mat.sheenTint);
+
             // BSDF
-            if (rand(dataIn) < state.mat.transmission)
+            if (rand(dataIn) < transWeight)
             {
-                float3 H = ImportanceSampleGGX(state.mat.roughness, r1, r2);
+                float3 H = ImportanceSampleGTR2(state.mat.roughness, r1, r2);
                 H = state.tangent * H.x + state.bitangent * H.y + N * H.z;
 
                 float3 R = reflect(-V, H);
-                float F = DielectricFresnel(dot(R, H), state.eta);
+                float F = DielectricFresnel(abs(dot(R, H)), state.eta);
 
                 // Reflection/Total internal reflection
                 if (rand(dataIn) < F)
-                    dir = normalize(R);
-                // Transmission
-                else
                 {
-                    dir = normalize(refract(-V, H, state.eta));
-                    state.specularBounce = true;
-                    state.rayType = REFR;
+                    L = normalize(R);
+                    f = EvalDielectricReflection(state, V, N, L, H, pdf);
                 }
-            }
-            // BRDF
-            else
-            {
-                float diffuseRatio = 0.5 * (1.0 - state.mat.metallic);
+                else // Transmission
+                {
+                    L = normalize(refract(-V, H, state.eta));
+                    f = EvalDielectricRefraction(state, V, N, L, H, pdf);
+                }
 
+                f *= transWeight;
+                pdf *= transWeight;
+            }
+            else // BRDF
+            {
                 if (rand(dataIn) < diffuseRatio)
                 {
-                    float3 H = CosineSampleHemisphere(r1, r2);
-                    H = state.tangent * H.x + state.bitangent * H.y + N * H.z;
-                    dir = H;
+                    // Diffuse transmission. A way to approximate subsurface scattering
+                    if (rand(dataIn) < state.mat.subsurface)
+                    {
+                        L = UniformSampleHemisphere(r1, r2);
+                        L = state.tangent * L.x + state.bitangent * L.y - N * L.z;
+
+                        f = EvalSubsurface(state, V, N, L, pdf);
+                        pdf *= state.mat.subsurface * diffuseRatio;
+
+                        state.isSubsurface = true; // Required when sampling lights from inside surface
+                    }
+                    else // Diffuse
+                    {
+                        L = CosineSampleHemisphere(r1, r2);
+                        L = state.tangent * L.x + state.bitangent * L.y + N * L.z;
+
+                        float3 H = normalize(L + V);
+
+                        f = EvalDiffuse(state, Csheen, V, N, L, H, pdf);
+                        pdf *= (1.0 - state.mat.subsurface) * diffuseRatio;
+                    }
                 }
-                else
+                else // Specular
                 {
-                    //TODO: Switch to sampling visible normals
-                    float3 H = ImportanceSampleGGX(state.mat.roughness, r1, r2);
-                    H = state.tangent * H.x + state.bitangent * H.y + N * H.z;
-                    dir = reflect(-V, H);
+                    float primarySpecRatio = 1.0 / (1.0 + state.mat.clearcoat);
+                    
+                    // Sample primary specular lobe
+                    if (rand(dataIn) < primarySpecRatio)
+                    {
+                        // TODO: Implement http://jcgt.org/published/0007/04/01/
+                        float3 H = ImportanceSampleGTR2_aniso(state.mat.ax, state.mat.ay, r1, r2);
+                        H = state.tangent * H.x + state.bitangent * H.y + N * H.z;
+                        L = normalize(reflect(-V, H));
+
+                        f = EvalSpecular(state, Cspec0, V, N, L, H, pdf);
+                        pdf *= primarySpecRatio * (1.0 - diffuseRatio);
+                    }
+                    else // Sample clearcoat lobe
+                    {
+                        float3 H = ImportanceSampleGTR1(state.mat.clearcoatRoughness, r1, r2);
+                        H = state.tangent * H.x + state.bitangent * H.y + N * H.z;
+                        L = normalize(reflect(-V, H));
+
+                        f = EvalClearcoat(state, V, N, L, H, pdf);
+                        pdf *= (1.0 - primarySpecRatio) * (1.0 - diffuseRatio);
+                    }
                 }
 
+                f *= (1.0 - transWeight);
+                pdf *= (1.0 - transWeight);
             }
-            return dir;
+            return f;
         }
 
-        float3 DisneyEval(Ray ray, State state, float3 bsdfDir)
+        float3 DisneyEval(State state, float3 V, float3 N, float3 L, thread float &pdf)
         {
-            float3 N = state.ffnormal;
-            float3 V = -ray.direction;
-            float3 L = bsdfDir;
             float3 H;
 
-            if (state.rayType == REFR)
-                H = normalize(L + V * state.eta);
+            if (dot(N, L) < 0.0)
+                H = normalize(L * (1.0 / state.eta) + V);
             else
                 H = normalize(L + V);
 
-            float NDotL = abs(dot(N, L));
-            float NDotV = abs(dot(N, V));
-            float NDotH = abs(dot(N, H));
-            float VDotH = abs(dot(V, H));
-            float LDotH = abs(dot(L, H));
+            if (dot(N, H) < 0.0)
+                H = -H;
+
+            float diffuseRatio = 0.5 * (1.0 - state.mat.metallic);
+            float primarySpecRatio = 1.0 / (1.0 + state.mat.clearcoat);
+            float transWeight = (1.0 - state.mat.metallic) * state.mat.transmission;
 
             float3 brdf = float3(0.0);
             float3 bsdf = float3(0.0);
+            float brdfPdf = 0.0;
+            float bsdfPdf = 0.0;
 
-            if (state.mat.transmission > 0.0)
+            // BSDF
+            if (transWeight > 0.0)
             {
-                float3 transmittance = float3(1.0);
-                float3 extinction = log(state.mat.extinction);
-
-                if (dot(state.normal, state.ffnormal) < 0.0)
-                    transmittance = exp(extinction * state.hitDist);
-
-                float a = max(0.001, state.mat.roughness);
-                float F = DielectricFresnel(VDotH, state.eta);
-                float D = GTR2(NDotH, a);
-                float G = SmithG_GGX(NDotL, a) * SmithG_GGX(NDotV, a);
-
-                // TODO: Include subsurface scattering
-                if (state.rayType == REFR)
+                // Transmission
+                if (dot(N, L) < 0.0)
                 {
-                    float denomSqrt = LDotH + VDotH * state.eta;
-                    bsdf = state.mat.albedo * transmittance * (1.0 - F) * D * G * VDotH * LDotH * 4.0 * state.eta * state.eta / (denomSqrt * denomSqrt);
+                    bsdf = EvalDielectricRefraction(state, V, N, L, H, bsdfPdf);
                 }
+                else // Reflection
+                {
+                    bsdf = EvalDielectricReflection(state, V, N, L, H, bsdfPdf);
+                }
+            }
+
+            float m_pdf;
+
+            if (transWeight < 1.0)
+            {
+                // Subsurface
+                if (dot(N, L) < 0.0)
+                {
+                    // TODO: Double check this. Fails furnace test when used with rough transmission
+                    if (state.mat.subsurface > 0.0)
+                    {
+                        brdf = EvalSubsurface(state, V, N, L, m_pdf);
+                        brdfPdf = m_pdf * state.mat.subsurface * diffuseRatio;
+                    }
+                }
+                // BRDF
                 else
                 {
-                    bsdf = state.mat.albedo * transmittance * F * D * G;
+                    float3 Cdlin = state.mat.albedo;
+                    float Cdlum = 0.3 * Cdlin.x + 0.6 * Cdlin.y + 0.1 * Cdlin.z; // luminance approx.
+
+                    float3 Ctint = Cdlum > 0.0 ? Cdlin / Cdlum : float3(1.0f); // normalize lum. to isolate hue+sat
+                    float3 Cspec0 = mix(state.mat.specular * 0.08 * mix(float3(1.0), Ctint, state.mat.specularTint), Cdlin, state.mat.metallic);
+                    float3 Csheen = mix(float3(1.0), Ctint, state.mat.sheenTint);
+
+                    // Diffuse
+                    brdf += EvalDiffuse(state, Csheen, V, N, L, H, m_pdf);
+                    brdfPdf += m_pdf * (1.0 - state.mat.subsurface) * diffuseRatio;
+                    
+                    // Specular
+                    brdf += EvalSpecular(state, Cspec0, V, N, L, H, m_pdf);
+                    brdfPdf += m_pdf * primarySpecRatio * (1.0 - diffuseRatio);
+                    
+                    // Clearcoat
+                    brdf += EvalClearcoat(state, V, N, L, H, m_pdf);
+                    brdfPdf += m_pdf * (1.0 - primarySpecRatio) * (1.0 - diffuseRatio);
                 }
             }
 
-            if (state.mat.transmission < 1.0 && dot(N, L) > 0.0 && dot(N, V) > 0.0)
-            {
-                float3 Cdlin = state.mat.albedo;
-                float Cdlum = 0.3 * Cdlin.x + 0.6 * Cdlin.y + 0.1 * Cdlin.z; // luminance approx.
-
-                float3 Ctint = Cdlum > 0.0 ? Cdlin / Cdlum : float3(1.0f); // normalize lum. to isolate hue+sat
-                float3 Cspec0 = mix(state.mat.specular * 0.08 * mix(float3(1.0), Ctint, state.mat.specularTint), Cdlin, state.mat.metallic);
-                float3 Csheen = mix(float3(1.0), Ctint, state.mat.sheenTint);
-
-                // Diffuse fresnel - go from 1 at normal incidence to .5 at grazing
-                // and mix in diffuse retro-reflection based on roughness
-                float FL = SchlickFresnel(NDotL);
-                float FV = SchlickFresnel(NDotV);
-                float Fd90 = 0.5 + 2.0 * LDotH * LDotH * state.mat.roughness;
-                float Fd = mix(1.0, Fd90, FL) * mix(1.0, Fd90, FV);
-
-                // Based on Hanrahan-Krueger brdf approximation of isotropic bssrdf
-                // 1.25 scale is used to (roughly) preserve albedo
-                // Fss90 used to "flatten" retroreflection based on roughness
-                float Fss90 = LDotH * LDotH * state.mat.roughness;
-                float Fss = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
-                float ss = 1.25 * (Fss * (1.0 / (NDotL + NDotV) - 0.5) + 0.5);
-
-                // TODO: Add anisotropic rotation
-                // specular
-                float aspect = sqrt(1.0 - state.mat.anisotropic * 0.9);
-                float ax = max(0.001, state.mat.roughness / aspect);
-                float ay = max(0.001, state.mat.roughness * aspect);
-                float Ds = GTR2_aniso(NDotH, dot(H, state.tangent), dot(H, state.bitangent), ax, ay);
-                float FH = SchlickFresnel(LDotH);
-                float3 Fs = mix(Cspec0, float3(1.0), FH);
-                float Gs = SmithG_GGX_aniso(NDotL, dot(L, state.tangent), dot(L, state.bitangent), ax, ay);
-                Gs *= SmithG_GGX_aniso(NDotV, dot(V, state.tangent), dot(V, state.bitangent), ax, ay);
-
-                // sheen
-                float3 Fsheen = FH * state.mat.sheen * Csheen;
-
-                // clearcoat (ior = 1.5 -> F0 = 0.04)
-                float Dr = GTR1(NDotH, mix(0.1, 0.001, state.mat.clearcoatGloss));
-                float Fr = mix(0.04, 1.0, FH);
-                float Gr = SmithG_GGX(NDotL, 0.25) * SmithG_GGX(NDotV, 0.25);
-
-                brdf = ((1.0 / M_PI_F) * mix(Fd, ss, state.mat.subsurface) * Cdlin + Fsheen) * (1.0 - state.mat.metallic)
-                        + Gs * Fs * Ds
-                        + 0.25 * state.mat.clearcoat * Gr * Fr * Dr;
-            }
-
-            return mix(brdf, bsdf, state.mat.transmission);
+            pdf = mix(brdfPdf, bsdfPdf, transWeight);
+            return mix(brdf, bsdf, transWeight);
         }
             
         """

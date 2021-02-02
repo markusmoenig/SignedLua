@@ -21,7 +21,7 @@ class GraphBaseCameraNode : GraphNode
         return [ToolViewButton(name: "Zoom"), ToolViewButton(name: "Move"), ToolViewButton(name: "Rotate")]
     }
     
-    var maxDepthBuffer  : Int = 0
+    var maxDepthBuffer  : Int = 1
     var lastChanged     : Double? = nil
      
     var zoomBuffer      : SIMD3<Float> = SIMD3<Float>(0,0,0)
@@ -93,6 +93,7 @@ class GraphBaseCameraNode : GraphNode
         toolContext.core.renderPipeline.restart()
     }
     
+    /*
     override func toolScrollWheel(_ delta: float3,_ toolContext: GraphToolContext)
     {
         toolContext.validate()
@@ -145,6 +146,7 @@ class GraphBaseCameraNode : GraphNode
         
         toolContext.core.renderPipeline.restart()
     }
+    */
 }
 
 /// CameraNode
@@ -266,7 +268,7 @@ final class GraphCameraNode : GraphBaseCameraNode
         float3 rayDir = normalize(d.x * right + d.y * up + forward);
 
         float3 focalPoint = focalDist * rayDir;
-        float cam_r1 = rand(dataIn) * TWO_PI;
+        float cam_r1 = rand(dataIn) * M_2_PI_F;
         float cam_r2 = rand(dataIn) * aperture;
         float3 randomAperturePos = (cos(cam_r1) * right + sin(cam_r1) * up) * sqrt(cam_r2);
         float3 finalRayDir = normalize(focalPoint - randomAperturePos);

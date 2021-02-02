@@ -92,6 +92,8 @@ class ScriptProcessor
                             let end = String.Index(utf16Offset: endIndex, in: line)
                             line.replaceSubrange(range.lowerBound..<end, with: "\(key): \(String(value.x))")
                         }
+                    } else {
+                        line.append("<\(key): \(String(value.x))>")
                     }
                 }
                 
@@ -133,6 +135,8 @@ class ScriptProcessor
                             let end = String.Index(utf16Offset: endIndex, in: line)
                             line.replaceSubrange(range.lowerBound..<end, with: "\(key): \(value.toString())")
                         }
+                    } else {
+                        line.append("<\(key): \(value.toString())>")
                     }
                 }
                 

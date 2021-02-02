@@ -102,6 +102,7 @@ struct ContentView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(width: 13.0, height: 13.0)
+                            .foregroundColor(Color.gray)
                     }
                     .padding(4)
                     .padding(.leading, 20)
@@ -116,6 +117,7 @@ struct ContentView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(width: 16.0, height: 16.0)
+                            .foregroundColor(Color.gray)
                         //Label("Node View", systemImage: "square.grid.2x2.fill")
 
                     }
@@ -131,6 +133,7 @@ struct ContentView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(width: 16.0, height: 16.0)
+                            .foregroundColor(Color.gray)
                     })
                     .buttonStyle(PlainButtonStyle())
                     .padding(.trailing, 20)

@@ -84,6 +84,51 @@ class GraphTransformationNode : GraphNode
         context.rotation -= rotation.toSIMD()
         context.scale /= scale.toSIMD()
     }
+    
+    override func getToolViewButtons() -> [ToolViewButton]
+    {
+        return [ToolViewButton(name: "Move"), ToolViewButton(name: "Rotate"), ToolViewButton(name: "Scale")]
+    }
+    
+    var maxDepthBuffer  : Int = 1
+    override func toolViewButtonAction(_ button: ToolViewButton, state: ToolViewButton.State, delta: float2, toolContext: GraphToolContext)
+    {
+        if state == .Down || delta == float2(0,0) {
+            toolContext.validate()
+            maxDepthBuffer = toolContext.core.renderPipeline.maxDepth
+            toolContext.core.renderPipeline.maxDepth = 1
+        } else
+        if state == .Move {
+            if button.name == "Move" {
+                var p = position.toSIMD()
+                
+                p.x += delta.x * 0.1
+                
+                position.fromSIMD(p)
+            } else
+            if button.name == "Rotate" {
+                var p = rotation.toSIMD()
+                
+                p.x += delta.x
+                
+                rotation.fromSIMD(p)
+            } else
+            if button.name == "Scale" {
+                var p = scale.toSIMD()
+                
+                p += delta.x * 0.1
+                
+                scale.fromSIMD(p)
+            }
+            toolContext.core.renderPipeline.restart()
+        } else
+        if state == .Up {
+            toolContext.core.scriptProcessor.replaceFloat3InLine(["Position": position, "Rotation": rotation])
+            toolContext.core.scriptProcessor.replaceFloat1InLine(["Scale": scale])
+            toolContext.core.renderPipeline.maxDepth = maxDepthBuffer
+            toolContext.core.renderPipeline.restart()
+        }
+    }
 }
 
 /// SDFObject

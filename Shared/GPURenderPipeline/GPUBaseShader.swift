@@ -903,6 +903,7 @@ class GPUBaseShader
 
         #define REFL 0
         #define REFR 1
+        #define SUBS 2
 
         typedef struct
         {
@@ -920,12 +921,15 @@ class GPUBaseShader
             float sheen;
             float sheenTint;
             float clearcoat;
-            float clearcoatGloss;
+            float clearcoatRoughness;
 
             float transmission;
 
             float ior;
             float3 extinction;
+
+            float ax;
+            float ay;
         } Material;
 
         struct State
@@ -942,7 +946,7 @@ class GPUBaseShader
 
             bool isEmitter;
             bool specularBounce;
-            int rayType;
+            bool isSubsurface;
 
             float2 texCoord;
             Material mat;
@@ -956,8 +960,9 @@ class GPUBaseShader
 
         struct BsdfSampleRec
         {
-            float3 bsdfDir;
-            float  pdf;
+            float3 L;
+            float3 f;
+            float pdf;
         };
 
         float mod(float x, float y) {
@@ -976,8 +981,6 @@ class GPUBaseShader
             return x - y * floor(x / y);
         }
 
-        #define PI        3.14159265358979323
-        #define TWO_PI    6.28318530717958648
         #define EPS       0.01
 
         bool isEqual(float a, float b, float epsilon = 0.00001)
@@ -992,12 +995,12 @@ class GPUBaseShader
         
         float degrees(float radians)
         {
-            return radians * 180.0 / PI;
+            return radians * 180.0 / M_PI_F;
         }
         
         float radians(float degrees)
         {
-            return degrees * PI / 180.0;
+            return degrees * M_PI_F / 180.0;
         }
         
         float4 toGamma(float4 linearColor) {
@@ -1034,6 +1037,11 @@ class GPUBaseShader
         {
             dataIn.seed -= dataIn.randomVector.xy;
             return fract(sin(dot(dataIn.seed, float2(12.9898, 78.233))) * 43758.5453);
+        }
+
+        float3 FaceForward(float3 a, float3 b)
+        {
+            return dot(a, b) < 0.0 ? -b : b;
         }
 
         """

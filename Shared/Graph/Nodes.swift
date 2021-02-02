@@ -62,7 +62,7 @@ final class GraphVariableAssignmentNode : GraphNode
     override func generateMetalCode(context: GraphContext) -> [String: String]
     {
         var codeMap : [String:String] = ["code":""]
-        let materialNames : [String] = ["albedo", "specular","emission","anisotropic","metallic","roughness","subsurface","specularTint","sheen","sheenTint","clearcoat","clearcoatGloss","transmission","ior","extinction"]
+        let materialNames : [String] = ["albedo", "specular","emission","anisotropic","metallic","roughness","subsurface","specularTint","sheen","sheenTint","clearcoat","clearcoatRoughness","transmission","ior","extinction"]
                         
         func assignmentCode() -> String {
             if assignmentType == .Copy { return "=" }
