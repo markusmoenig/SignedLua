@@ -139,6 +139,9 @@ final class GraphSDFObject : GraphTransformationNode
     
     var materialName  : String? = nil
 
+    var steps         : Float1 = Float1(70)
+    var stepSize      : Float1 = Float1(1)
+
     init(_ options: [String:Any] = [:])
     {
         super.init(.Utility, .SDF, options)
@@ -158,6 +161,12 @@ final class GraphSDFObject : GraphTransformationNode
         }
         if let value = extractFloat3Value(options, container: context, error: &error, name: "maxbox", isOptional: true) {
             maxBox = value
+        }
+        if let value = extractFloat1Value(options, container: context, error: &error, name: "steps", isOptional: true) {
+            steps = value
+        }
+        if let value = extractFloat1Value(options, container: context, error: &error, name: "stepsize", isOptional: true) {
+            stepSize = value
         }
     }
     
@@ -217,7 +226,9 @@ final class GraphSDFObject : GraphTransformationNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption(Text1("Object"), "Name", "The name of the object.")
+            GraphOption(Text1("Object"), "Name", "The name of the object."),
+            GraphOption(Float1(70), "Steps", "The amount of ray-marching steps for this object."),
+            GraphOption(Float1(1), "StepSize", "The ray-marching step size. Valid values are between 0..1. Lower values increase quality but need more steps.")
         ]
         return options + GraphTransformationNode.getTransformationOptions()
     }

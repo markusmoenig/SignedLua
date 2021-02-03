@@ -9,11 +9,11 @@ import MetalKit
 
 final class GPUSDFShader : GPUBaseShader
 {
-    let sdfObject   : GraphNode
+    let sdfObject   : GraphSDFObject
     
     init(pipeline: GPURenderPipeline, object: GraphNode)
     {
-        sdfObject = object
+        sdfObject = object as! GraphSDFObject
         super.init(pipeline: pipeline)
         
         createFragmentSource()
@@ -71,7 +71,7 @@ final class GPUSDFShader : GPUBaseShader
             float t = 0.120;
             float maxDist = depth.x;
 
-            for(int i = 0; i < 120; i++)
+            for(int i = 0; i < \(Int(sdfObject.steps.toSIMD())); i++)
             {
                 float3 p = rayOrigin + rayDir * t;
                 float4 d = map(p, dataIn);
@@ -85,7 +85,7 @@ final class GPUSDFShader : GPUBaseShader
                     break;
                 }
                 
-                t += d.x;
+                t += d.x * \(sdfObject.stepSize.toSIMD());
 
                 if (t >= maxDist)
                     break;
