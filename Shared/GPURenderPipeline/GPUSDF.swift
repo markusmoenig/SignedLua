@@ -69,8 +69,9 @@ final class GPUSDFShader : GPUBaseShader
             if (depth.x < 0.0) { return float4(0); }
 
             float t = 0.120;
+            float maxDist = depth.x;
 
-            for(int i = 0; i < 70; i++)
+            for(int i = 0; i < 120; i++)
             {
                 float3 p = rayOrigin + rayDir * t;
                 float4 d = map(p, dataIn);
@@ -82,12 +83,12 @@ final class GPUSDFShader : GPUBaseShader
                         normal.xyz = calcNormal(p, dataIn);
                     }
                     break;
-                }/* else
-                if t > maxDist {
-                    break
-                }*/
+                }
                 
                 t += d.x;
+
+                if (t >= maxDist)
+                    break;
             }
 
             depthTexture.write(depth, textureUV);

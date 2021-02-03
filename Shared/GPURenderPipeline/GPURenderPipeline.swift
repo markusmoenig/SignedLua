@@ -75,12 +75,15 @@ class GPURenderPipeline
     var resChanged      = true
     
     var core            : Core
+    
+    var semaphore       : DispatchSemaphore
 
     init(_ view: MTKView,_ core: Core)
     {
         self.view = view
         self.core = core
         device = view.device!
+        semaphore = DispatchSemaphore(value: 1)
     }
     
     func update() -> Bool
@@ -167,35 +170,36 @@ class GPURenderPipeline
     
     func render()
     {
-        if status != .Idle && isStopped == false {
-            return
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
+
+            if self.status != .Idle && self.isStopped == false {
+                return
+            }
+
+            self.status = .Rendering
+            self.stopRendering = false
+
+            if let rSize = self.core.customRenderSize {
+                self.renderSize.x = rSize.x
+                self.renderSize.y = rSize.y
+            } else {
+                self.renderSize.x = Int(self.view.frame.width)
+                self.renderSize.y = Int(self.view.frame.height)
+            }
+            
+            self.checkTextures()
+            
+            if self.update() == false {
+                return
+            }
+                    
+            self.startRendering()
+            self.clearTexture(self.finalTexture!, float4(0, 0, 0, 0))
+
+            self.depth = 0
+            self.samples = 0
+            self.computePass()
         }
-
-        status = .Rendering
-        stopRendering = false
-
-        if let rSize = core.customRenderSize {
-            renderSize.x = rSize.x
-            renderSize.y = rSize.y
-        } else {
-            renderSize.x = Int(view.frame.width)
-            renderSize.y = Int(view.frame.height)
-        }
-        
-        checkTextures()
-        
-        if update() == false {
-            return
-        }
-                
-        startRendering()
-        clearTexture(finalTexture!, float4(0, 0, 0, 0))
-
-        startRendering()
-
-        depth = 0
-        samples = 0
-        computePass()
     }
     
     func stop()
@@ -289,6 +293,12 @@ class GPURenderPipeline
         for node in context.sdfNodes {
             if let object = node.gpuShader as? GPUSDFShader {
                 object.render(camOriginTexture: camOriginTexture!, camDirTexture: camDirTexture!, depthTexture: depthTexture!, normalTexture: normalTexture!)
+                commandBuffer.addCompletedHandler { cb in
+                    self.semaphore.signal()
+                }
+                commitAndStopRendering()
+                semaphore.wait()
+                startRendering()
             }
         }
         
@@ -307,6 +317,12 @@ class GPURenderPipeline
         for node in context.sdfNodes {
             if let object = node.gpuShader as? GPUSDFShader {
                 object.render(camOriginTexture: camOriginTexture2!, camDirTexture: paramsTexture5!, depthTexture: utilityTexture1!, normalTexture: utilityTexture2!)
+                commandBuffer.addCompletedHandler { cb in
+                    self.semaphore.signal()
+                }
+                commitAndStopRendering()
+                semaphore.wait()
+                startRendering()
             }
         }
         
