@@ -62,46 +62,6 @@ final class GraphSDFSphereNode : GraphTransformationNode
         return codeMap
     }
     
-    @inlinable public override func sampleLight(context: GraphContext) -> GraphLightInfo?
-    {
-        let lightInfo = GraphLightInfo(.Spherical)
-        
-        let r = radius.toSIMD()
-        
-        if context.renderQuality == .Normal {
-            let r2D = context.rand2()
-            lightInfo.surfacePos = position.toSIMD() + UniformSampleSphere(r2D.x, r2D.y) * r
-            lightInfo.normal = normalize(lightInfo.surfacePos - position.toSIMD())
-        }
-
-        if let material = materialNode {
-            material.execute(context: context)
-        }
-        if let emission = context.variables["emission"]! as? Float3 {
-            lightInfo.emission = emission.toSIMD()// * float(numOfLights)
-        }
-        
-        lightInfo.area = 4.0 * Float.pi * r * r
-        
-        lightInfo.position = position.toSIMD()
-        lightInfo.radius = radius.toSIMD()
-        
-        return lightInfo
-    }
-    
-    //-----------------------------------------------------------------------
-    func UniformSampleSphere(_ u1: Float,_ u2: Float) -> float3
-    //-----------------------------------------------------------------------
-    {
-        let z = 1.0 - 2.0 * u1
-        let r = sqrt(max(0.0, 1.0 - z * z))
-        let phi = 2.0 * Float.pi * u2
-        let x = r * cos(phi)
-        let y = r * sin(phi)
-
-        return float3(x, y, z)
-    }
-    
     override func getHelp() -> String
     {
         return "Creates a sphere of a given radius."
@@ -119,7 +79,8 @@ final class GraphSDFSphereNode : GraphTransformationNode
 /// SDFBoxNode
 final class GraphSDFBoxNode : GraphTransformationNode
 {
-    var size    : Float3 = Float3(1)
+    var size        : Float3 = Float3(1)
+    var rounding    : Float1 = Float1(0)
 
     init(_ options: [String:Any] = [:])
     {
@@ -132,6 +93,9 @@ final class GraphSDFBoxNode : GraphTransformationNode
         if let value = extractFloat3Value(options, container: context, error: &error, name: "size", isOptional: true) {
             size = value
         }
+        if let value = extractFloat1Value(options, container: context, error: &error, name: "rounding", isOptional: true) {
+            rounding = value
+        }
     }
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
@@ -140,6 +104,9 @@ final class GraphSDFBoxNode : GraphTransformationNode
         
         if let index = size.dataIndex, index < context.data.count {
             context.data[index] = size.toSIMD4()
+        }
+        if let index = rounding.dataIndex, index < context.data.count {
+            context.data[index] = rounding.toSIMD4()
         }
         
         checkOut(context: context)
@@ -152,6 +119,7 @@ final class GraphSDFBoxNode : GraphTransformationNode
         var codeMap : [String:String] = [:]
         
         context.addDataVariable(size)
+        context.addDataVariable(rounding)
 
         codeMap["map"] =
         """
@@ -159,8 +127,9 @@ final class GraphSDFBoxNode : GraphTransformationNode
             {
                 \(generateMetalTransformCode(context: context))
 
-                float3 q = abs(transformedPosition) - dataIn.data[\(size.dataIndex!)].xyz;
-                newDistance = float4(length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0), 0, -1, \(context.getMaterialIndex()));
+                float rounding = dataIn.data[\(rounding.dataIndex!)].x;
+                float3 q = abs(transformedPosition) - dataIn.data[\(size.dataIndex!)].xyz + rounding;
+                newDistance = float4(length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - rounding, 0, -1, \(context.getMaterialIndex()));
             }
 
         """
@@ -168,6 +137,7 @@ final class GraphSDFBoxNode : GraphTransformationNode
         return codeMap
     }
     
+    /*
     @inlinable public override func sampleLight(context: GraphContext) -> GraphLightInfo?
     {
         let lightInfo = GraphLightInfo(.Spherical)
@@ -190,7 +160,7 @@ final class GraphSDFBoxNode : GraphTransformationNode
         lightInfo.radius = size.x / 2
         
         return lightInfo
-    }
+    }*/
     
     override func getHelp() -> String
     {
@@ -200,7 +170,8 @@ final class GraphSDFBoxNode : GraphTransformationNode
     override func getOptions() -> [GraphOption]
     {
         let options = [
-            GraphOption(Float3(1,1,1), "Size", "The size of the cube.")
+            GraphOption(Float3(1,1,1), "Size", "Size of the box."),
+            GraphOption(Float1(0), "Rounding", "Rounding of the box.")
         ]
         return options + GraphTransformationNode.getTransformationOptions()
     }

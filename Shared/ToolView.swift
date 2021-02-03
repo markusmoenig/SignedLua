@@ -33,7 +33,7 @@ struct ToolsView: View {
                 }
                 .frame(minWidth: 0, maxWidth: 70, maxHeight: 20)
                 .font(.system(size: 16))
-                .background(currentButton != nil && currentButton!.id == result.id ? Color.accentColor : Color.gray)
+                .background(currentButton != nil && currentButton!.id == result.id ? Color.accentColor.opacity(1) : Color.accentColor.opacity(0.5))
                 .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)

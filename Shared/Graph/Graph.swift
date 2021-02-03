@@ -128,22 +128,6 @@ class GraphNode : Equatable, Identifiable {
         return .Success
     }
     
-    /// Implemented by renderers to init / reset the material variables
-    func sampleLight(context: GraphContext) -> GraphLightInfo?
-    {
-        return nil
-    }
-    
-    /// Implemented by renderers to initialize the variables the renderer needs
-    func setupMaterialVariables(context: GraphContext)
-    {
-    }
-    
-    /// Implemented by renderers to reset the material variables
-    func resetMaterialVariables(context: GraphContext)
-    {
-    }
-    
     /// Returns the metal code for this node
     func generateMetalCode(context: GraphContext) -> [String: String]
     {
@@ -655,9 +639,9 @@ final class GraphContext    : VariableContainer
         failedAt = []
 
         bump.x = 0
-        if let renderNode = renderNode {
-            renderNode.resetMaterialVariables(context: self)
-        }
+        //if let renderNode = renderNode {
+        //    renderNode.resetMaterialVariables(context: self)
+        //}
         material.execute(context: self)
         
         if bump.x != 0.0 {
