@@ -96,10 +96,21 @@ final class GraphBoolSmoothMergeNode : GraphNode
                 float k = dataIn.data[\(smoothing.dataIndex!)].x;
                 float h = clamp( 0.5 + 0.5 * (newDistance.x - distance.x) / k, 0.0, 1.0);
                 float dist = mix(newDistance.x, distance.x, h) - k * h * (1.0 - h);
+                float4 shape = distance;
 
                 if (newDistance.x < distance.x) {
-
                     distance = newDistance;
+                    float blend = fract(distance.z);
+                    //if (blend >= 0.999) {
+                        distance.z = shape.w;
+                        distance.z += clamp( 1.0 - h, 0.0, 0.999);
+                    //}
+                } else {
+                    float blend = fract(distance.z);
+                    //if (blend <= 0.999) {
+                        distance.z = newDistance.w;
+                        distance.z += clamp( h, 0.0, 0.999);
+                    //}
                 }
                 distance.x = dist;
             }

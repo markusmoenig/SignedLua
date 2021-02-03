@@ -87,6 +87,33 @@ final class GPUMaterialsShader : GPUBaseShader
         let fragmentCode =
         """
 
+        Material mixMaterials(Material materialA, Material materialB, float k)
+        {
+            Material material;
+
+            material.albedo = mix(materialA.albedo, materialB.albedo, k);
+            material.specular = mix(materialA.specular, materialB.specular, k);
+
+            material.emission = mix(materialA.emission, materialB.emission, k);
+            material.anisotropic = mix(materialA.anisotropic, materialB.anisotropic, k);
+
+            material.metallic = mix(materialA.metallic, materialB.metallic, k);
+            material.roughness = mix(materialA.roughness, materialB.roughness, k);
+            material.subsurface = mix(materialA.subsurface, materialB.subsurface, k);
+            material.specularTint = mix(materialA.specularTint, materialB.specularTint, k);
+
+            material.sheen = mix(materialA.sheen, materialB.sheen, k);
+            material.sheenTint = mix(materialA.sheenTint, materialB.sheenTint, k);
+            material.clearcoat = mix(materialA.clearcoat, materialB.clearcoat, k);
+            material.clearcoatRoughness = mix(materialA.clearcoatRoughness, materialB.clearcoatRoughness, k);
+
+            material.transmission = mix(materialA.transmission, materialB.transmission, k);
+            material.ior = mix(materialA.ior, materialB.ior, k);
+            material.extinction = mix(materialA.extinction, materialB.extinction, k);
+
+            return material;
+        }
+
         \(materialsCode)
         \(getDisney())
 
@@ -131,6 +158,22 @@ final class GPUMaterialsShader : GPUBaseShader
                 float3 surfacePosition = rayOrigin + rayDir * depth.x;
 
                 \(findMaterialsCode)
+
+                // Smooth blending of materials ?
+                if (depth.z > 0) {
+                    Material materialA = material;
+                
+                    float4 depthBuffer = depth;
+                    depth.w = floor(depth.z);
+                    float blendFactor = fract(depth.z);
+
+                    \(findMaterialsCode)
+                
+                    Material materialB = material;
+
+                    material = mixMaterials(materialB, materialA, smoothstep(0.0, 1.0, blendFactor));
+                    depth = depthBuffer;
+                }
 
                 material.roughness = max(material.roughness, 0.0001);
 
