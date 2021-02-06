@@ -18,8 +18,6 @@ final class GPUMaterialsShader : GPUBaseShader
     
     func createFragmentSource()
     {
-        //let codeMap = sdfObject.generateMetalCode(context: pipeline.context)
-                
         var findMaterialsCode = ""
         var materialsCode = ""
         for (index, node) in context.materialNodes.enumerated() {
@@ -57,8 +55,9 @@ final class GPUMaterialsShader : GPUBaseShader
 
             """
             
-            let codeMap = node.generateMetalCode(context: pipeline.context)
-            materialsCode += "    " + codeMap["code"]!
+            context.objectVariables = [:]
+            let code = node.generateMetalCode(context: pipeline.context)
+            materialsCode += "    " + code
             materialsCode +=
             """
                 return material;
@@ -77,11 +76,9 @@ final class GPUMaterialsShader : GPUBaseShader
         var backgroundCode = ""
         
         if let skyNode = context.skyNode {
-        
-            var codeMap : [String:String] = [:]
-            
-            codeMap = skyNode.generateMetalCode(context: context)
-            backgroundCode = codeMap["sky"]!
+                    
+            let code = skyNode.generateMetalCode(context: context)
+            backgroundCode = code
         }
                 
         let fragmentCode =

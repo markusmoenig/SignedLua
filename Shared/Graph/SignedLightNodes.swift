@@ -78,10 +78,10 @@ final class GraphSunLightNode : GraphLightNode {
     }
     
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        let codeMap : [String:String] = [:]
-                
+        let code = ""
+        
         context.addDataVariable(directionIn)
         context.addDataVariable(emissionIn)
              
@@ -106,7 +106,7 @@ final class GraphSunLightNode : GraphLightNode {
         context.lightsData.append(data1)
         context.lightsData.append(data2)
         
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String
@@ -118,74 +118,6 @@ final class GraphSunLightNode : GraphLightNode {
     {
         let options = [
             GraphOption(Float3("direction"), "Direction", "The direction of the sun light.")
-        ]
-        return options + GraphTransformationNode.getTransformationOptions()
-    }
-}
-
-final class GraphSphereLightNode : GraphLightNode {
-
-    var position    : Float3 = Float3(0,0,0)
-    var emissionIn  : Float3 = Float3(0,0,0)
-    var radius      : Float1 = Float1(1)
-
-    init(_ options: [String:Any] = [:])
-    {
-        super.init(.Light, .None, options)
-        name = "lightSphere"
-        leaves = []
-        lightType = .Spherical
-    }
-    
-    override func verifyOptions(context: GraphContext, error: inout CompileError) {
-        if let value = extractFloat3Value(options, container: context, error: &error, name: "position", isOptional: false) {
-            position = value
-        }
-        if let value = extractFloat3Value(options, container: context, error: &error, name: "emission", isOptional: true) {
-            emissionIn = value
-        }
-        if let value = extractFloat1Value(options, container: context, error: &error, name: "radius", isOptional: true) {
-            radius = value
-        }
-    }
-    
-    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
-    {
-        let r1 : Float = context.rand()
-        let r2 : Float = context.rand()
-
-        let r = radius.toSIMD()
-        surfacePos = position.toSIMD() + UniformSampleSphere(r1, r2) * r
-        normal = simd_normalize(surfacePos - position.toSIMD())
-        emission = emissionIn.toSIMD()// * float(numOfLights)
-        
-        area = 4.0 * Float.pi * r * r
-        
-        return .Success
-    }
-    
-    //-----------------------------------------------------------------------
-    func UniformSampleSphere(_ u1: Float,_ u2: Float) -> float3
-    //-----------------------------------------------------------------------
-    {
-        let z = 1.0 - 2.0 * u1
-        let r = sqrt(max(0.0, 1.0 - z * z))
-        let phi = 2.0 * Float.pi * u2
-        let x = r * cos(phi)
-        let y = r * sin(phi)
-
-        return float3(x, y, z)
-    }
-    
-    override func getHelp() -> String
-    {
-        return "Defines an SDF Object. SDF objects contain lists of SDF primitives and booleans and can also contain child objects."
-    }
-    
-    override func getOptions() -> [GraphOption]
-    {
-        let options = [
-            GraphOption(Text1("Object"), "Name", "The name of the object.")
         ]
         return options + GraphTransformationNode.getTransformationOptions()
     }

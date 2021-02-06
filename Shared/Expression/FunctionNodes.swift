@@ -331,6 +331,54 @@ class StepFuncNode : ExpressionNode {
     }
 }
 
+class SinFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("sin")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        guard let value = argumentsIn[0].execute() else {
+            return
+        }
+        
+        let v = value.createType()
+        
+        for i in 0..<v.components {
+            v[i] = sin(value[i])
+        }
+        context.values[destIndex] = v
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "sin(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns the sin of the given value."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float1(0), "Value", "", optionals: [Float2(), Float3(), Float4()]),
+        ]
+        return options
+    }
+}
+
 class MinFuncNode : ExpressionNode {
     
     init()

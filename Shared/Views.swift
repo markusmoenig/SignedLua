@@ -582,22 +582,6 @@ struct LeftPanelView: View {
                                 } else { Color.clear }
                             })
                         }
-                        if let renderNode = context.renderNode {
-                            Button(action: {
-                                core.graphBuilder.gotoNode(renderNode)
-                            })
-                            {
-                                Label(renderNode.givenName, systemImage: "atom")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .listRowBackground(Group {
-                                if selection == renderNode.id {
-                                    Color.gray.mask(RoundedRectangle(cornerRadius: 4))
-                                } else { Color.clear }
-                            })
-                        }
                         DisclosureGroup("Materials", isExpanded: $showMaterials) {
                             ForEach(context.materialNodes, id: \.id) { node in
                                 Button(action: {

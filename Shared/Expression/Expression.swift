@@ -224,6 +224,7 @@ class ExpressionContext
     var functions           : [ExpressionNodeItem] =
     [
         ExpressionNodeItem("abs", {() -> ExpressionNode in return AbsFuncNode() }),
+        ExpressionNodeItem("sin", {() -> ExpressionNode in return SinFuncNode() }),
         ExpressionNodeItem("min", {() -> ExpressionNode in return MinFuncNode() }),
         ExpressionNodeItem("mod", {() -> ExpressionNode in return ModFuncNode() }),
         ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() }),
@@ -233,9 +234,7 @@ class ExpressionContext
         ExpressionNodeItem("step", {() -> ExpressionNode in return StepFuncNode() }),
         ExpressionNodeItem("normalize", {() -> ExpressionNode in return NormalizeFuncNode() }),
         ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
-        ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),
-        ExpressionNodeItem("castray", {() -> ExpressionNode in return CastRayFuncNode() }),
-        ExpressionNodeItem("castshadowray", {() -> ExpressionNode in return CastShadowRayFuncNode() })
+        ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() })
      ]
         
     init()

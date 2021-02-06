@@ -27,11 +27,9 @@ final class GraphAnalyticalGroundPlaneNode : GraphTransformationNode
     }
     
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
-    {
-        var codeMap : [String:String] = [:]
-        
-        codeMap["analytical"] =
+    override func generateMetalCode(context: GraphContext) -> String
+    {        
+        let code =
         """
 
         float groundT = (0.0 - rayOrigin.y) / rayDir.y;
@@ -42,7 +40,7 @@ final class GraphAnalyticalGroundPlaneNode : GraphTransformationNode
 
         """
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String
@@ -100,10 +98,8 @@ final class GraphAnalyticalDomeNode : GraphTransformationNode
     }
     
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = [:]
-        
         context.addDataVariable(position)
         context.addDataVariable(radius)
         
@@ -115,7 +111,7 @@ final class GraphAnalyticalDomeNode : GraphTransformationNode
             }
         }
         
-        codeMap["analytical"] =
+        let code =
         """
         
         float3 center = dataIn.data[\(position.dataIndex!)].xyz;
@@ -141,7 +137,7 @@ final class GraphAnalyticalDomeNode : GraphTransformationNode
 
         """
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String

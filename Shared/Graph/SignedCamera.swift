@@ -213,10 +213,8 @@ final class GraphCameraNode : GraphBaseCameraNode
     }
     
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = [:]
-        
         context.addDataVariable(origin)
         context.addDataVariable(lookAt)
         context.addDataVariable(fov)
@@ -277,10 +275,8 @@ final class GraphCameraNode : GraphBaseCameraNode
         outDirection = finalRayDir;
 
         """
-        
-        codeMap["camera"] = cameraCode
-        
-        return codeMap
+                
+        return cameraCode
     }
     
     /// toolTouchDown
@@ -370,10 +366,8 @@ final class GraphIsometricCameraNode : GraphBaseCameraNode
     }
     
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = [:]
-        
         context.addDataVariable(origin)
         context.addDataVariable(lookAt)
         context.addDataVariable(fov)
@@ -410,10 +404,8 @@ final class GraphIsometricCameraNode : GraphBaseCameraNode
         outDirection = normalize(dir);
 
         """
-        
-        codeMap["camera"] = cameraCode
-        
-        return codeMap
+                
+        return cameraCode
     }
     
     override func getHelp() -> String

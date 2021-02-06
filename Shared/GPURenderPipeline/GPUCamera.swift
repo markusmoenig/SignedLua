@@ -20,7 +20,7 @@ final class GPUCameraShader : GPUBaseShader
     
     func createFragmentSource(_ camera: GraphNode)
     {
-        let codeMap = camera.generateMetalCode(context: pipeline.context)
+        let code = camera.generateMetalCode(context: pipeline.context)
         
         let fragmentCode =
         """
@@ -38,7 +38,7 @@ final class GPUCameraShader : GPUBaseShader
 
             float3 outOrigin = float3();
             float3 outDirection = float3();
-            \(codeMap["camera"]!)
+            \(code)
 
             camOriginTexture.write(float4(outOrigin, 1), textureUV);
 

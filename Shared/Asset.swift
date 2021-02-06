@@ -8,6 +8,27 @@
 import MetalKit
 import CloudKit
 
+/// Base64 extension for string
+
+extension String {
+
+func fromBase64() -> String? {
+    guard let data = Data(base64Encoded: self, options: Data.Base64DecodingOptions(rawValue: 0)) else {
+        return nil
+    }
+
+    return String(data: data as Data, encoding: String.Encoding.utf8)
+}
+
+func toBase64() -> String? {
+    guard let data = self.data(using: String.Encoding.utf8) else {
+        return nil
+    }
+
+    return data.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
+    }
+}
+
 class AssetFolder       : Codable
 {
     var assets          : [Asset] = []
@@ -203,35 +224,6 @@ class AssetFolder       : Codable
     {
         if asset.type == .Source {
             core.graphBuilder.compile(asset)
-            /*
-
-            game.graphBuilder.compile(asset: asset, cb: { (shader, errors) in
-                if shader == nil {
-                    if Thread.isMainThread {
-                        self.game.scriptEditor?.setErrors(errors)
-                    } else {
-                        DispatchQueue.main.sync {
-                            self.game.scriptEditor?.setErrors(errors)
-                        }
-                    }
-                } else {
-                    asset.shader = nil
-                    asset.shader = shader
-                    
-                    if Thread.isMainThread {
-                        self.game.createPreview(asset)
-                        //self.game.scriptEditor?.clearAnnotations()
-                        self.game.scriptEditor?.setErrors(errors)
-                    } else {
-                        DispatchQueue.main.sync {
-                            self.game.createPreview(asset)
-                            //self.game.scriptEditor?.clearAnnotations()
-                            self.game.scriptEditor?.setErrors(errors)
-                        }
-                    }
-                }
-            })
-            */
         }
     }
     
@@ -307,6 +299,9 @@ class Asset         : Codable, Equatable
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         value = try container.decode(String.self, forKey: .value)
+        if let base64 = value.fromBase64() {
+            value = base64
+        }
         data = try container.decode([Data].self, forKey: .data)
     }
     
@@ -316,7 +311,7 @@ class Asset         : Codable, Equatable
         try container.encode(type, forKey: .type)
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
-        try container.encode(value, forKey: .value)
+        try container.encode(value.toBase64(), forKey: .value)
         try container.encode(data, forKey: .data)
     }
     

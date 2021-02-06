@@ -21,7 +21,7 @@ final class GPUAnalyticalShader : GPUBaseShader
     
     func createFragmentSource()
     {
-        let codeMap = analyticalObject.generateMetalCode(context: pipeline.context)
+        let code = analyticalObject.generateMetalCode(context: pipeline.context)
         
         let fragmentCode =
         """
@@ -50,7 +50,7 @@ final class GPUAnalyticalShader : GPUBaseShader
             float4 analyticalMap = float4(10000, 0, -1, -1);
             float3 analyticalNormal = float3();
 
-            \(codeMap["analytical"] != nil ? codeMap["analytical"]! : "")
+            \(code)
 
             if (analyticalMap.x < depth.x) {
                 depth = analyticalMap;

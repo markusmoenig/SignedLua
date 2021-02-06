@@ -29,37 +29,27 @@ final class GraphSDFSphereNode : GraphTransformationNode
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         checkIn(context: context)
-        
-        if let index = radius.dataIndex, index < context.data.count {
-            context.data[index] = radius.toSIMD4()
-        }
-        
         checkOut(context: context)
         return .Success
     }
     
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = [:]
-        
-        context.addDataVariable(radius)
-                
-        codeMap["map"] =
+        let code =
         """
 
             {
                 \(generateMetalTransformCode(context: context))
-
-                newDistance = float4(length(transformedPosition) - dataIn.data[\(radius.dataIndex!)].x, 0, -1, \(context.getMaterialIndex()));
+                
+                newDistance = float4(length(transformedPosition) - float(\(radius.toString())), 0, -1, \(context.getMaterialIndex()));
             }
 
         """
         
         context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius.toSIMD())
-
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String
@@ -101,40 +91,27 @@ final class GraphSDFBoxNode : GraphTransformationNode
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         checkIn(context: context)
-        
-        if let index = size.dataIndex, index < context.data.count {
-            context.data[index] = size.toSIMD4()
-        }
-        if let index = rounding.dataIndex, index < context.data.count {
-            context.data[index] = rounding.toSIMD4()
-        }
-        
         checkOut(context: context)
         return .Success
     }
     
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = [:]
-        
-        context.addDataVariable(size)
-        context.addDataVariable(rounding)
-
-        codeMap["map"] =
+        let code =
         """
 
             {
                 \(generateMetalTransformCode(context: context))
 
-                float rounding = dataIn.data[\(rounding.dataIndex!)].x;
-                float3 q = abs(transformedPosition) - dataIn.data[\(size.dataIndex!)].xyz + rounding;
+                float rounding = float(\(rounding.toString()));
+                float3 q = abs(transformedPosition) - float3(\(size.toString())) + rounding;
                 newDistance = float4(length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - rounding, 0, -1, \(context.getMaterialIndex()));
             }
 
         """
                 
-        return codeMap
+        return code
     }
     
     /*

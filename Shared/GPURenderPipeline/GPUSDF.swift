@@ -21,7 +21,7 @@ final class GPUSDFShader : GPUBaseShader
     
     func createFragmentSource()
     {
-        let codeMap = sdfObject.generateMetalCode(context: pipeline.context)
+        let code = sdfObject.generateMetalCode(context: pipeline.context)
                 
         let fragmentCode =
         """
@@ -31,7 +31,11 @@ final class GPUSDFShader : GPUBaseShader
             float4 distance = float4(100000, -1, -1, -1), newDistance = float4(100000, -1, -1, -1);
             float3 objectPosition = float3(0);
 
-            \(codeMap["map"]!)
+            float3 rayPosition = position;
+            float2 uv = dataIn.uv;
+            float2 viewSize = dataIn.viewSize;
+
+            \(code)
 
             return distance;
         }

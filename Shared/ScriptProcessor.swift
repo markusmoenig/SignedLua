@@ -205,24 +205,16 @@ class ScriptProcessor
         } else {
             leftOfComment = str
         }
-        
-        // Get the current indention level
-        //let level = (str.prefix(while: {$0 == " "}).count) / 4
 
         leftOfComment = leftOfComment.trimmingCharacters(in: .whitespaces)
-        
-        var rightValueArray : [String.SubSequence]
-            
-        if leftOfComment.firstIndex(of: "<") != nil {
-            rightValueArray = leftOfComment.split(separator: "<")
-        } else {
-            rightValueArray = leftOfComment.split(separator: " ")
-        }
-        
+                
+        var error = CompileError()
+        var rightValueArray = splitIntoCommandPlusOptions(leftOfComment, &error)
+
         if rightValueArray.count > 0 {
 
-        // Fill in options
-        rightValueArray.removeFirst()
+            // Fill in options
+            rightValueArray.removeFirst()
             if rightValueArray.count == 1 && rightValueArray[0] == ">" {
                 // Empty Arguments
             } else {
@@ -245,9 +237,11 @@ class ScriptProcessor
                 }
             }
         }
+        
+        //var error = CompileError()
+        //let o = splitIntoCommandPlusOptions(leftOfComment, &error)
                 
         let nodeOptions = node.getOptions()
-        var error = CompileError()
 
         if let asset = core.assetFolder.getAsset("main", .Source) {
             for (key, _) in options {
@@ -287,7 +281,7 @@ class ScriptProcessor
                 }
             }
         }
-                
+                        
         return graphOptions
     }
     
@@ -341,5 +335,57 @@ class ScriptProcessor
         
         asset.value = output
         core.scriptEditor.setAssetValue(asset, value: asset.value)
+    }
+    
+    /// Splits the option string into a possible command and its <> enclosed options
+    func splitIntoCommandPlusOptions(_ string: String,_ error: inout CompileError) -> [String]
+    {
+        var rc : [String] = []
+        
+        if let first = string.firstIndex(of: "<")?.utf16Offset(in: string) {
+
+            let index = string.index(string.startIndex, offsetBy: first)
+            let possibleCommand = string[..<index]//string.prefix(index)
+            rc.append(String(possibleCommand))
+            
+            //let rest = string[index...]
+            
+            var offset      : Int = first
+            var hierarchy   : Int = -1
+            var option      = ""
+            
+            while offset < string.count {
+                if string[offset] == "<" {
+                    if hierarchy >= 0 {
+                        option.append(string[offset])
+                    }
+                    hierarchy += 1
+                } else
+                if string[offset] == ">" {
+                    if hierarchy == 0 {
+                        rc.append(option)
+                        option = ""
+                        hierarchy = -1
+                    } else
+                    if hierarchy < 0 {
+                        error.error = "Syntax Error"
+                    } else {
+                        hierarchy -= 1
+                        if hierarchy >= 0 {
+                            option.append(string[offset])
+                        }
+                    }
+                } else {
+                    option.append(string[offset])
+                }
+                
+                offset += 1
+            }
+            if option.isEmpty == false && error.error == nil {
+                error.error = "Syntax Error: \(option)"
+            }
+        }
+                       
+        return rc
     }
 }

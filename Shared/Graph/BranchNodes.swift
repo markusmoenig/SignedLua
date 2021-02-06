@@ -186,17 +186,15 @@ final class GraphSDFObject : GraphTransformationNode
         return .Success
     }
     
-    override func generateMetalCode(context: GraphContext) -> [String: String]
-    {
-        var codeMap : [String:String] = [:]
-        
+    override func generateMetalCode(context: GraphContext) -> String
+    {        
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
         }
         
         context.addDataVariable(position)
 
-        codeMap["map"] =
+        var code =
         """
         
         objectPosition = dataIn.data[\(position.dataIndex!)].xyz;
@@ -204,18 +202,10 @@ final class GraphSDFObject : GraphTransformationNode
         """
         
         for leave in leaves {
-            let map = leave.generateMetalCode(context: context)
-            
-            for (key, code) in map {
-                if codeMap[key] != nil {
-                    codeMap[key]! += code
-                } else {
-                    codeMap[key] = code
-                }
-            }
+            code += leave.generateMetalCode(context: context)
         }
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String
@@ -278,27 +268,19 @@ final class GraphAnalyticalObject : GraphTransformationNode
         return .Success
     }
     
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = ["analytical":""]
+        var code = ""
         
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
         }
         
         for leave in leaves {
-            let map = leave.generateMetalCode(context: context)
-            
-            for (key, code) in map {
-                if codeMap[key] != nil {
-                    codeMap[key]! += code
-                } else {
-                    codeMap[key] = code
-                }
-            }
+            code += leave.generateMetalCode(context: context)
         }
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String
@@ -356,23 +338,15 @@ final class GraphMaterialNode : GraphNode
         return .Success
     }
     
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = ["map":""]
+        var code = ""
         
         for leave in leaves {
-            let map = leave.generateMetalCode(context: context)
-            
-            for (key, code) in map {
-                if codeMap[key] != nil {
-                    codeMap[key]! += code
-                } else {
-                    codeMap[key] = code
-                }
-            }
+            code += leave.generateMetalCode(context: context)
         }
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String

@@ -29,10 +29,6 @@ final class GraphSDFCircleNode2D : GraphTransformationNode2D
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
         context.position2D += position.toSIMD()
-        
-        context.distance2D[context.distance2DIndex] = simd_length(context.adjustedUV - context.position2D) - radius.toSIMD()
-        context.hitMaterial[context.distance2DIndex] = context.activeMaterial
-        context.toggleDistance2DIndex()
 
         context.position2D -= position.toSIMD()
         return .Success

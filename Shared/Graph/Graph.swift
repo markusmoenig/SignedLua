@@ -78,10 +78,6 @@ class GraphNode : Equatable, Identifiable {
         case None, Analytical, SDF, SDF2D, Material
     }
     
-    enum NodeRenderType {
-        case Normal, PathTracer
-    }
-    
     var id                  = UUID()
     var index               : Int? = nil
     
@@ -129,11 +125,11 @@ class GraphNode : Equatable, Identifiable {
     }
     
     /// Returns the metal code for this node
-    func generateMetalCode(context: GraphContext) -> [String: String]
+    func generateMetalCode(context: GraphContext) -> String
     {
-        let codeMap : [String:String] = [:]
+        let code = ""
         
-        return codeMap
+        return code
     }
     
     /// Get help text
@@ -207,7 +203,6 @@ final class GraphContext    : VariableContainer
     var cameraNode          : GraphNode? = nil
     var sunNode             : GraphNode? = nil
     var skyNode             : GraphNode? = nil
-    var renderNode          : GraphNode? = nil
 
     // Nodes
     var nodes               : [GraphNode] = []
@@ -224,6 +219,8 @@ final class GraphContext    : VariableContainer
     var failedAt            : [Int32] = []
     
     var lines               : [Int32: GraphNode] = [:]
+    
+    var objectVariables     : [String: BaseVariable] = [:]
 
     // Special Global Variables
     
@@ -269,53 +266,16 @@ final class GraphContext    : VariableContainer
     var position            = float3(0,0,0)                     // Current object position
     var rotation            = float3(0,0,0)                     // Current object rotation
     var scale               = Float(1)                          // Current object scale
-    
-    var position2D          = float2(0,0)                       // Current object position for 2D objects
-
-    var camOffset           = float2(0,0)                       // Camera AA uv offset
-
-    var analyticalDist      : Float = .greatestFiniteMagnitude
-    var analyticalNormal    = float3(0,0,0)                     // Analytical Normal
-    var analyticalMaterial  : GraphNode? = nil
-    
-    var activeMaterial      : GraphNode? = nil                  // The currently active Material in the hierarchy
-
-    var hitMaterial         : [GraphNode?] = []                 // The material which was hit for the given index
-    var blendMaterial       : GraphNode? = nil                  // The material to blend with (optional), set by the booleans
-    var materialBlend       : Float? = nil                      // The blend factor
-
-    var reflectionDepth     : Int = 0
-    var insideShadowRay     : Bool = false
-    
-    var hasHitSomething     : Bool = false
         
-    // SDF Raymarching
-    
-    var rayDist             : [Float] = []
-    var rayIndex            : Int = 0
-    
-    // Distance 2D
-    
-    var distance2D          : [Float] = []                      // The distance to a 2D SDF
-    var distance2DIndex     : Int = 0
+    var position2D          = float2(0,0)                       // Current 2D object position
+
+    var activeMaterial      : GraphNode? = nil                  // The currently active Material in the hierarchy
     
     var data                : [float4] = []
     var lightsData          : [float4] = []
 
-    var sampler             = BestCandidateSampler1D()
-    var sampler2D           = BestCandidateSampler2D()
-
     override init()
     {
-        distance2D.append(.greatestFiniteMagnitude)
-        distance2D.append(.greatestFiniteMagnitude)
-        
-        rayDist.append(.greatestFiniteMagnitude)
-        rayDist.append(.greatestFiniteMagnitude)
-        
-        hitMaterial.append(nil)
-        hitMaterial.append(nil)
-                
         super.init()
     }
     
@@ -323,10 +283,6 @@ final class GraphContext    : VariableContainer
     {
         data = [float4(0,0,0,0)]
         lightsData = [float4(0,0,0,0)]
-        
-        //if let renderNode = renderNode {
-        //    renderNode.setupMaterialVariables(context: self)
-        //}
     }
     
     func clear()
@@ -344,13 +300,6 @@ final class GraphContext    : VariableContainer
         cameraNode = nil
         skyNode = nil
         sunNode = nil
-                
-        analyticalMaterial = nil
-        hitMaterial[0] = nil
-        hitMaterial[1] = nil
-        
-        blendMaterial = nil
-        materialBlend = 0
         
         data = []
     }
@@ -495,16 +444,6 @@ final class GraphContext    : VariableContainer
         }
     }
     
-    @inlinable public func toggleRayIndex()
-    {
-        rayIndex = rayIndex == 0 ? 1 : 0
-    }
-    
-    @inlinable public func toggleDistance2DIndex()
-    {
-        distance2DIndex = distance2DIndex == 0 ? 1 : 0
-    }
-    
     /// Adds a variable to the context
     func addVariable(_ variable: BaseVariable)
     {
@@ -577,71 +516,12 @@ final class GraphContext    : VariableContainer
         return .Success
     }
     
-    @discardableResult @inlinable public func executeAnalytical() -> GraphNode.Result
-    {
-        analyticalDist = .greatestFiniteMagnitude
-        analyticalMaterial = nil
-        failedAt = []
-        for node in analyticalNodes {
-            node.execute(context: self)
-        }
-        return .Success
-    }
-    
-    @discardableResult @inlinable public func executeSDF(_ rayPosition: float3 = float3(0,0,0)) -> GraphNode.Result
-    {
-        self.rayPosition.fromSIMD(rayPosition)
-        rayDist[0] = .greatestFiniteMagnitude
-        rayDist[1] = .greatestFiniteMagnitude
-        hitMaterial[0] = nil
-        hitMaterial[1] = nil
-        rayIndex = 0
-        position = float3(0,0,0)
-        failedAt = []
-        
-        for node in sdfNodes {
-            node.execute(context: self)
-        }
-        toggleRayIndex()
-        
-        return .Success
-    }
-    
-    @discardableResult @inlinable public func executeSDF2D() -> GraphNode.Result
-    {
-        distance2D[0] = .greatestFiniteMagnitude
-        distance2D[1] = .greatestFiniteMagnitude
-        hitMaterial[0] = nil
-        hitMaterial[1] = nil
-        distance2DIndex = 0
-        failedAt = []
-        
-        for node in sdf2DNodes {
-            node.execute(context: self)
-        }
-        toggleDistance2DIndex()
-        
-        return .Success
-    }
-    
-    @discardableResult @inlinable public func executeRender() -> GraphNode.Result
-    {
-        failedAt = []
-        if let renderNode = renderNode {
-            renderNode.execute(context: self)
-        }
-        return .Success
-    }
-    
     /// Execute the material and optional bump mapping
     @discardableResult @inlinable public func executeMaterial(_ material: GraphNode) -> GraphNode.Result
     {
         failedAt = []
 
         bump.x = 0
-        //if let renderNode = renderNode {
-        //    renderNode.resetMaterialVariables(context: self)
-        //}
         material.execute(context: self)
         
         if bump.x != 0.0 {
@@ -674,213 +554,6 @@ final class GraphContext    : VariableContainer
         }
         
         return .Success
-    }
-    
-    ///
-    func hit(shadowRay: Bool = false) -> (Float, GraphNode?, float3)
-    {
-        var rc : (Float, GraphNode?, float3) = (Float.greatestFiniteMagnitude, nil, float3(0,0,0))
-        
-        let camOrigin = rayOrigin.toSIMD()
-        let camDir = rayDirection.toSIMD()
-        
-        // Analytical Objects
-        executeAnalytical()
-        
-        let maxDist : Float = analyticalDist//12.0//simd_min(12.0, analyticalDist)
-        var material : GraphNode? = nil
-        
-        // Raymarch
-        var hit = false
-        var t : Float = 0.001;
-
-        for _ in 0..<70
-        {
-            executeSDF(camOrigin + t * camDir)
-
-            if abs(rayDist[rayIndex]) < (0.0001*t) {
-                hit = true
-                material = hitMaterial[rayIndex]
-                break
-            } else
-            if t > maxDist {
-                break
-            }
-            
-            t += rayDist[rayIndex]
-        }
-        
-        if hit && t < analyticalDist {
-            rc.0 = t
-            let p = camOrigin + t * camDir
-            if shadowRay == false {
-                rc.2 = calcNormal(position: p)
-            }
-
-            if let material = material {
-                rc.1 = material
-            }
-        } else
-        if analyticalDist != .greatestFiniteMagnitude {
-            
-            rc.0 = analyticalDist
-            rc.2 = analyticalNormal
-
-            if let material = analyticalMaterial {
-                rc.1 = material
-            }
-        }
-        return rc
-    }
-
-    /// Cast a ray
-    func castRay(_ rO: float3,_ rD: float3) -> float3
-    {
-        let hasHitSomethingBuffer = hasHitSomething
-        
-        let backup = createVariableBackup()
-        
-        rayOrigin.fromSIMD(rO + rD * 0.0001)
-        rayDirection.fromSIMD(rD)
-        
-        let camOrigin = rO + rD * 0.0001
-        let rayDir = rD
-        
-        let hit = self.hit()
-        if hit.0 == Float.greatestFiniteMagnitude {
-            if let skyNode = skyNode {
-                skyNode.execute(context: self)
-            }
-        } else {
-            hasHitSomething = true
-
-            normal.fromSIMD(hit.2)
-            
-            let p = camOrigin + hit.0 * rayDir
-            rayPosition.fromSIMD(p)
-            
-            if let material = hit.1 {
-                executeMaterial(material)
-            }
-            executeRender()
-        }
-        
-        let outColor = self.outColor!.toSIMD()
-        var result = float3(0,0,0)
-        
-        result.x = simd_clamp(outColor.x, 0.0, 1.0)
-        result.y = simd_clamp(outColor.y, 0.0, 1.0)
-        result.z = simd_clamp(outColor.z, 0.0, 1.0)
-
-        hasHitSomething = hasHitSomethingBuffer
-        restoreVariableBackup(backup)
-        
-        reflectionDepth += 1
-
-        return result
-    }
-    
-    /// Cast an SDF specific soft shadow ray
-    func shadowRay(_ rO: float3,_ rD: float3) -> Float
-    {
-        if hasHitSomething == true {
-                                
-            let backup = createVariableBackup()
-            
-            rayOrigin.fromSIMD(rO + rD)
-            rayDirection.fromSIMD(rD)
-            
-            let camOrigin = rO + rD
-            let rayDir = rD
-
-            // Analytical Objects
-            executeAnalytical()
-            let h = analyticalDist
-            
-            let tmin : Float = 0.02
-            let tmax : Float = min(2.5, analyticalDist)
-            var t : Float = tmin
-            let k : Float = 4
-            var ph : Float = 1e20
-
-            var result : Float = 1
-                                    
-            if( h < 0.001 ) {
-                result = 0
-            }
-
-            while t < tmax && result > 0.0 {
-                executeSDF(camOrigin + t * rayDir)
-                let h = rayDist[rayIndex]
-                if( h < 0.001 ) {
-                    result = 0
-                    break
-                }
-                let y : Float = h*h/(2.0*ph)
-                let d : Float = sqrt(h*h-y*y)
-                result = min( result, k*d/max(0.0,t-y) )
-                ph = h
-                t += h
-            }
-                                    
-            restoreVariableBackup(backup)
-            
-            return result
-        }
-        return 1
-    }
-    
-    /// Calculates the normal for the given hit position
-    func calcNormal(position: float3) -> float3
-    {
-        /*
-        vec3 epsilon = vec3(0.001, 0., 0.);
-        
-        vec3 n = vec3(map(p + epsilon.xyy).x - map(p - epsilon.xyy).x,
-                      map(p + epsilon.yxy).x - map(p - epsilon.yxy).x,
-                      map(p + epsilon.yyx).x - map(p - epsilon.yyx).x);
-        
-        return normalize(n);*/
-
-        let e = float3(0.001, 0.0, 0.0)
-
-        var eOff : float3 = position + float3(e.x, e.y, e.y)
-        executeSDF(eOff)
-        var n1 = rayDist[rayIndex]
-        
-        eOff = position - float3(e.x, e.y, e.y)
-        executeSDF(eOff)
-        n1 = n1 - rayDist[rayIndex]
-        
-        eOff = position + float3(e.y, e.x, e.y)
-        executeSDF(eOff)
-        var n2 = rayDist[rayIndex]
-        
-        eOff = position - float3(e.y, e.x, e.y)
-        executeSDF(eOff)
-        n2 = n2 - rayDist[rayIndex]
-        
-        eOff = position + float3(e.y, e.y, e.x)
-        executeSDF(eOff)
-        var n3 = rayDist[rayIndex]
-        
-        eOff = position - float3(e.y, e.y, e.x)
-        executeSDF(eOff)
-        n3 = n3 - rayDist[rayIndex]
-        
-        return simd_normalize(float3(n1, n2, n3))
-    }
-    
-    func rand() -> Float
-    {
-        //return Float.random(in: 0...1)
-        return sampler.getSample(uv.x * uv.y)
-    }
-    
-    func rand2() -> float2
-    {
-        let seed = Float.random(in: 0...1)
-        return sampler2D.getSample(float2(seed, seed))
     }
     
     func debug()

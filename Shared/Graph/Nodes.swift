@@ -59,9 +59,9 @@ final class GraphVariableAssignmentNode : GraphNode
         return .Success
     }
     
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = ["code":""]
+        var code = ""
         let materialNames : [String] = ["albedo", "specular","emission","anisotropic","metallic","roughness","subsurface","specularTint","sheen","sheenTint","clearcoat","clearcoatRoughness","transmission","ior","extinction"]
                         
         func assignmentCode() -> String {
@@ -76,21 +76,22 @@ final class GraphVariableAssignmentNode : GraphNode
         if let expression = expression {
             if let v = expression.execute() {
                 if materialNames.contains(givenName) {
-                    codeMap["code"] = "material.\(givenName) \(assignmentCode()) \(expression.toMetal())"
-                    if givenName == "albedo" && codeMap[givenName] == nil {
+                    code = "material.\(givenName) \(assignmentCode()) \(expression.toMetal())"
+                    //if givenName == "albedo" && codeMap[givenName] == nil {
                         //codeMap["code"]! += "material.albedo = pow(material.albedo, 2.2);\n"
-                    }
+                    //}
                 } else {
-                    if codeMap[givenName] == nil {
-                        codeMap["code"] = "\(v.getSIMDName()) \(givenName) = \(expression.toMetal())"
+                    if context.objectVariables[givenName] == nil {
+                        code = "\(v.getSIMDName()) \(givenName) = \(expression.toMetal())"
+                        context.objectVariables[givenName] = v
                     } else {
-                        codeMap["code"] = "\(givenName) \(assignmentCode()) \(expression.toMetal())"
+                        code = "\(givenName) \(assignmentCode()) \(expression.toMetal())"
                     }
                 }
             }
         }
 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String

@@ -46,16 +46,14 @@ final class GraphDefaultSkyNode : GraphNode
     }
     
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
-    {
-        var codeMap : [String:String] = [:]
-        
+    override func generateMetalCode(context: GraphContext) -> String
+    {        
         context.addDataVariable(sunDirection)
         context.addDataVariable(sunColor)
         context.addDataVariable(worldHorizonColor)
         //context.addDataVariable(sunStrength)
 
-        codeMap["sky"] =
+        let code =
         """
         
         // rayDir
@@ -83,7 +81,7 @@ final class GraphDefaultSkyNode : GraphNode
 
         """
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String

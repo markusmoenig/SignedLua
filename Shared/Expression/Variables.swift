@@ -1139,7 +1139,7 @@ final class Float1 : BaseVariable
                 }
             } else
             if let c = context {
-                stringX = c.toMetal()
+                stringX = c.toMetal(embedded: true)
             }
             
             return "\(stringX)"

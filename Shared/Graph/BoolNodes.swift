@@ -20,34 +20,17 @@ final class GraphBoolMergeNode : GraphNode
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
     }
     
-    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
-    {
-        if context.rayDist[0] < context.rayDist[1] {
-            context.rayDist[context.rayIndex] = context.rayDist[0]
-            context.hitMaterial[context.rayIndex] = context.hitMaterial[0]
-        } else {
-            context.rayDist[context.rayIndex] = context.rayDist[1]
-            context.hitMaterial[context.rayIndex] = context.hitMaterial[1]
-        }
-        //context.rayDist[context.rayIndex] = min(context.rayDist[0], context.rayDist[1])
-        context.toggleRayIndex()
-
-        return .Success
-    }
-    
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = [:]
-        
-        codeMap["map"] =
+        let code =
         """
 
             if (newDistance.x < distance.x) distance = newDistance;
 
         """
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String
@@ -83,13 +66,11 @@ final class GraphBoolSmoothMergeNode : GraphNode
     }
     
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = [:]
-        
         context.addDataVariable(smoothing)
 
-        codeMap["map"] =
+        let code =
         """
 
             {
@@ -117,7 +98,7 @@ final class GraphBoolSmoothMergeNode : GraphNode
 
         """
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String
@@ -138,27 +119,10 @@ final class GraphBoolSubtractNode : GraphNode
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
     }
     
-    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
-    {
-        if context.rayDist[0] < context.rayDist[1] {
-            context.rayDist[context.rayIndex] = context.rayDist[0]
-            context.hitMaterial[context.rayIndex] = context.hitMaterial[0]
-        } else {
-            context.rayDist[context.rayIndex] = context.rayDist[1]
-            context.hitMaterial[context.rayIndex] = context.hitMaterial[1]
-        }
-        //context.rayDist[context.rayIndex] = min(context.rayDist[0], context.rayDist[1])
-        context.toggleRayIndex()
-
-        return .Success
-    }
-    
     /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> [String: String]
+    override func generateMetalCode(context: GraphContext) -> String
     {
-        var codeMap : [String:String] = [:]
-        
-        codeMap["map"] =
+        let code =
         """
 
             if (-newDistance.x > distance.x) {
@@ -168,7 +132,7 @@ final class GraphBoolSubtractNode : GraphNode
 
         """
                 
-        return codeMap
+        return code
     }
     
     override func getHelp() -> String

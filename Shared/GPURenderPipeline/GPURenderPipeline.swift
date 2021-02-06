@@ -142,16 +142,19 @@ class GPURenderPipeline
         }
         
         if let sunNode = context.sunNode {
+            context.objectVariables = [:]
             _ = sunNode.generateMetalCode(context: context)
         }
         
         materialsShader = GPUMaterialsShader(pipeline: self)
         
         for node in context.analyticalNodes {
+            context.objectVariables = [:]
             node.gpuShader = GPUAnalyticalShader(pipeline: self, object: node)
         }
         
         for node in context.sdfNodes {
+            context.objectVariables = [:]
             node.gpuShader = GPUSDFShader(pipeline: self, object: node)
         }
         

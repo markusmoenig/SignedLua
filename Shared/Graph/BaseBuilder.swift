@@ -280,12 +280,6 @@ class GraphBuilder
                                         newBranch.lineNr = error.line!
                                         graph.lines[error.line!] = newBranch
                                         processed = true
-                                    } else
-                                    if newBranch.role == .Render {
-                                        asset.graph!.renderNode = newBranch
-                                        
-                                        newBranch.lineNr = error.line!
-                                        graph.lines[error.line!] = newBranch
                                     }
                                     
                                     if processed == false {
