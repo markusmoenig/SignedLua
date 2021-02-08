@@ -20,8 +20,7 @@ class ScriptProcessor
      Replaces the given option in the current line / node after it has been changed in the UI.
      - Parameters option: The option to replace.
      */
-    
-    func replaceOptionInLine(_ option: GraphOption) {
+    func replaceOptionInLine(_ option: GraphOption, useRaw: Bool = true) {
         
         guard let asset = core.assetFolder.getAsset("main", .Source) else {
             return
@@ -40,22 +39,30 @@ class ScriptProcessor
                     var endIndex : Int = startIndex
                     var foundEndIndex = false
                     
+                    var opener : Int = 0
                     while endIndex < line.count {
                         
+                        if line[endIndex] == "<" {
+                            opener += 1
+                        } else
                         if line[endIndex] == ">" {
-                            foundEndIndex = true
-                            break
+                            if opener == 0 {
+                                foundEndIndex = true
+                                break
+                            } else {
+                                opener -= 1
+                            }
                         }
                         endIndex += 1
                     }
                     
                     if foundEndIndex {
                         let end = String.Index(utf16Offset: endIndex, in: line)                        
-                        line.replaceSubrange(range.lowerBound..<end, with: "\(option.name): \(option.variable.toString())")
+                        line.replaceSubrange(range.lowerBound..<end, with: "\(option.name): \(useRaw ? option.raw : option.variable.toString())")
                     }
                     core.scriptEditor.setAssetLine(asset, line: line)
                 } else {
-                    line.append("<\(option.name): \(option.variable.toString())>")
+                    line.append("<\(option.name): \(useRaw ? option.raw : option.variable.toString())>")
                     core.scriptEditor.setAssetLine(asset, line: line)
                 }
             }
@@ -177,6 +184,7 @@ class ScriptProcessor
                 let opts = node.getOptions()
                 for o in opts {
                     if containsOption(o.name) == false {
+                        o.raw = o.variable.toString()
                         options.append(o)
                     }
                 }
@@ -243,10 +251,13 @@ class ScriptProcessor
                 
         let nodeOptions = node.getOptions()
 
-        if let asset = core.assetFolder.getAsset("main", .Source) {
-            for (key, _) in options {
+        //if let asset = core.assetFolder.getAsset("main", .Source) {
+            for (key, value) in options {
                 for nO in nodeOptions {
                     if nO.name.lowercased() == key {
+                        nO.raw = value
+                        graphOptions.append(nO)
+                        /*
                         if nO.variable.getType() == .Int {
                             if let i1 = extractInt1Value(ops, container: asset.graph!, error: &error, name: key) {
                                 nO.variable = i1
@@ -276,11 +287,11 @@ class ScriptProcessor
                                 nO.variable = f4
                                 graphOptions.append(nO)
                             }
-                        }
+                        }*/
                     }
                 }
             }
-        }
+        //}
                         
         return graphOptions
     }

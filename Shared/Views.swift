@@ -51,7 +51,8 @@ struct LibraryItem: Identifiable {
     var md          : String = ""
 }
 
-struct IntView: View {
+/// We cannot display parameters the traditional way as they can be variables or even expressions. Display as text.
+struct ParamAsTextView: View {
     
     let core                                : Core
     let option                              : GraphOption
@@ -63,9 +64,7 @@ struct IntView: View {
         self.core = core
         self.option = option
         
-        if let i1 = option.variable as? Int1 {
-            _valueText = State(initialValue: String(i1.x))
-        }
+        _valueText = State(initialValue: option.raw)
     }
     
     var body: some View {
@@ -73,229 +72,10 @@ struct IntView: View {
         VStack(alignment: .leading) {
             Text(option.name)
             TextField(option.name, text: $valueText, onEditingChanged: { (changed) in
-                if let intValue = Int(valueText) {
-                    option.variable = Int1(intValue)
-                }
+                option.raw = valueText
             },
             onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
-        }
-    }
-}
-
-struct FloatView: View {
-    
-    let core                                : Core
-    let option                              : GraphOption
-    
-    @State var valueText                    : String = ""
-
-    init(_ core: Core, _ option: GraphOption)
-    {
-        self.core = core
-        self.option = option
-        
-        if let f1 = option.variable as? Float1 {
-            _valueText = State(initialValue: String(format: "%.03g", f1.x))
-        }
-    }
-    
-    var body: some View {
-        
-        VStack(alignment: .leading) {
-            Text(option.name)
-            TextField(option.name, text: $valueText, onEditingChanged: { (changed) in
-                if let floatValue = Float(valueText) {
-                    option.variable = Float1(floatValue)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
-        }
-    }
-}
-
-struct Float2View: View {
-    
-    let core                                : Core
-    let option                              : GraphOption
-    
-    @State var valueText1                   : String = ""
-    @State var valueText2                   : String = ""
-
-    init(_ core: Core, _ option: GraphOption)
-    {
-        self.core = core
-        self.option = option
-        
-        if let f2 = option.variable as? Float2 {
-            let simd = f2.toSIMD()
-            _valueText1 = State(initialValue: String(format: "%.03g", simd.x))
-            _valueText2 = State(initialValue: String(format: "%.03g", simd.y))
-        }
-    }
-    
-    var body: some View {
-        
-        VStack(alignment: .leading) {
-            Text(option.name)
-            TextField(option.name, text: $valueText1, onEditingChanged: { (changed) in
-                if Float(valueText1) != nil {
-                    option.variable = Float3(Float(valueText1)!, Float(valueText2)!)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
-            TextField(option.name, text: $valueText2, onEditingChanged: { (changed) in
-                if Float(valueText2) != nil {
-                    option.variable = Float3(Float(valueText1)!, Float(valueText2)!)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
-        }
-    }
-}
-
-struct Float3View: View {
-    
-    let core                                : Core
-    let option                              : GraphOption
-    
-    @State var valueText1                   : String = ""
-    @State var valueText2                   : String = ""
-    @State var valueText3                   : String = ""
-    
-    @State private var selectedColor        = Color.white
-    var isColor                             = false
-
-    init(_ core: Core, _ option: GraphOption)
-    {
-        self.core = core
-        self.option = option
-        
-        if let f3 = option.variable as? Float3 {
-            let simd = f3.toSIMD()
-            _valueText1 = State(initialValue: String(format: "%.03g", simd.x))
-            _valueText2 = State(initialValue: String(format: "%.03g", simd.y))
-            _valueText3 = State(initialValue: String(format: "%.03g", simd.z))
-            isColor = f3.isColor
-        }
-    }
-    
-    var body: some View {
-        
-        VStack(alignment: .leading) {
-            Text(option.name)
-            if isColor == false {
-                HStack() {
-                    TextField(option.name, text: $valueText1, onEditingChanged: { (changed) in
-                        if Float(valueText1) != nil {
-                            option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
-                        }
-                    },
-                    onCommit: {
-                        core.scriptProcessor.replaceOptionInLine(option)
-                    } )
-                    .border(Color.red)
-                    TextField(option.name, text: $valueText2, onEditingChanged: { (changed) in
-                        if Float(valueText2) != nil {
-                            option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
-                        }
-                    },
-                    onCommit: {
-                        core.scriptProcessor.replaceOptionInLine(option)
-                    } )
-                    .border(Color.green)
-                    TextField(option.name, text: $valueText3, onEditingChanged: { (changed) in
-                        if Float(valueText3) != nil {
-                            option.variable = Float3(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!)
-                        }
-                    },
-                    onCommit: {
-                        core.scriptProcessor.replaceOptionInLine(option)
-                    } )
-                    .border(Color.blue)
-                }
-            } else {
-                ColorPicker("", selection: $selectedColor, supportsOpacity: false)
-                    .onChange(of: selectedColor) { color in
-                        print(color)
-                        let f3 = Float3()
-                        f3.x = Float(color.cgColor!.components![0])
-                        f3.y = Float(color.cgColor!.components![1])
-                        f3.z = Float(color.cgColor!.components![2])
-                        
-                        print(f3.toHexString())
-                    }
-            }
-        }
-    }
-}
-
-struct Float4View: View {
-    
-    let core                                : Core
-    let option                              : GraphOption
-    
-    @State var valueText1                   : String = ""
-    @State var valueText2                   : String = ""
-    @State var valueText3                   : String = ""
-    @State var valueText4                   : String = ""
-
-    init(_ core: Core, _ option: GraphOption)
-    {
-        self.core = core
-        self.option = option
-        
-        if let f4 = option.variable as? Float4 {
-            let simd = f4.toSIMD()
-            _valueText1 = State(initialValue: String(format: "%.03f", simd.x))
-            _valueText2 = State(initialValue: String(format: "%.03f", simd.y))
-            _valueText3 = State(initialValue: String(format: "%.03f", simd.z))
-            _valueText4 = State(initialValue: String(format: "%.03f", simd.w))
-        }
-    }
-    
-    var body: some View {
-        
-        VStack(alignment: .leading) {
-            Text(option.name)
-            TextField(option.name, text: $valueText1, onEditingChanged: { (changed) in
-                if Float(valueText1) != nil {
-                    option.variable = Float4(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!, Float(valueText4)!)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
-            TextField(option.name, text: $valueText2, onEditingChanged: { (changed) in
-                if Float(valueText2) != nil {
-                    option.variable = Float4(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!, Float(valueText4)!)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
-            TextField(option.name, text: $valueText3, onEditingChanged: { (changed) in
-                if Float(valueText3) != nil {
-                    option.variable = Float4(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!, Float(valueText4)!)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
-            } )
-            TextField(option.name, text: $valueText3, onEditingChanged: { (changed) in
-                if Float(valueText4) != nil {
-                    option.variable = Float4(Float(valueText1)!, Float(valueText2)!, Float(valueText3)!, Float(valueText4)!)
-                }
-            },
-            onCommit: {
-                core.scriptProcessor.replaceOptionInLine(option)
+                core.scriptProcessor.replaceOptionInLine(option, useRaw: true)
             } )
         }
     }
@@ -322,26 +102,8 @@ struct ParameterView: View {
             VStack(alignment: .leading) {
                 
                 ForEach(options, id: \.id) { option in
-                    if option.variable.getType() == .Int {
-                        IntView(core, option)
-                            .padding(4)
-                    } else
-                    if option.variable.getType() == .Float {
-                        FloatView(core, option)
-                            .padding(4)
-                    } else
-                    if option.variable.getType() == .Float2 {
-                        Float2View(core, option)
-                            .padding(4)
-                    } else
-                    if option.variable.getType() == .Float3 {
-                        Float3View(core, option)
-                            .padding(4)
-                    } else
-                    if option.variable.getType() == .Float4 {
-                        Float4View(core, option)
-                            .padding(4)
-                    }
+                    ParamAsTextView(core, option)
+                        .padding(4)
                 }
                 
                 Spacer()

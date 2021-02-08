@@ -22,6 +22,8 @@ class GraphOption : Equatable, Identifiable {
     var optionals   : [BaseVariable]
     var rules       : Rules
     
+    var raw         : String = ""
+    
     init(_ variable: BaseVariable,_ name: String,_ help: String, group: String? = nil, optionals: [BaseVariable] = [], rules: Rules = .None)
     {
         self.variable = variable
