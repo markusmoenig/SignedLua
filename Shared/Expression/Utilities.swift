@@ -333,18 +333,25 @@ func extractWordAtOffset(_ line: String, offset: Int32, boundaries: String) -> S
     
     // Left side
     var o = Int(offset)
-
+    
+    // If cursor is just before the < go one back to catch the possible function name
+    if line[o] == "<" {
+        o -= 1
+    }
+    
     while o >= 0 && boundaries.contains(line[o]) == false {
         result.insert(contentsOf: String(line[o]), at: result.startIndex)
         o -= 1
     }
     
     // Right side
-    o = Int(offset+1)
-    while o < line.count && boundaries.contains(line[o]) == false {
-        result.append(String(line[o]))
-        o += 1
+    if line[Int(offset)] != "<" {
+        o = Int(offset+1)
+        while o < line.count && boundaries.contains(line[o]) == false {
+            result.append(String(line[o]))
+            o += 1
+        }
     }
-    
+        
     return result
 }

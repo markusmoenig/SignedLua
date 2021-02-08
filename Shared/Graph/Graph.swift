@@ -22,7 +22,12 @@ class GraphOption : Equatable, Identifiable {
     var optionals   : [BaseVariable]
     var rules       : Rules
     
+    // Representation as a string
     var raw         : String = ""
+    
+    // For parsing and replacement, location in line
+    var startIndex  : Int = 0
+    var endIndex    : Int = 0
     
     init(_ variable: BaseVariable,_ name: String,_ help: String, group: String? = nil, optionals: [BaseVariable] = [], rules: Rules = .None)
     {

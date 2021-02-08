@@ -16,6 +16,9 @@ class SignedGraphBuilder: GraphBuilder {
 
     var cursorTimer         : Timer? = nil
     var currentNode         : GraphNode? = nil
+    
+    var currentFunction     : ExpressionContext.ExpressionNodeItem? = nil
+    var currentColumn       : Int32 = 0
         
     init(_ core: Core)
     {
@@ -87,16 +90,23 @@ class SignedGraphBuilder: GraphBuilder {
     
     var send = false
     var lastContextHelpId :UUID? = nil
+    let expressionContext = ExpressionContext()
+
     @objc func cursorCallback(_ timer: Timer) {
+        
         if core.state == .Idle && core.scriptEditor != nil {
             core.scriptEditor!.getSessionCursor({ (line, column) in
-            
+                
+                self.currentColumn = column
+                self.currentFunction = nil
+                
+                let lineNr = line
+
                 if let asset = self.core.assetFolder.current, asset.type == .Source {
                     
                     var processed = false
                     if let line = self.core.scriptProcessor.getLine(line) {
                         let word = extractWordAtOffset(line, offset: column, boundaries: " <>\",()")
-                        
                         
                         if word.starts(with: "#") && (word.count == 7 || word.count == 9) {
                             // Color ?
@@ -105,16 +115,25 @@ class SignedGraphBuilder: GraphBuilder {
                                 self.send = true
                             }
                         } else {
-                            let context = ExpressionContext()
-                            for f in context.functions {
+                            for f in self.expressionContext.functions {
                                 if f.name == word {
+                                    self.currentFunction = f
+                                    processed = true
                                     if f.id != self.lastContextHelpId {
-                                        let functionNode = f.createNode()
                                         
-                                        self.core.contextText = self.generateNodeHelpText(functionNode)
-                                        self.core.contextTextChanged.send(self.core.contextText)
-                                        processed = true
-                                        self.lastContextHelpId = f.id
+                                        if let context = asset.graph {
+                                            if let node = context.lines[lineNr] {
+                                                self.currentNode = node
+                                                
+                                                let functionNode = f.createNode()
+                                                                                                
+                                                self.core.contextText = self.generateNodeHelpText(functionNode)
+                                                self.core.contextTextChanged.send(self.core.contextText)
+                                                self.selectionChanged.send(f.id)
+                                                
+                                                self.lastContextHelpId = f.id
+                                            }
+                                        }
                                     }
                                 }
                             }

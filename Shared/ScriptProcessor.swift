@@ -9,8 +9,10 @@ import Foundation
 
 class ScriptProcessor
 {
-    let core            : Core
+    let core                : Core
     
+    var currentFunction     : ExpressionContext.ExpressionNodeItem? = nil
+
     init(_ core: Core)
     {
         self.core = core
@@ -26,44 +28,58 @@ class ScriptProcessor
             return
         }
         
-        if let node = core.graphBuilder.currentNode {
-            if var line = getLine(node.lineNr) {
-                
-                var range = line.range(of: option.name + ":")
-                if range == nil { range = line.range(of: option.name + " :") }
-                
-                if let range = range {
+        if currentFunction != nil {
+            if let node = core.graphBuilder.currentNode {
+                if var line = getLine(node.lineNr) {
                     
-                    let startIndex : Int = range.lowerBound.utf16Offset(in: line)
-                        
-                    var endIndex : Int = startIndex
-                    var foundEndIndex = false
+                    let start = String.Index(utf16Offset: option.startIndex, in: line)
+                    let end = String.Index(utf16Offset: option.endIndex, in: line)
+                    line.replaceSubrange(start..<end, with: "\(useRaw ? option.raw : option.variable.toString())")
+            
+                    core.scriptEditor.setAssetLine(asset, line: line)
+                }
+            }
+        } else {
+        
+            if let node = core.graphBuilder.currentNode {
+                if var line = getLine(node.lineNr) {
                     
-                    var opener : Int = 0
-                    while endIndex < line.count {
+                    var range = line.range(of: option.name + ":")
+                    if range == nil { range = line.range(of: option.name + " :") }
+                    
+                    if let range = range {
                         
-                        if line[endIndex] == "<" {
-                            opener += 1
-                        } else
-                        if line[endIndex] == ">" {
-                            if opener == 0 {
-                                foundEndIndex = true
-                                break
-                            } else {
-                                opener -= 1
+                        let startIndex : Int = range.lowerBound.utf16Offset(in: line)
+                            
+                        var endIndex : Int = startIndex
+                        var foundEndIndex = false
+                        
+                        var opener : Int = 0
+                        while endIndex < line.count {
+                            
+                            if line[endIndex] == "<" {
+                                opener += 1
+                            } else
+                            if line[endIndex] == ">" {
+                                if opener == 0 {
+                                    foundEndIndex = true
+                                    break
+                                } else {
+                                    opener -= 1
+                                }
                             }
+                            endIndex += 1
                         }
-                        endIndex += 1
+                        
+                        if foundEndIndex {
+                            let end = String.Index(utf16Offset: endIndex, in: line)
+                            line.replaceSubrange(range.lowerBound..<end, with: "\(option.name): \(useRaw ? option.raw : option.variable.toString())")
+                        }
+                        core.scriptEditor.setAssetLine(asset, line: line)
+                    } else {
+                        line.append("<\(option.name): \(useRaw ? option.raw : option.variable.toString())>")
+                        core.scriptEditor.setAssetLine(asset, line: line)
                     }
-                    
-                    if foundEndIndex {
-                        let end = String.Index(utf16Offset: endIndex, in: line)                        
-                        line.replaceSubrange(range.lowerBound..<end, with: "\(option.name): \(useRaw ? option.raw : option.variable.toString())")
-                    }
-                    core.scriptEditor.setAssetLine(asset, line: line)
-                } else {
-                    line.append("<\(option.name): \(useRaw ? option.raw : option.variable.toString())>")
-                    core.scriptEditor.setAssetLine(asset, line: line)
                 }
             }
         }
@@ -164,28 +180,96 @@ class ScriptProcessor
     {
         var options : [GraphOption] = []
         
+        currentFunction = nil
         if let node = core.graphBuilder.currentNode {
-            if let line = getLine(node.lineNr) {
-                options += extractOptionsFromLine(node, line)
-            }
-            
-            func containsOption(_ name: String) -> Bool
-            {
-                for o in options {
-                    if o.name == name {
-                        return true
+            if let function = core.graphBuilder.currentFunction {
+                
+                // Function
+                if let line = getLine(node.lineNr) {
+
+                    var o = Int(core.graphBuilder.currentColumn)
+                    // Extract Function Arguments
+                        
+                    while o < line.count && line[o] != "<" {
+                        o += 1
+                    }
+                    
+                    if line[o] == "<" {
+                        
+                        currentFunction = function
+                        options = function.createNode().getOptions()
+                        
+                        o += 1
+                        var depth = 0
+                        
+                        var arg = ""
+                        var index = 0
+                        
+                        options[0].startIndex = o
+                        
+                        while o < line.count {
+                            
+                            if line[o] == "<" {
+                                depth += 1
+                                arg.append(line[o])
+                            } else
+                            if line[o] == ">" {
+                                if depth == 0 {
+                                    options[index].raw = arg
+                                    options[index].endIndex = o
+                                    break
+                                } else {
+                                    depth -= 1
+                                    arg.append(line[o])
+                                }
+                            } else
+                            if line[o] == "," {
+                                if depth == 0 {
+                                    options[index].raw = arg
+                                    options[index].endIndex = o
+                                    index += 1
+                                    if index < options.count {
+                                        options[index].startIndex = o + 1
+                                    }
+                                    arg = ""
+                                } else {
+                                    arg.append(line[o])
+                                }
+                            } else {
+                                arg.append(line[o])
+                            }
+                            o += 1
+                        }
                     }
                 }
-                return false
-            }
-            
-            if all {
-                // Add the node options which are currently not present in the script
-                let opts = node.getOptions()
-                for o in opts {
-                    if containsOption(o.name) == false {
-                        o.raw = o.variable.toString()
-                        options.append(o)
+                
+                return options
+            } else {
+                
+                // Line Node
+                
+                if let line = getLine(node.lineNr) {
+                    options += extractOptionsFromLine(node, line)
+                }
+                
+                func containsOption(_ name: String) -> Bool
+                {
+                    for o in options {
+                        if o.name == name {
+                            return true
+                        }
+                    }
+                    return false
+                }
+                
+                if all {
+                    // Add the node options which are currently not present in the script
+                    let opts = node.getOptions()
+                    for o in opts {
+                        if containsOption(o.name) == false {
+                            o.raw = o.variable.toString()
+                            options.append(o)
+                        }
                     }
                 }
             }
