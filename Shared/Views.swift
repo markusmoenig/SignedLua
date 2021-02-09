@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Parma
+import DynamicColor
 
 // https://stackoverflow.com/questions/61386877/in-swiftui-is-it-possible-to-use-a-modifier-only-for-a-certain-os-target
 enum OperatingSystem {
@@ -59,7 +60,9 @@ struct ParamAsTextView: View {
     
     @State var valueText                    : String = ""
     @State private var selectedColor        = Color.white
-    
+
+    @State var color = DynamicColor.red
+
     @State var lastChange                   : String? = nil
 
     init(_ core: Core, _ option: GraphOption)
@@ -76,8 +79,11 @@ struct ParamAsTextView: View {
                     let dx = Double(array[0].trimmingCharacters(in: .whitespaces))
                     let dy = Double(array[1].trimmingCharacters(in: .whitespaces))
                     let dz = Double(array[2].trimmingCharacters(in: .whitespaces))
+                    
                     if dx != nil && dy != nil && dz != nil {
-                        _selectedColor = State(initialValue: Color(.sRGB, red: dx!, green: dy!, blue: dz!, opacity: Double(1)))
+                        let color = Color(.sRGB, red: dx!, green: dy!, blue: dz!, opacity: Double(1))
+                        //_selectedColor = State(initialValue: Color(.sRGB, red: dx!, green: dy!, blue: dz!, opacity: Double(1)))
+                        _color = State(initialValue: DynamicColor(color))
                     }
                 }
             }
@@ -95,20 +101,19 @@ struct ParamAsTextView: View {
                 core.scriptProcessor.replaceOptionInLine(option, useRaw: true)
             } )
             if option.canBeColor {
-                ColorPicker("", selection: $selectedColor, supportsOpacity: false)
-                    .onChange(of: selectedColor) { color in
+                
+                ColorPickerRing(color: $color, strokeWidth: 10)
+                    .frame(width: 100, height: 100, alignment: .center)
+                
+                    .onChange(of: color) { color in
+                        let c = color.cgColor
                         
-                        let x = String(format: "%.03g", color.cgColor!.components![0])
-                        let y = String(format: "%.03g", color.cgColor!.components![1])
-                        let z = String(format: "%.03g", color.cgColor!.components![2])
+                        let x = String(format: "%.03g", c.components![0])
+                        let y = String(format: "%.03g", c.components![1])
+                        let z = String(format: "%.03g", c.components![2])
 
-                        let colorText = "\(x), \(y), \(z)"
-                        
-                        if lastChange == nil || lastChange! != colorText {
-                            option.raw = colorText
-                            core.scriptProcessor.replaceOptionInLine(option, useRaw: true)
-                            lastChange = colorText
-                        }
+                        option.raw = "\(x), \(y), \(z)"
+                        core.scriptProcessor.replaceOptionInLine(option, useRaw: true)
                     }
             }
         }

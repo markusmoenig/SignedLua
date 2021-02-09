@@ -86,6 +86,10 @@
 		2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
 		2B6FF69625D25E470053CEF8 /* NodesWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FF69525D25E470053CEF8 /* NodesWidget.swift */; };
 		2B6FF69725D25E480053CEF8 /* NodesWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FF69525D25E470053CEF8 /* NodesWidget.swift */; };
+		2B6FF6AA25D2763C0053CEF8 /* ColorRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */; };
+		2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */; };
+		2B6FF6B225D2771F0053CEF8 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 2B6FF6B125D2771F0053CEF8 /* DynamicColor */; };
+		2B6FF6B625D2772B0053CEF8 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 2B6FF6B525D2772B0053CEF8 /* DynamicColor */; };
 		2B76D82B25AC46F000AF6FF2 /* SignedCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */; };
 		2B76D82C25AC46F000AF6FF2 /* SignedCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */; };
 		2B821A7B25BD0B9100FBFEFF /* SignedSky.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B821A7A25BD0B9100FBFEFF /* SignedSky.swift */; };
@@ -159,6 +163,7 @@
 		2B6312D825BAC308002C1FDD /* GPUMisc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUMisc.swift; sourceTree = "<group>"; };
 		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 		2B6FF69525D25E470053CEF8 /* NodesWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodesWidget.swift; sourceTree = "<group>"; };
+		2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorRing.swift; sourceTree = "<group>"; };
 		2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedCamera.swift; sourceTree = "<group>"; };
 		2B821A7A25BD0B9100FBFEFF /* SignedSky.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedSky.swift; sourceTree = "<group>"; };
 		2B888B5625B15E7600956C64 /* SignedLightNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedLightNodes.swift; sourceTree = "<group>"; };
@@ -179,6 +184,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B6FF6B225D2771F0053CEF8 /* DynamicColor in Frameworks */,
 				2B224FE825888C8800F32354 /* Parma in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -187,6 +193,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B6FF6B625D2772B0053CEF8 /* DynamicColor in Frameworks */,
 				2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */,
 				2B224FE425888C6E00F32354 /* Parma in Frameworks */,
 				2B224FA025844D6000F32354 /* CloudKit.framework in Frameworks */,
@@ -270,6 +277,7 @@
 			children = (
 				2B224F8725844C3100F32354 /* Classes.swift */,
 				2B224F8625844C3000F32354 /* Font.swift */,
+				2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -350,6 +358,7 @@
 			name = "Signed (iOS)";
 			packageProductDependencies = (
 				2B224FE725888C8800F32354 /* Parma */,
+				2B6FF6B125D2771F0053CEF8 /* DynamicColor */,
 			);
 			productName = "Signed (iOS)";
 			productReference = 2B224F352584485300F32354 /* Signed.app */;
@@ -370,6 +379,7 @@
 			name = "Signed (macOS)";
 			packageProductDependencies = (
 				2B224FE325888C6E00F32354 /* Parma */,
+				2B6FF6B525D2772B0053CEF8 /* DynamicColor */,
 			);
 			productName = "Signed (macOS)";
 			productReference = 2B224F3D2584485300F32354 /* Signed.app */;
@@ -403,6 +413,7 @@
 			mainGroup = 2B224F272584485100F32354;
 			packageReferences = (
 				2B224FE225888C6E00F32354 /* XCRemoteSwiftPackageReference "Parma" */,
+				2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */,
 			);
 			productRefGroup = 2B224F362584485300F32354 /* Products */;
 			projectDirPath = "";
@@ -456,6 +467,7 @@
 				2B224FAF2585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F6F25844C1900F32354 /* Core.swift in Sources */,
 				2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */,
+				2B6FF6AA25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C725B929DC0028C76A /* GPUAnalytical.swift in Sources */,
 				2B224F8B25844C3100F32354 /* Classes.swift in Sources */,
 				2B888B6225B42C2B00956C64 /* BestCandidate.swift in Sources */,
@@ -511,6 +523,7 @@
 				2B224FB02585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F7025844C1900F32354 /* Core.swift in Sources */,
 				2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */,
+				2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C825B929DC0028C76A /* GPUAnalytical.swift in Sources */,
 				2B224F8C25844C3100F32354 /* Classes.swift in Sources */,
 				2B888B6325B42C2C00956C64 /* BestCandidate.swift in Sources */,
@@ -804,6 +817,14 @@
 				minimumVersion = 0.2.0;
 			};
 		};
+		2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yannickl/DynamicColor.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -816,6 +837,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2B224FE225888C6E00F32354 /* XCRemoteSwiftPackageReference "Parma" */;
 			productName = Parma;
+		};
+		2B6FF6B125D2771F0053CEF8 /* DynamicColor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */;
+			productName = DynamicColor;
+		};
+		2B6FF6B525D2772B0053CEF8 /* DynamicColor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */;
+			productName = DynamicColor;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
