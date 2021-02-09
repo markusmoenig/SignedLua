@@ -21,6 +21,7 @@ public class Core       : ObservableObject
     var device          : MTLDevice!
     
     var toolView        : DMTKView!
+    var nodesView       : DMTKView!
 
     var metalStates     : MetalStates!
     
@@ -91,6 +92,8 @@ public class Core       : ObservableObject
     var renderPipeline  : GPURenderPipeline!
     
     var customRenderSize : SIMD2<Int>? = nil
+    
+    var nodesWidget     : NodesWidget!
 
     public init(_ frameworkId: String? = nil)
     {        
@@ -156,6 +159,13 @@ public class Core       : ObservableObject
     {
         self.toolView = view
         view.core = self
+    }
+    
+    public func setupNodesView(_ view: DMTKView)
+    {
+        self.nodesView = view
+        view.core = self
+        self.nodesWidget = NodesWidget(self)
     }
     
     public func load(_ data: Data)

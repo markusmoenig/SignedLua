@@ -343,6 +343,10 @@ struct MetalView: NSViewRepresentable {
         if viewType == .Tools
         {
             core.setupToolView(mtkView)
+        } else
+        if viewType == .Nodes
+        {
+            core.setupNodesView(mtkView)
         }
         
         return mtkView
@@ -369,7 +373,12 @@ struct MetalView: NSViewRepresentable {
         }
         
         func draw(in view: MTKView) {
-            parent.core.draw()
+            if parent.viewType == .Main {
+                parent.core.draw()
+            } else
+            if parent.viewType == .Nodes {
+                parent.core.nodesWidget.draw()
+            }
         }
     }
 }
@@ -414,6 +423,10 @@ struct MetalView: UIViewRepresentable {
         if viewType == .Tools
         {
             core.setupToolView(mtkView)
+        } else
+        if viewType == .Nodes
+        {
+            core.setupNodesView(mtkView)
         }
         
         return mtkView
@@ -440,7 +453,12 @@ struct MetalView: UIViewRepresentable {
         }
         
         func draw(in view: MTKView) {
-            parent.core.draw()
+            if parent.viewType == .Main {
+                parent.core.draw()
+            } else
+            if parent.viewType == .Nodes {
+                parent.core.nodesWidget.draw()
+            }
         }
     }
 }
