@@ -58,6 +58,9 @@ struct ParamAsTextView: View {
     let option                              : GraphOption
     
     @State var valueText                    : String = ""
+    @State private var selectedColor        = Color.white
+    
+    @State var lastChange                   : String? = nil
 
     init(_ core: Core, _ option: GraphOption)
     {
@@ -65,6 +68,20 @@ struct ParamAsTextView: View {
         self.option = option
         
         _valueText = State(initialValue: option.raw)
+        
+        if option.canBeColor {
+            if option.variable.getType() == .Float3 {
+                let array = option.raw.split(separator: ",")
+                if array.count == 3 {
+                    let dx = Double(array[0].trimmingCharacters(in: .whitespaces))
+                    let dy = Double(array[1].trimmingCharacters(in: .whitespaces))
+                    let dz = Double(array[2].trimmingCharacters(in: .whitespaces))
+                    if dx != nil && dy != nil && dz != nil {
+                        _selectedColor = State(initialValue: Color(.sRGB, red: dx!, green: dy!, blue: dz!, opacity: Double(1)))
+                    }
+                }
+            }
+        }
     }
     
     var body: some View {
@@ -77,6 +94,23 @@ struct ParamAsTextView: View {
             onCommit: {
                 core.scriptProcessor.replaceOptionInLine(option, useRaw: true)
             } )
+            if option.canBeColor {
+                ColorPicker("", selection: $selectedColor, supportsOpacity: false)
+                    .onChange(of: selectedColor) { color in
+                        
+                        let x = String(format: "%.03g", color.cgColor!.components![0])
+                        let y = String(format: "%.03g", color.cgColor!.components![1])
+                        let z = String(format: "%.03g", color.cgColor!.components![2])
+
+                        let colorText = "\(x), \(y), \(z)"
+                        
+                        if lastChange == nil || lastChange! != colorText {
+                            option.raw = colorText
+                            core.scriptProcessor.replaceOptionInLine(option, useRaw: true)
+                            lastChange = colorText
+                        }
+                    }
+            }
         }
     }
 }

@@ -29,6 +29,9 @@ class GraphOption : Equatable, Identifiable {
     var startIndex  : Int = 0
     var endIndex    : Int = 0
     
+    // The parser indicates to the UI that this value can be a color value
+    var canBeColor  : Bool = false
+    
     init(_ variable: BaseVariable,_ name: String,_ help: String, group: String? = nil, optionals: [BaseVariable] = [], rules: Rules = .None)
     {
         self.variable = variable

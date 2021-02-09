@@ -157,7 +157,9 @@ class ScriptEditor
     {
         let cmd = """
         {var Range = require("ace/range").Range
-        editor.session.replace(new Range(editor.selection.lead.row, 0, editor.selection.lead.row, Number.MAX_VALUE), `\(line)`)}
+        var currentPosition = editor.selection.getCursor();
+        editor.session.replace(new Range(editor.selection.lead.row, 0, editor.selection.lead.row, Number.MAX_VALUE), `\(line)`);
+        editor.gotoLine(currentPosition.row+1, currentPosition.column);}
         """
         webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
         })
@@ -248,13 +250,13 @@ class ScriptEditor
          })
     }
     
-    func gotoLine(_ line: Int32)
+    func gotoLine(_ line: Int32,_ column: Int32 = 0)
     {
         webView.evaluateJavaScript(
             """
             editor.getCursorPosition().row
             editor.scrollToLine(\(line), true, true, function () {});
-            editor.gotoLine(\(line), 0, true);
+            editor.gotoLine(\(line), \(column), true);
             """, completionHandler: { (value, error ) in
          })
     }

@@ -234,7 +234,9 @@ class ExpressionContext
         ExpressionNodeItem("step", {() -> ExpressionNode in return StepFuncNode() }),
         ExpressionNodeItem("normalize", {() -> ExpressionNode in return NormalizeFuncNode() }),
         ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
-        ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() })
+        ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),
+        
+        ExpressionNodeItem("Float3", {() -> ExpressionNode in return Float3FuncNode() })
      ]
         
     init()
@@ -455,6 +457,17 @@ class ExpressionContext
             if token == "<" {
                 let parameters = extractUpToTokenHierarchy([">"], "<")
                 
+                if let variable = BaseVariable.createTypeFromParameters(element, container: container, parameters: parameters, error: &error) {
+                    
+                    if variable.isConstant() == false {
+                        resultType = .Variable
+                    }
+                    
+                    uncomsumed.append(values.count)
+                    values.append(variable)
+                    
+                    testForConsumption()
+                } else
                 if let functionNode = getFunction(element) {
                     functionNode.destIndex = values.count
                     if let result = functionNode.setupFunction(container, parameters, &error) {
@@ -470,17 +483,6 @@ class ExpressionContext
                         testForConsumption()
                         nodes.append(functionNode)
                     }
-                } else
-                if let variable = BaseVariable.createTypeFromParameters(element, container: container, parameters: parameters, error: &error) {
-                    
-                    if variable.isConstant() == false {
-                        resultType = .Variable
-                    }
-                    
-                    uncomsumed.append(values.count)
-                    values.append(variable)
-                    
-                    testForConsumption()
                 }
             }
             

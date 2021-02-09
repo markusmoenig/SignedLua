@@ -664,3 +664,48 @@ class Noise2DFuncNode : ExpressionNode {
         return options
     }
 }
+
+class Float3FuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("Float3")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        guard let result = argumentsIn[0].execute() else {
+            return
+        }
+        
+        if result.getType() == .Float3 {
+            context.values[destIndex] = result
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "float3(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "A Float3 variable consisting of 3 float values (x, y, z)."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(0, 0, 0), "Value", ""),
+        ]
+        return options
+    }
+}

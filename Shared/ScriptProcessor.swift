@@ -206,17 +206,20 @@ class ScriptProcessor
                         var index = 0
                         
                         options[0].startIndex = o
+                        var canBeColor = options[0].variable.getType() == .Float3
                         
                         while o < line.count {
                             
                             if line[o] == "<" {
                                 depth += 1
                                 arg.append(line[o])
+                                canBeColor = false
                             } else
                             if line[o] == ">" {
                                 if depth == 0 {
                                     options[index].raw = arg
                                     options[index].endIndex = o
+                                    options[index].canBeColor = canBeColor
                                     break
                                 } else {
                                     depth -= 1
@@ -224,7 +227,7 @@ class ScriptProcessor
                                 }
                             } else
                             if line[o] == "," {
-                                if depth == 0 {
+                                if depth == 0 && options.count > 1 {
                                     options[index].raw = arg
                                     options[index].endIndex = o
                                     index += 1
