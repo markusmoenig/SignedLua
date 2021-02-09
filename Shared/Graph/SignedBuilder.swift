@@ -89,7 +89,8 @@ class SignedGraphBuilder: GraphBuilder {
     }
     
     var send = false
-    var lastContextHelpId :UUID? = nil
+    var lastContextHelpId   : UUID? = nil
+    var lastContextHelpLine : Int = 0
     let expressionContext = ExpressionContext()
 
     @objc func cursorCallback(_ timer: Timer) {
@@ -119,7 +120,7 @@ class SignedGraphBuilder: GraphBuilder {
                                 if f.name == word {
                                     self.currentFunction = f
                                     processed = true
-                                    if f.id != self.lastContextHelpId {
+                                    if f.id != self.lastContextHelpId || self.lastContextHelpLine != lineNr {
                                         
                                         if let context = asset.graph {
                                             if let node = context.lines[lineNr] {
@@ -132,6 +133,7 @@ class SignedGraphBuilder: GraphBuilder {
                                                 self.selectionChanged.send(f.id)
                                                 
                                                 self.lastContextHelpId = f.id
+                                                self.lastContextHelpLine = Int(lineNr)
                                             }
                                         }
                                     }
