@@ -410,7 +410,8 @@ final class GPUMaterialsShader : GPUBaseShader
                                      texture2d<float, access::read> paramsTexture3 [[texture(11)]],
                                      texture2d<float, access::read> paramsTexture4 [[texture(12)]],
                                      texture2d<float, access::read> paramsTexture5 [[texture(13)]],
-                                     texture2d<float, access::read> paramsTexture6 [[texture(14)]])
+                                     texture2d<float, access::read> paramsTexture6 [[texture(14)]],
+                                     texture2d<float, access::read_write> absorptionTexture [[texture(15)]])
         {
             float2 uv = float2(in.textureCoordinate.x, in.textureCoordinate.y);
             float2 size = in.viewportSize;
@@ -420,6 +421,7 @@ final class GPUMaterialsShader : GPUBaseShader
 
             float3 radiance = radianceTexture.read(textureUV).xyz;
             float3 throughput = throughputTexture.read(textureUV).xyz;
+            float3 absorption = absorptionTexture.read(textureUV).xyz;
 
             float4 depth = depthTexture.read(textureUV);
             float3 normal = normalTexture.read(textureUV).xyz;
@@ -486,7 +488,6 @@ final class GPUMaterialsShader : GPUBaseShader
             state.bitangent = cross(state.ffnormal, state.tangent);
 
             BsdfSampleRec bsdfSampleRec;
-            float3 absorption = float3(0.0);
 
             // ---
 
@@ -501,7 +502,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 radiance += state.mat.emission * throughput;
 
                 // Add absoption
-                //throughput *= exp(-absorption * depth.x);
+                throughput *= exp(-absorption * depth.x);
             
                 if (length(state.mat.emission) > 0) {
                     throughput = float3(0);
@@ -509,6 +510,7 @@ final class GPUMaterialsShader : GPUBaseShader
                     depthTexture.write(depth, textureUV);
                     radianceTexture.write(float4(radiance, 1), textureUV);
                     throughputTexture.write(float4(throughput, 1), textureUV);
+                    absorptionTexture.write(float4(absorption, 1), textureUV);
                     return float4(1);
                 }
 
@@ -530,6 +532,7 @@ final class GPUMaterialsShader : GPUBaseShader
 
                 radianceTexture.write(float4(radiance, 1), textureUV);
                 throughputTexture.write(float4(throughput, 1), textureUV);
+                absorptionTexture.write(float4(absorption, 1), textureUV);
 
                 surfacePos += bsdfSampleRec.L * EPS;
 
@@ -538,7 +541,6 @@ final class GPUMaterialsShader : GPUBaseShader
             } else {
 
                 // We did not hit something, calculate background
-                // Have to find a way to terminate processing for these pixels
 
                 float3 rayDir = camDir;
                 float4 outColor = float4(0,0,0,1);
@@ -547,9 +549,8 @@ final class GPUMaterialsShader : GPUBaseShader
                 
                 outColor.xyz *= throughput;
                 radianceTexture.write(outColor, textureUV);
-
-                //throughput = float3(0);
                 throughputTexture.write(float4(throughput, 1), textureUV);
+                absorptionTexture.write(float4(absorption, 1), textureUV);
 
                 depth.x = -10;
                 depthTexture.write(depth, textureUV);
@@ -683,6 +684,7 @@ final class GPUMaterialsShader : GPUBaseShader
             renderEncoder.setFragmentTexture(pipeline.paramsTexture4!, index: 12)
             renderEncoder.setFragmentTexture(pipeline.paramsTexture5!, index: 13)
             renderEncoder.setFragmentTexture(pipeline.paramsTexture6!, index: 14)
+            renderEncoder.setFragmentTexture(pipeline.absorptionTexture!, index: 15)
 
             // ---
             
@@ -719,8 +721,11 @@ final class GPUMaterialsShader : GPUBaseShader
          * SOFTWARE.
          */
 
+        #define vec3 float3
 
-        float3 ImportanceSampleGTR1(float rgh, float r1, float r2)
+        //----------------------------------------------------------------------
+        vec3 ImportanceSampleGTR1(float rgh, float r1, float r2)
+        //----------------------------------------------------------------------
         {
            float a = max(0.001, rgh);
            float a2 = a * a;
@@ -732,10 +737,12 @@ final class GPUMaterialsShader : GPUBaseShader
            float sinPhi = sin(phi);
            float cosPhi = cos(phi);
 
-           return float3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
+           return vec3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
         }
 
-        float3 ImportanceSampleGTR2_aniso(float ax, float ay, float r1, float r2)
+        //----------------------------------------------------------------------
+        vec3 ImportanceSampleGTR2_aniso(float ax, float ay, float r1, float r2)
+        //----------------------------------------------------------------------
         {
            float phi = r1 * M_2_PI_F;
 
@@ -743,10 +750,12 @@ final class GPUMaterialsShader : GPUBaseShader
            float cosPhi = ax * cos(phi);
            float tanTheta = sqrt(r2 / (1 - r2));
 
-           return float3(tanTheta * cosPhi, tanTheta * sinPhi, 1.0);
+           return vec3(tanTheta * cosPhi, tanTheta * sinPhi, 1.0);
         }
 
-        float3 ImportanceSampleGTR2(float rgh, float r1, float r2)
+        //----------------------------------------------------------------------
+        vec3 ImportanceSampleGTR2(float rgh, float r1, float r2)
+        //----------------------------------------------------------------------
         {
            float a = max(0.001, rgh);
 
@@ -757,17 +766,21 @@ final class GPUMaterialsShader : GPUBaseShader
            float sinPhi = sin(phi);
            float cosPhi = cos(phi);
 
-           return float3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
+           return vec3(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
         }
 
+        //-----------------------------------------------------------------------
         float SchlickFresnel(float u)
+        //-----------------------------------------------------------------------
         {
            float m = clamp(1.0 - u, 0.0, 1.0);
            float m2 = m * m;
            return m2 * m2 * m; // pow(m,5)
         }
 
+        //-----------------------------------------------------------------------
         float DielectricFresnel(float cos_theta_i, float eta)
+        //-----------------------------------------------------------------------
         {
            float sinThetaTSq = eta * eta * (1.0f - cos_theta_i * cos_theta_i);
 
@@ -783,7 +796,9 @@ final class GPUMaterialsShader : GPUBaseShader
            return 0.5f * (rs * rs + rp * rp);
         }
 
+        //-----------------------------------------------------------------------
         float GTR1(float NDotH, float a)
+        //-----------------------------------------------------------------------
         {
            if (a >= 1.0)
                return (1.0 / M_PI_F);
@@ -792,14 +807,18 @@ final class GPUMaterialsShader : GPUBaseShader
            return (a2 - 1.0) / (M_PI_F * log(a2) * t);
         }
 
+        //-----------------------------------------------------------------------
         float GTR2(float NDotH, float a)
+        //-----------------------------------------------------------------------
         {
            float a2 = a * a;
            float t = 1.0 + (a2 - 1.0) * NDotH * NDotH;
            return a2 / (M_PI_F * t * t);
         }
 
+        //-----------------------------------------------------------------------
         float GTR2_aniso(float NDotH, float HDotX, float HDotY, float ax, float ay)
+        //-----------------------------------------------------------------------
         {
            float a = HDotX / ax;
            float b = HDotY / ay;
@@ -807,14 +826,18 @@ final class GPUMaterialsShader : GPUBaseShader
            return 1.0 / (M_PI_F * ax * ay * c * c);
         }
 
+        //-----------------------------------------------------------------------
         float SmithG_GGX(float NDotV, float alphaG)
+        //-----------------------------------------------------------------------
         {
            float a = alphaG * alphaG;
            float b = NDotV * NDotV;
            return 1.0 / (NDotV + sqrt(a + b - a * b));
         }
 
+        //-----------------------------------------------------------------------
         float SmithG_GGX_aniso(float NDotV, float VDotX, float VDotY, float ax, float ay)
+        //-----------------------------------------------------------------------
         {
            float a = VDotX * ax;
            float b = VDotY * ay;
@@ -822,9 +845,11 @@ final class GPUMaterialsShader : GPUBaseShader
            return 1.0 / (NDotV + sqrt(a * a + b * b + c * c));
         }
 
-        float3 CosineSampleHemisphere(float r1, float r2)
+        //-----------------------------------------------------------------------
+        vec3 CosineSampleHemisphere(float r1, float r2)
+        //-----------------------------------------------------------------------
         {
-           float3 dir;
+           vec3 dir;
            float r = sqrt(r1);
            float phi = M_2_PI_F * r2;
            dir.x = r * cos(phi);
@@ -834,32 +859,40 @@ final class GPUMaterialsShader : GPUBaseShader
            return dir;
         }
 
-        float3 UniformSampleHemisphere(float r1, float r2)
+        //-----------------------------------------------------------------------
+        vec3 UniformSampleHemisphere(float r1, float r2)
+        //-----------------------------------------------------------------------
         {
            float r = sqrt(max(0.0, 1.0 - r1 * r1));
            float phi = M_2_PI_F * r2;
 
-           return float3(r * cos(phi), r * sin(phi), r1);
+           return vec3(r * cos(phi), r * sin(phi), r1);
         }
 
-        float3 UniformSampleSphere(float r1, float r2)
+        //-----------------------------------------------------------------------
+        vec3 UniformSampleSphere(float r1, float r2)
+        //-----------------------------------------------------------------------
         {
            float z = 1.0 - 2.0 * r1;
            float r = sqrt(max(0.0, 1.0 - z * z));
            float phi = M_2_PI_F * r2;
 
-           return float3(r * cos(phi), r * sin(phi), z);
+           return vec3(r * cos(phi), r * sin(phi), z);
         }
 
+        //-----------------------------------------------------------------------
         float powerHeuristic(float a, float b)
+        //-----------------------------------------------------------------------
         {
            float t = a * a;
            return t / (b * b + t);
         }
 
-        float3 EvalDielectricReflection(State state, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
+        vec3 EvalDielectricReflection(State state, vec3 V, vec3 N, vec3 L, vec3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
         {
-            if (dot(N, L) < 0.0) return float3(0.0);
+            if (dot(N, L) < 0.0) return vec3(0.0);
 
             float F = DielectricFresnel(dot(V, H), state.eta);
             float D = GTR2(dot(N, H), state.mat.roughness);
@@ -870,7 +903,9 @@ final class GPUMaterialsShader : GPUBaseShader
             return state.mat.albedo * F * D * G;
         }
 
-        float3 EvalDielectricRefraction(State state, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
+        vec3 EvalDielectricRefraction(State state, vec3 V, vec3 N, vec3 L, vec3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
         {
             float F = DielectricFresnel(abs(dot(V, H)), state.eta);
             float D = GTR2(dot(N, H), state.mat.roughness);
@@ -882,23 +917,27 @@ final class GPUMaterialsShader : GPUBaseShader
             return state.mat.albedo * (1.0 - F) * D * G * abs(dot(V, H)) * abs(dot(L, H)) * 4.0 * state.eta * state.eta / (denomSqrt * denomSqrt);
         }
 
-        float3 EvalSpecular(State state, float3 Cspec0, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
+        vec3 EvalSpecular(State state, vec3 Cspec0, vec3 V, vec3 N, vec3 L, vec3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
         {
-            if (dot(N, L) < 0.0) return float3(0.0);
+            if (dot(N, L) < 0.0) return vec3(0.0);
 
             float D = GTR2_aniso(dot(N, H), dot(H, state.tangent), dot(H, state.bitangent), state.mat.ax, state.mat.ay);
             pdf = D * dot(N, H) / (4.0 * dot(V, H));
 
             float FH = SchlickFresnel(dot(L, H));
-            float3 F = mix(Cspec0, float3(1.0), FH);
+            vec3 F = mix(Cspec0, vec3(1.0), FH);
             float G = SmithG_GGX_aniso(dot(N, L), dot(L, state.tangent), dot(L, state.bitangent), state.mat.ax, state.mat.ay);
             G *= SmithG_GGX_aniso(dot(N, V), dot(V, state.tangent), dot(V, state.bitangent), state.mat.ax, state.mat.ay);
             return F * D * G;
         }
 
-        float3 EvalClearcoat(State state, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
+        vec3 EvalClearcoat(State state, vec3 V, vec3 N, vec3 L, vec3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
         {
-            if (dot(N, L) < 0.0) return float3(0.0);
+            if (dot(N, L) < 0.0) return vec3(0.0);
 
             float D = GTR1(dot(N, H), state.mat.clearcoatRoughness);
             pdf = D * dot(N, H) / (4.0 * dot(V, H));
@@ -906,12 +945,14 @@ final class GPUMaterialsShader : GPUBaseShader
             float FH = SchlickFresnel(dot(L, H));
             float F = mix(0.04, 1.0, FH);
             float G = SmithG_GGX(dot(N, L), 0.25) * SmithG_GGX(dot(N, V), 0.25);
-            return float3(0.25 * state.mat.clearcoat * F * D * G);
+            return vec3(0.25 * state.mat.clearcoat * F * D * G);
         }
 
-        float3 EvalDiffuse(State state, float3 Csheen, float3 V, float3 N, float3 L, float3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
+        vec3 EvalDiffuse(State state, vec3 Csheen, vec3 V, vec3 N, vec3 L, vec3 H, thread float &pdf)
+        //-----------------------------------------------------------------------
         {
-            if (dot(N, L) < 0.0) return float3(0.0);
+            if (dot(N, L) < 0.0) return vec3(0.0);
 
             pdf = dot(N, L) * (1.0 / M_PI_F);
 
@@ -920,11 +961,13 @@ final class GPUMaterialsShader : GPUBaseShader
             float FH = SchlickFresnel(dot(L, H));
             float Fd90 = 0.5 + 2.0 * dot(L, H) * dot(L, H) * state.mat.roughness;
             float Fd = mix(1.0, Fd90, FL) * mix(1.0, Fd90, FV);
-            float3 Fsheen = FH * state.mat.sheen * Csheen;
+            vec3 Fsheen = FH * state.mat.sheen * Csheen;
             return ((1.0 / M_PI_F) * Fd * (1.0 - state.mat.subsurface) * state.mat.albedo + Fsheen) * (1.0 - state.mat.metallic);
         }
 
-        float3 EvalSubsurface(State state, float3 V, float3 N, float3 L, thread float &pdf)
+        //-----------------------------------------------------------------------
+        vec3 EvalSubsurface(State state, vec3 V, vec3 N, vec3 L, thread float & pdf)
+        //-----------------------------------------------------------------------
         {
             pdf = (1.0 / M_2_PI_F);
 
@@ -934,11 +977,13 @@ final class GPUMaterialsShader : GPUBaseShader
             return sqrt(state.mat.albedo) * state.mat.subsurface * (1.0 / M_PI_F) * Fd * (1.0 - state.mat.metallic) * (1.0 - state.mat.transmission);
         }
 
-        float3 DisneySample(thread State &state, float3 V, float3 N, thread float3 &L, thread float &pdf, DataIn dataIn)
+        //-----------------------------------------------------------------------
+        vec3 DisneySample(thread State &state, vec3 V, vec3 N, thread vec3 &L, thread float &pdf, DataIn dataIn)
+        //-----------------------------------------------------------------------
         {
             state.isSubsurface = false;
             pdf = 0.0;
-            float3 f = float3(0.0);
+            vec3 f = vec3(0.0);
 
             float r1 = rand(dataIn);
             float r2 = rand(dataIn);
@@ -946,20 +991,20 @@ final class GPUMaterialsShader : GPUBaseShader
             float diffuseRatio = 0.5 * (1.0 - state.mat.metallic);
             float transWeight = (1.0 - state.mat.metallic) * state.mat.transmission;
 
-            float3 Cdlin = state.mat.albedo;
+            vec3 Cdlin = state.mat.albedo;
             float Cdlum = 0.3 * Cdlin.x + 0.6 * Cdlin.y + 0.1 * Cdlin.z; // luminance approx.
 
-            float3 Ctint = Cdlum > 0.0 ? Cdlin / Cdlum : float3(1.0f); // normalize lum. to isolate hue+sat
-            float3 Cspec0 = mix(state.mat.specular * 0.08 * mix(float3(1.0), Ctint, state.mat.specularTint), Cdlin, state.mat.metallic);
-            float3 Csheen = mix(float3(1.0), Ctint, state.mat.sheenTint);
+            vec3 Ctint = Cdlum > 0.0 ? Cdlin / Cdlum : vec3(1.0f); // normalize lum. to isolate hue+sat
+            vec3 Cspec0 = mix(state.mat.specular * 0.08 * mix(vec3(1.0), Ctint, state.mat.specularTint), Cdlin, state.mat.metallic);
+            vec3 Csheen = mix(vec3(1.0), Ctint, state.mat.sheenTint);
 
             // BSDF
             if (rand(dataIn) < transWeight)
             {
-                float3 H = ImportanceSampleGTR2(state.mat.roughness, r1, r2);
+                vec3 H = ImportanceSampleGTR2(state.mat.roughness, r1, r2);
                 H = state.tangent * H.x + state.bitangent * H.y + N * H.z;
 
-                float3 R = reflect(-V, H);
+                vec3 R = reflect(-V, H);
                 float F = DielectricFresnel(abs(dot(R, H)), state.eta);
 
                 // Reflection/Total internal reflection
@@ -997,7 +1042,7 @@ final class GPUMaterialsShader : GPUBaseShader
                         L = CosineSampleHemisphere(r1, r2);
                         L = state.tangent * L.x + state.bitangent * L.y + N * L.z;
 
-                        float3 H = normalize(L + V);
+                        vec3 H = normalize(L + V);
 
                         f = EvalDiffuse(state, Csheen, V, N, L, H, pdf);
                         pdf *= (1.0 - state.mat.subsurface) * diffuseRatio;
@@ -1011,7 +1056,7 @@ final class GPUMaterialsShader : GPUBaseShader
                     if (rand(dataIn) < primarySpecRatio)
                     {
                         // TODO: Implement http://jcgt.org/published/0007/04/01/
-                        float3 H = ImportanceSampleGTR2_aniso(state.mat.ax, state.mat.ay, r1, r2);
+                        vec3 H = ImportanceSampleGTR2_aniso(state.mat.ax, state.mat.ay, r1, r2);
                         H = state.tangent * H.x + state.bitangent * H.y + N * H.z;
                         L = normalize(reflect(-V, H));
 
@@ -1020,7 +1065,7 @@ final class GPUMaterialsShader : GPUBaseShader
                     }
                     else // Sample clearcoat lobe
                     {
-                        float3 H = ImportanceSampleGTR1(state.mat.clearcoatRoughness, r1, r2);
+                        vec3 H = ImportanceSampleGTR1(state.mat.clearcoatRoughness, r1, r2);
                         H = state.tangent * H.x + state.bitangent * H.y + N * H.z;
                         L = normalize(reflect(-V, H));
 
@@ -1035,9 +1080,11 @@ final class GPUMaterialsShader : GPUBaseShader
             return f;
         }
 
-        float3 DisneyEval(State state, float3 V, float3 N, float3 L, thread float &pdf)
+        //-----------------------------------------------------------------------
+        vec3 DisneyEval(State state, vec3 V, vec3 N, vec3 L, thread float &pdf)
+        //-----------------------------------------------------------------------
         {
-            float3 H;
+            vec3 H;
 
             if (dot(N, L) < 0.0)
                 H = normalize(L * (1.0 / state.eta) + V);
@@ -1051,8 +1098,8 @@ final class GPUMaterialsShader : GPUBaseShader
             float primarySpecRatio = 1.0 / (1.0 + state.mat.clearcoat);
             float transWeight = (1.0 - state.mat.metallic) * state.mat.transmission;
 
-            float3 brdf = float3(0.0);
-            float3 bsdf = float3(0.0);
+            vec3 brdf = vec3(0.0);
+            vec3 bsdf = vec3(0.0);
             float brdfPdf = 0.0;
             float bsdfPdf = 0.0;
 
@@ -1087,12 +1134,12 @@ final class GPUMaterialsShader : GPUBaseShader
                 // BRDF
                 else
                 {
-                    float3 Cdlin = state.mat.albedo;
+                    vec3 Cdlin = state.mat.albedo;
                     float Cdlum = 0.3 * Cdlin.x + 0.6 * Cdlin.y + 0.1 * Cdlin.z; // luminance approx.
 
-                    float3 Ctint = Cdlum > 0.0 ? Cdlin / Cdlum : float3(1.0f); // normalize lum. to isolate hue+sat
-                    float3 Cspec0 = mix(state.mat.specular * 0.08 * mix(float3(1.0), Ctint, state.mat.specularTint), Cdlin, state.mat.metallic);
-                    float3 Csheen = mix(float3(1.0), Ctint, state.mat.sheenTint);
+                    vec3 Ctint = Cdlum > 0.0 ? Cdlin / Cdlum : vec3(1.0f); // normalize lum. to isolate hue+sat
+                    vec3 Cspec0 = mix(state.mat.specular * 0.08 * mix(vec3(1.0), Ctint, state.mat.specularTint), Cdlin, state.mat.metallic);
+                    vec3 Csheen = mix(vec3(1.0), Ctint, state.mat.sheenTint);
 
                     // Diffuse
                     brdf += EvalDiffuse(state, Csheen, V, N, L, H, m_pdf);
@@ -1111,6 +1158,7 @@ final class GPUMaterialsShader : GPUBaseShader
             pdf = mix(brdfPdf, bsdfPdf, transWeight);
             return mix(brdf, bsdf, transWeight);
         }
+
             
         """
     }

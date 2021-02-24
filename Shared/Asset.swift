@@ -9,7 +9,6 @@ import MetalKit
 import CloudKit
 
 /// Base64 extension for string
-
 extension String {
 
 func fromBase64() -> String? {

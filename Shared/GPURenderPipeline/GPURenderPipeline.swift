@@ -42,6 +42,8 @@ class GPURenderPipeline
     
     var utilityTexture1 : MTLTexture? = nil
     var utilityTexture2 : MTLTexture? = nil
+    
+    var absorptionTexture : MTLTexture? = nil
 
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
@@ -242,7 +244,8 @@ class GPURenderPipeline
             
             clearTexture(radianceTexture!, float4(0, 0, 0, 0))
             clearTexture(throughputTexture!, float4(1, 1, 1, 1))
-            
+            clearTexture(absorptionTexture!, float4(0, 0, 0, 0))
+
             if let cameraNode = context.cameraNode {
                 if let cameraShader = cameraNode.gpuShader as? GPUCameraShader {
                     cameraShader.render()
@@ -432,7 +435,9 @@ class GPURenderPipeline
         
         utilityTexture1 = checkTexture(utilityTexture1)
         utilityTexture2 = checkTexture(utilityTexture2)
-                
+
+        absorptionTexture = checkTexture(absorptionTexture)
+
         if resChanged {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.core.updateUI.send()
