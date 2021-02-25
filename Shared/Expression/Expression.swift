@@ -232,6 +232,7 @@ class ExpressionContext
         ExpressionNodeItem("clamp", {() -> ExpressionNode in return ClampFuncNode() }),
         ExpressionNodeItem("mix", {() -> ExpressionNode in return MixFuncNode() }),
         ExpressionNodeItem("step", {() -> ExpressionNode in return StepFuncNode() }),
+        ExpressionNodeItem("length", {() -> ExpressionNode in return LengthFuncNode() }),
         ExpressionNodeItem("normalize", {() -> ExpressionNode in return NormalizeFuncNode() }),
         ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
         ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),

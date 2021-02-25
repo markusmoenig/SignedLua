@@ -35,15 +35,17 @@ class GraphBuilder
         GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalObject(options) }),
         GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject(options) }),
         GraphNodeItem("sdfObject2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject2D(options) }),
-        GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) })
+        GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) }),
+        
+        GraphNodeItem("defPrimitive", { (_ options: [String:Any]) -> GraphNode in return GraphDefSDFPrimitiveNode(options) })
     ]
     
     var leaves          : [GraphNodeItem] =
     [
         GraphNodeItem("analyticalGroundPlane", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalGroundPlaneNode(options) }),
 
-        GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSDFSphereNode(options) }),
-        GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return GraphSDFBoxNode(options) }),
+        //GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSDFSphereNode(options) }),
+        //GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return GraphSDFBoxNode(options) }),
         
         GraphNodeItem("sdfCircle2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFCircleNode2D(options) }),
         
@@ -292,6 +294,11 @@ class GraphBuilder
                                                 asset.graph!.analyticalNodes.append(newBranch)
                                                 graph.objectNodes.append(newBranch)
                                             } else
+                                            if newBranch.role == .SDF && newBranch.context == .Definition {
+                                                if let defNode = newBranch as? GraphDefSDFPrimitiveNode {
+                                                    asset.graph!.defPrimitiveNodes.append(defNode)
+                                                }
+                                            } else
                                             if newBranch.context == .SDF {
                                                 asset.graph!.sdfNodes.append(newBranch)
                                                 graph.objectNodes.append(newBranch)
@@ -331,35 +338,54 @@ class GraphBuilder
                         
                         if processed == false {
                             // Looking for leave
-                            for leave in self.leaves {
-                                if leave.name == possbibleCmd {
-                                    
-                                    if error.error == nil {
-                                        if let branch = currentBranch.last, branch.leaves != nil {
-                                            let node = leave.createNode(nodeOptions)
-                                            node.verifyOptions(context: asset.graph!, error: &error)
-                                            if error.error == nil {
-                                                
-                                                node.rootNode = currentBranch.first
-                                                node.parentNode = branch
-                                                
-                                                if node.context == .SDF && node.role == .SDF {
-                                                    node.rootNode!.execute(context: graph)
-                                                    if let material = graph.activeMaterial as? GraphMaterialNode {
-                                                        node.materialNode = material
-                                                        if material.isEmitter {
-                                                            // Material is emitter, add it to the lightNodes
-                                                            graph.lightNodes.append(node)
-                                                        }
+                            
+                            func addNode(_ node: GraphNode)
+                            {
+                                if error.error == nil {
+
+                                    if let branch = currentBranch.last, branch.leaves != nil {
+                                        node.verifyOptions(context: asset.graph!, error: &error)
+                                        if error.error == nil {
+                                            
+                                            node.rootNode = currentBranch.first
+                                            node.parentNode = branch
+                                            
+                                            if node.context == .SDF && node.role == .SDF {
+                                                node.rootNode!.execute(context: graph)
+                                                if let material = graph.activeMaterial as? GraphMaterialNode {
+                                                    node.materialNode = material
+                                                    if material.isEmitter {
+                                                        // Material is emitter, add it to the lightNodes
+                                                        graph.lightNodes.append(node)
                                                     }
                                                 }
-
-                                                node.lineNr = error.line!
-                                                branch.leaves.append(node)
-                                                asset.graph!.lines[error.line!] = node
-                                                processed = true
                                             }
-                                        } else { createError("Leaf node without active branch") }
+
+                                            node.lineNr = error.line!
+                                            branch.leaves.append(node)
+                                            asset.graph!.lines[error.line!] = node
+                                            processed = true
+                                        }
+                                    } else { createError("Leaf node without active branch") }
+                                }
+                            }
+                            
+                            for leave in self.leaves {
+                                if leave.name == possbibleCmd {
+                                    let node = leave.createNode(nodeOptions)
+                                    addNode(node)
+                                }
+                            }
+                            
+                            // Check if this is sdfPrimitive
+                            if processed == false {
+                                for defNode in graph.defPrimitiveNodes {
+                                    if defNode.givenName == possbibleCmd {
+                                        
+                                        let node = GraphSDFPrimitiveNode()
+                                        node.options = nodeOptions
+                                        node.defNode = defNode
+                                        addNode(node)
                                     }
                                 }
                             }

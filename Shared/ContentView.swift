@@ -92,46 +92,7 @@ struct ContentView: View {
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
                           
-                Menu {
-                    Section(header: Text("Preview")) {
-                        Button("Small", action: {
-                            screenState = .Mixed
-                            updateView.toggle()
-                        })
-                        Button("Large", action: {
-                            screenState = .RenderOnly
-                            updateView.toggle()
-                        })
-                        .keyboardShortcut("3")
-                        Button("Set Custom", action: {
-                            
-                
-                            customResWidth = String(document.core.renderPipeline.renderSize.x)
-                            customResHeight = String(document.core.renderPipeline.renderSize.y)
-                            
-                            showCustomResPopover = true
-                            updateView.toggle()
-                        })
-                        
-                        Button("Clear Custom", action: {
-                            document.core.customRenderSize = nil
-                            document.core.renderPipeline.restart()
-                            updateView.toggle()
-                        })
-                    }
-                    Section(header: Text("Export")) {
-                        Button("Export Image...", action: {
-                            exportingImage = true
-                        })
-                    }
-                }
-                label: {
-                    Text("\(document.core.renderPipeline == nil ? "" : String(document.core.renderPipeline.renderSize.x) + " x " + String(document.core.renderPipeline.renderSize.y))")
-                    //Label("View", systemImage: "viewfinder")
-                }
-                .onReceive(self.document.core.updateUI) { state in
-                    updateView.toggle()
-                }
+                toolPreviewMenu
                 
                 Divider()
                     .padding(.horizontal, 20)
@@ -161,40 +122,7 @@ struct ContentView: View {
                     .padding(.horizontal, 20)
                     .opacity(0)
                 
-                Menu {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("Small Tip")
-                                .font(.headline)
-                            Text("Tip of $2 for the author")
-                                .font(.caption2)
-                        }
-                        Button(action: {
-                            storeManager.purchaseId("com.moenig.Signed.IAP.Tip2")
-                        }) {
-                            Text("Buy for $2")
-                        }
-                        .foregroundColor(.blue)
-                        Divider()
-                        VStack(alignment: .leading) {
-                            Text("Medium Tip")
-                                .font(.headline)
-                            Text("Tip of $5 for the author")
-                                .font(.caption2)
-                        }
-                        Button(action: {
-                            storeManager.purchaseId("com.moenig.Signed.IAP.Tip5")
-                        }) {
-                            Text("Buy for $5")
-                        }
-                        .foregroundColor(.blue)
-                        Divider()
-                        Text("You are awesome! ❤️❤️")
-                    }
-                }
-                label: {
-                    Label("Dollar", systemImage: "gift")
-                }
+                toolGiftMenu
                 
                 // Toggle the Right sidebar
                 Button(action: { rightSideParamsAreVisible.toggle() }, label: {
@@ -209,6 +137,75 @@ struct ContentView: View {
                 }
             }
         })
+        
+        // Export Image
+        .fileExporter(
+            isPresented: $exportingImage,
+            document: document,
+            contentType: .png,
+            defaultFilename: "Image"
+        ) { result in
+            do {
+                let url = try result.get()
+                let core = document.core
+                if let texture = core.renderPipeline.getTexture() {
+                    if let cgiTexture = core.makeCGIImage(texture) {
+                        if let image = makeCGIImage(texture: cgiTexture, forImage: true) {
+                            if let imageDestination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) {
+                                CGImageDestinationAddImage(imageDestination, image, nil)
+                                CGImageDestinationFinalize(imageDestination)
+                            }
+                        }
+                    }
+                }
+            } catch {
+                // Handle failure.
+            }
+        }
+    }
+    
+    /// Preview Menu
+    var toolPreviewMenu: some View {
+        Menu {
+            Section(header: Text("Preview")) {
+                Button("Small", action: {
+                    screenState = .Mixed
+                    updateView.toggle()
+                })
+                Button("Large", action: {
+                    screenState = .RenderOnly
+                    updateView.toggle()
+                })
+                .keyboardShortcut("3")
+                Button("Set Custom", action: {
+                    
+        
+                    customResWidth = String(document.core.renderPipeline.renderSize.x)
+                    customResHeight = String(document.core.renderPipeline.renderSize.y)
+                    
+                    showCustomResPopover = true
+                    updateView.toggle()
+                })
+                
+                Button("Clear Custom", action: {
+                    document.core.customRenderSize = nil
+                    document.core.renderPipeline.restart()
+                    updateView.toggle()
+                })
+            }
+            Section(header: Text("Export")) {
+                Button("Export Image...", action: {
+                    exportingImage = true
+                })
+            }
+        }
+        label: {
+            Text("\(document.core.renderPipeline == nil ? "" : String(document.core.renderPipeline.renderSize.x) + " x " + String(document.core.renderPipeline.renderSize.y))")
+            //Label("View", systemImage: "viewfinder")
+        }
+        .onReceive(self.document.core.updateUI) { state in
+            updateView.toggle()
+        }
         // Custom Resolution Popover
         .popover(isPresented: self.$showCustomResPopover,
                  arrowEdge: .top
@@ -243,30 +240,55 @@ struct ContentView: View {
                 .frame(minWidth: 200)
             }.padding()
         }
-        
-        // Export Image
-        .fileExporter(
-            isPresented: $exportingImage,
-            document: document,
-            contentType: .png,
-            defaultFilename: "Image"
-        ) { result in
-            do {
-                let url = try result.get()
-                let core = document.core
-                if let texture = core.renderPipeline.getTexture() {
-                    if let cgiTexture = core.makeCGIImage(texture) {
-                        if let image = makeCGIImage(texture: cgiTexture, forImage: true) {
-                            if let imageDestination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) {
-                                CGImageDestinationAddImage(imageDestination, image, nil)
-                                CGImageDestinationFinalize(imageDestination)
-                            }
-                        }
-                    }
+    }
+    
+    var toolGiftMenu : some View {
+        Menu {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Small Tip")
+                        .font(.headline)
+                    Text("Tip of $2 for the author")
+                        .font(.caption2)
                 }
-            } catch {
-                // Handle failure.
+                Button(action: {
+                    storeManager.purchaseId("com.moenig.ShaderMania.IAP.Tip2")
+                }) {
+                    Text("Buy for $2")
+                }
+                .foregroundColor(.blue)
+                Divider()
+                VStack(alignment: .leading) {
+                    Text("Medium Tip")
+                        .font(.headline)
+                    Text("Tip of $5 for the author")
+                        .font(.caption2)
+                }
+                Button(action: {
+                    storeManager.purchaseId("com.moenig.ShaderMania.IAP.Tip5")
+                }) {
+                    Text("Buy for $5")
+                }
+                .foregroundColor(.blue)
+                Divider()
+                VStack(alignment: .leading) {
+                    Text("Large Tip")
+                        .font(.headline)
+                    Text("Tip of $10 for the author")
+                        .font(.caption2)
+                }
+                Button(action: {
+                    storeManager.purchaseId("com.moenig.ShaderMania.IAP.Tip10")
+                }) {
+                    Text("Buy for $10")
+                }
+                .foregroundColor(.blue)
+                Divider()
+                Text("You are awesome! ❤️❤️")
             }
+        }
+        label: {
+            Label("Dollar", systemImage: "gift")//dollarsign.circle")
         }
     }
 }

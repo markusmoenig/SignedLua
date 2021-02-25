@@ -157,6 +157,7 @@ class GPURenderPipeline
         
         for node in context.sdfNodes {
             context.objectVariables = [:]
+            context.resetGlobalCompilation()
             node.gpuShader = GPUSDFShader(pipeline: self, object: node)
         }
         

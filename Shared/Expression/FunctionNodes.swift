@@ -535,6 +535,57 @@ class NormalizeFuncNode : ExpressionNode {
     }
 }
 
+class LengthFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("length")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        guard let result = argumentsIn[0].execute() else {
+            return
+        }
+        
+        if result.getType() == .Float3 {
+            context.values[destIndex] = Float1(simd_length(result.toSIMD3()))
+        } else
+        if result.getType() == .Float4 {
+            context.values[destIndex] = Float1(simd_length(result.toSIMD4()))
+        } else
+        if result.getType() == .Float2 {
+            context.values[destIndex] = Float1(simd_length(result.toSIMD2()))
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "length(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns the length of a vector."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(1,1,1), "Vector", "", optionals: [Float2(), Float4()])
+        ]
+        return options
+    }
+}
+
 class ReflectFuncNode : ExpressionNode {
         
     init()

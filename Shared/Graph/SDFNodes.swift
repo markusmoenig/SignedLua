@@ -8,6 +8,113 @@
 import MetalKit
 import simd
 
+
+/// defSDFPrimitive
+final class GraphDefSDFPrimitiveNode : GraphNode
+{
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.SDF, .Definition, options)
+        name = "defPrimitive"
+        leaves = []
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+        if let name = options["name"] as? String {
+            self.givenName = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
+        } else {
+            error.error = "defPrimitive needs a 'Name' parameter"
+        }
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> String
+    {
+        var code = "float \(givenName)(float3 rayPosition) {\n"
+
+        for leave in leaves {
+            code += leave.generateMetalCode(context: context)
+        }
+        
+        code += "  return outDistance;\n"
+        code += "}\n"
+                
+        return code
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Definition of an sdfPrimitive, like a sphere or a cube."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options : [GraphOption] = []
+        return options
+    }
+}
+
+/// sdfPrimitive
+final class GraphSDFPrimitiveNode : GraphTransformationNode
+{
+    var defNode                   : GraphDefSDFPrimitiveNode!
+    
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.SDF, .SDF, options)
+        name = "sdfPrimitive"
+        leaves = []
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+        print("xx", options)
+        verifyTranslationOptions(context: context, error: &error)
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        checkIn(context: context)
+        checkOut(context: context)
+        return .Success
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> String
+    {
+        if context.compiledNodeNames.contains(defNode.givenName) == false {
+            let code = defNode.generateMetalCode(context: context)
+            context.compiledGlobalCode.append(code)
+            context.compiledNodeNames.append(defNode.givenName)
+        }
+        
+        let code =
+        """
+
+            {
+                \(generateMetalTransformCode(context: context))
+                
+                newDistance = float4(\(defNode.givenName)(transformedPosition), 0, -1, \(context.getMaterialIndex()));
+            }
+
+        """
+        
+        //context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius.toSIMD())
+        
+        return code
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Definition of an sdfPrimitive, like a sphere or a cube."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options : [GraphOption] = []
+        return options + GraphTransformationNode.getTransformationOptions()
+    }
+}
+
 /// SDFSphereNode
 final class GraphSDFSphereNode : GraphTransformationNode
 {
