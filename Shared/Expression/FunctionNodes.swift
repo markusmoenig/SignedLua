@@ -379,6 +379,54 @@ class SinFuncNode : ExpressionNode {
     }
 }
 
+class CosFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("cos")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        guard let value = argumentsIn[0].execute() else {
+            return
+        }
+        
+        let v = value.createType()
+        
+        for i in 0..<v.components {
+            v[i] = cos(value[i])
+        }
+        context.values[destIndex] = v
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "cos(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns the cos of the given value."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float1(0), "Value", "", optionals: [Float2(), Float3(), Float4()]),
+        ]
+        return options
+    }
+}
+
 class MinFuncNode : ExpressionNode {
     
     init()
@@ -418,6 +466,57 @@ class MinFuncNode : ExpressionNode {
     override func getHelp() -> String
     {
         return "Returns the minimum of the two values."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float1(0), "Value1", "", optionals: [Float2(), Float3(), Float4()]),
+            GraphOption(Float1(1), "Value2", "", optionals: [Float2(), Float3(), Float4()], rules: .SameTypeAsPrevious)
+        ]
+        return options
+    }
+}
+
+class MaxFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("max")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        if let edge = argumentsIn[0].executeForFloat1() {
+            guard let value = argumentsIn[1].execute() else {
+                return
+            }
+            
+            let v = value.createType()
+            
+            for i in 0..<v.components {
+                v[i] = max(edge.x, value[i])
+            }
+            context.values[destIndex] = v
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "max(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns the maximum of the two values."
     }
     
     override func getOptions() -> [GraphOption]
@@ -711,6 +810,58 @@ class Noise2DFuncNode : ExpressionNode {
         let options = [
             GraphOption(Float2(1,1), "Position", ""),
             GraphOption(Float1(1), "Smoothing", "")
+        ]
+        return options
+    }
+}
+
+class ParamFloatFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("ParamFloat")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            let result = argumentsIn[1].lastResult
+            if let text = argumentsIn[0].values[0] as? Text1, result != nil {
+                result!.name = text.name.lowercased()
+            }
+            return result
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        context.funcParams.append(self)
+
+        guard let result = argumentsIn[1].execute() else {
+            return
+        }
+        
+        if result.getType() == .Float {
+            context.values[destIndex] = result
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return ""
+    }
+    
+    override func getHelp() -> String
+    {
+        return "A named Float parameter."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Text1(""), "Name", ""),
+            GraphOption(Float1(1), "Default", ""),
         ]
         return options
     }

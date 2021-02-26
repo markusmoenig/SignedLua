@@ -691,7 +691,7 @@ final class Float3 : BaseVariable
             return name
         } else
         if isConstant() {
-            return "\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z))"
+            return "float3(\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z)))"
         } else
         if expressions == 0 {
             if let context = context {

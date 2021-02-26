@@ -337,7 +337,8 @@ class AddAtomNode : ExpressionNode {
     {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
-        
+                
+        print("'\(left.toString())'", right.name, right.getTypeName(), right.toString())
         return (left.chained ? "" : left.toString()) + " + " + right.toString()
     }
 }

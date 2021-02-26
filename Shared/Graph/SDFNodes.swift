@@ -12,6 +12,8 @@ import simd
 /// defSDFPrimitive
 final class GraphDefSDFPrimitiveNode : GraphNode
 {
+    var funcParameters : [ExpressionNode] = []
+    
     init(_ options: [String:Any] = [:])
     {
         super.init(.SDF, .Definition, options)
@@ -30,15 +32,36 @@ final class GraphDefSDFPrimitiveNode : GraphNode
     /// Returns the metal code for this node
     override func generateMetalCode(context: GraphContext) -> String
     {
-        var code = "float \(givenName)(float3 rayPosition) {\n"
+        var params = ""
+        var code = "float \(givenName)(float3 rayPosition__PARAMS__) {\n"
 
+        context.funcParameters = []
+        
         for leave in leaves {
             code += leave.generateMetalCode(context: context)
         }
+                    
+        for p in context.funcParameters {
+            params += ", "
+
+            if let text = p.argumentsIn[0].values[0] as? Text1 {
+                if let result = p.argumentsIn[1].execute() {
+                    params += result.getSIMDName()
+                    params += " "
+                    params += text.name.lowercased()
+                }
+            }
+        }
+        
+        funcParameters = context.funcParameters
+    
+        code = code.replacingOccurrences(of: "__PARAMS__", with: params)
         
         code += "  return outDistance;\n"
         code += "}\n"
-                
+        
+        print(code)
+        
         return code
     }
     
@@ -67,7 +90,6 @@ final class GraphSDFPrimitiveNode : GraphTransformationNode
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
-        print("xx", options)
         verifyTranslationOptions(context: context, error: &error)
     }
     
@@ -87,18 +109,60 @@ final class GraphSDFPrimitiveNode : GraphTransformationNode
             context.compiledNodeNames.append(defNode.givenName)
         }
         
-        let code =
+        var funcParamCode = ""
+        var radiusValue : Float? = nil
+        
+        for p in defNode.funcParameters {
+            
+            funcParamCode += ", "
+
+            if let text = p.argumentsIn[0].values[0] as? Text1 {
+                let name = text.name.lowercased()
+
+                if let value = options[name] as? String {
+                    
+                    var error = CompileError()
+                    let exp = ExpressionContext()
+                    exp.parse(expression: value, container: context, error: &error)
+                    if error.error == nil {
+                     
+                        if let result = exp.execute() {
+                            funcParamCode += exp.toMetal(embedded: true)
+                            
+                            if name == "radius" {
+                                radiusValue = result.toSIMD1()
+                            }
+                        }
+                    }
+                } else {
+                    // If option is not present, used default value
+                    if let result = p.argumentsIn[1].execute() {
+                        funcParamCode += String(result.toSIMD1())
+                        
+                        if name == "radius" {
+                            radiusValue = result.toSIMD1()
+                        }
+                    }
+                }
+            }
+        }
+
+        var code =
         """
 
             {
                 \(generateMetalTransformCode(context: context))
                 
-                newDistance = float4(\(defNode.givenName)(transformedPosition), 0, -1, \(context.getMaterialIndex()));
+                newDistance = float4(\(defNode.givenName)(transformedPosition__FUNC_PARAM_CODE__), 0, -1, \(context.getMaterialIndex()));
             }
 
         """
         
-        //context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius.toSIMD())
+        code = code.replacingOccurrences(of: "__FUNC_PARAM_CODE__", with: funcParamCode)
+        
+        if let radius = radiusValue {
+            context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius)
+        }
         
         return code
     }
@@ -110,7 +174,19 @@ final class GraphSDFPrimitiveNode : GraphTransformationNode
     
     override func getOptions() -> [GraphOption]
     {
-        let options : [GraphOption] = []
+        var options : [GraphOption] = []
+        for p in defNode.funcParameters {
+            
+            if let text = p.argumentsIn[0].values[0] as? Text1 {
+                let name = text.name
+
+                if let result = p.argumentsIn[1].execute() {
+                    if result.getType() == .Float {
+                        options.append(GraphOption(result, name, ""))
+                    }
+                }
+            }
+        }
         return options + GraphTransformationNode.getTransformationOptions()
     }
 }

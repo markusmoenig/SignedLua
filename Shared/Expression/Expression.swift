@@ -100,7 +100,7 @@ class ExpressionNode {
             let context = ExpressionContext()
             context.parse(expression: array[i], container: container, error: &error)
             if error.error == nil {
-                
+
                 if let rc = context.execute() {
                     
                     let type = rc.getType()
@@ -225,7 +225,9 @@ class ExpressionContext
     [
         ExpressionNodeItem("abs", {() -> ExpressionNode in return AbsFuncNode() }),
         ExpressionNodeItem("sin", {() -> ExpressionNode in return SinFuncNode() }),
+        ExpressionNodeItem("cos", {() -> ExpressionNode in return CosFuncNode() }),
         ExpressionNodeItem("min", {() -> ExpressionNode in return MinFuncNode() }),
+        ExpressionNodeItem("max", {() -> ExpressionNode in return MaxFuncNode() }),
         ExpressionNodeItem("mod", {() -> ExpressionNode in return ModFuncNode() }),
         ExpressionNodeItem("dot", {() -> ExpressionNode in return DotFuncNode() }),
         ExpressionNodeItem("pow", {() -> ExpressionNode in return PowFuncNode() }),
@@ -237,6 +239,7 @@ class ExpressionContext
         ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
         ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),
         
+        ExpressionNodeItem("ParamFloat", {() -> ExpressionNode in return ParamFloatFuncNode() }),
         ExpressionNodeItem("Float3", {() -> ExpressionNode in return Float3FuncNode() })
      ]
         
@@ -264,6 +267,8 @@ class ExpressionContext
     var lastResult  : BaseVariable? = nil
     
     var expression  : String = ""
+    
+    var funcParams  : [ExpressionNode] = []
     
     @inlinable func isConstant() -> Bool {
         return resultType == .Constant
@@ -449,6 +454,11 @@ class ExpressionContext
                         resultType = .Variable
                     }
                     testForConsumption()
+                } else
+                // Test for String
+                if element.starts(with: "\"") {
+                    resultType = .Constant
+                    values.append(Text1(element.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)))
                 } else {
                     if element.isEmpty == false {
                         error.error = "Unknown expression \'\(element)\'"
@@ -505,6 +515,8 @@ class ExpressionContext
             for node in nodes {
                 node.execute(self)
                 code += node.toMetal(self)
+                
+                print("xx", node.name, node.toMetal(self))
                 
                 if node.destIndex != nil {
                     // Function node
