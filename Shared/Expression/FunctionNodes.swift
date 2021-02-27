@@ -825,6 +825,61 @@ class ParamFloatFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
+            resultType = .Variable
+            let result = argumentsIn[1].lastResult
+            if let text = argumentsIn[0].values[0] as? Text1, result != nil {
+
+                result!.name = text.name.lowercased()
+            }
+            return result
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        context.funcParams.append(self)
+
+        guard let result = argumentsIn[1].execute() else {
+            return
+        }
+        
+        if result.getType() == .Float {
+            context.values[destIndex] = result
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return argumentsIn[1].toMetal(embedded: true)
+    }
+    
+    override func getHelp() -> String
+    {
+        return "A named Float parameter."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Text1(""), "Name", ""),
+            GraphOption(Float1(1), "Default", ""),
+        ]
+        return options
+    }
+}
+
+class ParamFloat3FuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("ParamFloat3")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            resultType = .Variable
             let result = argumentsIn[1].lastResult
             if let text = argumentsIn[0].values[0] as? Text1, result != nil {
                 result!.name = text.name.lowercased()
@@ -849,19 +904,19 @@ class ParamFloatFuncNode : ExpressionNode {
     
     override func toMetal(_ context: ExpressionContext) -> String
     {
-        return ""
+        return argumentsIn[1].toMetal(embedded: true)
     }
     
     override func getHelp() -> String
     {
-        return "A named Float parameter."
+        return "A named Float3 parameter."
     }
     
     override func getOptions() -> [GraphOption]
     {
         let options = [
             GraphOption(Text1(""), "Name", ""),
-            GraphOption(Float1(1), "Default", ""),
+            GraphOption(Float3(1), "Default", ""),
         ]
         return options
     }

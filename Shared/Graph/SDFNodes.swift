@@ -36,6 +36,7 @@ final class GraphDefSDFPrimitiveNode : GraphNode
         var code = "float \(givenName)(float3 rayPosition__PARAMS__) {\n"
 
         context.funcParameters = []
+        context.objectVariables = [:]
         
         for leave in leaves {
             code += leave.generateMetalCode(context: context)
@@ -59,9 +60,7 @@ final class GraphDefSDFPrimitiveNode : GraphNode
         
         code += "  return outDistance;\n"
         code += "}\n"
-        
-        print(code)
-        
+                
         return code
     }
     
@@ -118,12 +117,14 @@ final class GraphSDFPrimitiveNode : GraphTransformationNode
 
             if let text = p.argumentsIn[0].values[0] as? Text1 {
                 let name = text.name.lowercased()
+                
+                let varType = p.argumentsIn[1].lastResult?.getType()
 
                 if let value = options[name] as? String {
                     
                     var error = CompileError()
                     let exp = ExpressionContext()
-                    exp.parse(expression: value, container: context, error: &error)
+                    exp.parse(expression: value, container: context, defaultVariableType: varType, error: &error)
                     if error.error == nil {
                      
                         if let result = exp.execute() {
@@ -157,7 +158,7 @@ final class GraphSDFPrimitiveNode : GraphTransformationNode
             }
 
         """
-        
+                
         code = code.replacingOccurrences(of: "__FUNC_PARAM_CODE__", with: funcParamCode)
         
         if let radius = radiusValue {

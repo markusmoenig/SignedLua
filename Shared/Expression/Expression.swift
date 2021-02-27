@@ -240,6 +240,7 @@ class ExpressionContext
         ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),
         
         ExpressionNodeItem("ParamFloat", {() -> ExpressionNode in return ParamFloatFuncNode() }),
+        ExpressionNodeItem("ParamFloat3", {() -> ExpressionNode in return ParamFloat3FuncNode() }),
         ExpressionNodeItem("Float3", {() -> ExpressionNode in return Float3FuncNode() })
      ]
         
@@ -486,9 +487,10 @@ class ExpressionContext
                         if functionNode.resultType == .Variable {
                             resultType = .Variable
                         }
-                        
+
                         if error.error != nil { return }
 
+                        result.skip = true
                         uncomsumed.append(values.count)
                         values.append(result)
                         testForConsumption()
@@ -515,9 +517,7 @@ class ExpressionContext
             for node in nodes {
                 node.execute(self)
                 code += node.toMetal(self)
-                
-                print("xx", node.name, node.toMetal(self))
-                
+                                
                 if node.destIndex != nil {
                     // Function node
                     values[node.destIndex]?.chained = true

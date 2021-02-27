@@ -57,6 +57,9 @@ class BaseVariable {
     // If the variables is chained in an expression (i.e. the temporary output of a function)
     var chained     = false
     
+    // If the variables on the right side of an expression which will get substituted later we need to skip it in an atom node
+    var skip        = false
+    
     init(_ name: String, components: Int = 1)
     {
         self.name = name

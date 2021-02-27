@@ -8,7 +8,8 @@
 import Foundation
 
 class MultiplyAtomNode : ExpressionNode {
-    
+    var skipRight = false
+
     init()
     {
         super.init("*")
@@ -92,12 +93,13 @@ class MultiplyAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
-        return (left.chained ? "" : left.toString()) + " * " + right.toString()
+        return (left.chained ? "" : left.toString()) + " * " + (skipRight == true || right.skip == true ? "" : right.toString())
     }
 }
 
 class DivisionAtomNode : ExpressionNode {
-    
+    var skipRight = false
+
     init()
     {
         super.init("/")
@@ -174,12 +176,13 @@ class DivisionAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
 
-        return (left.chained ? "" : left.toString()) + " / " + right.toString()
+        return (left.chained ? "" : left.toString()) + " / " + (skipRight == true || right.skip == true ? "" : right.toString())
     }
 }
 
 class MinusAtomNode : ExpressionNode {
-    
+    var skipRight = false
+
     init()
     {
         super.init("-")
@@ -255,24 +258,28 @@ class MinusAtomNode : ExpressionNode {
     {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
-        
-        return (left.chained ? "" : left.toString()) + " - " + right.toString()
+                
+        return (left.chained ? "" : left.toString()) + " - " + (skipRight == true || right.skip == true ? "" : right.toString())
     }
 }
 
 class AddAtomNode : ExpressionNode {
     
+    var skipRight = false
+
     init()
     {
         super.init("+")
     }
-    
+        
     override func setupAtom(_ context: ExpressionContext,_ indices: [Int],_ error: inout CompileError)
     {
         self.indices = indices
         
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
+        
+        skipRight = right.skip
         
         if left.components != right.components && left.components != 1 && right.components != 1 {
             error.error = "Cannot add \(right.getTypeName()) to \(left.getTypeName())"
@@ -337,8 +344,7 @@ class AddAtomNode : ExpressionNode {
     {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
-                
-        print("'\(left.toString())'", right.name, right.getTypeName(), right.toString())
-        return (left.chained ? "" : left.toString()) + " + " + right.toString()
+        
+        return (left.chained ? "" : left.toString()) + " + " + (skipRight == true || right.skip == true ? "" : right.toString())
     }
 }

@@ -79,9 +79,7 @@ final class GraphVariableAssignmentNode : GraphNode
             
             if let v = expression.execute() {
                 
-                if expression.funcParams.isEmpty == false {
-                    context.funcParameters += expression.funcParams
-                }
+                context.funcParameters += expression.funcParams
                 
                 if materialNames.contains(givenName) {
                     code = "material.\(givenName) \(assignmentCode()) \(expression.toMetal())"

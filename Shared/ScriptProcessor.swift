@@ -208,7 +208,7 @@ class ScriptProcessor
                         options[0].startIndex = o
                         var canBeColor = options[0].variable.getType() == .Float3
                         
-                        while o < line.count {
+                        while o < line.count && index < options.count {
                             
                             if line[o] == "<" {
                                 depth += 1

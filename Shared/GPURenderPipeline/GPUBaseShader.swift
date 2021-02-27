@@ -118,8 +118,8 @@ class GPUBaseShader
         //source = replaceTexturReferences(sourceCode: source)
         
         let compiledCB : MTLNewLibraryCompletionHandler = { (library, error) in
-            if let error = error, library == nil {
-                print(error)
+            if let _ = error, library == nil {
+                //print(error)
             } else
             if let library = library {
                 
