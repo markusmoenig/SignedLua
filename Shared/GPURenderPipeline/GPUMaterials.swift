@@ -55,7 +55,6 @@ final class GPUMaterialsShader : GPUBaseShader
 
             """
             
-            context.objectVariables = [:]
             let code = node.generateMetalCode(context: pipeline.context)
             materialsCode += "    " + code
             materialsCode +=

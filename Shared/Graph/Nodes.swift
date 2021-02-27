@@ -87,9 +87,10 @@ final class GraphVariableAssignmentNode : GraphNode
                         //codeMap["code"]! += "material.albedo = pow(material.albedo, 2.2);\n"
                     //}
                 } else {
-                    if context.objectVariables[givenName] == nil {
+                    if context.variables[givenName] == nil {
                         code = "\(v.getSIMDName()) \(givenName) = \(expression.toMetal())"
-                        context.objectVariables[givenName] = v
+                        v.name = givenName
+                        context.variables[givenName] = v
                     } else {
                         code = "\(givenName) \(assignmentCode()) \(expression.toMetal())"
                     }

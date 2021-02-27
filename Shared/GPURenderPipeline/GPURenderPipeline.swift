@@ -143,21 +143,17 @@ class GPURenderPipeline
             cameraNode.gpuShader = GPUCameraShader(pipeline: self)
         }
         
-        if let sunNode = context.sunNode {
-            context.objectVariables = [:]
-            _ = sunNode.generateMetalCode(context: context)
+        if let node = context.sunNode {
+            _ = node.generateMetalCode(context: context)
         }
         
         materialsShader = GPUMaterialsShader(pipeline: self)
         
         for node in context.analyticalNodes {
-            context.objectVariables = [:]
             node.gpuShader = GPUAnalyticalShader(pipeline: self, object: node)
         }
         
         for node in context.sdfNodes {
-            context.objectVariables = [:]
-            context.resetGlobalCompilation()
             node.gpuShader = GPUSDFShader(pipeline: self, object: node)
         }
         

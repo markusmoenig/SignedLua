@@ -8,6 +8,82 @@
 import MetalKit
 import simd
 
+/// defBoolean
+final class GraphDefBooleanNode : GraphNode
+{
+    var funcParameters : [ExpressionNode] = []
+    
+    init(_ options: [String:Any] = [:])
+    {
+        super.init(.Boolean, .Definition, options)
+        name = "defBoolean"
+        leaves = []
+    }
+    
+    override func verifyOptions(context: GraphContext, error: inout CompileError) {
+        if let name = options["name"] as? String {
+            self.givenName = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
+        } else {
+            error.error = "defBoolean needs a 'Name' parameter"
+        }
+    }
+    
+    /// Returns the metal code for this node
+    override func generateMetalCode(context: GraphContext) -> String
+    {
+        var params = ""
+        var code = "float4 \(givenName)(float4 shapeA, float4 shapeB__PARAMS__) {\n"
+
+        setEnvironmentVariables(context: context)
+                
+        for leave in leaves {
+            code += leave.generateMetalCode(context: context)
+        }
+                    
+        for p in context.funcParameters {
+            params += ", "
+
+            if let text = p.argumentsIn[0].values[0] as? Text1 {
+                if let result = p.argumentsIn[1].execute() {
+                    params += result.getSIMDName()
+                    params += " "
+                    params += text.name.lowercased()
+                }
+            }
+        }
+        
+        funcParameters = context.funcParameters
+    
+        code = code.replacingOccurrences(of: "__PARAMS__", with: params)
+        
+        code += "  return outShape;\n"
+        code += "}\n"
+                
+        return code
+    }
+    
+    override func setEnvironmentVariables(context: GraphContext)
+    {
+        //context.parameters = [Float4("shapeA", 0, 0, 0, 0, .System), Float4("shapeB", 0, 0, 0, 0, .System)]
+        context.funcParameters = []
+        
+        context.variables = [:]
+        context.variables["shapeA"] = Float4("shapeA", 0, 0, 0, 0, .System)
+        context.variables["shapeB"] = Float4("shapeB", 0, 0, 0, 0, .System)
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Definition of an sdfPrimitive, like a sphere or a cube."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options : [GraphOption] = []
+        return options
+    }
+}
+
 /// BoolMergeNode
 final class GraphBoolMergeNode : GraphNode
 {

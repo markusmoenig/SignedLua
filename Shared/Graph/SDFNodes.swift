@@ -10,7 +10,7 @@ import simd
 
 
 /// defSDFPrimitive
-final class GraphDefSDFPrimitiveNode : GraphNode
+final class GraphDefPrimitiveNode : GraphNode
 {
     var funcParameters : [ExpressionNode] = []
     
@@ -35,9 +35,9 @@ final class GraphDefSDFPrimitiveNode : GraphNode
         var params = ""
         var code = "float \(givenName)(float3 rayPosition__PARAMS__) {\n"
 
+        context.parameters = [Float3("rayPosition", 0, 0, 0, .System)]
         context.funcParameters = []
-        context.objectVariables = [:]
-        
+                
         for leave in leaves {
             code += leave.generateMetalCode(context: context)
         }
@@ -64,6 +64,12 @@ final class GraphDefSDFPrimitiveNode : GraphNode
         return code
     }
     
+    override func setEnvironmentVariables(context: GraphContext)
+    {
+        context.funcParameters = []
+        context.variables = ["rayPosition": Float3("rayPosition", 0, 0, 0, .System)]
+    }
+    
     override func getHelp() -> String
     {
         return "Definition of an sdfPrimitive, like a sphere or a cube."
@@ -77,9 +83,9 @@ final class GraphDefSDFPrimitiveNode : GraphNode
 }
 
 /// sdfPrimitive
-final class GraphSDFPrimitiveNode : GraphTransformationNode
+final class GraphPrimitiveNode : GraphTransformationNode
 {
-    var defNode                   : GraphDefSDFPrimitiveNode!
+    var defNode                   : GraphDefPrimitiveNode!
     
     init(_ options: [String:Any] = [:])
     {
@@ -103,10 +109,14 @@ final class GraphSDFPrimitiveNode : GraphTransformationNode
     override func generateMetalCode(context: GraphContext) -> String
     {
         if context.compiledNodeNames.contains(defNode.givenName) == false {
+            let vars = context.variables
             let code = defNode.generateMetalCode(context: context)
+            context.variables = vars
             context.compiledGlobalCode.append(code)
             context.compiledNodeNames.append(defNode.givenName)
         }
+        
+        print("kkk",givenName, context.variables)
         
         var funcParamCode = ""
         var radiusValue : Float? = nil

@@ -37,25 +37,19 @@ class GraphBuilder
         GraphNodeItem("sdfObject2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject2D(options) }),
         GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) }),
         
-        GraphNodeItem("defPrimitive", { (_ options: [String:Any]) -> GraphNode in return GraphDefSDFPrimitiveNode(options) })
+        GraphNodeItem("defPrimitive", { (_ options: [String:Any]) -> GraphNode in return GraphDefPrimitiveNode(options) }),
+        GraphNodeItem("defBoolean", { (_ options: [String:Any]) -> GraphNode in return GraphDefBooleanNode(options) })
     ]
     
     var leaves          : [GraphNodeItem] =
     [
         GraphNodeItem("analyticalGroundPlane", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalGroundPlaneNode(options) }),
-
-        //GraphNodeItem("sdfSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSDFSphereNode(options) }),
-        //GraphNodeItem("sdfBox", { (_ options: [String:Any]) -> GraphNode in return GraphSDFBoxNode(options) }),
         
         GraphNodeItem("sdfCircle2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFCircleNode2D(options) }),
         
         GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return GraphBoolMergeNode(options) }),
         GraphNodeItem("boolSubtract", { (_ options: [String:Any]) -> GraphNode in return GraphBoolSubtractNode(options) }),
         GraphNodeItem("boolSmoothMerge", { (_ options: [String:Any]) -> GraphNode in return GraphBoolSmoothMergeNode(options) }),
-        
-        GraphNodeItem("texColor", { (_ options: [String:Any]) -> GraphNode in return GraphTexColorNode(options) }),
-        GraphNodeItem("texChecker", { (_ options: [String:Any]) -> GraphNode in return GraphTexCheckerNode(options) }),
-        GraphNodeItem("texNoise2D", { (_ options: [String:Any]) -> GraphNode in return GraphTexNoise2DNode(options) }),
     ]
     
     init()
@@ -78,10 +72,7 @@ class GraphBuilder
         }
         
         let graph = asset.graph!
-                
-        // Create default variables
-        graph.createDefaultVariables()
-        
+                        
         //
         
         let ns = asset.value as NSString
@@ -287,16 +278,24 @@ class GraphBuilder
                                     if processed == false {
 
                                         if level == 0 {
+                                            
                                             asset.graph!.nodes.append(newBranch)
                                             currentBranch = []
+                                            
+                                            newBranch.setEnvironmentVariables(context: graph)
                                             
                                             if newBranch.context == .Analytical {
                                                 asset.graph!.analyticalNodes.append(newBranch)
                                                 graph.objectNodes.append(newBranch)
                                             } else
                                             if newBranch.role == .SDF && newBranch.context == .Definition {
-                                                if let defNode = newBranch as? GraphDefSDFPrimitiveNode {
+                                                if let defNode = newBranch as? GraphDefPrimitiveNode {
                                                     asset.graph!.defPrimitiveNodes.append(defNode)
+                                                }
+                                            } else
+                                            if newBranch.role == .Boolean && newBranch.context == .Definition {
+                                                if let defNode = newBranch as? GraphDefBooleanNode {
+                                                    asset.graph!.defBooleanNodes.append(defNode)
                                                 }
                                             } else
                                             if newBranch.context == .SDF {
@@ -382,7 +381,7 @@ class GraphBuilder
                                 for defNode in graph.defPrimitiveNodes {
                                     if defNode.givenName == possbibleCmd {
                                         
-                                        let node = GraphSDFPrimitiveNode()
+                                        let node = GraphPrimitiveNode()
                                         node.options = nodeOptions
                                         node.defNode = defNode
                                         addNode(node)

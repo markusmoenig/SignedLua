@@ -191,7 +191,7 @@ final class GraphSDFObject : GraphTransformationNode
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
         }
-        
+                
         context.addDataVariable(position)
 
         var code =
@@ -206,6 +206,16 @@ final class GraphSDFObject : GraphTransformationNode
         }
                 
         return code
+    }
+    
+    override func setEnvironmentVariables(context: GraphContext)
+    {
+        context.funcParameters = []
+        
+        context.variables = ["rayPosition": Float3("rayPosition", 0, 0, 0, .System)]
+        //context.variables["rayPosition"] = Float3("rayPosition", 0, 0, 0, .System)
+        context.variables["viewSize"] = Float2("viewSize", 0, 0, .System)
+        context.variables["uv"] = Float2("uv", 0, 0, .System)
     }
     
     override func getHelp() -> String
@@ -340,6 +350,8 @@ final class GraphMaterialNode : GraphNode
     
     override func generateMetalCode(context: GraphContext) -> String
     {
+        setEnvironmentVariables(context: context)
+
         var code = ""
         
         for leave in leaves {
@@ -347,6 +359,15 @@ final class GraphMaterialNode : GraphNode
         }
                 
         return code
+    }
+    
+    override func setEnvironmentVariables(context: GraphContext)
+    {
+        context.funcParameters = []
+        
+        context.variables = ["rayPosition": Float3("rayPosition", 0, 0, 0, .System)]
+        context.variables["viewSize"] = Float2("viewSize", 0, 0, .System)
+        context.variables["uv"] = Float2("uv", 0, 0, .System)
     }
     
     override func getHelp() -> String

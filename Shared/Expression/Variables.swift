@@ -12,7 +12,7 @@ class VariableContainer
     /// The variables of this container
     var variables           : [String:BaseVariable] = [:]
     
-    /// Optional  parameters, for example inside Denrim trees
+    /// Optional  parameters
     var parameters          : [BaseVariable]? = nil
 
     /// Get the given variable
@@ -260,13 +260,14 @@ final class Float4 : BaseVariable
 
     var isColor     = false
 
-    init(_ name: String = "", _ x: Float = 1,_ y: Float = 1,_ z: Float = 1,_ w: Float = 1)
+    init(_ name: String = "", _ x: Float = 1,_ y: Float = 1,_ z: Float = 1,_ w: Float = 1,_ role: VariableRole = .User)
     {
         super.init(name, components: 4)
         self.x = x
         self.y = y
         self.z = z
         self.w = w
+        self.role = role
     }
     
     init(_ x: Float = 1,_ y: Float = 1,_ z: Float = 1,_ w: Float = 1)
@@ -541,12 +542,13 @@ final class Float3 : BaseVariable
     
     var isColor     = false
 
-    init(_ name: String = "", _ x: Float = 1,_ y: Float = 1,_ z: Float = 1)
+    init(_ name: String = "", _ x: Float = 1,_ y: Float = 1,_ z: Float = 1, _ role: VariableRole = .User)
     {
         super.init(name, components: 3)
         self.x = x
         self.y = y
         self.z = z
+        self.role = role
     }
     
     init(_ x: Float = 1,_ y: Float = 1,_ z: Float = 1)
@@ -835,11 +837,12 @@ final class Float2 : BaseVariable
     var x           : Float = 0
     var y           : Float = 0
 
-    init(_ name: String = "", _ x: Float = 1,_ y: Float = 1)
+    init(_ name: String = "", _ x: Float = 1,_ y: Float = 1,_ role: VariableRole = .User)
     {
         super.init(name, components: 2)
         self.x = x
         self.y = y
+        self.role = role
     }
     
     init(_ x: Float = 0,_ y: Float = 0)
@@ -1042,10 +1045,11 @@ final class Float1 : BaseVariable
 {
     var x           : Float = 0
 
-    init(_ name: String = "", _ x: Float = 1)
+    init(_ name: String = "", _ x: Float = 1,_ role: VariableRole = .User)
     {
         super.init(name)
         self.x = x
+        self.role = role
     }
     
     init(_ x: Float = 0)

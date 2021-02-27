@@ -78,8 +78,6 @@
 		2B400EC525AD45F0006493A0 /* BaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EC325AD45F0006493A0 /* BaseBuilder.swift */; };
 		2B400EEC25AD953F006493A0 /* SDFNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */; };
 		2B400EED25AD953F006493A0 /* SDFNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */; };
-		2B4293BF259429AD00B56347 /* TexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* TexNodes.swift */; };
-		2B4293C0259429AD00B56347 /* TexNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4293BE259429AD00B56347 /* TexNodes.swift */; };
 		2B6312D925BAC308002C1FDD /* GPUMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6312D825BAC308002C1FDD /* GPUMisc.swift */; };
 		2B6312DA25BAC308002C1FDD /* GPUMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6312D825BAC308002C1FDD /* GPUMisc.swift */; };
 		2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
@@ -159,7 +157,6 @@
 		2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchNodes2D.swift; sourceTree = "<group>"; };
 		2B400EC325AD45F0006493A0 /* BaseBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseBuilder.swift; sourceTree = "<group>"; };
 		2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDFNodes2D.swift; sourceTree = "<group>"; };
-		2B4293BE259429AD00B56347 /* TexNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TexNodes.swift; sourceTree = "<group>"; };
 		2B6312D825BAC308002C1FDD /* GPUMisc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUMisc.swift; sourceTree = "<group>"; };
 		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 		2B6FF69525D25E470053CEF8 /* NodesWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodesWidget.swift; sourceTree = "<group>"; };
@@ -325,7 +322,6 @@
 				2B400EC325AD45F0006493A0 /* BaseBuilder.swift */,
 				2B224FAE2585ED1100F32354 /* Graph.swift */,
 				2B224FEB2588A6BD00F32354 /* Nodes.swift */,
-				2B4293BE259429AD00B56347 /* TexNodes.swift */,
 				2B224FC52586EA1800F32354 /* SDFNodes.swift */,
 				2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */,
 				2B224FCA2586F90C00F32354 /* BoolNodes.swift */,
@@ -474,7 +470,6 @@
 				2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */,
 				2B224F8125844C1900F32354 /* Metal.metal in Sources */,
-				2B4293BF259429AD00B56347 /* TexNodes.swift in Sources */,
 				2B821A7B25BD0B9100FBFEFF /* SignedSky.swift in Sources */,
 				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */,
@@ -530,7 +525,6 @@
 				2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */,
 				2B224F8225844C1900F32354 /* Metal.metal in Sources */,
-				2B4293C0259429AD00B56347 /* TexNodes.swift in Sources */,
 				2B821A7C25BD0B9100FBFEFF /* SignedSky.swift in Sources */,
 				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */,

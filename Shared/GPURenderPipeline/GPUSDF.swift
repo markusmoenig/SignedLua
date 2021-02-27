@@ -21,9 +21,12 @@ final class GPUSDFShader : GPUBaseShader
     
     func createFragmentSource()
     {
+        sdfObject.setEnvironmentVariables(context: pipeline.context)
+        context.resetGlobalCompilation()
         let code = sdfObject.generateMetalCode(context: pipeline.context)
         let globalCode = pipeline.context.compiledGlobalCode
-                
+                        
+        print(code)
         let fragmentCode =
         """
 

@@ -142,6 +142,11 @@ class GraphNode : Equatable, Identifiable {
         return code
     }
     
+    /// For top level branch nodes sets the environment variables, i.e. the incoming variables valid in the given context (like shapeA, shapeB for booleans etc).
+    func setEnvironmentVariables(context: GraphContext)
+    {
+    }
+    
     /// Get help text
     func getHelp() -> String
     {
@@ -220,7 +225,8 @@ final class GraphContext    : VariableContainer
     var materialNodes       : [GraphNode] = []
     var objectNodes         : [GraphNode] = []
 
-    var defPrimitiveNodes   : [GraphDefSDFPrimitiveNode] = []
+    var defPrimitiveNodes   : [GraphDefPrimitiveNode] = []
+    var defBooleanNodes     : [GraphDefBooleanNode] = []
 
     var analyticalNodes     : [GraphNode] = []
     var sdfNodes            : [GraphNode] = []
@@ -232,8 +238,6 @@ final class GraphContext    : VariableContainer
     
     var lines               : [Int32: GraphNode] = [:]
     
-    var objectVariables     : [String: BaseVariable] = [:]
-
     // Special Global Variables
     
     var rayPosition         : Float3!
@@ -247,28 +251,6 @@ final class GraphContext    : VariableContainer
     var normal              : Float3!
     
     var outDistance         : Float1!
-
-    // Default Material Variables (Disney BSDF)
-
-    var albedo              : Float3!
-    var specular            : Float1!
-    
-    var emission            : Float3!
-    var anisotropic         : Float1!
-    
-    var metallic            : Float1!
-    var roughness           : Float1!
-    var subsurface          : Float1!
-    var specularTint        : Float1!
-    
-    var sheen               : Float1!
-    var sheenTint           : Float1!
-    var clearcoat           : Float1!
-    var clearcoatGloss      : Float1!
-
-    var transmission        : Float1!
-    var ior                 : Float1!
-    var extinction          : Float3!
 
     // Graph Values used for rendering
     
@@ -294,8 +276,8 @@ final class GraphContext    : VariableContainer
     
     func resetGlobalCompilation()
     {
-        compiledGlobalCode = ""
-        compiledNodeNames = []
+        compiledGlobalCode  = ""
+        compiledNodeNames   = []
     }
     
     // Function parameters found for the current code block
@@ -381,57 +363,6 @@ final class GraphContext    : VariableContainer
             }
         }
         return materialId
-    }
-
-    /// Creates the default variables for the graph
-    func createDefaultVariables()
-    {
-        // Insert default variables
-        
-        parameters = []
-        let uv = Float2("uv", 0, 0)
-        uv.role = .System
-        parameters!.append(uv)
-        
-        let viewSize = Float2("viewSize", 0, 0)
-        viewSize.role = .System
-        parameters!.append(viewSize)
-        
-        let rP = Float3("rayPosition", 0, 0, 0)
-        rP.role = .System
-        parameters!.append(rP)
-        
-        outColor = Float4("outColor", 0.0, 0.0, 0.0, 0.0)
-        outColor.role = .System
-        variables["outColor"] = outColor
-        
-        outDistance = Float1("outDistance", 0.0)
-        outDistance.role = .System
-        variables["outDistance"] = outColor
-        
-        rayPosition = Float3("rayPosition", 0, 0, 0)
-        rayPosition.role = .System
-        variables["rayPosition"] = rayPosition
-        
-        rayOrigin = Float3("rayOrigin", 0, 0, 0)
-        rayOrigin.role = .System
-        variables["rayOrigin"] = rayOrigin
-        
-        rayDirection = Float3("rayDirection", 0, 0, 0)
-        rayDirection.role = .System
-        variables["rayDirection"] = rayDirection
-        
-        normal = Float3("normal", 0, 0, 0)
-        normal.role = .System
-        variables["normal"] = normal
-        
-        displacement = Float1("displacement", 0)
-        displacement.role = .System
-        variables["displacement"] = displacement
-        
-        bump = Float1("bump", 0)
-        bump.role = .System
-        variables["bump"] = bump
     }
     
     func createVariableBackup() -> ([String:float4],[String:float3], [String:float2], [String:Float])
