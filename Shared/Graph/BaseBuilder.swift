@@ -32,6 +32,8 @@ class GraphBuilder
 {
     var branches        : [GraphNodeItem] =
     [
+        GraphNodeItem("if", { (_ options: [String:Any]) -> GraphNode in return GraphIfNode(options) }),
+
         GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalObject(options) }),
         GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject(options) }),
         GraphNodeItem("sdfObject2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject2D(options) }),
@@ -160,17 +162,27 @@ class GraphBuilder
             {
                 var rc : [String] = []
                 
+                let conditionals = ["if"]
+                
                 if let first = string.firstIndex(of: "<")?.utf16Offset(in: string) {
 
                     let index = string.index(string.startIndex, offsetBy: first)
                     let possibleCommand = string[..<index]//string.prefix(index)
                     rc.append(String(possibleCommand))
-                    
-                    //let rest = string[index...]
-                    
+
                     var offset      : Int = first
                     var hierarchy   : Int = -1
                     var option      = ""
+                    
+                    /*
+                    if conditionals.contains(String(possibleCommand)) == true {
+                        while offset < string.count {
+                            option.append(string[offset])
+                            offset += 1
+                        }
+                        rc.append("condition:" + option.dropLast())
+                        return rc
+                    }*/
                     
                     while offset < string.count {
                         if string[offset] == "<" {
@@ -186,7 +198,9 @@ class GraphBuilder
                                 hierarchy = -1
                             } else
                             if hierarchy < 0 {
-                                error.error = "Syntax Error"
+                                if conditionals.contains(String(possibleCommand)) == false {
+                                    error.error = "Syntax Error"
+                                }
                             } else {
                                 hierarchy -= 1
                                 if hierarchy >= 0 {
@@ -200,7 +214,9 @@ class GraphBuilder
                         offset += 1
                     }
                     if option.isEmpty == false && error.error == nil {
-                        error.error = "Syntax Error: \(option)"
+                        if conditionals.contains(String(possibleCommand)) == false {
+                            error.error = "Syntax Error: \(option)"
+                        }
                     }
                 }
                                

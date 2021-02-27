@@ -85,7 +85,7 @@ class GraphNode : Equatable, Identifiable {
     }
     
     enum NodeContext {
-        case None, Analytical, SDF, SDF2D, Material, Definition
+        case None, Analytical, SDF, SDF2D, Material, Definition, Condition
     }
     
     var id                  = UUID()

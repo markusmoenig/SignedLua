@@ -115,9 +115,7 @@ final class GraphPrimitiveNode : GraphTransformationNode
             context.compiledGlobalCode.append(code)
             context.compiledNodeNames.append(defNode.givenName)
         }
-        
-        print("kkk",givenName, context.variables)
-        
+                
         var funcParamCode = ""
         var radiusValue : Float? = nil
         
