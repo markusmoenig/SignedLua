@@ -25,8 +25,7 @@ final class GPUSDFShader : GPUBaseShader
         context.resetGlobalCompilation()
         let code = sdfObject.generateMetalCode(context: pipeline.context)
         let globalCode = pipeline.context.compiledGlobalCode
-                        
-        print(code)
+        
         let fragmentCode =
         """
 
@@ -107,7 +106,7 @@ final class GPUSDFShader : GPUBaseShader
         }
 
         """
-        
+                
         compile(code: GPUBaseShader.getQuadVertexSource() + fragmentCode, shaders: [
                 GPUShader(id: "MAIN", blending: false),
         ])

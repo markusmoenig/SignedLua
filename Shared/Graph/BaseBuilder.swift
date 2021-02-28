@@ -174,7 +174,6 @@ class GraphBuilder
                     var hierarchy   : Int = -1
                     var option      = ""
                     
-                    /*
                     if conditionals.contains(String(possibleCommand)) == true {
                         while offset < string.count {
                             option.append(string[offset])
@@ -182,7 +181,7 @@ class GraphBuilder
                         }
                         rc.append("condition:" + option.dropLast())
                         return rc
-                    }*/
+                    }
                     
                     while offset < string.count {
                         if string[offset] == "<" {
@@ -198,9 +197,7 @@ class GraphBuilder
                                 hierarchy = -1
                             } else
                             if hierarchy < 0 {
-                                if conditionals.contains(String(possibleCommand)) == false {
-                                    error.error = "Syntax Error"
-                                }
+                                error.error = "Syntax Error"
                             } else {
                                 hierarchy -= 1
                                 if hierarchy >= 0 {
@@ -214,9 +211,7 @@ class GraphBuilder
                         offset += 1
                     }
                     if option.isEmpty == false && error.error == nil {
-                        if conditionals.contains(String(possibleCommand)) == false {
-                            error.error = "Syntax Error: \(option)"
-                        }
+                        error.error = "Syntax Error: \(option)"
                     }
                 }
                                

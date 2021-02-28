@@ -1126,6 +1126,7 @@ final class Float1 : BaseVariable
     
     override func toString() -> String {
         if name.isEmpty == false {
+            
             var qual = ""
             if qualifiers.count == 1 {
                 let a = ["x", "y", "z", "w"]

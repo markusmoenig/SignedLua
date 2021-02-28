@@ -89,7 +89,9 @@ final class GraphVariableAssignmentNode : GraphNode
                 } else {
                     if context.variables[givenName] == nil {
                         code = "\(v.getSIMDName()) \(givenName) = \(expression.toMetal())"
-                        v.name = givenName
+                        if v.name.isEmpty {
+                            v.name = givenName
+                        }
                         context.variables[givenName] = v
                     } else {
                         code = "\(givenName) \(assignmentCode()) \(expression.toMetal())"

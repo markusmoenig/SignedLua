@@ -93,6 +93,7 @@ class MultiplyAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
+        print("tt", right.name, skipRight, right.skip, right.toString(), right.reference)
         return (left.chained ? "" : left.toString()) + " * " + (skipRight == true || right.skip == true ? "" : right.toString())
     }
 }

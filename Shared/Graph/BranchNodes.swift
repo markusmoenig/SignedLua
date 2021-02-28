@@ -37,6 +37,7 @@ class GraphTransformationNode : GraphNode
         """
 
                 float3 transformedPosition = position / dataIn.data[\(scale.dataIndex!)].x;
+                
                 transformedPosition = translate(transformedPosition, dataIn.data[\(position.dataIndex!)].xyz);
                 float3 offsetFromCenter = objectPosition - dataIn.data[\(position.dataIndex!)].xyz;
 
@@ -191,7 +192,7 @@ final class GraphSDFObject : GraphTransformationNode
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
         }
-                
+                        
         context.addDataVariable(position)
 
         var code =

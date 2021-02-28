@@ -35,8 +35,7 @@ final class GraphDefPrimitiveNode : GraphNode
         var params = ""
         var code = "float \(givenName)(float3 rayPosition__PARAMS__) {\n"
 
-        context.parameters = [Float3("rayPosition", 0, 0, 0, .System)]
-        context.funcParameters = []
+        setEnvironmentVariables(context: context)
                 
         for leave in leaves {
             code += leave.generateMetalCode(context: context)
