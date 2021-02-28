@@ -307,7 +307,8 @@ final class GraphContext    : VariableContainer
         lines = [:]
         
         defPrimitiveNodes = []
-        
+        defBooleanNodes = []
+
         cameraNode = nil
         skyNode = nil
         sunNode = nil

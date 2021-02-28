@@ -22,6 +22,8 @@ class MultiplyAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
+        skipRight = right.skip
+        
         if left.components != right.components && left.components != 1 && right.components != 1 {
             error.error = "Cannot multiply \(left.getTypeName()) with \(right.getTypeName())"
         }
@@ -93,7 +95,6 @@ class MultiplyAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
-        print("tt", right.name, skipRight, right.skip, right.toString(), right.reference)
         return (left.chained ? "" : left.toString()) + " * " + (skipRight == true || right.skip == true ? "" : right.toString())
     }
 }
@@ -112,6 +113,8 @@ class DivisionAtomNode : ExpressionNode {
         
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
+        
+        skipRight = right.skip
         
         if left.components != right.components && left.components != 1 && right.components != 1 {
             error.error = "Cannot divide \(left.getTypeName()) with \(right.getTypeName())"
@@ -196,6 +199,8 @@ class MinusAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
+        skipRight = right.skip
+
         if left.components != right.components && left.components != 1 && right.components != 1 {
             error.error = "Cannot subtract \(right.getTypeName()) from \(left.getTypeName())"
         }
@@ -259,7 +264,7 @@ class MinusAtomNode : ExpressionNode {
     {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
-                
+                        
         return (left.chained ? "" : left.toString()) + " - " + (skipRight == true || right.skip == true ? "" : right.toString())
     }
 }

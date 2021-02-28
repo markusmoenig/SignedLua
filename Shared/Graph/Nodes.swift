@@ -19,6 +19,8 @@ final class GraphVariableAssignmentNode : GraphNode
     var expression                  : ExpressionContext? = nil
     /// The components  of the assignment (like outColor.xyz has 3 assignment components)
     var assignmentComponents        : Int = 0
+    /// The components  of the assignment (like outColor.xyz has 3 assignment components)
+    var assignmentText              : String = ""
     /// The assignment type
     var assignmentType              : AssignmentType = .Copy
     
@@ -94,7 +96,7 @@ final class GraphVariableAssignmentNode : GraphNode
                         }
                         context.variables[givenName] = v
                     } else {
-                        code = "\(givenName) \(assignmentCode()) \(expression.toMetal())"
+                        code = "\(givenName)\(assignmentText) \(assignmentCode()) \(expression.toMetal())"
                     }
                 }
             }

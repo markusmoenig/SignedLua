@@ -64,7 +64,6 @@ final class GraphDefBooleanNode : GraphNode
     
     override func setEnvironmentVariables(context: GraphContext)
     {
-        //context.parameters = [Float4("shapeA", 0, 0, 0, 0, .System), Float4("shapeB", 0, 0, 0, 0, .System)]
         context.funcParameters = []
         
         context.variables = [:]
@@ -84,13 +83,16 @@ final class GraphDefBooleanNode : GraphNode
     }
 }
 
-/// BoolMergeNode
-final class GraphBoolMergeNode : GraphNode
+/// sdfBoolean
+final class GraphBooleanNode : GraphNode
 {
+    var defNode                   : GraphDefBooleanNode!
+    
     init(_ options: [String:Any] = [:])
     {
         super.init(.Boolean, .SDF, options)
-        name = "boolMerge"
+        name = "sdfBoolean"
+        leaves = []
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
@@ -99,120 +101,77 @@ final class GraphBoolMergeNode : GraphNode
     /// Returns the metal code for this node
     override func generateMetalCode(context: GraphContext) -> String
     {
-        let code =
-        """
-
-            if (newDistance.x < distance.x) distance = newDistance;
-
-        """
+        if context.compiledNodeNames.contains(defNode.givenName) == false {
+            let vars = context.variables
+            let code = defNode.generateMetalCode(context: context)
+            context.variables = vars
+            context.compiledGlobalCode.append(code)
+            context.compiledNodeNames.append(defNode.givenName)
+        }
                 
-        return code
-    }
-    
-    override func getHelp() -> String
-    {
-        return "Merges the two previous SDFs."
-    }
-}
+        var funcParamCode = ""
+        
+        for p in defNode.funcParameters {
+            
+            funcParamCode += ", "
 
-/// BoolMergeNode
-final class GraphBoolSmoothMergeNode : GraphNode
-{
-    var smoothing = Float1(0.5)
-    
-    init(_ options: [String:Any] = [:])
-    {
-        super.init(.Boolean, .SDF, options)
-        name = "boolSmoothMerge"
-    }
-    
-    override func verifyOptions(context: GraphContext, error: inout CompileError) {
-        if let smoothing = extractFloat1Value(options, container: context, error: &error, name: "smoothing", isOptional: true) {
-            self.smoothing = smoothing
-        }
-    }
-    
-    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
-    {
-        if let index = smoothing.dataIndex, index < context.data.count {
-            context.data[index] = smoothing.toSIMD4()
-        }
+            if let text = p.argumentsIn[0].values[0] as? Text1 {
+                let name = text.name.lowercased()
+                
+                let varType = p.argumentsIn[1].lastResult?.getType()
 
-        return .Success
-    }
-    
-    /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> String
-    {
-        context.addDataVariable(smoothing)
-
-        let code =
-        """
-
-            {
-                float k = dataIn.data[\(smoothing.dataIndex!)].x;
-                float h = clamp( 0.5 + 0.5 * (newDistance.x - distance.x) / k, 0.0, 1.0);
-                float dist = mix(newDistance.x, distance.x, h) - k * h * (1.0 - h);
-                float4 shape = distance;
-
-                if (newDistance.x < distance.x) {
-                    distance = newDistance;
-                    float blend = fract(distance.z);
-                    //if (blend >= 0.999) {
-                        distance.z = shape.w;
-                        distance.z += clamp( 1.0 - h, 0.0, 0.999);
-                    //}
+                if let value = options[name] as? String {
+                    
+                    var error = CompileError()
+                    let exp = ExpressionContext()
+                    exp.parse(expression: value, container: context, defaultVariableType: varType, error: &error)
+                    if error.error == nil {
+                     
+                        if let _ = exp.execute() {
+                            funcParamCode += exp.toMetal(embedded: true)
+                        }
+                    }
                 } else {
-                    float blend = fract(distance.z);
-                    //if (blend <= 0.999) {
-                        distance.z = newDistance.w;
-                        distance.z += clamp( h, 0.0, 0.999);
-                    //}
+                    // If option is not present, used default value
+                    if let result = p.argumentsIn[1].execute() {
+                        funcParamCode += String(result.toSIMD1())
+                    }
                 }
-                distance.x = dist;
             }
+        }
+
+        var code =
+        """
+
+            distance = \(defNode.givenName)(distance, newDistance__FUNC_PARAM_CODE__);
 
         """
                 
+        code = code.replacingOccurrences(of: "__FUNC_PARAM_CODE__", with: funcParamCode)
+        
         return code
     }
     
     override func getHelp() -> String
     {
-        return "Merges the two previous SDFs."
-    }
-}
-
-/// GraphBoolSubtractNode
-final class GraphBoolSubtractNode : GraphNode
-{
-    init(_ options: [String:Any] = [:])
-    {
-        super.init(.Boolean, .SDF, options)
-        name = "boolSubtract"
+        return "Definition of an sdfBoolean."
     }
     
-    override func verifyOptions(context: GraphContext, error: inout CompileError) {
-    }
-    
-    /// Returns the metal code for this node
-    override func generateMetalCode(context: GraphContext) -> String
+    override func getOptions() -> [GraphOption]
     {
-        let code =
-        """
+        var options : [GraphOption] = []
+        for p in defNode.funcParameters {
+            
+            if let text = p.argumentsIn[0].values[0] as? Text1 {
+                let name = text.name
 
-            if (-newDistance.x > distance.x) {
-                distance = newDistance;
-                distance.x = -distance.x;
+                if let result = p.argumentsIn[1].execute() {
+                    if result.getType() == .Float {
+                        options.append(GraphOption(result, name, ""))
+                    }
+                }
             }
-
-        """
-                
-        return code
-    }
-    
-    override func getHelp() -> String
-    {
-        return "Subtracts the last SDF."
+        }
+        return options
     }
 }

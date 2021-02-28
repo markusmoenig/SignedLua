@@ -32,7 +32,7 @@ class VariableContainer
 class BaseVariable {
     
     enum VariableType {
-        case Invalid, Bool, Text, Int, Float, Float2, Float3, Float4
+        case Invalid, Unknown, Bool, Text, Int, Float, Float2, Float3, Float4
     }
     
     enum VariableRole {
@@ -432,7 +432,51 @@ final class Float4 : BaseVariable
     }
     
     override func toString() -> String {
-        return "\(String(x)), \((String(y))), \((String(z))), \((String(w)))"
+        if name.isEmpty == false {
+            return name
+        } else
+        if isConstant() {
+            return "float4(\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z)), \(String(format: "%.03g", w)))"
+        } else
+        if expressions == 0 {
+            if let context = context {
+                return context.toMetal()
+            }
+        } else
+        if expressions == 4 {
+        
+            var stringX = "0"
+            var stringY = "0"
+            var stringZ = "0"
+            var stringW = "0"
+
+            if let c1 = context1 {
+                stringX = c1.toMetal(embedded: true)
+            } else {
+                stringX = String(format: "%.03g", x)
+             }
+            
+            if let c2 = context2 {
+                stringY = c2.toMetal(embedded: true)
+            } else {
+                stringY = String(format: "%.03g", y)
+             }
+            
+            if let c3 = context3 {
+                stringZ = c3.toMetal(embedded: true)
+            } else {
+               stringZ = String(format: "%.03g", z)
+            }
+            
+            if let c4 = context4 {
+                stringW = c4.toMetal(embedded: true)
+            } else {
+               stringW = String(format: "%.03g", w)
+            }
+            
+            return "\(stringX), \(stringY), \(stringZ), \(stringW)"
+        }
+        return ""
     }
     
     @inlinable override func toSIMD4() -> SIMD4<Float>
@@ -1126,7 +1170,6 @@ final class Float1 : BaseVariable
     
     override func toString() -> String {
         if name.isEmpty == false {
-            
             var qual = ""
             if qualifiers.count == 1 {
                 let a = ["x", "y", "z", "w"]
@@ -1322,5 +1365,21 @@ final class Text1 : BaseVariable
     
     override func getTypeName() -> String {
         return "Text"
+    }
+}
+
+final class Unknown1 : BaseVariable
+{
+    init(_ name: String)
+    {
+        super.init(name)
+    }
+    
+    override func getType() -> BaseVariable.VariableType {
+        return .Unknown
+    }
+    
+    override func getTypeName() -> String {
+        return "Unknown"
     }
 }

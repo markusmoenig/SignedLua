@@ -33,6 +33,7 @@ class GraphBuilder
     var branches        : [GraphNodeItem] =
     [
         GraphNodeItem("if", { (_ options: [String:Any]) -> GraphNode in return GraphIfNode(options) }),
+        GraphNodeItem("else", { (_ options: [String:Any]) -> GraphNode in return GraphElseNode(options) }),
 
         GraphNodeItem("analyticalObject", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalObject(options) }),
         GraphNodeItem("sdfObject", { (_ options: [String:Any]) -> GraphNode in return GraphSDFObject(options) }),
@@ -48,10 +49,6 @@ class GraphBuilder
         GraphNodeItem("analyticalGroundPlane", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalGroundPlaneNode(options) }),
         
         GraphNodeItem("sdfCircle2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFCircleNode2D(options) }),
-        
-        GraphNodeItem("boolMerge", { (_ options: [String:Any]) -> GraphNode in return GraphBoolMergeNode(options) }),
-        GraphNodeItem("boolSubtract", { (_ options: [String:Any]) -> GraphNode in return GraphBoolSubtractNode(options) }),
-        GraphNodeItem("boolSmoothMerge", { (_ options: [String:Any]) -> GraphNode in return GraphBoolSmoothMergeNode(options) }),
     ]
     
     init()
@@ -128,7 +125,7 @@ class GraphBuilder
             var assignmentType : GraphVariableAssignmentNode.AssignmentType = .Copy
             
             // --- Check for variable assignment
-            if leftOfComment.contains("="){
+            if leftOfComment.contains(" = ") || leftOfComment.contains("*=") || leftOfComment.contains("/=") || leftOfComment.contains("+=") || leftOfComment.contains("-="){
              
                 var values : [String] = []
                 
@@ -179,7 +176,7 @@ class GraphBuilder
                             option.append(string[offset])
                             offset += 1
                         }
-                        rc.append("condition:" + option.dropLast())
+                        rc.append("condition:" + option.dropLast().dropFirst())
                         return rc
                     }
                     
@@ -398,6 +395,15 @@ class GraphBuilder
                                         addNode(node)
                                     }
                                 }
+                                for defNode in graph.defBooleanNodes {
+                                    if defNode.givenName == possbibleCmd {
+                                        
+                                        let node = GraphBooleanNode()
+                                        node.options = nodeOptions
+                                        node.defNode = defNode
+                                        addNode(node)
+                                    }
+                                }
                             }
                         }
                     } else
@@ -423,12 +429,14 @@ class GraphBuilder
                                 }
                                 
                                 var assignmentComponents : Int = 0
-                                
+                                var assignmentText = ""
+
                                 if variableName.contains(".") {
                                     let array = variableName.split(separator: ".")
                                     if array.count == 2 {
                                         variableName = String(array[0])
                                         assignmentComponents = array[1].count
+                                        assignmentText = "." + array[1]
                                     }
                                 }
                                 
@@ -436,6 +444,7 @@ class GraphBuilder
                                 variableNode.givenName = variableName
                                 variableNode.assignmentComponents = assignmentComponents
                                 variableNode.assignmentType = assignmentType
+                                variableNode.assignmentText = assignmentText
                                 variableNode.expression = exp
                                 
                                 variableNode.execute(context: asset.graph!)

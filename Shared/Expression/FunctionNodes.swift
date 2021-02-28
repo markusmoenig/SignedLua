@@ -76,7 +76,7 @@ class MixFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -133,7 +133,7 @@ class ClampFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -188,7 +188,7 @@ class PowFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -239,7 +239,7 @@ class ModFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -290,7 +290,7 @@ class StepFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -341,7 +341,7 @@ class SinFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -389,7 +389,7 @@ class CosFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -437,7 +437,7 @@ class MinFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -488,7 +488,7 @@ class MaxFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -539,7 +539,7 @@ class AbsFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -593,7 +593,7 @@ class NormalizeFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -634,6 +634,114 @@ class NormalizeFuncNode : ExpressionNode {
     }
 }
 
+class FractFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("fract")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult?.createType()
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        guard let result = argumentsIn[0].execute() else {
+            return
+        }
+        
+        if result.getType() == .Float3 {
+            context.values[destIndex] = Float3(fract(result.toSIMD3()))
+        } else
+        if result.getType() == .Float4 {
+            context.values[destIndex] = Float4(fract(result.toSIMD4()))
+        } else
+        if result.getType() == .Float2 {
+            context.values[destIndex] = Float2(fract(result.toSIMD2()))
+        } else
+        if result.getType() == .Float {
+            context.values[destIndex] = Float1(simd_fract(result.toSIMD1()))
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "fract(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns the fractional part of the value."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(1,1,1), "Value", "", optionals: [Float1(), Float2(), Float4()])
+        ]
+        return options
+    }
+}
+
+class FloorFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("floor")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult?.createType()
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        guard let result = argumentsIn[0].execute() else {
+            return
+        }
+        
+        if result.getType() == .Float3 {
+            context.values[destIndex] = Float3(floor(result.toSIMD3()))
+        } else
+        if result.getType() == .Float4 {
+            context.values[destIndex] = Float4(floor(result.toSIMD4()))
+        } else
+        if result.getType() == .Float2 {
+            context.values[destIndex] = Float2(floor(result.toSIMD2()))
+        } else
+        if result.getType() == .Float {
+            context.values[destIndex] = Float1(floor(result.toSIMD1()))
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "floor(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns the integer part of the value."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(1,1,1), "Value", "", optionals: [Float1(), Float2(), Float4()])
+        ]
+        return options
+    }
+}
+
 class LengthFuncNode : ExpressionNode {
     
     init()
@@ -644,7 +752,7 @@ class LengthFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -695,7 +803,7 @@ class ReflectFuncNode : ExpressionNode {
     override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
     {
         if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
+            return argumentsIn[0].lastResult?.createType()
         }
         return nil
     }
@@ -728,88 +836,6 @@ class ReflectFuncNode : ExpressionNode {
         let options = [
             GraphOption(Float3(1,1,1), "Incident vector", "", optionals: [Float2(), Float4()]),
             GraphOption(Float3(1,1,1), "Normal", "", optionals: [Float2(), Float4()])
-        ]
-        return options
-    }
-}
-
-class Noise2DFuncNode : ExpressionNode {
-    
-    var smoothing : Int = 1
-    
-    init()
-    {
-        super.init("noise2D")
-    }
-    
-    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
-    {
-        self.destIndex = destIndex
-        if verifyOptions(name, container, parameters, &error) {
-            return argumentsIn[0].lastResult
-        }
-        return nil
-    }
-    
-    // https://www.shadertoy.com/view/4dS3Wd
-    @inlinable func hash(_ p: float2) -> Float
-    {
-        var p3 = simd_fract(float3(p.x, p.y, p.x) * 0.13)
-        p3 += simd_dot(p3, float3(p3.y, p3.z, p3.x) + 3.333)
-        return simd_fract((p3.x + p3.y) * p3.z)
-    }
-    
-    @inlinable func noise(_ x: float2) -> Float
-    {
-        let i = floor(x)
-        let f = simd_fract(x)
-
-        let a : Float = hash(i)
-        let b : Float = hash(i + float2(1.0, 0.0))
-        let c : Float = hash(i + float2(0.0, 1.0))
-        let d : Float = hash(i + float2(1.0, 1.0))
-
-        let u : float2 = f * f * (3.0 - 2.0 * f)
-        return simd_mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y
-    }
-        
-    func fbm(_ p: float2) -> Float {
-        var x = p
-        var v : Float = 0.0
-        var a : Float = 0.5
-        let shift = float2(100, 100)
-        // Rotate to reduce axial bias
-        let rot = simd_float2x2(float2(cos(0.5), sin(0.5)), float2(-sin(0.5), cos(0.50)))
-        for _ in 0..<smoothing {
-            v += a * noise(x)
-            x = rot * x * 2.0 + shift
-            a *= 0.5
-        }
-        return v
-    }
-    
-    @inlinable override func execute(_ context: ExpressionContext)
-    {
-        if let f2 = argumentsIn[0].execute() as? Float2 {
-            if let f1 = argumentsIn[1].execute() as? Float1 {
-                smoothing = Int(f1.x)
-                let rc = fbm(f2.toSIMD())
-                let v = Float1(); v.fromSIMD(rc)
-                context.values[destIndex] = v
-            }
-        }
-    }
-    
-    override func getHelp() -> String
-    {
-        return "Generates 2D noise."
-    }
-    
-    override func getOptions() -> [GraphOption]
-    {
-        let options = [
-            GraphOption(Float2(1,1), "Position", ""),
-            GraphOption(Float1(1), "Smoothing", "")
         ]
         return options
     }
@@ -962,6 +988,49 @@ class Float3FuncNode : ExpressionNode {
     {
         let options = [
             GraphOption(Float3(0, 0, 0), "Value", ""),
+        ]
+        return options
+    }
+}
+
+class BracketNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("<>")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        guard let result = argumentsIn[0].execute() else {
+            return
+        }
+        
+        context.values[destIndex] = result
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "(" + argumentsIn[0].toMetal(embedded: true) + ")"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "A bracket."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Unknown1(""), "Expression", ""),
         ]
         return options
     }

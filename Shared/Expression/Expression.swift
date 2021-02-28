@@ -95,7 +95,7 @@ class ExpressionNode {
             error.error = "Wrong number of parameters for \(functionName): \(array.count). Should be \(options.count)."
             return false
         }
-                
+                        
         for i in 0..<options.count {
             let context = ExpressionContext()
             context.parse(expression: array[i], container: container, error: &error)
@@ -106,7 +106,7 @@ class ExpressionNode {
                     let type = rc.getType()
                     // Check type
                     var rightType = false
-                    if type == options[i].variable.getType() {
+                    if type == options[i].variable.getType() || options[i].variable.getType() == .Unknown{
                         rightType = true
                     } else {
                         for v in options[i].optionals {
@@ -237,8 +237,10 @@ class ExpressionContext
         ExpressionNodeItem("length", {() -> ExpressionNode in return LengthFuncNode() }),
         ExpressionNodeItem("normalize", {() -> ExpressionNode in return NormalizeFuncNode() }),
         ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
-        ExpressionNodeItem("noise2D", {() -> ExpressionNode in return Noise2DFuncNode() }),
         
+        ExpressionNodeItem("fract", {() -> ExpressionNode in return FractFuncNode() }),
+        ExpressionNodeItem("floor", {() -> ExpressionNode in return FloorFuncNode() }),
+
         ExpressionNodeItem("ParamFloat", {() -> ExpressionNode in return ParamFloatFuncNode() }),
         ExpressionNodeItem("ParamFloat3", {() -> ExpressionNode in return ParamFloat3FuncNode() }),
         ExpressionNodeItem("Float3", {() -> ExpressionNode in return Float3FuncNode() })
@@ -479,22 +481,32 @@ class ExpressionContext
                     values.append(variable)
                     
                     testForConsumption()
-                } else
-                if let functionNode = getFunction(element) {
-                    functionNode.destIndex = values.count
-                    if let result = functionNode.setupFunction(container, parameters, &error) {
+                } else {
+                    var functionNode : ExpressionNode? = nil
                     
-                        if functionNode.resultType == .Variable {
-                            resultType = .Variable
+                    if element.isEmpty {
+                        functionNode = BracketNode()
+                    } else {
+                        functionNode = getFunction(element)
+                    }
+                    
+                    if let functionNode = functionNode {
+                        functionNode.destIndex = values.count
+                        if let result = functionNode.setupFunction(container, parameters, &error) {
+                        
+                            if functionNode.resultType == .Variable {
+                                resultType = .Variable
+                            }
+
+                            if error.error != nil { return }
+
+                            result.skip = true
+                            
+                            uncomsumed.append(values.count)
+                            values.append(result)
+                            testForConsumption()
+                            nodes.append(functionNode)
                         }
-
-                        if error.error != nil { return }
-
-                        result.skip = true
-                        uncomsumed.append(values.count)
-                        values.append(result)
-                        testForConsumption()
-                        nodes.append(functionNode)
                     }
                 }
             }
