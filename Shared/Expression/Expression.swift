@@ -240,6 +240,7 @@ class ExpressionContext
         
         ExpressionNodeItem("fract", {() -> ExpressionNode in return FractFuncNode() }),
         ExpressionNodeItem("floor", {() -> ExpressionNode in return FloorFuncNode() }),
+        ExpressionNodeItem("round", {() -> ExpressionNode in return RoundFuncNode() }),
 
         ExpressionNodeItem("ParamFloat", {() -> ExpressionNode in return ParamFloatFuncNode() }),
         ExpressionNodeItem("ParamFloat3", {() -> ExpressionNode in return ParamFloat3FuncNode() }),

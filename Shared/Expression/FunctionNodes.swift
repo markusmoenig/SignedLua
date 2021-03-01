@@ -171,8 +171,8 @@ class ClampFuncNode : ExpressionNode {
     {
         let options = [
             GraphOption(Float3(1,1,1), "Value", "", optionals: [Float1(), Float2(), Float4()]),
-            GraphOption(Float1(0), "Lower Bound", ""),
-            GraphOption(Float1(0), "Upper Bound", "")
+            GraphOption(Float1(0), "Lower Bound", "", optionals: [Float3(), Float2(), Float4()]),
+            GraphOption(Float1(0), "Upper Bound", "", optionals: [Float3(), Float2(), Float4()])
         ]
         return options
     }
@@ -731,6 +731,54 @@ class FloorFuncNode : ExpressionNode {
     override func getHelp() -> String
     {
         return "Returns the integer part of the value."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(1,1,1), "Value", "", optionals: [Float1(), Float2(), Float4()])
+        ]
+        return options
+    }
+}
+
+class RoundFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("round")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult?.createType()
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        guard let input = argumentsIn[0].execute() else {
+            return
+        }
+        
+        let v = input.createType()
+        
+        for i in 0..<v.components {
+            v[i] = round(input[i])
+        }
+        context.values[destIndex] = v
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "round(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns the rounded integer part of the value."
     }
     
     override func getOptions() -> [GraphOption]

@@ -41,7 +41,8 @@ class GraphBuilder
         GraphNodeItem("Material", { (_ options: [String:Any]) -> GraphNode in return GraphMaterialNode(options) }),
         
         GraphNodeItem("defPrimitive", { (_ options: [String:Any]) -> GraphNode in return GraphDefPrimitiveNode(options) }),
-        GraphNodeItem("defBoolean", { (_ options: [String:Any]) -> GraphNode in return GraphDefBooleanNode(options) })
+        GraphNodeItem("defBoolean", { (_ options: [String:Any]) -> GraphNode in return GraphDefBooleanNode(options) }),
+        GraphNodeItem("defOperator", { (_ options: [String:Any]) -> GraphNode in return GraphDefOperatorNode(options) })
     ]
     
     var leaves          : [GraphNodeItem] =
@@ -251,96 +252,119 @@ class GraphBuilder
                         
                         let nodeOptions = self.parser_processOptions(options, &error)
                         
-                        // Looking for branch
-                        for branch in self.branches {
-                            if branch.name == possbibleCmd {
+                        func addBranch(_ newBranch: GraphNode)
+                        {
+                            newBranch.verifyOptions(context: asset.graph!, error: &error)
+                            
+                            if error.error == nil {
+                            
+                                // Special Nodes which do not get appended to nodes
+                                if newBranch.role == .Camera {
+                                    asset.graph!.cameraNode = newBranch
+                                    
+                                    newBranch.lineNr = error.line!
+                                    asset.graph!.lines[error.line!] = newBranch
+                                    processed = true
+                                } else
+                                if newBranch.role == .Sky {
+                                    asset.graph!.skyNode = newBranch
+                                    
+                                    newBranch.lineNr = error.line!
+                                    graph.lines[error.line!] = newBranch
+                                    processed = true
+                                } else
+                                if newBranch.role == .Sun {
+                                    asset.graph!.sunNode = newBranch
+                                    
+                                    newBranch.lineNr = error.line!
+                                    graph.lines[error.line!] = newBranch
+                                    processed = true
+                                }
+                                
+                                if processed == false {
 
-                                let newBranch = branch.createNode(nodeOptions)
-                                newBranch.verifyOptions(context: asset.graph!, error: &error)
-                                
-                                if error.error == nil {
-                                
-                                    // Special Nodes which do not get appended to nodes
-                                    if newBranch.role == .Camera {
-                                        asset.graph!.cameraNode = newBranch
+                                    if level == 0 {
+                                        
+                                        asset.graph!.nodes.append(newBranch)
+                                        currentBranch = []
+                                        
+                                        newBranch.setEnvironmentVariables(context: graph)
+                                        
+                                        if newBranch.context == .Analytical {
+                                            asset.graph!.analyticalNodes.append(newBranch)
+                                            graph.objectNodes.append(newBranch)
+                                        } else
+                                        if newBranch.role == .SDF && newBranch.context == .Definition {
+                                            if let defNode = newBranch as? GraphDefPrimitiveNode {
+                                                asset.graph!.defPrimitiveNodes.append(defNode)
+                                            }
+                                        } else
+                                        if newBranch.role == .Boolean && newBranch.context == .Definition {
+                                            if let defNode = newBranch as? GraphDefBooleanNode {
+                                                asset.graph!.defBooleanNodes.append(defNode)
+                                            }
+                                        } else
+                                        if newBranch.role == .Operator && newBranch.context == .Definition {
+                                            if let defNode = newBranch as? GraphDefOperatorNode {
+                                                asset.graph!.defOperatorNodes.append(defNode)
+                                            }
+                                        } else
+                                        if newBranch.context == .SDF {
+                                            asset.graph!.sdfNodes.append(newBranch)
+                                            graph.objectNodes.append(newBranch)
+                                        } else
+                                        if newBranch.context == .SDF2D {
+                                            asset.graph!.sdf2DNodes.append(newBranch)
+                                        } else
+                                        if newBranch.context == .Material {
+                                            asset.graph!.materialNodes.append(newBranch)
+                                        } else
+                                        if newBranch.role == .Light {
+                                            if let lightNode = newBranch as? GraphLightNode {
+                                                asset.graph!.lightNodes.append(lightNode)
+                                            }
+                                        }
+                                    }
+                                    
+                                    if currentBranch.count == 0 {
+                                        currentBranch.append(newBranch)
                                         
                                         newBranch.lineNr = error.line!
                                         asset.graph!.lines[error.line!] = newBranch
-                                        processed = true
-                                    } else
-                                    if newBranch.role == .Sky {
-                                        asset.graph!.skyNode = newBranch
-                                        
-                                        newBranch.lineNr = error.line!
-                                        graph.lines[error.line!] = newBranch
-                                        processed = true
-                                    } else
-                                    if newBranch.role == .Sun {
-                                        asset.graph!.sunNode = newBranch
-                                        
-                                        newBranch.lineNr = error.line!
-                                        graph.lines[error.line!] = newBranch
-                                        processed = true
-                                    }
-                                    
-                                    if processed == false {
-
-                                        if level == 0 {
-                                            
-                                            asset.graph!.nodes.append(newBranch)
-                                            currentBranch = []
-                                            
-                                            newBranch.setEnvironmentVariables(context: graph)
-                                            
-                                            if newBranch.context == .Analytical {
-                                                asset.graph!.analyticalNodes.append(newBranch)
-                                                graph.objectNodes.append(newBranch)
-                                            } else
-                                            if newBranch.role == .SDF && newBranch.context == .Definition {
-                                                if let defNode = newBranch as? GraphDefPrimitiveNode {
-                                                    asset.graph!.defPrimitiveNodes.append(defNode)
-                                                }
-                                            } else
-                                            if newBranch.role == .Boolean && newBranch.context == .Definition {
-                                                if let defNode = newBranch as? GraphDefBooleanNode {
-                                                    asset.graph!.defBooleanNodes.append(defNode)
-                                                }
-                                            } else
-                                            if newBranch.context == .SDF {
-                                                asset.graph!.sdfNodes.append(newBranch)
-                                                graph.objectNodes.append(newBranch)
-                                            } else
-                                            if newBranch.context == .SDF2D {
-                                                asset.graph!.sdf2DNodes.append(newBranch)
-                                            } else
-                                            if newBranch.context == .Material {
-                                                asset.graph!.materialNodes.append(newBranch)
-                                            } else
-                                            if newBranch.role == .Light {
-                                                if let lightNode = newBranch as? GraphLightNode {
-                                                    asset.graph!.lightNodes.append(lightNode)
-                                                }
-                                            }
-                                        }
-                                        
-                                        if currentBranch.count == 0 {
-                                            currentBranch.append(newBranch)
+                                    } else {
+                                        if let branch = currentBranch.last {
+                                            branch.leaves.append(newBranch)
                                             
                                             newBranch.lineNr = error.line!
                                             asset.graph!.lines[error.line!] = newBranch
-                                        } else {
-                                            if let branch = currentBranch.last {
-                                                branch.leaves.append(newBranch)
-                                                
-                                                newBranch.lineNr = error.line!
-                                                asset.graph!.lines[error.line!] = newBranch
-                                            }
-                                            currentBranch.append(newBranch)
                                         }
-                                        processed = true
+                                        currentBranch.append(newBranch)
                                     }
+                                    processed = true
                                 }
                             }
+
+                        }
+                        
+                        // Looking for branch
+                        for branch in self.branches {
+                            if branch.name == possbibleCmd {
+                                let newBranch = branch.createNode(nodeOptions)
+                                addBranch(newBranch)
+                            }
+                        }
+                        
+                        if processed == false {
+                            // Check for Operators
+                            for defNode in graph.defOperatorNodes {
+                                if defNode.givenName == possbibleCmd {
+                                    
+                                    let node = GraphOperatorNode()
+                                    node.options = nodeOptions
+                                    node.defNode = defNode
+                                    addBranch(node)
+                                }
+                            }                            
                         }
                         
                         if processed == false {

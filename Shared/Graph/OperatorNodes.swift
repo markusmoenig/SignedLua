@@ -1,22 +1,25 @@
 //
-//  GraphBoolNodes.swift
+//  OperatorNodes.swift
 //  Signed
 //
-//  Created by Markus Moenig on 14/12/20.
+//  Created by Markus Moenig on 1/3/21.
 //
+
+import Foundation
+
 
 import MetalKit
 import simd
 
-/// defBoolean
-final class GraphDefBooleanNode : GraphNode
+/// defOperator
+final class GraphDefOperatorNode : GraphNode
 {
     var funcParameters : [ExpressionNode] = []
     
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Boolean, .Definition, options)
-        name = "defBoolean"
+        super.init(.Operator, .Definition, options)
+        name = "defOperator"
         leaves = []
     }
     
@@ -24,7 +27,7 @@ final class GraphDefBooleanNode : GraphNode
         if let name = options["name"] as? String {
             self.givenName = name.replacingOccurrences(of: "\"", with: "", options: NSString.CompareOptions.literal, range: nil)
         } else {
-            error.error = "defBoolean needs a 'Name' parameter"
+            error.error = "defOperator needs a 'Name' parameter"
         }
     }
     
@@ -32,8 +35,8 @@ final class GraphDefBooleanNode : GraphNode
     override func generateMetalCode(context: GraphContext) -> String
     {
         var params = ""
-        var code = "float4 \(givenName)(float4 shapeA, float4 shapeB__PARAMS__) {\n"
-        code += "  float4 outShape = shapeA;\n"
+        var code = "float3 \(givenName)(float3 domain__PARAMS__) {\n"
+        code += "  float3 outDomain = domain;\n"
 
         setEnvironmentVariables(context: context)
                 
@@ -57,7 +60,7 @@ final class GraphDefBooleanNode : GraphNode
     
         code = code.replacingOccurrences(of: "__PARAMS__", with: params)
         
-        code += "  return outShape;\n"
+        code += "  return outDomain;\n"
         code += "}\n"
                 
         return code
@@ -68,14 +71,13 @@ final class GraphDefBooleanNode : GraphNode
         context.funcParameters = []
         
         context.variables = [:]
-        context.variables["shapeA"] = Float4("shapeA", 0, 0, 0, 0, .System)
-        context.variables["shapeB"] = Float4("shapeB", 0, 0, 0, 0, .System)
-        context.variables["outShape"] = Float4("outShape", 0, 0, 0, 0, .System)
+        context.variables["domain"] = Float3("domain", 0, 0, 0, .System)
+        context.variables["outDomain"] = Float3("outDomain", 0, 0, 0, .System)
     }
     
     override func getHelp() -> String
     {
-        return "Definition of an sdfPrimitive, like a sphere or a cube."
+        return "Definition of an sdfOperator."
     }
     
     override func getOptions() -> [GraphOption]
@@ -86,18 +88,27 @@ final class GraphDefBooleanNode : GraphNode
 }
 
 /// sdfBoolean
-final class GraphBooleanNode : GraphNode
+final class GraphOperatorNode : GraphNode
 {
-    var defNode                   : GraphDefBooleanNode!
+    var defNode                   : GraphDefOperatorNode!
     
     init(_ options: [String:Any] = [:])
     {
-        super.init(.Boolean, .SDF, options)
-        name = "sdfBoolean"
+        super.init(.Operator, .SDF, options)
+        name = "sdfOperator"
         leaves = []
     }
     
     override func verifyOptions(context: GraphContext, error: inout CompileError) {
+    }
+    
+    @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
+    {
+        for leave in leaves {
+            leave.execute(context: context)
+        }
+        
+        return .Success
     }
     
     /// Returns the metal code for this node
@@ -142,14 +153,28 @@ final class GraphBooleanNode : GraphNode
             }
         }
 
+        let tempName = context.getTempVariableName()
+        
         var code =
         """
 
-            distance = \(defNode.givenName)(distance, newDistance__FUNC_PARAM_CODE__);
+            float3 \(tempName) = position;
+            position = \(defNode.givenName)(position__FUNC_PARAM_CODE__);
 
         """
-                
+                        
         code = code.replacingOccurrences(of: "__FUNC_PARAM_CODE__", with: funcParamCode)
+        
+        for leave in leaves {
+            code += leave.generateMetalCode(context: context)
+        }
+        
+        code +=
+        """
+
+            position = \(tempName);
+
+        """
         
         return code
     }
