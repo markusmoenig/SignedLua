@@ -10,7 +10,7 @@ import MetalKit
 class GPURenderPipeline
 {
     enum Status {
-        case Idle, Compiling, Rendering
+        case Idle, Compiling, Rendering, Invalid
     }
     
     var view            : MTKView
@@ -174,7 +174,7 @@ class GPURenderPipeline
     {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
 
-            if self.status != .Idle && self.isStopped == false {
+            if (self.status != .Idle && self.status != .Invalid) && self.isStopped == false {
                 return
             }
 
@@ -197,7 +197,7 @@ class GPURenderPipeline
                     
             self.startRendering()
             self.clearTexture(self.finalTexture!, float4(0, 0, 0, 0))
-
+            
             self.depth = 0
             self.samples = 0
             self.computePass()
@@ -215,6 +215,17 @@ class GPURenderPipeline
     {
         stop()
         render()
+    }
+    
+    func setInvalid(_ text: String)
+    {
+        stop()
+        status = .Invalid
+        startRendering()
+        if let finalTexture = finalTexture {
+            clearTexture(finalTexture, float4(0, 0, 0, 1))
+        }
+        commitAndStopRendering()
     }
     
     func startRendering()

@@ -154,14 +154,21 @@ final class GraphPrimitiveNode : GraphTransformationNode
                 }
             }
         }
+        
+        var opCode = ""
 
+        for c in context.operatorCode {
+            opCode += "        transformedPosition = \(c)\n"
+            opCode += "        hash = dataIn.hash;\n"
+        }
+        
         var code =
         """
-
+        
             {
                 \(generateMetalTransformCode(context: context))
-                
-                newDistance = float4(\(defNode.givenName)(transformedPosition__FUNC_PARAM_CODE__), 0, -1, \(context.getMaterialIndex()));
+                \(opCode)
+                newDistance = float4(\(defNode.givenName)(transformedPosition__FUNC_PARAM_CODE__), 1, -1, \(context.getMaterialIndex()));
             }
 
         """

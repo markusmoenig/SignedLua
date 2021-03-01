@@ -35,8 +35,9 @@ final class GraphDefOperatorNode : GraphNode
     override func generateMetalCode(context: GraphContext) -> String
     {
         var params = ""
-        var code = "float3 \(givenName)(float3 domain__PARAMS__) {\n"
+        var code = "float3 \(givenName)(float3 domain, thread DataIn &dataIn__PARAMS__) {\n"
         code += "  float3 outDomain = domain;\n"
+        code += "  float outHash = dataIn.hash;\n"
 
         setEnvironmentVariables(context: context)
                 
@@ -60,6 +61,7 @@ final class GraphDefOperatorNode : GraphNode
     
         code = code.replacingOccurrences(of: "__PARAMS__", with: params)
         
+        code += "  dataIn.hash = outHash;\n"
         code += "  return outDomain;\n"
         code += "}\n"
                 
@@ -73,6 +75,7 @@ final class GraphDefOperatorNode : GraphNode
         context.variables = [:]
         context.variables["domain"] = Float3("domain", 0, 0, 0, .System)
         context.variables["outDomain"] = Float3("outDomain", 0, 0, 0, .System)
+        context.variables["outHash"] = Float1("outHash", 0, .System)
     }
     
     override func getHelp() -> String
@@ -152,29 +155,18 @@ final class GraphOperatorNode : GraphNode
                 }
             }
         }
-
-        let tempName = context.getTempVariableName()
+                
+        var opCode = "\(defNode.givenName)(transformedPosition, dataIn__FUNC_PARAM_CODE__);\n"
+        opCode = opCode.replacingOccurrences(of: "__FUNC_PARAM_CODE__", with: funcParamCode)
         
-        var code =
-        """
-
-            float3 \(tempName) = position;
-            position = \(defNode.givenName)(position__FUNC_PARAM_CODE__);
-
-        """
-                        
-        code = code.replacingOccurrences(of: "__FUNC_PARAM_CODE__", with: funcParamCode)
+        context.operatorCode.append(opCode)
         
+        var code = ""
         for leave in leaves {
             code += leave.generateMetalCode(context: context)
         }
-        
-        code +=
-        """
 
-            position = \(tempName);
-
-        """
+        _ = context.operatorCode.dropLast()
         
         return code
     }

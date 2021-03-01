@@ -273,6 +273,9 @@ final class GraphContext    : VariableContainer
     
     var variableCounter     : Int = 0
     
+    /// The current operator code for sdfs
+    var operatorCode        : [String] = []
+    
     func getTempVariableName() -> String {
         let name = "temp\(String(variableCounter))"
         variableCounter += 1
@@ -287,6 +290,7 @@ final class GraphContext    : VariableContainer
     {
         compiledGlobalCode  = ""
         compiledNodeNames   = []
+        operatorCode = []
     }
     
     // Function parameters found for the current code block

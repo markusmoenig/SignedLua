@@ -237,7 +237,12 @@ class ExpressionContext
         ExpressionNodeItem("length", {() -> ExpressionNode in return LengthFuncNode() }),
         ExpressionNodeItem("normalize", {() -> ExpressionNode in return NormalizeFuncNode() }),
         ExpressionNodeItem("reflect", {() -> ExpressionNode in return ReflectFuncNode() }),
-        
+
+        ExpressionNodeItem("rotate2D", {() -> ExpressionNode in return Rotate2DFuncNode() }),
+
+        ExpressionNodeItem("hash13", {() -> ExpressionNode in return Hash13FuncNode() }),
+        ExpressionNodeItem("hash31", {() -> ExpressionNode in return Hash31FuncNode() }),
+
         ExpressionNodeItem("fract", {() -> ExpressionNode in return FractFuncNode() }),
         ExpressionNodeItem("floor", {() -> ExpressionNode in return FloorFuncNode() }),
         ExpressionNodeItem("round", {() -> ExpressionNode in return RoundFuncNode() }),

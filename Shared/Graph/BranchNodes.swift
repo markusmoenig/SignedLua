@@ -217,6 +217,7 @@ final class GraphSDFObject : GraphTransformationNode
         //context.variables["rayPosition"] = Float3("rayPosition", 0, 0, 0, .System)
         context.variables["viewSize"] = Float2("viewSize", 0, 0, .System)
         context.variables["uv"] = Float2("uv", 0, 0, .System)
+        context.variables["hash"] = Float1("hash", 0, .System)
     }
     
     override func getHelp() -> String
@@ -369,6 +370,7 @@ final class GraphMaterialNode : GraphNode
         context.variables = ["rayPosition": Float3("rayPosition", 0, 0, 0, .System)]
         context.variables["viewSize"] = Float2("viewSize", 0, 0, .System)
         context.variables["uv"] = Float2("uv", 0, 0, .System)
+        context.variables["hash"] = Float1("hash", 0, .System)
     }
     
     override func getHelp() -> String

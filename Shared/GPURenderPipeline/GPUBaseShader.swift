@@ -883,6 +883,8 @@ class GPUBaseShader
             float2              seed;
             float3              randomVector;
             constant float4    *data;
+
+            float               hash;
         } DataIn;
 
         typedef struct {
@@ -1042,6 +1044,20 @@ class GPUBaseShader
         float3 FaceForward(float3 a, float3 b)
         {
             return dot(a, b) < 0.0 ? -b : b;
+        }
+
+        float hash13(float3 p3)
+        {
+            p3  = fract(p3 * .1031);
+            p3 += dot(p3, p3.zyx + 31.32);
+            return fract((p3.x + p3.y) * p3.z);
+        }
+
+        float3 hash31(float p)
+        {
+            float3 p3 = fract(float3(p) * float3(.1031, .1030, .0973));
+            p3 += dot(p3, p3.yzx+33.33);
+            return fract((p3.xxy+p3.yzz)*p3.zyx);
         }
 
         """

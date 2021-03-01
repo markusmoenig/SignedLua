@@ -31,6 +31,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 
                 float2 uv = dataIn.uv;
                 float2 viewSize = dataIn.viewSize;
+                float hash = dataIn.hash;
 
                 material.albedo = float3(0);
                 material.specular = 0;
@@ -137,6 +138,8 @@ final class GPUMaterialsShader : GPUBaseShader
 
             float4 depth = depthTexture.read(textureUV);
             float3 normal = normalTexture.read(textureUV).xyz;
+
+            dataIn.hash = depth.y;
 
             if (depth.x < 0.0) { return float4(0); }
 
@@ -569,7 +572,7 @@ final class GPUMaterialsShader : GPUBaseShader
     
     override func render()
     {
-        if let mainShader = shaders["MAIN"] {
+        if let mainShader = shaders["MAIN"], pipeline.dataBuffer != nil {
             let renderPassDescriptor = MTLRenderPassDescriptor()
             renderPassDescriptor.colorAttachments[0].texture = pipeline.texture!
             renderPassDescriptor.colorAttachments[0].loadAction = .dontCare
@@ -609,7 +612,7 @@ final class GPUMaterialsShader : GPUBaseShader
     
     func directLight(depthTexture: MTLTexture, normalTexture: MTLTexture, lightDepthTexture: MTLTexture, lightNormalTexture: MTLTexture)
     {
-        if let mainShader = shaders["DIRECTLIGHT"] {
+        if let mainShader = shaders["DIRECTLIGHT"], pipeline.dataBuffer != nil  {
             let renderPassDescriptor = MTLRenderPassDescriptor()
             renderPassDescriptor.colorAttachments[0].texture = pipeline.texture!
             renderPassDescriptor.colorAttachments[0].loadAction = .dontCare
@@ -651,7 +654,7 @@ final class GPUMaterialsShader : GPUBaseShader
     
     func pathTracer()
     {
-        if let mainShader = shaders["PATHTRACE"] {
+        if let mainShader = shaders["PATHTRACE"], pipeline.dataBuffer != nil  {
             let renderPassDescriptor = MTLRenderPassDescriptor()
             renderPassDescriptor.colorAttachments[0].texture = pipeline.utilityTexture1!
             renderPassDescriptor.colorAttachments[0].loadAction = .dontCare

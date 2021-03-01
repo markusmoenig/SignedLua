@@ -31,7 +31,7 @@ final class GPUSDFShader : GPUBaseShader
 
         \(globalCode)
 
-        float4 map(float3 position, DataIn dataIn)
+        float4 map(float3 position, thread DataIn &dataIn)
         {
             float4 distance = float4(100000, -1, -1, -1), newDistance = float4(100000, -1, -1, -1);
             float3 objectPosition = float3(0);
@@ -39,6 +39,7 @@ final class GPUSDFShader : GPUBaseShader
             float3 rayPosition = position;
             float2 uv = dataIn.uv;
             float2 viewSize = dataIn.viewSize;
+            float  hash = dataIn.hash;
 
             \(code)
 
@@ -77,6 +78,8 @@ final class GPUSDFShader : GPUBaseShader
 
             if (depth.x < 0.0) { return float4(0); }
 
+            dataIn.hash = depth.y;
+            
             float t = 0.120;
             float maxDist = depth.x;
 
@@ -90,6 +93,7 @@ final class GPUSDFShader : GPUBaseShader
                         depth = d;
                         depth.x = t;
                         normal.xyz = calcNormal(p, dataIn);
+                        depth.y = dataIn.hash;
                     }
                     break;
                 }
@@ -106,7 +110,8 @@ final class GPUSDFShader : GPUBaseShader
         }
 
         """
-                
+                        
+        print(fragmentCode)
         compile(code: GPUBaseShader.getQuadVertexSource() + fragmentCode, shaders: [
                 GPUShader(id: "MAIN", blending: false),
         ])

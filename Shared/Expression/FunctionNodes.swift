@@ -229,6 +229,45 @@ class PowFuncNode : ExpressionNode {
     }
 }
 
+class Rotate2DFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("rotate2D")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult?.createType()
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "rotate(\(argumentsIn[0].toMetal(embedded: true)), radians(\(argumentsIn[1].toMetal(embedded: true))))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Raises the value of the first parameter to the power of the second."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float2(1,1), "Domain", ""),
+            GraphOption(Float1(0), "Angle", "")
+        ]
+        return options
+    }
+}
+
 class ModFuncNode : ExpressionNode {
     
     init()
@@ -836,6 +875,82 @@ class LengthFuncNode : ExpressionNode {
     {
         let options = [
             GraphOption(Float3(1,1,1), "Vector", "", optionals: [Float2(), Float4()])
+        ]
+        return options
+    }
+}
+
+class Hash13FuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("hash13")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return Float1(0)
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "hash13(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns a Float hash value for a Float3 value."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(1,1,1), "Value", "")
+        ]
+        return options
+    }
+}
+
+class Hash31FuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("hash31")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return Float3(0, 0, 0)
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "hash31(\(argumentsIn[0].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Returns a Float3 hash value for a Float value.."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float1(1), "Value", "")
         ]
         return options
     }

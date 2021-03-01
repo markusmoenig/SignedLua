@@ -58,6 +58,8 @@ class SignedGraphBuilder: GraphBuilder {
             
             if error.error == nil {
                 core.renderPipeline.compile(asset.graph!)
+            } else {
+                core.renderPipeline.setInvalid(error.error!)
             }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
