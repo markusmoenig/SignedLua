@@ -95,7 +95,7 @@ class MultiplyAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
-        return (left.chained ? "" : left.toString()) + " * " + (skipRight == true || right.skip == true ? "" : right.toString())
+        return (left.chained ? "" : left.toMetal()) + " * " + (skipRight == true || right.skip == true ? "" : right.toMetal())
     }
 }
 
@@ -180,7 +180,7 @@ class DivisionAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
 
-        return (left.chained ? "" : left.toString()) + " / " + (skipRight == true || right.skip == true ? "" : right.toString())
+        return (left.chained ? "" : left.toMetal()) + " / " + (skipRight == true || right.skip == true ? "" : right.toMetal())
     }
 }
 
@@ -265,7 +265,7 @@ class MinusAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
                         
-        return (left.chained ? "" : left.toString()) + " - " + (skipRight == true || right.skip == true ? "" : right.toString())
+        return (left.chained ? "" : left.toMetal()) + " - " + (skipRight == true || right.skip == true ? "" : right.toMetal())
     }
 }
 
@@ -351,6 +351,6 @@ class AddAtomNode : ExpressionNode {
         let left = context.values[indices[0]]!
         let right = context.values[indices[1]]!
         
-        return (left.chained ? "" : left.toString()) + " + " + (skipRight == true || right.skip == true ? "" : right.toString())
+        return (left.chained ? "" : left.toMetal()) + " + " + (skipRight == true || right.skip == true ? "" : right.toMetal())
     }
 }

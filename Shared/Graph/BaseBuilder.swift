@@ -42,13 +42,13 @@ class GraphBuilder
         
         GraphNodeItem("defPrimitive", { (_ options: [String:Any]) -> GraphNode in return GraphDefPrimitiveNode(options) }),
         GraphNodeItem("defBoolean", { (_ options: [String:Any]) -> GraphNode in return GraphDefBooleanNode(options) }),
-        GraphNodeItem("defOperator", { (_ options: [String:Any]) -> GraphNode in return GraphDefOperatorNode(options) })
+        GraphNodeItem("defOperator", { (_ options: [String:Any]) -> GraphNode in return GraphDefOperatorNode(options) }),
+        GraphNodeItem("defEnvironment", { (_ options: [String:Any]) -> GraphNode in return GraphDefEnvironmentNode(options) })
     ]
     
     var leaves          : [GraphNodeItem] =
     [
         GraphNodeItem("analyticalGroundPlane", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalGroundPlaneNode(options) }),
-        
         GraphNodeItem("sdfCircle2D", { (_ options: [String:Any]) -> GraphNode in return GraphSDFCircleNode2D(options) }),
     ]
     
@@ -266,13 +266,6 @@ class GraphBuilder
                                     asset.graph!.lines[error.line!] = newBranch
                                     processed = true
                                 } else
-                                if newBranch.role == .Sky {
-                                    asset.graph!.skyNode = newBranch
-                                    
-                                    newBranch.lineNr = error.line!
-                                    graph.lines[error.line!] = newBranch
-                                    processed = true
-                                } else
                                 if newBranch.role == .Sun {
                                     asset.graph!.sunNode = newBranch
                                     
@@ -307,6 +300,11 @@ class GraphBuilder
                                         if newBranch.role == .Operator && newBranch.context == .Definition {
                                             if let defNode = newBranch as? GraphDefOperatorNode {
                                                 asset.graph!.defOperatorNodes.append(defNode)
+                                            }
+                                        } else
+                                        if newBranch.role == .Environment && newBranch.context == .Definition {
+                                            if let defNode = newBranch as? GraphDefEnvironmentNode {
+                                                asset.graph!.defEnvironmentNodes.append(defNode)
                                             }
                                         } else
                                         if newBranch.context == .SDF {
@@ -364,7 +362,18 @@ class GraphBuilder
                                     node.defNode = defNode
                                     addBranch(node)
                                 }
-                            }                            
+                            }
+                            // Check for Environment
+                            for defNode in graph.defEnvironmentNodes {
+                                if defNode.givenName == possbibleCmd {
+                                    
+                                    let node = GraphEnvironmentNode()
+                                    node.options = nodeOptions
+                                    node.defNode = defNode
+                                    graph.environmentNode = node
+                                    addBranch(node)
+                                }
+                            }
                         }
                         
                         if processed == false {

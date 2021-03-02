@@ -26,13 +26,10 @@ class SignedGraphBuilder: GraphBuilder {
         super.init()
         
         branches.append(GraphNodeItem("IsometricCamera", { (_ options: [String:Any]) -> GraphNode in return GraphIsometricCameraNode(options) }))
-        branches.append(GraphNodeItem("DefaultSky", { (_ options: [String:Any]) -> GraphNode in return GraphDefaultSkyNode(options) }))
-        
         branches.append(GraphNodeItem("analyticalDome", { (_ options: [String:Any]) -> GraphNode in return GraphAnalyticalDomeNode(options) }))
 
         branches.append(GraphNodeItem("Sun", { (_ options: [String:Any]) -> GraphNode in return GraphSunLightNode(options) }))
         //branches.append(GraphNodeItem("lightSphere", { (_ options: [String:Any]) -> GraphNode in return GraphSphereLightNode(options) }))
-
         branches.append(GraphNodeItem("Camera", { (_ options: [String:Any]) -> GraphNode in return GraphCameraNode(options) }))
     }
     

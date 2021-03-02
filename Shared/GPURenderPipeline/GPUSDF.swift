@@ -76,7 +76,7 @@ final class GPUSDFShader : GPUBaseShader
             float4 depth = depthTexture.read(textureUV);
             float4 normal = normalTexture.read(textureUV);
 
-            if (depth.x < 0.0) { return float4(0); }
+            if (normal.w < 0.0) { return float4(0); }
 
             dataIn.hash = depth.y;
             
@@ -111,7 +111,6 @@ final class GPUSDFShader : GPUBaseShader
 
         """
                         
-        print(fragmentCode)
         compile(code: GPUBaseShader.getQuadVertexSource() + fragmentCode, shaders: [
                 GPUShader(id: "MAIN", blending: false),
         ])

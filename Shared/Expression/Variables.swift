@@ -81,8 +81,13 @@ class BaseVariable {
         return "Invalid"
     }
     
-    /// Return the variable in a readable form, like Float3<0, 1, 2>
+    /// Return the variable in a readable form, like 0, 1, 2
     func toString() -> String {
+        return ""
+    }
+    
+    /// Return the variable in metal code like float3(0,1,2)
+    func toMetal() -> String {
         return ""
     }
     
@@ -436,7 +441,7 @@ final class Float4 : BaseVariable
             return name
         } else
         if isConstant() {
-            return "float4(\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z)), \(String(format: "%.03g", w)))"
+            return "\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z)), \(String(format: "%.03g", w))"
         } else
         if expressions == 0 {
             if let context = context {
@@ -477,6 +482,10 @@ final class Float4 : BaseVariable
             return "\(stringX), \(stringY), \(stringZ), \(stringW)"
         }
         return ""
+    }
+    
+    override func toMetal() -> String {
+        return "float4(\(toString()))"
     }
     
     @inlinable override func toSIMD4() -> SIMD4<Float>
@@ -740,7 +749,7 @@ final class Float3 : BaseVariable
             return name
         } else
         if isConstant() {
-            return "float3(\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z)))"
+            return "\(String(format: "%.03g", x)), \(String(format: "%.03g", y)), \(String(format: "%.03g", z))"
         } else
         if expressions == 0 {
             if let context = context {
@@ -774,6 +783,10 @@ final class Float3 : BaseVariable
             return "\(stringX), \(stringY), \(stringZ)"
         }
         return ""
+    }
+    
+    override func toMetal() -> String {
+        return "float3(\(toString()))"
     }
     
     func toHexString() -> String {
@@ -1016,6 +1029,10 @@ final class Float2 : BaseVariable
         }
     }
     
+    override func toMetal() -> String {
+        return "float2(\(toString()))"
+    }
+    
     @inlinable override func toSIMD2() -> SIMD2<Float>
     {
         return toSIMD()
@@ -1195,6 +1212,10 @@ final class Float1 : BaseVariable
             
             return "\(stringX)"
         }
+    }
+    
+    override func toMetal() -> String {
+        return toString()
     }
     
     @inlinable func fromSIMD(_ v: Float)

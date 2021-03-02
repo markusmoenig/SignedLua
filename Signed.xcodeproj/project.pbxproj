@@ -94,8 +94,6 @@
 		2B6FF6B625D2772B0053CEF8 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 2B6FF6B525D2772B0053CEF8 /* DynamicColor */; };
 		2B76D82B25AC46F000AF6FF2 /* SignedCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */; };
 		2B76D82C25AC46F000AF6FF2 /* SignedCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */; };
-		2B821A7B25BD0B9100FBFEFF /* SignedSky.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B821A7A25BD0B9100FBFEFF /* SignedSky.swift */; };
-		2B821A7C25BD0B9100FBFEFF /* SignedSky.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B821A7A25BD0B9100FBFEFF /* SignedSky.swift */; };
 		2B888B5725B15E7600956C64 /* SignedLightNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B5625B15E7600956C64 /* SignedLightNodes.swift */; };
 		2B888B5825B15E7600956C64 /* SignedLightNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B5625B15E7600956C64 /* SignedLightNodes.swift */; };
 		2B888B6225B42C2B00956C64 /* BestCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B6125B42C2B00956C64 /* BestCandidate.swift */; };
@@ -117,6 +115,8 @@
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
+		2BF3FBC325EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
+		2BF3FBC425EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -180,6 +180,7 @@
 		2BBA16E425C7B2B4002E9B7C /* ToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolView.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentNodes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -340,6 +341,7 @@
 				2B888B6125B42C2B00956C64 /* BestCandidate.swift */,
 				2B2D71BF25EA2D2F00180AC3 /* ConditionalNodes.swift */,
 				2B2D71C425EC7ACE00180AC3 /* OperatorNodes.swift */,
+				2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */,
 			);
 			path = Graph;
 			sourceTree = "<group>";
@@ -471,6 +473,7 @@
 				2B224F7925844C1900F32354 /* MetalStates.swift in Sources */,
 				2B224FAF2585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F6F25844C1900F32354 /* Core.swift in Sources */,
+				2BF3FBC325EDCD31002E7161 /* EnvironmentNodes.swift in Sources */,
 				2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2B6FF6AA25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C725B929DC0028C76A /* GPUAnalytical.swift in Sources */,
@@ -479,7 +482,6 @@
 				2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */,
 				2B224F8125844C1900F32354 /* Metal.metal in Sources */,
-				2B821A7B25BD0B9100FBFEFF /* SignedSky.swift in Sources */,
 				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F412584485300F32354 /* SignedApp.swift in Sources */,
@@ -528,6 +530,7 @@
 				2B224F7A25844C1900F32354 /* MetalStates.swift in Sources */,
 				2B224FB02585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F7025844C1900F32354 /* Core.swift in Sources */,
+				2BF3FBC425EDCD31002E7161 /* EnvironmentNodes.swift in Sources */,
 				2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C825B929DC0028C76A /* GPUAnalytical.swift in Sources */,
@@ -536,7 +539,6 @@
 				2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */,
 				2B224F8225844C1900F32354 /* Metal.metal in Sources */,
-				2B821A7C25BD0B9100FBFEFF /* SignedSky.swift in Sources */,
 				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F422584485300F32354 /* SignedApp.swift in Sources */,

@@ -367,18 +367,18 @@ struct LeftPanelView: View {
                                 } else { Color.clear }
                             })
                         }
-                        if let skyNode = context.skyNode {
+                        if let envNode = context.environmentNode {
                             Button(action: {
-                                core.graphBuilder.gotoNode(skyNode)
+                                core.graphBuilder.gotoNode(envNode)
                             })
                             {
-                                Label(skyNode.givenName, systemImage: "sun.haze")
+                                Label(envNode.defNode!.givenName, systemImage: "cloud.sun")
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(PlainButtonStyle())
                             .listRowBackground(Group {
-                                if selection == skyNode.id {
+                                if selection == envNode.id {
                                     Color.gray.mask(RoundedRectangle(cornerRadius: 4))
                                 } else { Color.clear }
                             })

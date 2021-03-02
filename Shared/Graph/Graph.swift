@@ -81,7 +81,7 @@ class GraphNode : Equatable, Identifiable {
     }
     
     enum NodeRole {
-        case Camera, Sky, Utility, Variable, Render, Light, Boolean, SDF, Sun, Operator
+        case Camera, Environment, Utility, Variable, Render, Light, Boolean, SDF, Sun, Operator
     }
     
     enum NodeContext {
@@ -217,7 +217,7 @@ final class GraphContext    : VariableContainer
     
     var cameraNode          : GraphNode? = nil
     var sunNode             : GraphNode? = nil
-    var skyNode             : GraphNode? = nil
+    var environmentNode     : GraphEnvironmentNode? = nil
 
     // Nodes
     var nodes               : [GraphNode] = []
@@ -228,6 +228,7 @@ final class GraphContext    : VariableContainer
     var defPrimitiveNodes   : [GraphDefPrimitiveNode] = []
     var defBooleanNodes     : [GraphDefBooleanNode] = []
     var defOperatorNodes    : [GraphDefOperatorNode] = []
+    var defEnvironmentNodes : [GraphDefEnvironmentNode] = []
 
     var analyticalNodes     : [GraphNode] = []
     var sdfNodes            : [GraphNode] = []
@@ -322,9 +323,10 @@ final class GraphContext    : VariableContainer
         defPrimitiveNodes = []
         defBooleanNodes = []
         defOperatorNodes = []
+        defEnvironmentNodes = []
 
         cameraNode = nil
-        skyNode = nil
+        environmentNode = nil
         sunNode = nil
         
         data = []

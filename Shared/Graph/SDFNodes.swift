@@ -8,7 +8,6 @@
 import MetalKit
 import simd
 
-
 /// defSDFPrimitive
 final class GraphDefPrimitiveNode : GraphNode
 {

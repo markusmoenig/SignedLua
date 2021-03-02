@@ -94,8 +94,8 @@ class GPURenderPipeline
             cameraNode.execute(context: context)
         }
         
-        if let skyNode = context.skyNode {
-            skyNode.execute(context: context)
+        if let environmentNode = context.environmentNode {
+            environmentNode.execute(context: context)
         }
         
         for node in context.analyticalNodes {
@@ -117,7 +117,7 @@ class GPURenderPipeline
             dataBuffer = nil
         }
         
-        if context.data.count == 0 { return false }
+        if context.data.count == 0 { context.data.append(float4()) }//return false }
         dataBuffer = device.makeBuffer(bytes: context.data, length: context.data.count * MemoryLayout<SIMD4<Float>>.stride, options: [])!
         
         if lightsDataBuffer != nil {
@@ -197,7 +197,7 @@ class GPURenderPipeline
                     
             self.startRendering()
             self.clearTexture(self.finalTexture!, float4(0, 0, 0, 0))
-            
+
             self.depth = 0
             self.samples = 0
             self.computePass()
@@ -248,14 +248,15 @@ class GPURenderPipeline
     
     func computePass()
     {
-        if depth == 0 {
+        if depth == 0 && stopRendering == false {
             
             clearTexture(radianceTexture!, float4(0, 0, 0, 0))
             clearTexture(throughputTexture!, float4(1, 1, 1, 1))
             clearTexture(absorptionTexture!, float4(0, 0, 0, 0))
+            clearTexture(normalTexture!, float4(1, 1, 1, 1))
 
             if let cameraNode = context.cameraNode {
-                if let cameraShader = cameraNode.gpuShader as? GPUCameraShader {
+                if let cameraShader = cameraNode.gpuShader as? GPUCameraShader, stopRendering == false {
                     cameraShader.render()
                 }
             }
@@ -266,7 +267,7 @@ class GPURenderPipeline
         
         depth += 1
         
-        if depth >= maxDepth {
+        if depth >= maxDepth && stopRendering == false {
             gpuAccum.render(finalTexture: finalTexture!, sampleTexture: radianceTexture!)
             self.depth = 0
             self.samples += 1
@@ -299,13 +300,13 @@ class GPURenderPipeline
         clearTexture(depthTexture!, float4(1000,-1,-1,-1))
         
         for node in context.analyticalNodes {
-            if let object = node.gpuShader as? GPUAnalyticalShader {
+            if let object = node.gpuShader as? GPUAnalyticalShader, stopRendering == false {
                 object.render(camOriginTexture: camOriginTexture!, camDirTexture: camDirTexture!, depthTexture: depthTexture!, normalTexture: normalTexture!)
             }
         }
         
         for node in context.sdfNodes {
-            if let object = node.gpuShader as? GPUSDFShader {
+            if let object = node.gpuShader as? GPUSDFShader, stopRendering == false {
                 object.render(camOriginTexture: camOriginTexture!, camDirTexture: camDirTexture!, depthTexture: depthTexture!, normalTexture: normalTexture!)
                 commandBuffer.addCompletedHandler { cb in
                     self.semaphore.signal()
@@ -316,20 +317,24 @@ class GPURenderPipeline
             }
         }
         
-        materialsShader!.render()
+        if stopRendering == false {
+            materialsShader!.render()
+        }
         
         // Now we have the new hit in camOrigin and the light sampling direction in params5: Shadow pass
         
-        clearTexture(utilityTexture1!, float4(1000,-1,-1,-1))
+        if stopRendering == false {
+            clearTexture(utilityTexture1!, float4(1000,-1,-1,-1))
+        }
 
         for node in context.analyticalNodes {
-            if let object = node.gpuShader as? GPUAnalyticalShader {
+            if let object = node.gpuShader as? GPUAnalyticalShader, stopRendering == false {
                 object.render(camOriginTexture: camOriginTexture2!, camDirTexture: paramsTexture5!, depthTexture: utilityTexture1!, normalTexture: utilityTexture2!)
             }
         }
         
         for node in context.sdfNodes {
-            if let object = node.gpuShader as? GPUSDFShader {
+            if let object = node.gpuShader as? GPUSDFShader, stopRendering == false {
                 object.render(camOriginTexture: camOriginTexture2!, camDirTexture: paramsTexture5!, depthTexture: utilityTexture1!, normalTexture: utilityTexture2!)
                 commandBuffer.addCompletedHandler { cb in
                     self.semaphore.signal()
@@ -340,7 +345,9 @@ class GPURenderPipeline
             }
         }
         
-        materialsShader!.directLight(depthTexture: depthTexture!, normalTexture: normalTexture!, lightDepthTexture: utilityTexture1!, lightNormalTexture: utilityTexture2!)
+        if stopRendering == false {
+            materialsShader!.directLight(depthTexture: depthTexture!, normalTexture: normalTexture!, lightDepthTexture: utilityTexture1!, lightNormalTexture: utilityTexture2!)
+        }
     }
     
     func updateOnce()
