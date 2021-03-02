@@ -74,6 +74,8 @@ class GPURenderPipeline
     var depth           : Int = 0
     var maxDepth        : Int = 4
     
+    var toCompile       : Int = 0
+    
     var resChanged      = true
     
     var core            : Core
@@ -152,7 +154,9 @@ class GPURenderPipeline
             return
         }
         
-        context = ctx        
+        context = ctx
+        
+        toCompile = 0
         
         status = .Compiling
         context.setupBeforeCompiling()
@@ -177,12 +181,16 @@ class GPURenderPipeline
             node.gpuShader = GPUSDFShader(pipeline: self, object: node)
         }
         
-        status = .Idle
-        restart()
-        
         invokedCompile = false
     }
     
+    /// Called when all shaders are compiled
+    func compilationFinished() {
+        status = .Idle
+        restart()
+    }
+    
+    /// Core requests a texture to display
     func getTexture() -> MTLTexture? {
         if samples < 1 {
             // Return nil if no sample has been calculated yet

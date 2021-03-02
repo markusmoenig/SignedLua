@@ -183,7 +183,15 @@ class GPUBaseShader
                 }
                 */
             }
+            
+            self.pipeline.toCompile -= 1
+            
+            if self.pipeline.toCompile == 0 {
+                self.pipeline.compilationFinished()
+            }
         }
+        
+        pipeline.toCompile += 1
         
         //print(source)
         if sync == false {
@@ -193,7 +201,7 @@ class GPUBaseShader
                 let library = try pipeline.device.makeLibrary( source: source, options: nil)
                 compiledCB(library, nil)
             } catch {
-                print(error)
+                //print(error)
             }
         }
     }
