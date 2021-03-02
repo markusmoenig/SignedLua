@@ -54,7 +54,7 @@ class SignedGraphBuilder: GraphBuilder {
             }
             
             if error.error == nil {
-                core.renderPipeline.compile(asset.graph!)
+                core.renderPipeline.setValid(context: asset.graph!)
             } else {
                 core.renderPipeline.setInvalid(error.error!)
             }

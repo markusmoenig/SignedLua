@@ -88,6 +88,12 @@ class GPURenderPipeline
         semaphore = DispatchSemaphore(value: 1)
     }
     
+    deinit
+    {
+        // TODO: dealloc textures
+        print("deinit")
+    }
+    
     func update() -> Bool
     {
         if let cameraNode = context.cameraNode {
@@ -129,11 +135,25 @@ class GPURenderPipeline
         return true
     }
     
-    func compile(_ ctx: GraphContext)
+    var invokedCompile = false
+    func compile(_ ctx: GraphContext, goForIt: Bool = false)
     {
+        stop()
+        blackTexture()
+        
+        if goForIt == false {
+            if invokedCompile == true { return }
+            else {
+                invokedCompile = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.compile(ctx, goForIt: true)
+                }
+            }
+            return
+        }
+        
         context = ctx        
         
-        stop()
         status = .Compiling
         context.setupBeforeCompiling()
         
@@ -159,6 +179,8 @@ class GPURenderPipeline
         
         status = .Idle
         restart()
+        
+        invokedCompile = false
     }
     
     func getTexture() -> MTLTexture? {
@@ -174,7 +196,11 @@ class GPURenderPipeline
     {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
 
-            if (self.status != .Idle && self.status != .Invalid) && self.isStopped == false {
+            if self.status != .Idle && self.isStopped == false {
+                return
+            }
+            
+            if self.status == .Invalid {
                 return
             }
 
@@ -217,15 +243,31 @@ class GPURenderPipeline
         render()
     }
     
+    /// The parser invokes this after an error during parsing the project file occured
     func setInvalid(_ text: String)
     {
         stop()
         status = .Invalid
+        blackTexture()
+    }
+    
+    /// Clear the texture
+    func blackTexture()
+    {
         startRendering()
         if let finalTexture = finalTexture {
             clearTexture(finalTexture, float4(0, 0, 0, 1))
         }
         commitAndStopRendering()
+    }
+    
+    /// The parser invokes this after successful parsing the project file
+    func setValid(context: GraphContext)
+    {
+        if status == .Invalid {
+            status = .Idle
+        }
+        compile(context)
     }
     
     func startRendering()
@@ -262,8 +304,10 @@ class GPURenderPipeline
             }
         }
 
-        computeL()
-        materialsShader!.pathTracer()
+        if stopRendering == false {
+            computeL()
+            materialsShader!.pathTracer()
+        }
         
         depth += 1
         
@@ -282,7 +326,9 @@ class GPURenderPipeline
                     self.core.samplesChanged.send(SIMD2<Double>(Double(self.samples), (cb.gpuEndTime - cb.gpuStartTime) * 1000))
                 }
             } else {
-                self.status = .Idle
+                if self.status != .Invalid && self.invokedCompile == false {
+                    self.status = .Idle
+                }
                 if self.stopRendering == true && self.isStopped == false {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
                         self.render()
