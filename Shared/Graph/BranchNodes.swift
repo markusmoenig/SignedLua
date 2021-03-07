@@ -10,9 +10,9 @@ import Foundation
 /// Distance Base Node
 class GraphTransformationNode : GraphNode
 {
-    var position        : Float3 = Float3(0,0,0)
-    var rotation        : Float3 = Float3(0,0,0)
-    var scale           : Float1 = Float1(1)
+    var position        = Float3(0,0,0)
+    var rotation        = Float3(0,0,0)
+    var scale           = Float1(1)
     
     func verifyTranslationOptions(context: GraphContext, error: inout CompileError) {
         if let value = extractFloat3Value(options, container: context, error: &error, name: "position", isOptional: true) {
@@ -30,20 +30,20 @@ class GraphTransformationNode : GraphNode
     func generateMetalTransformCode(context: GraphContext) -> String
     {
         context.addDataVariable(position)
-        context.addDataVariable(rotation)
-        context.addDataVariable(scale)
-        
+
         let code =
         """
 
-                float3 transformedPosition = position / dataIn.data[\(scale.dataIndex!)].x;
+                float3 transformedPosition = (position - objectPosition) / objectScale * \(scale.toMetal());
                 
-                transformedPosition = translate(transformedPosition, dataIn.data[\(position.dataIndex!)].xyz);
-                float3 offsetFromCenter = objectPosition - dataIn.data[\(position.dataIndex!)].xyz;
+                transformedPosition = translate(transformedPosition, \(position.toMetal()));
+                float3 offsetFromCenter = objectPosition - \(position.toMetal());
 
-                transformedPosition.yz = rotatePivot(transformedPosition.yz, radians(dataIn.data[\(rotation.dataIndex!)].x), offsetFromCenter.yz );
-                transformedPosition.xz = rotatePivot(transformedPosition.xz, radians(dataIn.data[\(rotation.dataIndex!)].y), offsetFromCenter.xz );
-                transformedPosition.xy = rotatePivot(transformedPosition.xy, radians(dataIn.data[\(rotation.dataIndex!)].z), offsetFromCenter.xy );
+                float3 rotation = objectRotation + \(rotation.toMetal());
+
+                transformedPosition.yz = rotatePivot(transformedPosition.yz, radians(rotation.x), offsetFromCenter.yz );
+                transformedPosition.xz = rotatePivot(transformedPosition.xz, radians(rotation.y), offsetFromCenter.xz );
+                transformedPosition.xy = rotatePivot(transformedPosition.xy, radians(rotation.z), offsetFromCenter.xy );
         """
         
         return code
@@ -59,8 +59,17 @@ class GraphTransformationNode : GraphNode
     }
     
     /// Checks in the transformation settings of this node
-    func checkIn(context: GraphContext)
+    func checkIn(context: GraphContext) -> String
     {
+        let code =
+        """
+        
+        objectPosition += \(position.toMetal());
+        objectRotation += \(rotation.toMetal());
+        objectScale *= \(scale.toMetal());
+
+        """
+        
         context.position += position.toSIMD()
         context.rotation += rotation.toSIMD()
         context.scale *= scale.toSIMD()
@@ -76,14 +85,27 @@ class GraphTransformationNode : GraphNode
         if let index = scale.dataIndex, index < context.data.count {
             context.data[index] = float4(context.scale, 0, 0, 0)
         }
+        
+        return code
     }
     
     /// Checks out the transformation settings of this node
-    func checkOut(context: GraphContext)
+    func checkOut(context: GraphContext) -> String
     {
+        let code =
+        """
+        
+        objectPosition -= \(position.toMetal());
+        objectRotation -= \(rotation.toMetal());
+        objectScale /= \(scale.toMetal());
+
+        """
+        
         context.position -= position.toSIMD()
         context.rotation -= rotation.toSIMD()
         context.scale /= scale.toSIMD()
+        
+        return code
     }
     
     override func getToolViewButtons() -> [ToolViewButton]
@@ -94,6 +116,7 @@ class GraphTransformationNode : GraphNode
     var maxDepthBuffer  : Int = 1
     override func toolViewButtonAction(_ button: ToolViewButton, state: ToolViewButton.State, delta: float2, toolContext: GraphToolContext)
     {
+        /*
         if state == .Down || delta == float2(0,0) {
             toolContext.validate()
             maxDepthBuffer = toolContext.core.renderPipeline.maxDepth
@@ -129,6 +152,7 @@ class GraphTransformationNode : GraphNode
             toolContext.core.renderPipeline.maxDepth = maxDepthBuffer
             toolContext.core.renderPipeline.restart()
         }
+        */
     }
 }
 
@@ -173,7 +197,7 @@ final class GraphSDFObject : GraphTransformationNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        checkIn(context: context)
+        _ = checkIn(context: context)
         
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
@@ -182,8 +206,8 @@ final class GraphSDFObject : GraphTransformationNode
         for leave in leaves {
             leave.execute(context: context)
         }
-        
-        checkOut(context: context)
+
+        _ = checkOut(context: context)
         return .Success
     }
     
@@ -193,18 +217,13 @@ final class GraphSDFObject : GraphTransformationNode
             context.activeMaterial = context.getMaterial(materialName)
         }
                         
-        context.addDataVariable(position)
-
-        var code =
-        """
-        
-        objectPosition = dataIn.data[\(position.dataIndex!)].xyz;
-
-        """
+        var code = checkIn(context: context)
         
         for leave in leaves {
             code += leave.generateMetalCode(context: context)
         }
+        
+        code += checkOut(context: context)
                 
         return code
     }
@@ -214,7 +233,6 @@ final class GraphSDFObject : GraphTransformationNode
         context.funcParameters = []
         
         context.variables = ["rayPosition": Float3("rayPosition", 0, 0, 0, .System)]
-        //context.variables["rayPosition"] = Float3("rayPosition", 0, 0, 0, .System)
         context.variables["viewSize"] = Float2("viewSize", 0, 0, .System)
         context.variables["uv"] = Float2("uv", 0, 0, .System)
         context.variables["hash"] = Float1("hash", 0, .System)
@@ -264,25 +282,12 @@ final class GraphAnalyticalObject : GraphTransformationNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        context.position += position.toSIMD()
-        
-        if let materialName = materialName {
-            context.activeMaterial = context.getMaterial(materialName)
-        } else {
-            context.activeMaterial = nil
-        }
-        
-        for leave in leaves {
-            leave.execute(context: context)
-        }
-        
-        context.position -= position.toSIMD()
         return .Success
     }
     
     override func generateMetalCode(context: GraphContext) -> String
     {
-        var code = ""
+        var code = checkIn(context: context)
         
         if let materialName = materialName {
             context.activeMaterial = context.getMaterial(materialName)
@@ -291,6 +296,8 @@ final class GraphAnalyticalObject : GraphTransformationNode
         for leave in leaves {
             code += leave.generateMetalCode(context: context)
         }
+        
+        code += checkOut(context: context)
                 
         return code
     }
@@ -371,6 +378,7 @@ final class GraphMaterialNode : GraphNode
         context.variables["viewSize"] = Float2("viewSize", 0, 0, .System)
         context.variables["uv"] = Float2("uv", 0, 0, .System)
         context.variables["hash"] = Float1("hash", 0, .System)
+        context.variables["gradient"] = Float1("gradient", 0, .System)
     }
     
     override func getHelp() -> String

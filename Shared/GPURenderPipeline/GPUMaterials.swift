@@ -32,6 +32,7 @@ final class GPUMaterialsShader : GPUBaseShader
                 float2 uv = dataIn.uv;
                 float2 viewSize = dataIn.viewSize;
                 float hash = dataIn.hash;
+                float gradient = dataIn.gradient;
 
                 material.albedo = float3(0);
                 material.specular = 0;
@@ -142,11 +143,12 @@ final class GPUMaterialsShader : GPUBaseShader
             float4 depth = depthTexture.read(textureUV);
             float3 normal = normalTexture.read(textureUV).xyz;
 
-            dataIn.hash = depth.y;
-
             if (depth.w < -10.0) { return float4(0); }
 
             float4 camOrigin = camOriginTexture.read(textureUV);
+
+            dataIn.hash = depth.y;
+            dataIn.gradient = camOrigin.w;
 
             Material material;
 

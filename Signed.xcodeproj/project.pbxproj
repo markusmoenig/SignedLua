@@ -115,6 +115,7 @@
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
+		2BDD561325F0D0A600E5B057 /* Down in Frameworks */ = {isa = PBXBuildFile; productRef = 2BDD561225F0D0A600E5B057 /* Down */; };
 		2BF3FBC325EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 		2BF3FBC425EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 /* End PBXBuildFile section */
@@ -199,6 +200,7 @@
 			files = (
 				2B6FF6B625D2772B0053CEF8 /* DynamicColor in Frameworks */,
 				2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */,
+				2BDD561325F0D0A600E5B057 /* Down in Frameworks */,
 				2B224FE425888C6E00F32354 /* Parma in Frameworks */,
 				2B224FA025844D6000F32354 /* CloudKit.framework in Frameworks */,
 			);
@@ -386,6 +388,7 @@
 			packageProductDependencies = (
 				2B224FE325888C6E00F32354 /* Parma */,
 				2B6FF6B525D2772B0053CEF8 /* DynamicColor */,
+				2BDD561225F0D0A600E5B057 /* Down */,
 			);
 			productName = "Signed (macOS)";
 			productReference = 2B224F3D2584485300F32354 /* Signed.app */;
@@ -420,6 +423,7 @@
 			packageReferences = (
 				2B224FE225888C6E00F32354 /* XCRemoteSwiftPackageReference "Parma" */,
 				2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */,
+				2BDD561125F0D0A600E5B057 /* XCRemoteSwiftPackageReference "Down" */,
 			);
 			productRefGroup = 2B224F362584485300F32354 /* Products */;
 			projectDirPath = "";
@@ -833,6 +837,14 @@
 				minimumVersion = 5.0.1;
 			};
 		};
+		2BDD561125F0D0A600E5B057 /* XCRemoteSwiftPackageReference "Down" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/johnxnguyen/Down.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -855,6 +867,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */;
 			productName = DynamicColor;
+		};
+		2BDD561225F0D0A600E5B057 /* Down */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2BDD561125F0D0A600E5B057 /* XCRemoteSwiftPackageReference "Down" */;
+			productName = Down;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

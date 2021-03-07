@@ -50,6 +50,10 @@ final class GPUAnalyticalShader : GPUBaseShader
             float4 analyticalMap = float4(10000, 0, -1, -1);
             float3 analyticalNormal = float3();
 
+            float3 objectPosition = float3(0);
+            float3 objectRotation = float3(0);
+            float  objectScale = float(1);
+
             \(code)
 
             if (analyticalMap.x < depth.x) {

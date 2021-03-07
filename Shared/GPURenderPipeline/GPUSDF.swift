@@ -34,12 +34,16 @@ final class GPUSDFShader : GPUBaseShader
         float4 map(float3 position, thread DataIn &dataIn)
         {
             float4 distance = float4(100000, -1, -1, -1), newDistance = float4(100000, -1, -1, -1);
+
             float3 objectPosition = float3(0);
+            float3 objectRotation = float3(0);
+            float  objectScale = float(1);
 
             float3 rayPosition = position;
             float2 uv = dataIn.uv;
             float2 viewSize = dataIn.viewSize;
             float  hash = dataIn.hash;
+            float  gradient = dataIn.gradient;
 
             \(code)
 
@@ -60,7 +64,7 @@ final class GPUSDFShader : GPUBaseShader
         fragment float4 procFragment(RasterizerData in [[stage_in]],
                                      constant float4 *data [[ buffer(0) ]],
                                      constant FragmentUniforms &uniforms [[ buffer(1) ]],
-                                     texture2d<float, access::read> camOriginTexture [[texture(2)]],
+                                     texture2d<float, access::read_write> camOriginTexture [[texture(2)]],
                                      texture2d<float, access::read> camDirTexture [[texture(3)]],
                                      texture2d<float, access::read_write> depthTexture [[texture(4)]],
                                      texture2d<float, access::read_write> normalTexture [[texture(5)]])
@@ -71,7 +75,8 @@ final class GPUSDFShader : GPUBaseShader
             \(getDataInCode())
             ushort2 textureUV = ushort2(uv.x * size.x, (1.0 - uv.y) * size.y);
 
-            float3 rayOrigin = camOriginTexture.read(textureUV).xyz;
+            float4 originIn = camOriginTexture.read(textureUV);
+            float3 rayOrigin = originIn.xyz;
             float3 rayDir = camDirTexture.read(textureUV).xyz;
             float4 depth = depthTexture.read(textureUV);
             float4 normal = normalTexture.read(textureUV);
@@ -79,7 +84,8 @@ final class GPUSDFShader : GPUBaseShader
             if (normal.w < 0.0) { return float4(0); }
 
             dataIn.hash = depth.y;
-            
+            dataIn.gradient = originIn.w;
+
             float t = 0.120;
             float maxDist = depth.x;
 
@@ -94,6 +100,7 @@ final class GPUSDFShader : GPUBaseShader
                         depth.x = t;
                         normal.xyz = calcNormal(p, dataIn);
                         depth.y = dataIn.hash;
+                        originIn.w = dataIn.gradient;
                     }
                     break;
                 }
@@ -106,6 +113,7 @@ final class GPUSDFShader : GPUBaseShader
 
             depthTexture.write(depth, textureUV);
             normalTexture.write(normal, textureUV);
+            camOriginTexture.write(originIn, textureUV);
             return depth;
         }
 

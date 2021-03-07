@@ -32,7 +32,8 @@ final class GraphDefPrimitiveNode : GraphNode
     override func generateMetalCode(context: GraphContext) -> String
     {
         var params = ""
-        var code = "float \(givenName)(float3 rayPosition__PARAMS__) {\n"
+        var code = "float \(givenName)(float3 rayPosition, thread DataIn &dataIn__PARAMS__) {\n"
+        code += "  float outGradient = dataIn.gradient;\n"
 
         setEnvironmentVariables(context: context)
                 
@@ -56,9 +57,10 @@ final class GraphDefPrimitiveNode : GraphNode
     
         code = code.replacingOccurrences(of: "__PARAMS__", with: params)
         
+        code += "  dataIn.gradient = outGradient;\n"
         code += "  return outDistance;\n"
         code += "}\n"
-                
+                        
         return code
     }
     
@@ -66,6 +68,7 @@ final class GraphDefPrimitiveNode : GraphNode
     {
         context.funcParameters = []
         context.variables = ["rayPosition": Float3("rayPosition", 0, 0, 0, .System)]
+        context.variables["outGradient"] = Float1("outGradient", 0, .System)
     }
     
     override func getHelp() -> String
@@ -98,8 +101,8 @@ final class GraphPrimitiveNode : GraphTransformationNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        checkIn(context: context)
-        checkOut(context: context)
+        _ = checkIn(context: context)
+        _ = checkOut(context: context)
         return .Success
     }
     
@@ -159,6 +162,7 @@ final class GraphPrimitiveNode : GraphTransformationNode
         for c in context.operatorCode {
             opCode += "        transformedPosition = \(c)\n"
             opCode += "        hash = dataIn.hash;\n"
+            opCode += "        gradient = dataIn.gradient;\n"
         }
         
         var code =
@@ -167,7 +171,7 @@ final class GraphPrimitiveNode : GraphTransformationNode
             {
                 \(generateMetalTransformCode(context: context))
                 \(opCode)
-                newDistance = float4(\(defNode.givenName)(transformedPosition__FUNC_PARAM_CODE__), 1, -1, \(context.getMaterialIndex()));
+                newDistance = float4(\(defNode.givenName)(transformedPosition, dataIn__FUNC_PARAM_CODE__), 1, -1, \(context.getMaterialIndex()));
             }
 
         """
@@ -175,6 +179,7 @@ final class GraphPrimitiveNode : GraphTransformationNode
         code = code.replacingOccurrences(of: "__FUNC_PARAM_CODE__", with: funcParamCode)
         
         if let radius = radiusValue {
+            print("hehe", materialNode)
             context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius)
         }
         
@@ -225,8 +230,8 @@ final class GraphSDFSphereNode : GraphTransformationNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        checkIn(context: context)
-        checkOut(context: context)
+        //checkIn(context: context)
+        //checkOut(context: context)
         return .Success
     }
     
@@ -244,7 +249,7 @@ final class GraphSDFSphereNode : GraphTransformationNode
 
         """
         
-        context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius.toSIMD())
+        //context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius.toSIMD())
                 
         return code
     }
@@ -287,8 +292,8 @@ final class GraphSDFBoxNode : GraphTransformationNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
-        checkIn(context: context)
-        checkOut(context: context)
+        //checkIn(context: context)
+        //checkOut(context: context)
         return .Success
     }
     

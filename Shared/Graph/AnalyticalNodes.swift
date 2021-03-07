@@ -82,6 +82,7 @@ final class GraphAnalyticalDomeNode : GraphTransformationNode
     
     @discardableResult @inlinable public override func execute(context: GraphContext) -> Result
     {
+        /*
         context.position = position.toSIMD()
         
         if let index = position.dataIndex, index < context.data.count {
@@ -93,6 +94,7 @@ final class GraphAnalyticalDomeNode : GraphTransformationNode
         }
         
         context.position -= position.toSIMD()
+        */
         
         return .Success
     }
@@ -100,9 +102,6 @@ final class GraphAnalyticalDomeNode : GraphTransformationNode
     /// Returns the metal code for this node
     override func generateMetalCode(context: GraphContext) -> String
     {
-        context.addDataVariable(position)
-        context.addDataVariable(radius)
-        
         let materialIndex = context.getMaterialIndex()
         var ceilingMaterialIndex = materialIndex
         if let ceilingMaterialName = ceilingMaterialName {
@@ -114,8 +113,8 @@ final class GraphAnalyticalDomeNode : GraphTransformationNode
         let code =
         """
         
-        float3 center = dataIn.data[\(position.dataIndex!)].xyz;
-        float radius = dataIn.data[\(radius.dataIndex!)].x;
+        float3 center = \(position.toMetal());
+        float radius = \(radius.toMetal());
         
         float3 L = rayOrigin - center;
         float B = dot(rayDir, L);

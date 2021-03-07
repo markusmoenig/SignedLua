@@ -40,9 +40,9 @@ final class GPUCameraShader : GPUBaseShader
             float3 outDirection = float3();
             \(code)
 
-            camOriginTexture.write(float4(outOrigin, 1), textureUV);
+            camOriginTexture.write(float4(outOrigin, 0), textureUV);
 
-            return float4(outDirection, 1);
+            return float4(outDirection, 0);
         }
 
         """

@@ -66,6 +66,63 @@ class DotFuncNode : ExpressionNode {
     }
 }
 
+class SmoothstepFuncNode : ExpressionNode {
+    
+    init()
+    {
+        super.init("mix")
+    }
+    
+    override func setupFunction(_ container: VariableContainer,_ parameters: String,_ error: inout CompileError) -> BaseVariable?
+    {
+        if verifyOptions(name, container, parameters, &error) {
+            return argumentsIn[0].lastResult?.createType()
+        }
+        return nil
+    }
+    
+    @inlinable override func execute(_ context: ExpressionContext)
+    {
+        if let mixValue = argumentsIn[2].executeForFloat1()?.x {
+
+            guard let in1 = argumentsIn[0].execute() else {
+                return
+            }
+            
+            guard let in2 = argumentsIn[1].execute() else {
+                return
+            }
+            
+            let v = in1.createType()
+            
+            for i in 0..<v.components {
+                v[i] = simd_smoothstep(in1[i], in2[i], mixValue)
+            }
+            context.values[destIndex] = v
+        }
+    }
+    
+    override func toMetal(_ context: ExpressionContext) -> String
+    {
+        return "smoothstep(\(argumentsIn[0].toMetal(embedded: true)), \(argumentsIn[1].toMetal(embedded: true)), \(argumentsIn[2].toMetal(embedded: true)))"
+    }
+    
+    override func getHelp() -> String
+    {
+        return "Mixes two values."
+    }
+    
+    override func getOptions() -> [GraphOption]
+    {
+        let options = [
+            GraphOption(Float3(1,1,1), "Value 1", "", optionals: [Float1(), Float2(), Float4()]),
+            GraphOption(Float3(1,1,1), "Value 2", "", optionals: [Float1(), Float2(), Float4()], rules: .SameTypeAsPrevious),
+            GraphOption(Float3(1,1,1), "Mix Factor", "", optionals: [Float1()])
+        ]
+        return options
+    }
+}
+
 class MixFuncNode : ExpressionNode {
     
     init()

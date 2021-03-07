@@ -3,11 +3,11 @@
     "pins": [
       {
         "package": "Down",
-        "repositoryURL": "https://github.com/iwasrobbed/Down",
+        "repositoryURL": "https://github.com/johnxnguyen/Down.git",
         "state": {
           "branch": null,
-          "revision": "731f6bbab24ab208ea2d6a944e3f8a8a9d5273c7",
-          "version": "0.9.4"
+          "revision": "0bcd20dc56ad7fd47bbb99a1d2302a8bfa43b6d0",
+          "version": "0.10.0"
         }
       },
       {
