@@ -260,7 +260,7 @@ public class Core       : ObservableObject
     
     /// Updates the display once
     var isUpdating : Bool = false
-    func updateOnce()
+    func updatePreviewOnce()
     {
         if isUpdating == false {
             isUpdating = true

@@ -35,6 +35,7 @@ struct EditingView: View {
     }
     
     var body: some View {
+        /*
         HStack(spacing: 1) {
 
             Button(action: {
@@ -53,6 +54,7 @@ struct EditingView: View {
             )
             .padding(.leading, 10)
             .buttonStyle(PlainButtonStyle())
+            
             
             Button(action: {
                 editingState = .Nodes
@@ -85,13 +87,15 @@ struct EditingView: View {
             .padding(.trailing, 20)
         }
         .frame(minHeight: 30)
+        */
         
         HStack(spacing: 1) {
             
             if editingState == .Meta {
                 GeometryReader { geometry in
-                    ScrollView {
+                //    ScrollView {
 
+                        
                         WebView(core, deviceColorScheme).tabItem {
                         }
                             .frame(height: geometry.size.height)
@@ -99,16 +103,18 @@ struct EditingView: View {
                             .onChange(of: deviceColorScheme) { newValue in
                                 core.scriptEditor?.setTheme(newValue)
                             }
-                    }
+                         
+                    //}
                     .frame(maxWidth: .infinity)
                     .layoutPriority(2)
                 }
             } else
             if editingState == .Nodes {
-                MetalView(core, .Nodes)
-                    .animation(.default)
-                    .allowsHitTesting(true)
+                //MetalView(core, .Nodes)
+                //    .animation(.default)
+                //    .allowsHitTesting(true)
             }
+            
             
             if rightSideHelpIsVisible == true {
                 if let asset = core.assetFolder.current {
@@ -134,6 +140,7 @@ struct EditingView: View {
                     .animation(.easeInOut)
                 }
             }
+            
         }
     }
 }

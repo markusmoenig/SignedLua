@@ -57,19 +57,23 @@ struct ContentView: View {
             HStack {
                 NavigationView {
                         
+                    
                     LeftPanelView(document.core)
                         .frame(minWidth: leftPanelWidth, idealWidth: leftPanelWidth, maxWidth: leftPanelWidth)
                         .layoutPriority(0)
                         .animation(.easeInOut)
+                     
                     
                     ZStack(alignment: .bottomLeading) {
                         // Show tools
+                        
                         MetalView(document.core, .Main)
                             .zIndex(0)
                             .animation(.default)
                             .allowsHitTesting(true)
                         ToolsView(document.core)
                             .zIndex(1)
+                         
                     }
                     //.layoutPriority(2)
                     //.frame(idealWidth: .infinity, maxWidth: .infinity)

@@ -334,6 +334,7 @@ struct LeftPanelView: View {
             VStack {
                 if let context = asset?.graph {
                     
+                    
                     List() {
                         if let cameraNode = context.cameraNode {
                             Button(action: {
@@ -420,6 +421,7 @@ struct LeftPanelView: View {
                             }
                         }
                     }
+                     
                     
                     /*
                     List(context.hierarchicalNodes, id: \.id, children: \.leaves, selection: $selection) { item in
@@ -445,10 +447,12 @@ struct LeftPanelView: View {
                     */
                 }
             }
+        /*
             .tabItem {
                 Image(systemName: "list.dash")
                 Text("Project")
             }
+         */
             
             /*
             VStack {
