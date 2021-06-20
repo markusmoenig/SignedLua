@@ -58,7 +58,7 @@ struct ContentView: View {
                 NavigationView {
                         
                     
-                    LeftPanelView(document.core)
+                    ProjectView(document.core)
                         .frame(minWidth: leftPanelWidth, idealWidth: leftPanelWidth, maxWidth: leftPanelWidth)
                         .layoutPriority(0)
                         .animation(.easeInOut)
@@ -80,7 +80,7 @@ struct ContentView: View {
                 }
                 
                 if rightSideParamsAreVisible == true {
-                    RightPanelView(document.core)
+                    SettingsView(document.core)
                         .frame(minWidth: rightPanelWidth, idealWidth: rightPanelWidth, maxWidth: rightPanelWidth)
                         .layoutPriority(0)
                         .animation(.easeInOut)
@@ -89,7 +89,7 @@ struct ContentView: View {
 
             if screenState == .Mixed {
                 Divider()
-                EditingView(document.core)
+                EditorView(document.core)
             }
         }
         

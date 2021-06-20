@@ -179,7 +179,6 @@ final class GraphPrimitiveNode : GraphTransformationNode
         code = code.replacingOccurrences(of: "__FUNC_PARAM_CODE__", with: funcParamCode)
         
         if let radius = radiusValue {
-            print("hehe", materialNode)
             context.checkForPossibleLight(atPositionIndex: position.dataIndex!, material: materialNode, radius: radius)
         }
         

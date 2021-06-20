@@ -71,9 +71,9 @@ public class Core       : ObservableObject
     var helpText        : String = ""
     let helpTextChanged = PassthroughSubject<Void, Never>()
     
-    var contextText     : String = ""
+    var contextText     : AttributedString = ""
     var contextKey      : String = ""
-    let contextTextChanged = PassthroughSubject<String, Never>()
+    let contextTextChanged = PassthroughSubject<AttributedString, Never>()
 
     var assetError      = CompileError()
     let gameError       = PassthroughSubject<Void, Never>()

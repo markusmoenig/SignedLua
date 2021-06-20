@@ -172,7 +172,7 @@ class SignedGraphBuilder: GraphBuilder {
     }
     
     /// Generates a markdown help text for the given node
-    func generateNodeHelpText(_ node: GraphNode) -> String
+    func generateNodeHelpText(_ node: GraphNode) -> AttributedString
     {
         var help = "## " + node.name + "\n"
         help += node.getHelp()
@@ -183,11 +183,11 @@ class SignedGraphBuilder: GraphBuilder {
         for o in options {
             help += "* **\(o.name)** (\(o.variable.getTypeName())) - " + o.help + "\n"
         }
-        return help
+        return try! AttributedString(markdown: help)
     }
     
     /// Generates a markdown help text for the given expression node
-    func generateNodeHelpText(_ node: ExpressionNode) -> String
+    func generateNodeHelpText(_ node: ExpressionNode) -> AttributedString
     {
         var help = "## " + node.name + "\n"
         help += node.getHelp()
@@ -198,7 +198,7 @@ class SignedGraphBuilder: GraphBuilder {
         for o in options {
             help += "* **\(o.name)** (\(o.variable.getTypeName())) - " + o.help + "\n"
         }
-        return help
+        return try! AttributedString(markdown: help)
     }
     
     /// Go to the line of the node

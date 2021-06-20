@@ -58,10 +58,6 @@
 		2B224FC72586EA1800F32354 /* SDFNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FC52586EA1800F32354 /* SDFNodes.swift */; };
 		2B224FCB2586F90C00F32354 /* BoolNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FCA2586F90C00F32354 /* BoolNodes.swift */; };
 		2B224FCC2586F90C00F32354 /* BoolNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FCA2586F90C00F32354 /* BoolNodes.swift */; };
-		2B224FDE25888B4D00F32354 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FDD25888B4D00F32354 /* Views.swift */; };
-		2B224FDF25888B4D00F32354 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FDD25888B4D00F32354 /* Views.swift */; };
-		2B224FE425888C6E00F32354 /* Parma in Frameworks */ = {isa = PBXBuildFile; productRef = 2B224FE325888C6E00F32354 /* Parma */; };
-		2B224FE825888C8800F32354 /* Parma in Frameworks */ = {isa = PBXBuildFile; productRef = 2B224FE725888C8800F32354 /* Parma */; };
 		2B224FEC2588A6BD00F32354 /* Nodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FEB2588A6BD00F32354 /* Nodes.swift */; };
 		2B224FED2588A6BD00F32354 /* Nodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FEB2588A6BD00F32354 /* Nodes.swift */; };
 		2B224FF72589B52B00F32354 /* AnalyticalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */; };
@@ -110,12 +106,19 @@
 		2BB4E0C325B90DAD0028C76A /* GPUSDF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */; };
 		2BB4E0C725B929DC0028C76A /* GPUAnalytical.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */; };
 		2BB4E0C825B929DC0028C76A /* GPUAnalytical.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */; };
-		2BBA16E525C7B2B4002E9B7C /* ToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA16E425C7B2B4002E9B7C /* ToolView.swift */; };
-		2BBA16E625C7B2B4002E9B7C /* ToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA16E425C7B2B4002E9B7C /* ToolView.swift */; };
+		2BC042ED267ED31000DD85E2 /* ProjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042EC267ED31000DD85E2 /* ProjectView.swift */; };
+		2BC042EE267ED31000DD85E2 /* ProjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042EC267ED31000DD85E2 /* ProjectView.swift */; };
+		2BC042F0267ED39200DD85E2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042EF267ED39200DD85E2 /* SettingsView.swift */; };
+		2BC042F1267ED39200DD85E2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042EF267ED39200DD85E2 /* SettingsView.swift */; };
+		2BC042F3267ED3FB00DD85E2 /* ParameterVIews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F2267ED3FB00DD85E2 /* ParameterVIews.swift */; };
+		2BC042F4267ED3FB00DD85E2 /* ParameterVIews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F2267ED3FB00DD85E2 /* ParameterVIews.swift */; };
+		2BC042F6267ED4A500DD85E2 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F5267ED4A500DD85E2 /* EditorView.swift */; };
+		2BC042F7267ED4A500DD85E2 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F5267ED4A500DD85E2 /* EditorView.swift */; };
+		2BC042F9267ED54500DD85E2 /* ToolViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F8267ED54500DD85E2 /* ToolViews.swift */; };
+		2BC042FA267ED54500DD85E2 /* ToolViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F8267ED54500DD85E2 /* ToolViews.swift */; };
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
-		2BDD561325F0D0A600E5B057 /* Down in Frameworks */ = {isa = PBXBuildFile; productRef = 2BDD561225F0D0A600E5B057 /* Down */; };
 		2BF3FBC325EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 		2BF3FBC425EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 /* End PBXBuildFile section */
@@ -153,7 +156,6 @@
 		2B224FBC258619E800F32354 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		2B224FC52586EA1800F32354 /* SDFNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDFNodes.swift; sourceTree = "<group>"; };
 		2B224FCA2586F90C00F32354 /* BoolNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolNodes.swift; sourceTree = "<group>"; };
-		2B224FDD25888B4D00F32354 /* Views.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
 		2B224FEB2588A6BD00F32354 /* Nodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nodes.swift; sourceTree = "<group>"; };
 		2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticalNodes.swift; sourceTree = "<group>"; };
 		2B2D71BF25EA2D2F00180AC3 /* ConditionalNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalNodes.swift; sourceTree = "<group>"; };
@@ -178,7 +180,11 @@
 		2BB4E0BA25B811360028C76A /* GPUCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUCamera.swift; sourceTree = "<group>"; };
 		2BB4E0C125B90DAD0028C76A /* GPUSDF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUSDF.swift; sourceTree = "<group>"; };
 		2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUAnalytical.swift; sourceTree = "<group>"; };
-		2BBA16E425C7B2B4002E9B7C /* ToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolView.swift; sourceTree = "<group>"; };
+		2BC042EC267ED31000DD85E2 /* ProjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectView.swift; sourceTree = "<group>"; };
+		2BC042EF267ED39200DD85E2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		2BC042F2267ED3FB00DD85E2 /* ParameterVIews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterVIews.swift; sourceTree = "<group>"; };
+		2BC042F5267ED4A500DD85E2 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		2BC042F8267ED54500DD85E2 /* ToolViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolViews.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentNodes.swift; sourceTree = "<group>"; };
@@ -190,7 +196,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B6FF6B225D2771F0053CEF8 /* DynamicColor in Frameworks */,
-				2B224FE825888C8800F32354 /* Parma in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,8 +205,6 @@
 			files = (
 				2B6FF6B625D2772B0053CEF8 /* DynamicColor in Frameworks */,
 				2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */,
-				2BDD561325F0D0A600E5B057 /* Down in Frameworks */,
-				2B224FE425888C6E00F32354 /* Parma in Frameworks */,
 				2B224FA025844D6000F32354 /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -226,16 +229,15 @@
 				2B224F2D2584485100F32354 /* SignedApp.swift */,
 				2B224F2E2584485100F32354 /* SignedDocument.swift */,
 				2B224F2F2584485100F32354 /* ContentView.swift */,
-				2B224FDD25888B4D00F32354 /* Views.swift */,
-				2BBA16E425C7B2B4002E9B7C /* ToolView.swift */,
+				2BC042EB267ED2D700DD85E2 /* Views */,
 				2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */,
 				2B224F6525844C1800F32354 /* Asset.swift */,
 				2B224F6925844C1800F32354 /* File.swift */,
 				2B224F6325844C1800F32354 /* Core.swift */,
 				2B6FF69525D25E470053CEF8 /* NodesWidget.swift */,
 				2B224F6425844C1800F32354 /* MathLibrary.swift */,
-				2B224F6125844C1800F32354 /* Metal.h */,
 				2B224F6C25844C1900F32354 /* Metal.metal */,
+				2B224F6125844C1800F32354 /* Metal.h */,
 				2B224F6825844C1800F32354 /* MetalStates.swift */,
 				2B224F6625844C1800F32354 /* MetalView.swift */,
 				2B224F6B25844C1800F32354 /* ScriptEditor.swift */,
@@ -323,6 +325,18 @@
 			path = GPURenderPipeline;
 			sourceTree = "<group>";
 		};
+		2BC042EB267ED2D700DD85E2 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2BC042EC267ED31000DD85E2 /* ProjectView.swift */,
+				2BC042EF267ED39200DD85E2 /* SettingsView.swift */,
+				2BC042F2267ED3FB00DD85E2 /* ParameterVIews.swift */,
+				2BC042F5267ED4A500DD85E2 /* EditorView.swift */,
+				2BC042F8267ED54500DD85E2 /* ToolViews.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		2BE97DC025AC2A7200729833 /* Graph */ = {
 			isa = PBXGroup;
 			children = (
@@ -365,7 +379,6 @@
 			);
 			name = "Signed (iOS)";
 			packageProductDependencies = (
-				2B224FE725888C8800F32354 /* Parma */,
 				2B6FF6B125D2771F0053CEF8 /* DynamicColor */,
 			);
 			productName = "Signed (iOS)";
@@ -386,9 +399,7 @@
 			);
 			name = "Signed (macOS)";
 			packageProductDependencies = (
-				2B224FE325888C6E00F32354 /* Parma */,
 				2B6FF6B525D2772B0053CEF8 /* DynamicColor */,
-				2BDD561225F0D0A600E5B057 /* Down */,
 			);
 			productName = "Signed (macOS)";
 			productReference = 2B224F3D2584485300F32354 /* Signed.app */;
@@ -421,9 +432,7 @@
 			);
 			mainGroup = 2B224F272584485100F32354;
 			packageReferences = (
-				2B224FE225888C6E00F32354 /* XCRemoteSwiftPackageReference "Parma" */,
 				2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */,
-				2BDD561125F0D0A600E5B057 /* XCRemoteSwiftPackageReference "Down" */,
 			);
 			productRefGroup = 2B224F362584485300F32354 /* Products */;
 			projectDirPath = "";
@@ -463,6 +472,7 @@
 			files = (
 				2B224F7525844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA82585EB7F00F32354 /* SignedBuilder.swift in Sources */,
+				2BC042F3267ED3FB00DD85E2 /* ParameterVIews.swift in Sources */,
 				2B224FF72589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
 				2B6312D925BAC308002C1FDD /* GPUMisc.swift in Sources */,
 				2B224F432584485300F32354 /* SignedDocument.swift in Sources */,
@@ -473,7 +483,6 @@
 				2B224F7325844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCB2586F90C00F32354 /* BoolNodes.swift in Sources */,
 				2B400EEC25AD953F006493A0 /* SDFNodes2D.swift in Sources */,
-				2B224FDE25888B4D00F32354 /* Views.swift in Sources */,
 				2B224F7925844C1900F32354 /* MetalStates.swift in Sources */,
 				2B224FAF2585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F6F25844C1900F32354 /* Core.swift in Sources */,
@@ -482,9 +491,12 @@
 				2B6FF6AA25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C725B929DC0028C76A /* GPUAnalytical.swift in Sources */,
 				2B224F8B25844C3100F32354 /* Classes.swift in Sources */,
+				2BC042ED267ED31000DD85E2 /* ProjectView.swift in Sources */,
 				2B888B6225B42C2B00956C64 /* BestCandidate.swift in Sources */,
+				2BC042F6267ED4A500DD85E2 /* EditorView.swift in Sources */,
 				2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */,
+				2BC042F0267ED39200DD85E2 /* SettingsView.swift in Sources */,
 				2B224F8125844C1900F32354 /* Metal.metal in Sources */,
 				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */,
@@ -496,8 +508,8 @@
 				2B6FF69625D25E470053CEF8 /* NodesWidget.swift in Sources */,
 				2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
-				2BBA16E525C7B2B4002E9B7C /* ToolView.swift in Sources */,
 				2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
+				2BC042F9267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C525EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D4258C52B10073DAE9 /* Variables.swift in Sources */,
@@ -520,6 +532,7 @@
 			files = (
 				2B224F7625844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA92585EB7F00F32354 /* SignedBuilder.swift in Sources */,
+				2BC042F4267ED3FB00DD85E2 /* ParameterVIews.swift in Sources */,
 				2B224FF82589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
 				2B6312DA25BAC308002C1FDD /* GPUMisc.swift in Sources */,
 				2B224F442584485300F32354 /* SignedDocument.swift in Sources */,
@@ -530,7 +543,6 @@
 				2B224F7425844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCC2586F90C00F32354 /* BoolNodes.swift in Sources */,
 				2B400EED25AD953F006493A0 /* SDFNodes2D.swift in Sources */,
-				2B224FDF25888B4D00F32354 /* Views.swift in Sources */,
 				2B224F7A25844C1900F32354 /* MetalStates.swift in Sources */,
 				2B224FB02585ED1100F32354 /* Graph.swift in Sources */,
 				2B224F7025844C1900F32354 /* Core.swift in Sources */,
@@ -539,9 +551,12 @@
 				2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C825B929DC0028C76A /* GPUAnalytical.swift in Sources */,
 				2B224F8C25844C3100F32354 /* Classes.swift in Sources */,
+				2BC042EE267ED31000DD85E2 /* ProjectView.swift in Sources */,
 				2B888B6325B42C2C00956C64 /* BestCandidate.swift in Sources */,
+				2BC042F7267ED4A500DD85E2 /* EditorView.swift in Sources */,
 				2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */,
+				2BC042F1267ED39200DD85E2 /* SettingsView.swift in Sources */,
 				2B224F8225844C1900F32354 /* Metal.metal in Sources */,
 				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */,
@@ -553,8 +568,8 @@
 				2B6FF69725D25E480053CEF8 /* NodesWidget.swift in Sources */,
 				2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
-				2BBA16E625C7B2B4002E9B7C /* ToolView.swift in Sources */,
 				2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
+				2BC042FA267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C625EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,
 				2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */,
@@ -749,7 +764,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.signed;
 				PRODUCT_NAME = Signed;
 				SDKROOT = macosx;
@@ -777,7 +792,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.signed;
 				PRODUCT_NAME = Signed;
 				SDKROOT = macosx;
@@ -821,14 +836,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		2B224FE225888C6E00F32354 /* XCRemoteSwiftPackageReference "Parma" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/dasautoooo/Parma";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.2.0;
-			};
-		};
 		2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/yannickl/DynamicColor.git";
@@ -837,27 +844,9 @@
 				minimumVersion = 5.0.1;
 			};
 		};
-		2BDD561125F0D0A600E5B057 /* XCRemoteSwiftPackageReference "Down" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/johnxnguyen/Down.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.10.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2B224FE325888C6E00F32354 /* Parma */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2B224FE225888C6E00F32354 /* XCRemoteSwiftPackageReference "Parma" */;
-			productName = Parma;
-		};
-		2B224FE725888C8800F32354 /* Parma */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2B224FE225888C6E00F32354 /* XCRemoteSwiftPackageReference "Parma" */;
-			productName = Parma;
-		};
 		2B6FF6B125D2771F0053CEF8 /* DynamicColor */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */;
@@ -867,11 +856,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */;
 			productName = DynamicColor;
-		};
-		2BDD561225F0D0A600E5B057 /* Down */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2BDD561125F0D0A600E5B057 /* XCRemoteSwiftPackageReference "Down" */;
-			productName = Down;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
