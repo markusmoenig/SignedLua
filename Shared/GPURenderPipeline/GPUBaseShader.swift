@@ -370,11 +370,12 @@ class GPUBaseShader
             float sheen;
             float sheenTint;
             float clearcoat;
-            float clearcoatRoughness;
+            float clearcoatGloss;
 
             float transmission;
 
             float ior;
+            float atDistance;
             float3 extinction;
 
             float ax;
@@ -395,7 +396,6 @@ class GPUBaseShader
 
             bool isEmitter;
             bool specularBounce;
-            bool isSubsurface;
 
             float2 texCoord;
             Material mat;

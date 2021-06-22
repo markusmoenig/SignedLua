@@ -74,7 +74,7 @@ class GraphLightInfo {
     }
 }
 
-class GraphNode : Equatable, Identifiable {
+class GraphNode : Equatable, Identifiable, Hashable {
     
     enum Result {
         case Success, Failure, Running, Unused
@@ -200,8 +200,12 @@ class GraphNode : Equatable, Identifiable {
         return []
     }
     
-    static func ==(lhs:GraphNode, rhs:GraphNode) -> Bool { // Implement Equatable
+    static func ==(lhs:GraphNode, rhs:GraphNode) -> Bool {
         return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
