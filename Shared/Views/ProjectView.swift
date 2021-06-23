@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ProjectView: View {
     
+    @Environment(\.managedObjectContext) var managedObjectContext
+
     let core                                : Core
     var libraryItems                        : [LibraryItem] = []
     
@@ -39,6 +41,8 @@ struct ProjectView: View {
             if let context = asset?.graph {
                 
                 List() {
+                    
+                    // Camera
                     if let cameraNode = context.cameraNode {
                         Button(action: {
                             core.graphBuilder.gotoNode(cameraNode)
@@ -55,6 +59,8 @@ struct ProjectView: View {
                             } else { Color.clear }
                         })
                     }
+                    
+                    // Sun
                     if let sunNode = context.sunNode {
                         Button(action: {
                             core.graphBuilder.gotoNode(sunNode)
@@ -71,6 +77,8 @@ struct ProjectView: View {
                             } else { Color.clear }
                         })
                     }
+                    
+                    // Environment
                     if let envNode = context.environmentNode {
                         Button(action: {
                             core.graphBuilder.gotoNode(envNode)
@@ -87,6 +95,8 @@ struct ProjectView: View {
                             } else { Color.clear }
                         })
                     }
+                    
+                    // Definitions
                     Section(header: Text("Definitions")) {
                     //DisclosureGroup("Primitives", isExpanded: $showMaterials) {
                         ForEach(context.defPrimitiveNodes, id: \.id) { node in
@@ -98,6 +108,13 @@ struct ProjectView: View {
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .contentShape(Rectangle())
                                     .padding(.leading, 4)
+                            }
+                            
+                            .contextMenu {
+                                Button("Add To Library") {
+                                    addDefinitionToLibrary(node, type: "SDF3D")
+                                    print(node.givenName, node.code)
+                                }
                             }
                             .buttonStyle(PlainButtonStyle())
                             .listRowBackground(Group {
@@ -177,5 +194,15 @@ struct ProjectView: View {
             //    selection = id
             //}
         }
+    }
+    
+    // Adds a definition node to the library
+    func addDefinitionToLibrary(_ node: GraphNode, type: String) {
+        let object = Component(context: managedObjectContext)
+        object.name = node.givenName
+        object.data = node.code
+        object.type = type
+        
+        try! managedObjectContext.save()
     }
 }

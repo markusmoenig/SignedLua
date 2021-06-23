@@ -1,5 +1,5 @@
 //
-//  ParameterVIews.swift
+//  ParameterView.swift
 //  Signed
 //
 //  Created by Markus Moenig on 20/6/2564 BE.

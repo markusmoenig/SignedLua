@@ -10,7 +10,7 @@ import SwiftUI
 struct SettingsView: View {
     
     enum Status {
-        case ParameterList, Renderer
+        case ParameterList, Renderer, Library
     }
     
     let core                                : Core
@@ -66,6 +66,17 @@ struct SettingsView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
                 
+                Button(action: {
+                    status = .Library
+                    updateView.toggle()
+                })
+                {
+                    Label("", systemImage: "building.columns")
+                        .font(.system(size: toolBarIconSize))
+                        .foregroundColor(status == .Library ? Color.accentColor : Color.gray)
+                }
+                .buttonStyle(PlainButtonStyle())
+                
                 Spacer()
             }
             .padding(.top, toolBarTopPadding)
@@ -112,6 +123,11 @@ struct SettingsView: View {
                         Spacer()
                     }
                 }
+            }
+            else
+            if status == .Library {
+                LibraryView()
+                Spacer()
             }
         }
     }

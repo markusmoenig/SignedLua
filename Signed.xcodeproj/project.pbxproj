@@ -80,6 +80,10 @@
 		2B400EED25AD953F006493A0 /* SDFNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */; };
 		2B6312D925BAC308002C1FDD /* GPUMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6312D825BAC308002C1FDD /* GPUMisc.swift */; };
 		2B6312DA25BAC308002C1FDD /* GPUMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6312D825BAC308002C1FDD /* GPUMisc.swift */; };
+		2B651A412682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2B651A3F2682C5FC002DF988 /* DataModel.xcdatamodeld */; };
+		2B651A422682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2B651A3F2682C5FC002DF988 /* DataModel.xcdatamodeld */; };
+		2B651A442682C8BC002DF988 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B651A432682C8BC002DF988 /* PersistenceController.swift */; };
+		2B651A452682C8BC002DF988 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B651A432682C8BC002DF988 /* PersistenceController.swift */; };
 		2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
 		2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
 		2B6FF69625D25E470053CEF8 /* NodesWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FF69525D25E470053CEF8 /* NodesWidget.swift */; };
@@ -88,6 +92,8 @@
 		2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */; };
 		2B6FF6B225D2771F0053CEF8 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 2B6FF6B125D2771F0053CEF8 /* DynamicColor */; };
 		2B6FF6B625D2772B0053CEF8 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 2B6FF6B525D2772B0053CEF8 /* DynamicColor */; };
+		2B71C50C2682CF4500DC7F17 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B71C50B2682CF4500DC7F17 /* LibraryView.swift */; };
+		2B71C50D2682CF4500DC7F17 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B71C50B2682CF4500DC7F17 /* LibraryView.swift */; };
 		2B76D82B25AC46F000AF6FF2 /* SignedCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */; };
 		2B76D82C25AC46F000AF6FF2 /* SignedCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */; };
 		2B888B5725B15E7600956C64 /* SignedLightNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B5625B15E7600956C64 /* SignedLightNodes.swift */; };
@@ -110,8 +116,8 @@
 		2BC042EE267ED31000DD85E2 /* ProjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042EC267ED31000DD85E2 /* ProjectView.swift */; };
 		2BC042F0267ED39200DD85E2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042EF267ED39200DD85E2 /* SettingsView.swift */; };
 		2BC042F1267ED39200DD85E2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042EF267ED39200DD85E2 /* SettingsView.swift */; };
-		2BC042F3267ED3FB00DD85E2 /* ParameterVIews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F2267ED3FB00DD85E2 /* ParameterVIews.swift */; };
-		2BC042F4267ED3FB00DD85E2 /* ParameterVIews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F2267ED3FB00DD85E2 /* ParameterVIews.swift */; };
+		2BC042F3267ED3FB00DD85E2 /* ParameterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F2267ED3FB00DD85E2 /* ParameterView.swift */; };
+		2BC042F4267ED3FB00DD85E2 /* ParameterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F2267ED3FB00DD85E2 /* ParameterView.swift */; };
 		2BC042F6267ED4A500DD85E2 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F5267ED4A500DD85E2 /* EditorView.swift */; };
 		2BC042F7267ED4A500DD85E2 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F5267ED4A500DD85E2 /* EditorView.swift */; };
 		2BC042F9267ED54500DD85E2 /* ToolViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC042F8267ED54500DD85E2 /* ToolViews.swift */; };
@@ -167,9 +173,12 @@
 		2B400EC325AD45F0006493A0 /* BaseBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseBuilder.swift; sourceTree = "<group>"; };
 		2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDFNodes2D.swift; sourceTree = "<group>"; };
 		2B6312D825BAC308002C1FDD /* GPUMisc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUMisc.swift; sourceTree = "<group>"; };
+		2B651A402682C5FC002DF988 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
+		2B651A432682C8BC002DF988 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 		2B6FF69525D25E470053CEF8 /* NodesWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodesWidget.swift; sourceTree = "<group>"; };
 		2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorRing.swift; sourceTree = "<group>"; };
+		2B71C50B2682CF4500DC7F17 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedCamera.swift; sourceTree = "<group>"; };
 		2B821A7A25BD0B9100FBFEFF /* SignedSky.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedSky.swift; sourceTree = "<group>"; };
 		2B888B5625B15E7600956C64 /* SignedLightNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedLightNodes.swift; sourceTree = "<group>"; };
@@ -182,7 +191,7 @@
 		2BB4E0C625B929DC0028C76A /* GPUAnalytical.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUAnalytical.swift; sourceTree = "<group>"; };
 		2BC042EC267ED31000DD85E2 /* ProjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectView.swift; sourceTree = "<group>"; };
 		2BC042EF267ED39200DD85E2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		2BC042F2267ED3FB00DD85E2 /* ParameterVIews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterVIews.swift; sourceTree = "<group>"; };
+		2BC042F2267ED3FB00DD85E2 /* ParameterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterView.swift; sourceTree = "<group>"; };
 		2BC042F5267ED4A500DD85E2 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		2BC042F8267ED54500DD85E2 /* ToolViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolViews.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
@@ -250,6 +259,8 @@
 				2B224F8525844C2500F32354 /* Classes */,
 				2B224F9925844D0E00F32354 /* Files */,
 				2B224F302584485300F32354 /* Assets.xcassets */,
+				2B651A432682C8BC002DF988 /* PersistenceController.swift */,
+				2B651A3F2682C5FC002DF988 /* DataModel.xcdatamodeld */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -330,9 +341,10 @@
 			children = (
 				2BC042EC267ED31000DD85E2 /* ProjectView.swift */,
 				2BC042EF267ED39200DD85E2 /* SettingsView.swift */,
-				2BC042F2267ED3FB00DD85E2 /* ParameterVIews.swift */,
+				2BC042F2267ED3FB00DD85E2 /* ParameterView.swift */,
 				2BC042F5267ED4A500DD85E2 /* EditorView.swift */,
 				2BC042F8267ED54500DD85E2 /* ToolViews.swift */,
+				2B71C50B2682CF4500DC7F17 /* LibraryView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -472,8 +484,9 @@
 			files = (
 				2B224F7525844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA82585EB7F00F32354 /* SignedBuilder.swift in Sources */,
-				2BC042F3267ED3FB00DD85E2 /* ParameterVIews.swift in Sources */,
+				2BC042F3267ED3FB00DD85E2 /* ParameterView.swift in Sources */,
 				2B224FF72589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
+				2B651A442682C8BC002DF988 /* PersistenceController.swift in Sources */,
 				2B6312D925BAC308002C1FDD /* GPUMisc.swift in Sources */,
 				2B224F432584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC62586EA1800F32354 /* SDFNodes.swift in Sources */,
@@ -497,6 +510,7 @@
 				2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */,
 				2BC042F0267ED39200DD85E2 /* SettingsView.swift in Sources */,
+				2B71C50C2682CF4500DC7F17 /* LibraryView.swift in Sources */,
 				2B224F8125844C1900F32354 /* Metal.metal in Sources */,
 				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */,
@@ -521,6 +535,7 @@
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B0F923225B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
+				2B651A412682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2B888B5725B15E7600956C64 /* SignedLightNodes.swift in Sources */,
 				2B224FEC2588A6BD00F32354 /* Nodes.swift in Sources */,
 			);
@@ -532,8 +547,9 @@
 			files = (
 				2B224F7625844C1900F32354 /* MetalView.swift in Sources */,
 				2B224FA92585EB7F00F32354 /* SignedBuilder.swift in Sources */,
-				2BC042F4267ED3FB00DD85E2 /* ParameterVIews.swift in Sources */,
+				2BC042F4267ED3FB00DD85E2 /* ParameterView.swift in Sources */,
 				2B224FF82589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
+				2B651A452682C8BC002DF988 /* PersistenceController.swift in Sources */,
 				2B6312DA25BAC308002C1FDD /* GPUMisc.swift in Sources */,
 				2B224F442584485300F32354 /* SignedDocument.swift in Sources */,
 				2B224FC72586EA1800F32354 /* SDFNodes.swift in Sources */,
@@ -557,6 +573,7 @@
 				2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */,
 				2BC042F1267ED39200DD85E2 /* SettingsView.swift in Sources */,
+				2B71C50D2682CF4500DC7F17 /* LibraryView.swift in Sources */,
 				2B224F8225844C1900F32354 /* Metal.metal in Sources */,
 				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */,
@@ -581,6 +598,7 @@
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B0F923325B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
+				2B651A422682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2B888B5825B15E7600956C64 /* SignedLightNodes.swift in Sources */,
 				2B224FED2588A6BD00F32354 /* Nodes.swift in Sources */,
 			);
@@ -858,6 +876,19 @@
 			productName = DynamicColor;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		2B651A3F2682C5FC002DF988 /* DataModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				2B651A402682C5FC002DF988 /* DataModel.xcdatamodel */,
+			);
+			currentVersion = 2B651A402682C5FC002DF988 /* DataModel.xcdatamodel */;
+			path = DataModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 2B224F282584485100F32354 /* Project object */;
 }

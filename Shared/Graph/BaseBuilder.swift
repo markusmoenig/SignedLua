@@ -83,6 +83,7 @@ class GraphBuilder
         var lastLevel       : Int = -1
 
         ns.enumerateLines { (str, _) in
+            
             if error.error != nil { return }
             error.line = lineNumber
             
@@ -438,6 +439,25 @@ class GraphBuilder
                                     }
                                 }
                             }
+                            
+                            if processed == false {
+                                // Check Library
+                                let request = Component.fetchRequest()
+                                let components = try! PersistenceController.shared.container.viewContext.fetch(request)
+
+                                components.forEach { component in                                    
+                                    if component.name == possbibleCmd {
+                                        if let context = self.parseComponent(component) {
+                                            if let defNode = context.defPrimitiveNodes.first {
+                                                let node = GraphPrimitiveNode()
+                                                node.options = nodeOptions
+                                                node.defNode = defNode
+                                                addNode(node)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     } else
                     if var variableName = variableName {
@@ -496,6 +516,11 @@ class GraphBuilder
                 }
             }
             
+            // Append the line to the last node, this way we store definitions for reuse in the library
+            if let lastNode = graph.nodes.last {
+                lastNode.code.append(contentsOf: str + "\n")
+            }
+            
             lastLevel = level
             lineNumber += 1
         }
@@ -514,5 +539,19 @@ class GraphBuilder
         }
         
         return res
+    }
+    
+    func parseComponent(_ component: Component) -> GraphContext? {
+        let asset = Asset(type: .Source, name: "Main", value: component.data!)
+        
+        if let signedGraphBuilder = self as? SignedGraphBuilder {
+            let signedBuilder = SignedGraphBuilder(signedGraphBuilder.core)
+            let rc = signedBuilder.compile(asset, silent: true)
+    
+            if rc.error == nil {
+                return asset.graph
+            }
+        }
+        return nil
     }
 }

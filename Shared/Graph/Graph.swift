@@ -116,6 +116,9 @@ class GraphNode : Equatable, Identifiable, Hashable {
     
     // Shader implementation
     var gpuShader           : AnyObject? = nil
+    
+    // The code of this node, useful to get the content of Definitions
+    var code                : String = ""
         
     init(_ role: NodeRole,_ context: NodeContext,_ options: [String:Any] = [:])
     {
