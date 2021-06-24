@@ -165,6 +165,15 @@ class AssetFolder       : Codable
         }
     }
     
+    /// Returns the graph of the "Main" function
+    func getGraph() -> GraphContext?
+    {
+        if let asset = getAsset("main", .Source) {
+            return asset.graph
+        }
+        return nil
+    }
+    
     func getAsset(_ name: String,_ type: Asset.AssetType = .Source) -> Asset?
     {
         for asset in assets {

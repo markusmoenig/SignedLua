@@ -182,7 +182,7 @@ struct ProjectView: View {
                 }
             }
         }
-        
+                
         .onReceive(self.core.modelChanged) { core in
             asset = self.core.assetFolder.getAsset("main", .Source)
             updateView.toggle()

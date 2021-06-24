@@ -37,6 +37,8 @@ struct ContentView: View {
     @State private var exportingImage                   : Bool = false
     
     @State private var toolsAreOn                       : Bool = false
+    
+    @State private var searchText = ""
 
     #if os(macOS)
     let leftPanelWidth                      : CGFloat = 180
@@ -134,6 +136,26 @@ struct ContentView: View {
                 })
             }
         }
+        
+        // Search
+        .searchable(text: $searchText) {
+            ForEach(searchResults, id: \.self) { result in
+                Text("\(result)").searchCompletion(result)
+            }
+        }
+        
+        // If the searchtext matches a specific object name, select it
+        .onChange(of: searchText) { newValue in
+            if let graph = document.core.assetFolder.getGraph() {
+                for n in graph.nodes {
+                    if n.givenName == newValue {
+                        document.core.graphBuilder.gotoNode(n)
+                        break
+                    }
+                }
+            }
+        }
+
         .onAppear(perform: {
             if storeManager.myProducts.isEmpty {
                 DispatchQueue.main.async {
@@ -293,6 +315,23 @@ struct ContentView: View {
         }
         label: {
             Label("Dollar", systemImage: "gift")//dollarsign.circle")
+        }
+    }
+    
+    /// Supplies the search results for the given searchText
+    var searchResults: [String] {
+        var names : [String] = []
+        
+        if let graph = document.core.assetFolder.getGraph() {
+            for n in graph.nodes {
+                names.append(n.givenName)
+            }
+        }
+                        
+        if searchText.isEmpty {
+            return names
+        } else {
+            return names.filter { $0.contains(searchText) }
         }
     }
 }

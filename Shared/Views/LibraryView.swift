@@ -61,6 +61,7 @@ struct LibraryView: View {
                         })
                 }
                 //.onDelete(perform: deleteObject)
+
             }
         }
     }
