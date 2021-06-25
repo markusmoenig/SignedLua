@@ -52,7 +52,30 @@ struct ContentView: View {
     let rightPanelWidth                     : CGFloat = 230
     #endif
     
-    var body: some View {            
+    var body: some View {
+        
+        HStack {
+            
+            ZStack(alignment: .bottomLeading) {
+                // Show tools
+                
+                MetalView(document.core, .Main)
+                    .zIndex(0)
+                    .animation(.default)
+                    .allowsHitTesting(true)
+                ToolsView(document.core)
+                    .zIndex(1)
+                 
+            }
+            
+            Divider()
+            
+            ProjectView(document.model)
+                .frame(width: 400)
+        }
+        
+        /*
+        
         VStack(spacing: 0) {
         //VSplitView {
                         
@@ -188,6 +211,7 @@ struct ContentView: View {
                 // Handle failure.
             }
         }
+        */
     }
     
     /// Preview Menu

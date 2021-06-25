@@ -125,6 +125,10 @@
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
+		2BC9944E2685A5AC00F75A54 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9944D2685A5AC00F75A54 /* Model.swift */; };
+		2BC9944F2685A5AC00F75A54 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9944D2685A5AC00F75A54 /* Model.swift */; };
+		2BC994512685AB5400F75A54 /* SignedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC994502685AB5400F75A54 /* SignedObject.swift */; };
+		2BC994522685AB5400F75A54 /* SignedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC994502685AB5400F75A54 /* SignedObject.swift */; };
 		2BF3FBC325EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 		2BF3FBC425EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 /* End PBXBuildFile section */
@@ -196,6 +200,8 @@
 		2BC042F8267ED54500DD85E2 /* ToolViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolViews.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		2BC9944D2685A5AC00F75A54 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		2BC994502685AB5400F75A54 /* SignedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedObject.swift; sourceTree = "<group>"; };
 		2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentNodes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -238,6 +244,7 @@
 				2B224F2D2584485100F32354 /* SignedApp.swift */,
 				2B224F2E2584485100F32354 /* SignedDocument.swift */,
 				2B224F2F2584485100F32354 /* ContentView.swift */,
+				2BC9944C2685A59500F75A54 /* Model */,
 				2BC042EB267ED2D700DD85E2 /* Views */,
 				2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */,
 				2B224F6525844C1800F32354 /* Asset.swift */,
@@ -347,6 +354,15 @@
 				2B71C50B2682CF4500DC7F17 /* LibraryView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		2BC9944C2685A59500F75A54 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				2BC994502685AB5400F75A54 /* SignedObject.swift */,
+				2BC9944D2685A5AC00F75A54 /* Model.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		2BE97DC025AC2A7200729833 /* Graph */ = {
@@ -536,6 +552,8 @@
 				2B0F923225B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
 				2B651A412682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
+				2BC994512685AB5400F75A54 /* SignedObject.swift in Sources */,
+				2BC9944E2685A5AC00F75A54 /* Model.swift in Sources */,
 				2B888B5725B15E7600956C64 /* SignedLightNodes.swift in Sources */,
 				2B224FEC2588A6BD00F32354 /* Nodes.swift in Sources */,
 			);
@@ -599,6 +617,8 @@
 				2B0F923325B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
 				2B651A422682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
+				2BC994522685AB5400F75A54 /* SignedObject.swift in Sources */,
+				2BC9944F2685A5AC00F75A54 /* Model.swift in Sources */,
 				2B888B5825B15E7600956C64 /* SignedLightNodes.swift in Sources */,
 				2B224FED2588A6BD00F32354 /* Nodes.swift in Sources */,
 			);

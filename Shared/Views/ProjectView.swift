@@ -11,9 +11,12 @@ struct ProjectView: View {
     
     @Environment(\.managedObjectContext) var managedObjectContext
 
-    let core                                : Core
-    var libraryItems                        : [LibraryItem] = []
+    let model                               : Model
     
+    @State var scale                        : CGFloat = 1.0
+
+    //var libraryItems                      : [LibraryItem] = []
+    /*
     @State var asset                        : Asset? = nil
     
     @State var updateView                   : Bool = false
@@ -22,20 +25,46 @@ struct ProjectView: View {
         
     @State private var showMaterials        : Bool = false
     @State private var showObjects          : Bool = false
-
+     */
     #if os(macOS)
     let TopRowPadding                       : CGFloat = 2
     #else
     let TopRowPadding                       : CGFloat = 5
     #endif
 
-    init(_ core: Core)
+    init(_ model: Model)
     {
-        self.core = core
+        self.model = model
     }
     
     var body: some View {
         
+        
+        ZStack(alignment: .topLeading) {
+            
+            ForEach(model.objects, id: \.self) { object in
+                
+                Canvas { context, size in
+                    
+                    context.fill(
+                        Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 10),
+                        with: .color(.gray))
+                    context.draw(Text(object.name), at: CGPoint(x: 10, y: 4), anchor: .topLeading)
+                }
+                .frame(width: 100, height: 100)
+                //.border(Color.blue)
+                .scaleEffect(scale)
+                .onTapGesture {
+                    print("big")
+                }
+                .contextMenu {
+                    Text("hallo")
+                }
+            }
+        }
+
+        
+        /*
 
         VStack {
             if let context = asset?.graph {
@@ -194,6 +223,8 @@ struct ProjectView: View {
             //    selection = id
             //}
         }
+         
+         */
     }
     
     // Adds a definition node to the library
