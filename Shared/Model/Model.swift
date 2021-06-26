@@ -18,8 +18,15 @@ class Model: NSObject, ObservableObject {
     /// Send when an object has been selected
     let objectSelected                      = PassthroughSubject<SignedObject, Never>()
 
+    /// Reference to the underlying script editor
     var scriptEditor                        : ScriptEditor? = nil
 
+    /// Reference to the renderer
+    var renderer                            : RenderPipeline? = nil
+
+    /// Custom render size
+    var renderSize                          : SIMD2<Int>? = nil
+    
     override init() {
         super.init()
         let rendererObject = SignedObject("Renderer", role: .Renderer, graphPosition: CGPoint(x: 100, y: 100))

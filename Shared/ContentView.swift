@@ -54,13 +54,13 @@ struct ContentView: View {
     
     var body: some View {
         
-        VStack {
-            HStack {
+        VStack(spacing: 2) {
+            HStack(spacing: 2) {
                 
                 ZStack(alignment: .bottomLeading) {
                     // Show tools
                     
-                    MetalView(document.core, .Main)
+                    RenderView(model: document.model)
                         .zIndex(0)
                         .animation(.default)
                         .allowsHitTesting(true)
