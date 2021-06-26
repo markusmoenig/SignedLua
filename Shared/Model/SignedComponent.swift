@@ -1,40 +1,47 @@
 //
-//  SignedObject.swift
+//  SignedComponent.swift
 //  Signed
 //
-//  Created by Markus Moenig on 25/6/21.
+//  Created by Markus Moenig on 26/6/21.
 //
 
 import Foundation
 
 /// This object is the base for everything, if its an geometry object or a material
-class SignedObject : Codable, Hashable {
+class SignedComponent : Codable, Hashable {
     
-    enum Role : Int, Codable {
-        case Object
+    enum Role: String, Codable {
+        case Primitive
+    }
+    
+    enum Domain: Int, Codable {
+        case twoD, threeD
     }
     
     var id              = UUID()
     var name            : String
-
-    var children        : [SignedObject] = []
     
-    /// Representing components which belong to a specific group, like primitives
-    var components      : [SignedComponent] = []
+    var role            : Role
+    var domain          : Domain
 
+    var code            : String = ""
+    
     var graphPosition   = CGPoint(x: 100, y: 100)
     
     private enum CodingKeys: String, CodingKey {
         case id
         case name
-        case children
-        case components
+        case role
+        case domain
+        case code
         case graphPosition
     }
     
-    init(_ name: String = "Unnamed")
+    init(_ name: String = "Unnamed",_ role: Role = .Primitive,_ domain: Domain = .threeD)
     {
         self.name = name
+        self.role = role
+        self.domain = domain
     }
     
     required init(from decoder: Decoder) throws
@@ -42,8 +49,9 @@ class SignedObject : Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
-        children = try container.decode([SignedObject].self, forKey: .children)
-        components = try container.decode([SignedComponent].self, forKey: .components)
+        role = try container.decode(Role.self, forKey: .role)
+        domain = try container.decode(Domain.self, forKey: .domain)
+        code = try container.decode(String.self, forKey: .code)
         graphPosition = try container.decode(CGPoint.self, forKey: .graphPosition)
     }
     
@@ -52,12 +60,13 @@ class SignedObject : Codable, Hashable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
-        try container.encode(children, forKey: .children)
-        try container.encode(components, forKey: .components)
+        try container.encode(role, forKey: .role)
+        try container.encode(domain, forKey: .domain)
+        try container.encode(code, forKey: .code)
         try container.encode(graphPosition, forKey: .graphPosition)
     }
     
-    static func ==(lhs: SignedObject, rhs: SignedObject) -> Bool {
+    static func ==(lhs: SignedComponent, rhs: SignedComponent) -> Bool {
         return lhs.id == rhs.id
     }
     
@@ -65,3 +74,4 @@ class SignedObject : Codable, Hashable {
         hasher.combine(id)
     }
 }
+
