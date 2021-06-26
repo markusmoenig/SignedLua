@@ -13,6 +13,7 @@ struct ProjectView: View {
 
     let model                               : Model
     
+    @State var selection                    : SignedObject? = nil
     @State var scale                        : CGFloat = 1.0
 
     //var libraryItems                      : [LibraryItem] = []
@@ -39,8 +40,7 @@ struct ProjectView: View {
     
     var body: some View {
         
-        
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .center) {
             
             ForEach(model.objects, id: \.self) { object in
                 
@@ -49,18 +49,32 @@ struct ProjectView: View {
                     context.fill(
                         Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 10),
                         with: .color(.gray))
+                    
+                    context.stroke(
+                        Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 10),
+                        with: .color(selection === object ? .white : .clear),
+                        lineWidth: 4)
+                    
                     context.draw(Text(object.name), at: CGPoint(x: 10, y: 4), anchor: .topLeading)
+                    
                 }
+                .offset(x: object.graphPosition.x, y: object.graphPosition.y)
                 .frame(width: 100, height: 100)
                 //.border(Color.blue)
                 .scaleEffect(scale)
                 .onTapGesture {
-                    print("big")
+                    //print()
+                    model.selectedObject = object
+                    model.objectSelected.send(object)
                 }
                 .contextMenu {
                     Text("hallo")
                 }
             }
+        }
+        
+        .onReceive(model.objectSelected) { object in
+            selection = object
         }
 
         

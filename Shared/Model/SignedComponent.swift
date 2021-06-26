@@ -11,7 +11,7 @@ import Foundation
 class SignedComponent : Codable, Hashable {
     
     enum Role: String, Codable {
-        case Primitive
+        case Primitive, Renderer
     }
     
     enum Domain: Int, Codable {
@@ -28,6 +28,9 @@ class SignedComponent : Codable, Hashable {
     
     var graphPosition   = CGPoint(x: 100, y: 100)
     
+    // To identify the editor session
+    var scriptContext   = ""
+    
     private enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -37,11 +40,12 @@ class SignedComponent : Codable, Hashable {
         case graphPosition
     }
     
-    init(_ name: String = "Unnamed",_ role: Role = .Primitive,_ domain: Domain = .threeD)
+    init(_ name: String = "Unnamed", role: Role = .Primitive, domain: Domain = .threeD, graphPosition: CGPoint = CGPoint(x: 100, y: 100), code: String = "")
     {
         self.name = name
         self.role = role
         self.domain = domain
+        self.code = code
     }
     
     required init(from decoder: Decoder) throws

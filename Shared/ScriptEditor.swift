@@ -14,54 +14,24 @@ import Combine
 class ScriptEditor
 {
     var webView         : WKWebView
-    var core            : Core
+    var model           : Model
     var sessions        : Int = 0
     var colorScheme     : ColorScheme
     
     var helpText        : String = ""
     
-    init(_ view: WKWebView, _ core: Core,_ colorScheme: ColorScheme)
+    init(_ view: WKWebView, _ model: Model,_ colorScheme: ColorScheme)
     {
         self.webView = view
-        self.core = core
+        self.model = model
         self.colorScheme = colorScheme
         
+        /*
         if let asset = core.assetFolder.getAsset("main", .Source) {
             core.assetFolder.select(asset.id)
             createSession(asset)
             setTheme(colorScheme)
-        }
-        
-        createHelpSession()
-    }
-    
-    func createHelpSession()
-    {
-        guard let path = Bundle.main.path(forResource: "help", ofType: "cpp", inDirectory: "Files") else {
-            return
-        }
-        
-        if let value = try? String(contentsOfFile: path, encoding: String.Encoding.utf8) {
-            helpText = value
-        }
-        
-        webView.evaluateJavaScript(
-            """
-            var helpSession = ace.createEditSession(``)
-            helpSession.setMode("ace/mode/c_cpp");
-            """, completionHandler: { (value, error ) in
-         })
-    }
-    
-    func activateHelpSession()
-    {
-        core.showingHelp = true
-        webView.evaluateJavaScript(
-            """
-            helpSession.setValue(`\(helpText)`)
-            editor.setSession(helpSession)
-            """, completionHandler: { (value, error ) in
-         })
+        }*/
     }
     
     func setTheme(_ colorScheme: ColorScheme)
@@ -79,37 +49,23 @@ class ScriptEditor
          })
     }
     
-    func createSession(_ asset: Asset,_ cb: (()->())? = nil)
+    func createSession(_ component: SignedComponent,_ cb: (()->())? = nil)
     {
-        if asset.scriptName.isEmpty {
-            asset.scriptName = "session" + String(sessions)
+        if component.scriptContext.isEmpty {
+            component.scriptContext = "session" + String(sessions)
             sessions += 1
         }
 
-        if asset.type == .Source {
-            webView.evaluateJavaScript(
-                """
-                var \(asset.scriptName) = ace.createEditSession(`\(asset.value)`)
-                editor.setSession(\(asset.scriptName))
-                editor.session.setMode("ace/mode/denrim");
-                """, completionHandler: { (value, error ) in
-                    if let cb = cb {
-                        cb()
-                    }
-             })
-        } else
-        if asset.type == .Image || asset.type == .Audio {
-            webView.evaluateJavaScript(
-                """
-                var \(asset.scriptName) = ace.createEditSession(`\(asset.value)`)
-                editor.setSession(\(asset.scriptName))
-                editor.session.setMode("ace/mode/text");
-                """, completionHandler: { (value, error ) in
-                    if let cb = cb {
-                        cb()
-                    }
-             })
-        }
+        webView.evaluateJavaScript(
+            """
+            var \(component.scriptContext) = ace.createEditSession(`\(component.code)`)
+            editor.setSession(\(component.scriptContext))
+            editor.session.setMode("ace/mode/denrim");
+            """, completionHandler: { (value, error ) in
+                if let cb = cb {
+                    cb()
+                }
+         })
     }
     
     func setReadOnly(_ readOnly: Bool = false)
@@ -165,20 +121,19 @@ class ScriptEditor
         })
     }
     
-    func setAssetSession(_ asset: Asset)
+    func setComponentSession(_ component: SignedComponent)
     {
-        core.showingHelp = false
         func setSession()
         {
             let cmd = """
-            editor.setSession(\(asset.scriptName))
+            editor.setSession(\(component.scriptContext))
             """
             webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
             })
         }
         
-        if asset.scriptName.isEmpty == true {
-            createSession(asset, { () in
+        if component.scriptContext.isEmpty == true {
+            createSession(component, { () in
                 setSession()
             })
         } else {
@@ -323,6 +278,7 @@ class ScriptEditor
     
     func updated()
     {
+        /*
         if let asset = core.assetFolder.current {
             getAssetValue(asset, { (value) in
                 self.core.assetFolder.assetUpdated(id: asset.id, value: value)
@@ -330,7 +286,7 @@ class ScriptEditor
                 //    self.game.assetFolder.assetUpdated(id: asset.id, value: value, deltaStart: from, deltaEnd: to)
                 //})
             })
-        }
+        }*/
     }
 }
 
@@ -344,7 +300,7 @@ class WebViewModel: ObservableObject {
 #if os(OSX)
 struct SwiftUIWebView: NSViewRepresentable {
     public typealias NSViewType = WKWebView
-    var core        : Core!
+    var model       : Model!
     var colorScheme : ColorScheme
 
     private let webView: WKWebView = WKWebView()
@@ -366,22 +322,22 @@ struct SwiftUIWebView: NSViewRepresentable {
     public func updateNSView(_ nsView: WKWebView, context: NSViewRepresentableContext<SwiftUIWebView>) { }
 
     public func makeCoordinator() -> Coordinator {
-        return Coordinator(core, colorScheme)
+        return Coordinator(model, colorScheme)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         
-        private var core        : Core
+        private var model        : Model
         private var colorScheme : ColorScheme
 
-        init(_ core: Core,_ colorScheme: ColorScheme) {
-            self.core = core
+        init(_ model: Model,_ colorScheme: ColorScheme) {
+            self.model = model
             self.colorScheme = colorScheme
         }
         
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "jsHandler" {
-                if let scriptEditor = core.scriptEditor {
+                if let scriptEditor = model.scriptEditor {
                     scriptEditor.updated()
                 }
             }
@@ -393,7 +349,7 @@ struct SwiftUIWebView: NSViewRepresentable {
 
         //After the webpage is loaded, assign the data in WebViewModel class
         public func webView(_ web: WKWebView, didFinish: WKNavigation!) {
-            core.scriptEditor = ScriptEditor(web, core, colorScheme)
+            model.scriptEditor = ScriptEditor(web, model, colorScheme)
             web.isHidden = false
         }
 
@@ -471,16 +427,16 @@ struct SwiftUIWebView: UIViewRepresentable {
 #endif
 
 struct WebView  : View {
-    var core        : Core
+    var model       : Model
     var colorScheme : ColorScheme
 
-    init(_ core: Core,_ colorScheme: ColorScheme) {
-        self.core = core
+    init(_ model: Model,_ colorScheme: ColorScheme) {
+        self.model = model
         self.colorScheme = colorScheme
     }
     
     var body: some View {
-        SwiftUIWebView(core: core, colorScheme: colorScheme)
+        SwiftUIWebView(model: model, colorScheme: colorScheme)
     }
 }
 

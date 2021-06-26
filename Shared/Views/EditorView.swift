@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditorView: View {
 
-    let core                                            : Core
+    let model                                           : Model
 
     @State private var rightSideHelpIsVisible           : Bool = true
 
@@ -23,9 +23,9 @@ struct EditorView: View {
     let rightPanelWidth                                 : CGFloat = 230
     #endif
     
-    init(_ core: Core)
+    init(_ model: Model)
     {
-        self.core = core
+        self.model = model
     }
     
     var body: some View {
@@ -89,12 +89,12 @@ struct EditorView: View {
             //    ScrollView {
 
                     
-                    WebView(core, deviceColorScheme).tabItem {
+                    WebView(model, deviceColorScheme).tabItem {
                     }
                         .frame(height: geometry.size.height)
                         .tag(1)
                         .onChange(of: deviceColorScheme) { newValue in
-                            core.scriptEditor?.setTheme(newValue)
+                            model.scriptEditor?.setTheme(newValue)
                         }
                      
                 //}
@@ -102,6 +102,7 @@ struct EditorView: View {
                 .layoutPriority(2)
             }
             
+            /*
             if rightSideHelpIsVisible == true {
                 if let asset = core.assetFolder.current {
                     ScrollView {
@@ -126,7 +127,11 @@ struct EditorView: View {
                     .animation(.easeInOut)
                 }
             }
-            
+            */
+        }
+        
+        .onReceive(model.objectSelected) { object in
+            model.scriptEditor?.setComponentSession(object.components[0])
         }
     }
 }

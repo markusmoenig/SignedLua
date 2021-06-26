@@ -11,11 +11,13 @@ import Foundation
 class SignedObject : Codable, Hashable {
     
     enum Role : Int, Codable {
-        case Object
+        case Object, Renderer
     }
     
     var id              = UUID()
     var name            : String
+    
+    var role            : Role
 
     var children        : [SignedObject] = []
     
@@ -27,14 +29,17 @@ class SignedObject : Codable, Hashable {
     private enum CodingKeys: String, CodingKey {
         case id
         case name
+        case role
         case children
         case components
         case graphPosition
     }
     
-    init(_ name: String = "Unnamed")
+    init(_ name: String = "Unnamed", role: Role = .Object, graphPosition: CGPoint = CGPoint.zero)
     {
         self.name = name
+        self.role = role
+        self.graphPosition = graphPosition
     }
     
     required init(from decoder: Decoder) throws
@@ -42,6 +47,7 @@ class SignedObject : Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
+        role = try container.decode(Role.self, forKey: .role)
         children = try container.decode([SignedObject].self, forKey: .children)
         components = try container.decode([SignedComponent].self, forKey: .components)
         graphPosition = try container.decode(CGPoint.self, forKey: .graphPosition)
@@ -52,6 +58,7 @@ class SignedObject : Codable, Hashable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
+        try container.encode(role, forKey: .role)
         try container.encode(children, forKey: .children)
         try container.encode(components, forKey: .components)
         try container.encode(graphPosition, forKey: .graphPosition)

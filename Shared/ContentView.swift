@@ -54,24 +54,28 @@ struct ContentView: View {
     
     var body: some View {
         
-        HStack {
-            
-            ZStack(alignment: .bottomLeading) {
-                // Show tools
+        VStack {
+            HStack {
                 
-                MetalView(document.core, .Main)
-                    .zIndex(0)
-                    .animation(.default)
-                    .allowsHitTesting(true)
-                ToolsView(document.core)
-                    .zIndex(1)
-                 
+                ZStack(alignment: .bottomLeading) {
+                    // Show tools
+                    
+                    MetalView(document.core, .Main)
+                        .zIndex(0)
+                        .animation(.default)
+                        .allowsHitTesting(true)
+                    ToolsView(document.core)
+                        .zIndex(1)
+                     
+                }
+                
+                Divider()
+                
+                ProjectView(document.model)
+                    .frame(width: 400)
             }
-            
-            Divider()
-            
-            ProjectView(document.model)
-                .frame(width: 400)
+         
+            EditorView(document.model)
         }
         
         /*

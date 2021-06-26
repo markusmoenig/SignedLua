@@ -97,7 +97,7 @@ class AssetFolder       : Codable
             }
         }
         
-        core.scriptEditor?.createSession(asset)
+        //core.scriptEditor?.createSession(asset)
         select(asset.id)
     }
     
@@ -128,7 +128,7 @@ class AssetFolder       : Codable
             }
         }
         
-        core.scriptEditor?.createSession(asset)
+        //core.scriptEditor?.createSession(asset)
         select(asset.id)
     }
     
@@ -146,9 +146,9 @@ class AssetFolder       : Codable
         for asset in assets {
             if asset.id == id {
                 if asset.scriptName.isEmpty {
-                    core.scriptEditor?.createSession(asset)
+                    //core.scriptEditor?.createSession(asset)
                 }
-                core.scriptEditor?.setAssetSession(asset)
+                //core.scriptEditor?.setAssetSession(asset)
                 
                 if core.state == .Idle {
                     assetCompile(asset)
