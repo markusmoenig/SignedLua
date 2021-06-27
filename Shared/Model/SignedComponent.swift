@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 /// This object is the base for everything, if its an geometry object or a material
 class SignedComponent : Codable, Hashable {

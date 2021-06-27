@@ -20,10 +20,8 @@ struct ObjectView: View {
 
                 if let selected = selection {
                     if selected.role == .Random {
-                        if let previewModel = createPreviewCopy(selected) {
-                            RenderView(model: previewModel)
-                            //EditorView(model)
-                        }
+                        RenderView(model: model, component: selected.components[0])
+                        //EditorView(model)
                     }
                 }
                 EditorView(model)
@@ -31,10 +29,9 @@ struct ObjectView: View {
         }
         
         .onReceive(model.componentPreviewNeedsUpdate) { _ in
-            if let previewModel = model.previewModel {
-                print("needs update")
-                previewModel.renderer?.compilePreview()
-                previewModel.renderer?.updateOnce()
+            if let renderer = model.previewRenderer {
+                renderer.compileComponent()
+                renderer.render()
             }
         }
         
@@ -46,10 +43,5 @@ struct ObjectView: View {
                 model.scriptEditor?.setComponentSession(component)
             }
         }
-    }
-    
-    func createPreviewCopy(_ object: SignedObject) -> Model? {
-        model.previewModel = model.createPreviewCopy(object)
-        return model.previewModel
     }
 }

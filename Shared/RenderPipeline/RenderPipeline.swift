@@ -42,27 +42,32 @@ class RenderPipeline
     var semaphore       : DispatchSemaphore
     
     //
+    var previewComponent: SignedComponent? = nil
+    
     var previewShader   : BaseShader? = nil
     
-    init(_ view: MTKView,_ model: Model)
+    init(_ view: MTKView,_ model: Model, component: SignedComponent? = nil)
     {
         self.view = view
         self.model = model
-                
+        self.previewComponent = component
+        
         device = view.device!
         semaphore = DispatchSemaphore(value: 1)
+        
+        if component != nil {
+            compileComponent()
+        }
     }
     
     func compile() {
         testShader = TestShader(pipeline: self)
     }
     
-    func compilePreview() {
-        if let previewId = self.model.project.previewId {
-            if let object = self.model.project.getObjectOfId(previewId) {
-                if object.role == .Random {
-                    self.previewShader = RandomPreviewShader(pipeline: self, component: object.components[0])
-                }
+    func compileComponent() {
+        if let component = previewComponent {
+            if component.role == .Random {
+                self.previewShader = RandomPreviewShader(pipeline: self, component: component)
             }
         }
     }
@@ -98,11 +103,8 @@ class RenderPipeline
                     
             self.startCompute()
             
-            print("render update")
+            if self.previewComponent != nil {
 
-            if self.model.project.previewId != nil {
-
-                //self.clearTexture(self.finalTexture!, float4(1, 0, 0, 1))
                 if let previewShader = self.previewShader {
                     previewShader.render(outTexture: self.finalTexture!)
                 }
@@ -117,6 +119,7 @@ class RenderPipeline
             self.stopCompute()
             
             self.status = .Idle
+            self.updateOnce()
         }
     }
     

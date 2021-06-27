@@ -31,26 +31,11 @@ class Model: NSObject, ObservableObject {
     /// Custom render size
     var renderSize                          : SIMD2<Int>? = nil
     
-    /// The current preview model
-    var previewModel                        : Model? = nil
+    /// The current preview render
+    var previewRenderer                     : RenderPipeline? = nil
 
     override init() {
         project = SignedProject()
         super.init()
-    }
-    
-    func createPreviewCopy(_ objectPreview: SignedObject) -> Model? {
-        
-        if let data = try? JSONEncoder().encode(project) {
-            if let copiedProject = try? JSONDecoder().decode(SignedProject.self, from: data) {
-                
-                let model = Model()
-                model.project = copiedProject
-                model.project.previewId = objectPreview.id
-                
-                return model
-            }
-        }
-        return nil
     }
 }

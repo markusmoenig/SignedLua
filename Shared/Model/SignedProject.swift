@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 class SignedProject: Codable {
 
@@ -15,9 +16,6 @@ class SignedProject: Codable {
     
     /// The objects in the project
     var objects                             : [SignedObject] = []
-    
-    /// Preview object, if set indicates to the renderer to render a preview of this object
-    var previewId                           : UUID? = nil
     
     init() {
         let cameraObject = SignedObject("Camera", role: .Camera, graphPosition: CGPoint(x: 100, y: -100))

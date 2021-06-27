@@ -33,14 +33,13 @@ final class RandomPreviewShader : BaseShader
         
         compile(code: code, shaders: [
             Shader(id: "MAIN", computeName: "random"),
-        ], sync: true)
+        ], sync: false)
     }
     
     override func render(outTexture: MTLTexture)
     {
         if let shader = shaders["MAIN"] {
             
-            print("render random")
             if let computeEncoder = pipeline.commandBuffer?.makeComputeCommandEncoder() {
                 computeEncoder.setComputePipelineState( shader.state )
                 computeEncoder.setTexture( outTexture, index: 0 )

@@ -372,9 +372,7 @@ struct SwiftUIWebView: NSViewRepresentable {
 
         //After the webpage is loaded, assign the data in WebViewModel class
         public func webView(_ web: WKWebView, didFinish: WKNavigation!) {
-            if model.scriptEditor == nil {
-                model.scriptEditor = ScriptEditor(web, model, colorScheme)
-            }
+            model.scriptEditor = ScriptEditor(web, model, colorScheme)
             web.isHidden = false
         }
 
@@ -388,7 +386,7 @@ struct SwiftUIWebView: NSViewRepresentable {
 #else
 struct SwiftUIWebView: UIViewRepresentable {
     public typealias UIViewType = WKWebView
-    var core        : Core!
+    var model       : Model!
     var colorScheme : ColorScheme
     
     private let webView: WKWebView = WKWebView()
@@ -410,22 +408,22 @@ struct SwiftUIWebView: UIViewRepresentable {
     public func updateUIView(_ uiView: WKWebView, context: UIViewRepresentableContext<SwiftUIWebView>) { }
 
     public func makeCoordinator() -> Coordinator {
-        return Coordinator(core, colorScheme)
+        return Coordinator(model, colorScheme)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         
-        private var core        : Core
+        private var model        : Model
         private var colorScheme : ColorScheme
         
-        init(_ core: Core,_ colorScheme: ColorScheme) {
-            self.core = core
+        init(_ model: Model,_ colorScheme: ColorScheme) {
+            self.model = model
             self.colorScheme = colorScheme
         }
         
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "jsHandler" {
-                if let scriptEditor = core.scriptEditor {
+                if let scriptEditor = model.scriptEditor {
                     scriptEditor.updated()
                 }
             }
@@ -437,7 +435,7 @@ struct SwiftUIWebView: UIViewRepresentable {
 
         //After the webpage is loaded, assign the data in WebViewModel class
         public func webView(_ web: WKWebView, didFinish: WKNavigation!) {
-            core.scriptEditor = ScriptEditor(web, core, colorScheme)
+            model.scriptEditor = ScriptEditor(web, model, colorScheme)
         }
 
         public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) { }

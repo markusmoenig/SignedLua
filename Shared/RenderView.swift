@@ -41,8 +41,6 @@ public class STKView        : MTKView
     
     func update()
     {
-        print("update", renderer?.previewShader)
-        renderer?.render()
         if drawables?.encodeStart(float4(0,0,0,0)) != nil {
             if let texture = renderer?.finalTexture {
                 drawables?.drawBox(position: float2(0,0), size: float2(Float(texture.width), Float(texture.height)), rounding: 0, borderSize: 0, onion: 0, fillColor: float4(0,0,0,1), borderColor: float4(0,0,0,0), texture: texture)
@@ -53,11 +51,15 @@ public class STKView        : MTKView
     }
     
     /// Setup the view
-    func platformInit(_ model: Model)
+    func platformInit(_ model: Model, component: SignedComponent? = nil)
     {
-        renderer = RenderPipeline(self, model)
+        renderer = RenderPipeline(self, model, component: component)
         drawables = MetalDrawables(self)
-        model.renderer = renderer
+        if component == nil {
+            model.renderer = renderer
+        } else {
+            model.previewRenderer = renderer
+        }
         #if os(OSX)
         layer?.isOpaque = false
         #endif
@@ -74,6 +76,7 @@ public class STKView        : MTKView
 struct RenderView: NSViewRepresentable {
 
     var model               : Model
+    var component           : SignedComponent? = nil
     var trackingArea        : NSTrackingArea?
     
     func makeCoordinator() -> Coordinator {
@@ -94,7 +97,7 @@ struct RenderView: NSViewRepresentable {
         stkView.drawableSize = stkView.frame.size
         stkView.isPaused = true
         
-        stkView.platformInit(model)
+        stkView.platformInit(model, component: component)
 
         return stkView
     }
@@ -133,47 +136,44 @@ struct RenderView: NSViewRepresentable {
     }
 }
 #else
-struct MetalView: UIViewRepresentable {
+struct RenderView: UIViewRepresentable {
     typealias UIViewType = MTKView
 
-    @EnvironmentObject private var model: Model
-
-    init()
-    {
-    }
+    var model               : Model
+    var component           : SignedComponent? = nil
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
     
-    func makeUIView(context: UIViewRepresentableContext<MetalView>) -> MTKView {
-        let mtkView = CTKView()
+    func makeUIView(context: UIViewRepresentableContext<RenderView>) -> MTKView {
+        let stkView = STKView()
         
-        mtkView.delegate = context.coordinator
-        mtkView.preferredFramesPerSecond = 60
-        mtkView.enableSetNeedsDisplay = true
+        stkView.delegate = context.coordinator
+        stkView.preferredFramesPerSecond = 60
+        stkView.enableSetNeedsDisplay = true
         if let metalDevice = MTLCreateSystemDefaultDevice() {
-            mtkView.device = metalDevice
+            stkView.device = metalDevice
         }
-        mtkView.framebufferOnly = false
-        mtkView.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
-        mtkView.drawableSize = mtkView.frame.size
-        mtkView.isPaused = true
+        stkView.framebufferOnly = false
+        stkView.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
+        stkView.drawableSize = stkView.frame.size
+        stkView.isPaused = true
         
-        model.setView(mtkView)
-        
-        return mtkView
+        stkView.platformInit(model, component: component)
+
+        return stkView
     }
     
-    func updateUIView(_ uiView: MTKView, context: UIViewRepresentableContext<MetalView>) {
+    func updateUIView(_ uiView: MTKView, context: UIViewRepresentableContext<RenderView>) {
     }
     
     class Coordinator : NSObject, MTKViewDelegate {
-        var parent: MetalView
+        var parent: RenderView
         var metalDevice: MTLDevice!
         var metalCommandQueue: MTLCommandQueue!
         
-        init(_ parent: MetalView) {
+        init(_ parent: RenderView) {
             self.parent = parent
             if let metalDevice = MTLCreateSystemDefaultDevice() {
                 self.metalDevice = metalDevice
@@ -186,8 +186,8 @@ struct MetalView: UIViewRepresentable {
         }
         
         func draw(in view: MTKView) {
-            if let ctkView = view as? CTKView {
-                ctkView.update()
+            if let stkView = view as? STKView {
+                stkView.update()
             }
         }
     }
