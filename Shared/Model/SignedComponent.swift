@@ -11,7 +11,7 @@ import Foundation
 class SignedComponent : Codable, Hashable {
     
     enum Role: String, Codable {
-        case Primitive, Renderer
+        case Camera, Primitive, Renderer
     }
     
     enum Domain: Int, Codable {

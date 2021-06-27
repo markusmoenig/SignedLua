@@ -42,7 +42,7 @@ struct ProjectView: View {
         
         ZStack(alignment: .center) {
             
-            ForEach(model.objects, id: \.self) { object in
+            ForEach(model.project.objects, id: \.self) { object in
                 
                 Canvas { context, size in
                     
@@ -76,7 +76,6 @@ struct ProjectView: View {
         .onReceive(model.objectSelected) { object in
             selection = object
         }
-
         
         /*
 

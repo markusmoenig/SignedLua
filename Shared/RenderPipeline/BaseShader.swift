@@ -148,11 +148,6 @@ class BaseShader
         encoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
     }
     
-    /// The main render operation of the shader
-    func render()
-    {
-    }
-    
     /// Returns the code filling out the DataIn structure, needed by most shaders
     func getDataInCode() -> String
     {

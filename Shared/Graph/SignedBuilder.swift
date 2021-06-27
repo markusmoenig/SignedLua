@@ -47,9 +47,9 @@ class SignedGraphBuilder: GraphBuilder {
             if core.state == .Idle {
                 if error.error != nil {
                     error.line = error.line! + 1
-                    core.scriptEditor?.setError(error)
+                    //core.scriptEditor?.setError(error)
                 } else {
-                    core.scriptEditor?.clearAnnotations()
+                    //core.scriptEditor?.clearAnnotations()
                 }
             }
             

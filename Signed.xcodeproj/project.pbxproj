@@ -78,6 +78,10 @@
 		2B400EC525AD45F0006493A0 /* BaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EC325AD45F0006493A0 /* BaseBuilder.swift */; };
 		2B400EEC25AD953F006493A0 /* SDFNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */; };
 		2B400EED25AD953F006493A0 /* SDFNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */; };
+		2B52C5F6268801C100CAB2F2 /* ComponentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */; };
+		2B52C5F7268801C100CAB2F2 /* ComponentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */; };
+		2B52C5F9268805A700CAB2F2 /* SignedProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F8268805A700CAB2F2 /* SignedProject.swift */; };
+		2B52C5FA268805A700CAB2F2 /* SignedProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F8268805A700CAB2F2 /* SignedProject.swift */; };
 		2B6312D925BAC308002C1FDD /* GPUMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6312D825BAC308002C1FDD /* GPUMisc.swift */; };
 		2B6312DA25BAC308002C1FDD /* GPUMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6312D825BAC308002C1FDD /* GPUMisc.swift */; };
 		2B651A412682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2B651A3F2682C5FC002DF988 /* DataModel.xcdatamodeld */; };
@@ -188,6 +192,8 @@
 		2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchNodes2D.swift; sourceTree = "<group>"; };
 		2B400EC325AD45F0006493A0 /* BaseBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseBuilder.swift; sourceTree = "<group>"; };
 		2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDFNodes2D.swift; sourceTree = "<group>"; };
+		2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentParser.swift; sourceTree = "<group>"; };
+		2B52C5F8268805A700CAB2F2 /* SignedProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedProject.swift; sourceTree = "<group>"; };
 		2B6312D825BAC308002C1FDD /* GPUMisc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUMisc.swift; sourceTree = "<group>"; };
 		2B651A402682C5FC002DF988 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
 		2B651A432682C8BC002DF988 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
@@ -356,6 +362,7 @@
 				2B7CFA2D2686F61D00221917 /* RenderPipeline.swift */,
 				2B7CFA36268708D000221917 /* BaseShader.swift */,
 				2B7CFA3926870D5400221917 /* MiscShader.swift */,
+				2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */,
 			);
 			path = RenderPipeline;
 			sourceTree = "<group>";
@@ -392,6 +399,7 @@
 			children = (
 				2B8F435F2686AF9C00AFDA4D /* SignedComponent.swift */,
 				2BC994502685AB5400F75A54 /* SignedObject.swift */,
+				2B52C5F8268805A700CAB2F2 /* SignedProject.swift */,
 				2BC9944D2685A5AC00F75A54 /* Model.swift */,
 			);
 			path = Model;
@@ -553,6 +561,7 @@
 				2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2B6FF6AA25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C725B929DC0028C76A /* GPUAnalytical.swift in Sources */,
+				2B52C5F9268805A700CAB2F2 /* SignedProject.swift in Sources */,
 				2B7CFA312686FC0500221917 /* RenderView.swift in Sources */,
 				2B224F8B25844C3100F32354 /* Classes.swift in Sources */,
 				2BC042ED267ED31000DD85E2 /* ProjectView.swift in Sources */,
@@ -576,6 +585,7 @@
 				2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
+				2B52C5F6268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2BC042F9267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C525EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,
 				2B224F6D25844C1900F32354 /* Utils.swift in Sources */,
@@ -624,6 +634,7 @@
 				2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C825B929DC0028C76A /* GPUAnalytical.swift in Sources */,
+				2B52C5FA268805A700CAB2F2 /* SignedProject.swift in Sources */,
 				2B7CFA322686FC0500221917 /* RenderView.swift in Sources */,
 				2B224F8C25844C3100F32354 /* Classes.swift in Sources */,
 				2BC042EE267ED31000DD85E2 /* ProjectView.swift in Sources */,
@@ -647,6 +658,7 @@
 				2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
+				2B52C5F7268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2BC042FA267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C625EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,
 				2B224F6E25844C1900F32354 /* Utils.swift in Sources */,

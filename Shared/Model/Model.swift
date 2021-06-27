@@ -10,10 +10,15 @@ import Combine
 
 class Model: NSObject, ObservableObject {
 
-    /// The objects in the project
-    var objects                             : [SignedObject] = []
+    private enum CodingKeys: String, CodingKey {
+        case objects
+    }
+    
+    /// The project itself
+    var project                             : SignedProject
     
     @Published var selectedObject           : SignedObject? = nil
+    @Published var selectedComponent        : SignedComponent? = nil
 
     /// Send when an object has been selected
     let objectSelected                      = PassthroughSubject<SignedObject, Never>()
@@ -28,17 +33,7 @@ class Model: NSObject, ObservableObject {
     var renderSize                          : SIMD2<Int>? = nil
     
     override init() {
+        project = SignedProject()
         super.init()
-        let rendererObject = SignedObject("Renderer", role: .Renderer, graphPosition: CGPoint(x: 100, y: 100))
-        let cubeObject = SignedObject("Cube", role: .Object, graphPosition: CGPoint(x: 0, y: 0))
-
-        let cubePrimitive = SignedComponent("Cube", role: .Primitive, code: "")
-        let rendererPrimitive = SignedComponent("Renderer", role: .Renderer, code: "")
-
-        cubeObject.components.append(cubePrimitive)
-        rendererObject.components.append(rendererPrimitive)
-        
-        objects.append(cubeObject)
-        objects.append(rendererObject)
     }
 }

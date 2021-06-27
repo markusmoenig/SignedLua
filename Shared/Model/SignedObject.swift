@@ -11,7 +11,7 @@ import Foundation
 class SignedObject : Codable, Hashable {
     
     enum Role : Int, Codable {
-        case Object, Renderer
+        case Camera, Object, Renderer
     }
     
     var id              = UUID()

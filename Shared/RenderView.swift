@@ -56,6 +56,7 @@ public class STKView        : MTKView
     {
         renderer = RenderPipeline(self, model)
         drawables = MetalDrawables(self)
+        model.renderer = renderer
         #if os(OSX)
         layer?.isOpaque = false
         #endif

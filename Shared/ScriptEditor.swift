@@ -20,6 +20,8 @@ class ScriptEditor
     
     var helpText        : String = ""
     
+    var parser          : ComponentParser? = nil
+    
     init(_ view: WKWebView, _ model: Model,_ colorScheme: ColorScheme)
     {
         self.webView = view
@@ -60,7 +62,7 @@ class ScriptEditor
             """
             var \(component.scriptContext) = ace.createEditSession(`\(component.code)`)
             editor.setSession(\(component.scriptContext))
-            editor.session.setMode("ace/mode/denrim");
+            editor.session.setMode("ace/mode/c_cpp");
             """, completionHandler: { (value, error ) in
                 if let cb = cb {
                     cb()
@@ -88,11 +90,11 @@ class ScriptEditor
          })
     }
     
-    func getAssetValue(_ asset: Asset,_ cb: @escaping (String)->() )
+    func getComponentValue(_ component: SignedComponent,_ cb: @escaping (String)->() )
     {
         webView.evaluateJavaScript(
             """
-            \(asset.scriptName).getValue()
+            \(component.scriptContext).getValue()
             """, completionHandler: { (value, error) in
                 if let value = value as? String {
                     cb(value)
@@ -140,9 +142,11 @@ class ScriptEditor
             setSession()
         }
 
+        parser = nil
+        parser = ComponentParser(component)
     }
     
-    func setError(_ error: CompileError, scrollToError: Bool = false)
+    func setError(_ error: SignedCompileError, scrollToError: Bool = false)
     {
         webView.evaluateJavaScript(
             """
@@ -159,7 +163,7 @@ class ScriptEditor
          })
     }
     
-    func setErrors(_ errors: [CompileError])
+    func setErrors(_ errors: [SignedCompileError])
     {
         var str = "["
         for error in errors {
@@ -276,8 +280,26 @@ class ScriptEditor
          })
     }
     
+    /// The code was updated in the editor, set the value to the current component
     func updated()
     {
+        if let component = model.selectedComponent {
+            getComponentValue(component, { (value) in
+                component.code = value
+                if let device = self.model.renderer?.device {
+                    self.parser?.verify(device, { errors in
+
+                        DispatchQueue.main.async {
+                            if errors.isEmpty {
+                                self.clearAnnotations()
+                            } else {
+                                self.setErrors(errors)
+                            }
+                        }
+                    })
+                }
+            })
+        }
         /*
         if let asset = core.assetFolder.current {
             getAssetValue(asset, { (value) in
