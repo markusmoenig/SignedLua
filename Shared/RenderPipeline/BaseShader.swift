@@ -73,6 +73,7 @@ class BaseShader
         let source = BaseShader.getHeaderCode() + code
         
         let compiledCB : MTLNewLibraryCompletionHandler = { (library, error) in
+            
             if let error = error, library == nil {
                 print(error)
             } else
@@ -120,6 +121,10 @@ class BaseShader
         }
     }
     
+    /// The base function, override for rendering previews etc.
+    func render(outTexture: MTLTexture) {        
+    }
+
     /// Creates a compute state for the given function name
     func createComputeState(_ name: String) -> MTLComputePipelineState?
     {

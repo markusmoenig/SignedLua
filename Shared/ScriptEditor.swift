@@ -292,6 +292,7 @@ class ScriptEditor
                         DispatchQueue.main.async {
                             if errors.isEmpty {
                                 self.clearAnnotations()
+                                self.model.componentPreviewNeedsUpdate.send()
                             } else {
                                 self.setErrors(errors)
                             }
@@ -371,7 +372,9 @@ struct SwiftUIWebView: NSViewRepresentable {
 
         //After the webpage is loaded, assign the data in WebViewModel class
         public func webView(_ web: WKWebView, didFinish: WKNavigation!) {
-            model.scriptEditor = ScriptEditor(web, model, colorScheme)
+            if model.scriptEditor == nil {
+                model.scriptEditor = ScriptEditor(web, model, colorScheme)
+            }
             web.isHidden = false
         }
 

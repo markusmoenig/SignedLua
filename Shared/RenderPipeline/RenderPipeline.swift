@@ -41,6 +41,9 @@ class RenderPipeline
     
     var semaphore       : DispatchSemaphore
     
+    //
+    var previewShader   : BaseShader? = nil
+    
     init(_ view: MTKView,_ model: Model)
     {
         self.view = view
@@ -52,6 +55,16 @@ class RenderPipeline
     
     func compile() {
         testShader = TestShader(pipeline: self)
+    }
+    
+    func compilePreview() {
+        if let previewId = self.model.project.previewId {
+            if let object = self.model.project.getObjectOfId(previewId) {
+                if object.role == .Random {
+                    self.previewShader = RandomPreviewShader(pipeline: self, component: object.components[0])
+                }
+            }
+        }
     }
     
     func render()
@@ -83,16 +96,27 @@ class RenderPipeline
             //    return
             //}
                     
-            self.compile()
-
             self.startCompute()
-            //self.clearTexture(self.finalTexture!, float4(0, 0, 0, 0))
-            self.testShader.render(outTexture: self.finalTexture!)
+            
+            print("render update")
+
+            if self.model.project.previewId != nil {
+
+                //self.clearTexture(self.finalTexture!, float4(1, 0, 0, 1))
+                if let previewShader = self.previewShader {
+                    previewShader.render(outTexture: self.finalTexture!)
+                }
+            } else {
+                self.compile()
+                self.testShader.render(outTexture: self.finalTexture!)
+            }
 
             self.depth = 0
             self.samples = 0
             //self.computePass()
             self.stopCompute()
+            
+            self.status = .Idle
         }
     }
     
@@ -130,7 +154,7 @@ class RenderPipeline
         func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
             if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
                 if let texture = texture {
-                    texture.setPurgeableState(.empty)
+                    //texture.setPurgeableState(.empty)
                 }
                 resChanged = true
                 let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)

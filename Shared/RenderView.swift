@@ -41,6 +41,7 @@ public class STKView        : MTKView
     
     func update()
     {
+        print("update", renderer?.previewShader)
         renderer?.render()
         if drawables?.encodeStart(float4(0,0,0,0)) != nil {
             if let texture = renderer?.finalTexture {
@@ -91,7 +92,7 @@ struct RenderView: NSViewRepresentable {
         stkView.framebufferOnly = false
         stkView.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
         stkView.drawableSize = stkView.frame.size
-        stkView.isPaused = false
+        stkView.isPaused = true
         
         stkView.platformInit(model)
 
@@ -157,7 +158,7 @@ struct MetalView: UIViewRepresentable {
         mtkView.framebufferOnly = false
         mtkView.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
         mtkView.drawableSize = mtkView.frame.size
-        mtkView.isPaused = false
+        mtkView.isPaused = true
         
         model.setView(mtkView)
         

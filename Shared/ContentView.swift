@@ -20,6 +20,8 @@ struct ContentView: View {
     @Binding var document                               : SignedDocument
     @StateObject var storeManager                       : StoreManager
 
+    @State var selection                                : SignedObject? = nil
+
     @State var asset                                    : Asset? = nil
 
     @Environment(\.colorScheme) var deviceColorScheme   : ColorScheme
@@ -75,7 +77,13 @@ struct ContentView: View {
                     .frame(width: 400)
             }
          
-            EditorView(document.model)
+            if let object =  selection {
+                ObjectView(model: document.model)//, object: object)
+            }
+        }
+        
+        .onReceive(document.model.objectSelected) { object in
+            selection = object
         }
         
         /*
