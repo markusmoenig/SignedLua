@@ -14,7 +14,7 @@ class Model: NSObject, ObservableObject {
     var project                             : SignedProject
     
     @Published var selectedObject           : SignedObject? = nil
-    @Published var selectedComponent        : SignedComponent? = nil
+    @Published var selectedCommand          : SignedCommand? = nil
 
     /// Send when an object has been selected
     let objectSelected                      = PassthroughSubject<SignedObject, Never>()

@@ -56,27 +56,29 @@ struct ContentView: View {
     
     var body: some View {
         
-        VStack(spacing: 2) {
-            HStack(spacing: 2) {
-                
-                ZStack(alignment: .bottomLeading) {
-                    // Show tools
+        GeometryReader { geometry in
+
+            VStack(spacing: 2) {
                     
-                    RenderView(model: document.model)
-                        .zIndex(0)
-                        .animation(.default)
-                        .allowsHitTesting(true)
-                    //ToolsView(document.core)
-                    //    .zIndex(1)
-                     
+
+                    ZStack(alignment: .bottomLeading) {
+                        // Show tools
+                        
+                        RenderView(model: document.model)
+                            .zIndex(0)
+                            .animation(.default)
+                            .allowsHitTesting(true)
+                        //ToolsView(document.core)
+                        //    .zIndex(1)
+                         
+                    }
+                    
+                    CommandView(model: document.model)
+                    .frame(height: geometry.size.height / 2.5)
                 }
-                
-                //Divider()
-                
-                ///ProjectView(document.model)
-                //    .frame(width: 400)
             }
-        }
+            
+    
         
         .onReceive(document.model.objectSelected) { object in
             selection = object

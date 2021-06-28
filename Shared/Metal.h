@@ -73,6 +73,25 @@ typedef struct {
     
     simd_float3         randomVector;
 
+    simd_float3         cameraOrigin;
+    simd_float3         cameraLookAt;
+    
+    int                 samples;
+    int                 depth;
+    int                 maxDepth;
+        
+    // bbox
+    simd_float3         P;
+    simd_float3         L;
+    matrix_float3x3     F;
+    
+    float               maxDistance;
+} RenderUniform;
+
+typedef struct {
+    
+    simd_float3         randomVector;
+
     int                 samples;
     int                 depth;
     int                 maxDepth;

@@ -11,35 +11,27 @@ import CoreGraphics
 /// This object is the base for everything, if its an geometry object or a material
 class SignedObject : Codable, Hashable {
     
-    enum Role : Int, Codable {
-        case Camera, Random, Environment, Object, Renderer
-    }
-    
     var id              = UUID()
     var name            : String
     
-    var role            : Role
-
     var children        : [SignedObject] = []
     
-    /// Representing components which belong to a specific group, like primitives
-    var components      : [SignedComponent] = []
+    /// The commands stack
+    var commands        : [SignedCommand] = []
 
     var graphPosition   = CGPoint(x: 100, y: 100)
     
     private enum CodingKeys: String, CodingKey {
         case id
         case name
-        case role
         case children
-        case components
+        case commands
         case graphPosition
     }
     
-    init(_ name: String = "Unnamed", role: Role = .Object, graphPosition: CGPoint = CGPoint.zero)
+    init(_ name: String = "Unnamed", graphPosition: CGPoint = CGPoint.zero)
     {
         self.name = name
-        self.role = role
         self.graphPosition = graphPosition
     }
     
@@ -48,9 +40,8 @@ class SignedObject : Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
-        role = try container.decode(Role.self, forKey: .role)
         children = try container.decode([SignedObject].self, forKey: .children)
-        components = try container.decode([SignedComponent].self, forKey: .components)
+        commands = try container.decode([SignedCommand].self, forKey: .commands)
         graphPosition = try container.decode(CGPoint.self, forKey: .graphPosition)
     }
     
@@ -59,9 +50,8 @@ class SignedObject : Codable, Hashable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
-        try container.encode(role, forKey: .role)
         try container.encode(children, forKey: .children)
-        try container.encode(components, forKey: .components)
+        try container.encode(commands, forKey: .commands)
         try container.encode(graphPosition, forKey: .graphPosition)
     }
     

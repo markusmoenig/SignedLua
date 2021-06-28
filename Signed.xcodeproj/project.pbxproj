@@ -72,10 +72,8 @@
 		2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D3258C52B10073DAE9 /* Variables.swift */; };
 		2B2E02D9258C53F40073DAE9 /* AtomNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */; };
 		2B2E02DA258C53F40073DAE9 /* AtomNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */; };
-		2B37E6C0268850CE000439EF /* ObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B37E6BF268850CE000439EF /* ObjectView.swift */; };
-		2B37E6C1268850CE000439EF /* ObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B37E6BF268850CE000439EF /* ObjectView.swift */; };
-		2B37E6C326885BDC000439EF /* RandomShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B37E6C226885BDC000439EF /* RandomShader.swift */; };
-		2B37E6C426885BDC000439EF /* RandomShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B37E6C226885BDC000439EF /* RandomShader.swift */; };
+		2B37E6C0268850CE000439EF /* CommandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B37E6BF268850CE000439EF /* CommandView.swift */; };
+		2B37E6C1268850CE000439EF /* CommandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B37E6BF268850CE000439EF /* CommandView.swift */; };
 		2B400E9D25AD3F56006493A0 /* BranchNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */; };
 		2B400E9E25AD3F56006493A0 /* BranchNodes2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */; };
 		2B400EC425AD45F0006493A0 /* BaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B400EC325AD45F0006493A0 /* BaseBuilder.swift */; };
@@ -130,8 +128,8 @@
 		2B888B6325B42C2C00956C64 /* BestCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B888B6125B42C2B00956C64 /* BestCandidate.swift */; };
 		2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
 		2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A692A25A4486A006B1B5C /* CameraHelper.swift */; };
-		2B8F43602686AF9D00AFDA4D /* SignedComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8F435F2686AF9C00AFDA4D /* SignedComponent.swift */; };
-		2B8F43612686AF9D00AFDA4D /* SignedComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8F435F2686AF9C00AFDA4D /* SignedComponent.swift */; };
+		2B8F43602686AF9D00AFDA4D /* SignedCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8F435F2686AF9C00AFDA4D /* SignedCommand.swift */; };
+		2B8F43612686AF9D00AFDA4D /* SignedCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8F435F2686AF9C00AFDA4D /* SignedCommand.swift */; };
 		2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */; };
 		2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */; };
 		2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */; };
@@ -203,8 +201,7 @@
 		2B2E02C8258C3F600073DAE9 /* Expression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expression.swift; sourceTree = "<group>"; };
 		2B2E02D3258C52B10073DAE9 /* Variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variables.swift; sourceTree = "<group>"; };
 		2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomNodes.swift; sourceTree = "<group>"; };
-		2B37E6BF268850CE000439EF /* ObjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectView.swift; sourceTree = "<group>"; };
-		2B37E6C226885BDC000439EF /* RandomShader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomShader.swift; sourceTree = "<group>"; };
+		2B37E6BF268850CE000439EF /* CommandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandView.swift; sourceTree = "<group>"; };
 		2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchNodes2D.swift; sourceTree = "<group>"; };
 		2B400EC325AD45F0006493A0 /* BaseBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseBuilder.swift; sourceTree = "<group>"; };
 		2B400EEB25AD953F006493A0 /* SDFNodes2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDFNodes2D.swift; sourceTree = "<group>"; };
@@ -232,7 +229,7 @@
 		2B888B5625B15E7600956C64 /* SignedLightNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedLightNodes.swift; sourceTree = "<group>"; };
 		2B888B6125B42C2B00956C64 /* BestCandidate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BestCandidate.swift; sourceTree = "<group>"; };
 		2B8A692A25A4486A006B1B5C /* CameraHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraHelper.swift; sourceTree = "<group>"; };
-		2B8F435F2686AF9C00AFDA4D /* SignedComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedComponent.swift; sourceTree = "<group>"; };
+		2B8F435F2686AF9C00AFDA4D /* SignedCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedCommand.swift; sourceTree = "<group>"; };
 		2BB4E0AE25B7BBCA0028C76A /* GPURenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPURenderPipeline.swift; sourceTree = "<group>"; };
 		2BB4E0B525B80C330028C76A /* GPUBaseShader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUBaseShader.swift; sourceTree = "<group>"; };
 		2BB4E0BA25B811360028C76A /* GPUCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUCamera.swift; sourceTree = "<group>"; };
@@ -375,14 +372,6 @@
 			path = Expression;
 			sourceTree = "<group>";
 		};
-		2B37E6C526885C00000439EF /* PreviewShaders */ = {
-			isa = PBXGroup;
-			children = (
-				2B37E6C226885BDC000439EF /* RandomShader.swift */,
-			);
-			path = PreviewShaders;
-			sourceTree = "<group>";
-		};
 		2B407E6F26894E52004E6F4C /* Drawables */ = {
 			isa = PBXGroup;
 			children = (
@@ -412,7 +401,6 @@
 				2B7CFA3926870D5400221917 /* MiscShader.swift */,
 				2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */,
 				2B407E742689544D004E6F4C /* RenderStates.swift */,
-				2B37E6C526885C00000439EF /* PreviewShaders */,
 			);
 			path = RenderPipeline;
 			sourceTree = "<group>";
@@ -435,7 +423,7 @@
 			isa = PBXGroup;
 			children = (
 				2BC042EC267ED31000DD85E2 /* ProjectView.swift */,
-				2B37E6BF268850CE000439EF /* ObjectView.swift */,
+				2B37E6BF268850CE000439EF /* CommandView.swift */,
 				2BC042EF267ED39200DD85E2 /* SettingsView.swift */,
 				2BC042F2267ED3FB00DD85E2 /* ParameterView.swift */,
 				2BC042F5267ED4A500DD85E2 /* EditorView.swift */,
@@ -449,7 +437,7 @@
 		2BC9944C2685A59500F75A54 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				2B8F435F2686AF9C00AFDA4D /* SignedComponent.swift */,
+				2B8F435F2686AF9C00AFDA4D /* SignedCommand.swift */,
 				2BC994502685AB5400F75A54 /* SignedObject.swift */,
 				2B52C5F8268805A700CAB2F2 /* SignedProject.swift */,
 				2BC9944D2685A5AC00F75A54 /* Model.swift */,
@@ -610,7 +598,6 @@
 				2B400EEC25AD953F006493A0 /* SDFNodes2D.swift in Sources */,
 				2B224F7925844C1900F32354 /* DrawablesStates.swift in Sources */,
 				2B224FAF2585ED1100F32354 /* Graph.swift in Sources */,
-				2B37E6C326885BDC000439EF /* RandomShader.swift in Sources */,
 				2B224F6F25844C1900F32354 /* Core.swift in Sources */,
 				2BF3FBC325EDCD31002E7161 /* EnvironmentNodes.swift in Sources */,
 				2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */,
@@ -655,9 +642,9 @@
 				2B400E9D25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B0F923225B9775B00677A38 /* GPUMaterials.swift in Sources */,
-				2B8F43602686AF9D00AFDA4D /* SignedComponent.swift in Sources */,
+				2B8F43602686AF9D00AFDA4D /* SignedCommand.swift in Sources */,
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
-				2B37E6C0268850CE000439EF /* ObjectView.swift in Sources */,
+				2B37E6C0268850CE000439EF /* CommandView.swift in Sources */,
 				2B651A412682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2BC994512685AB5400F75A54 /* SignedObject.swift in Sources */,
 				2BC9944E2685A5AC00F75A54 /* Model.swift in Sources */,
@@ -690,7 +677,6 @@
 				2B400EED25AD953F006493A0 /* SDFNodes2D.swift in Sources */,
 				2B224F7A25844C1900F32354 /* DrawablesStates.swift in Sources */,
 				2B224FB02585ED1100F32354 /* Graph.swift in Sources */,
-				2B37E6C426885BDC000439EF /* RandomShader.swift in Sources */,
 				2B224F7025844C1900F32354 /* Core.swift in Sources */,
 				2BF3FBC425EDCD31002E7161 /* EnvironmentNodes.swift in Sources */,
 				2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */,
@@ -735,9 +721,9 @@
 				2B400E9E25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B0F923325B9775B00677A38 /* GPUMaterials.swift in Sources */,
-				2B8F43612686AF9D00AFDA4D /* SignedComponent.swift in Sources */,
+				2B8F43612686AF9D00AFDA4D /* SignedCommand.swift in Sources */,
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
-				2B37E6C1268850CE000439EF /* ObjectView.swift in Sources */,
+				2B37E6C1268850CE000439EF /* CommandView.swift in Sources */,
 				2B651A422682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2BC994522685AB5400F75A54 /* SignedObject.swift in Sources */,
 				2BC9944F2685A5AC00F75A54 /* Model.swift in Sources */,

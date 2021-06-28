@@ -53,7 +53,7 @@ public class STKView        : MTKView
     }
     
     /// Setup the view
-    func platformInit(_ model: Model, component: SignedComponent? = nil)
+    func platformInit(_ model: Model, command: SignedCommand? = nil)
     {
         renderer = RenderPipeline(self, model)
         drawables = MetalDrawables(self)
@@ -75,7 +75,7 @@ public class STKView        : MTKView
 struct RenderView: NSViewRepresentable {
 
     var model               : Model
-    var component           : SignedComponent? = nil
+    var command             : SignedCommand? = nil
     var trackingArea        : NSTrackingArea?
     
     func makeCoordinator() -> Coordinator {
@@ -96,7 +96,7 @@ struct RenderView: NSViewRepresentable {
         stkView.drawableSize = stkView.frame.size
         stkView.isPaused = true
         
-        stkView.platformInit(model, component: component)
+        stkView.platformInit(model, command: command)
 
         return stkView
     }

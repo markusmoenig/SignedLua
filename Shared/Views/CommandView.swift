@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ObjectView: View {
+struct CommandView: View {
     
     let model                               : Model
     
@@ -18,13 +18,7 @@ struct ObjectView: View {
         VStack {
             HStack {
 
-                if let selected = selection {
-                    if selected.role == .Random {
-                        RenderView(model: model, component: selected.components[0])
-                        //EditorView(model)
-                    }
-                }
-                EditorView(model)
+                Text("Hallo")
             }
         }
         
@@ -34,8 +28,8 @@ struct ObjectView: View {
         .onReceive(model.objectSelected) { object in
             selection = object
             model.selectedObject = object
-            model.selectedComponent = object.components.first
-            if let component = model.selectedComponent {
+            model.selectedCommand = object.commands.first
+            if let component = model.selectedCommand {
                 model.scriptEditor?.setComponentSession(component)
             }
         }

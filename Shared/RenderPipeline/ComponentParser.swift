@@ -11,7 +11,7 @@ import Metal
 /// Possible compile errors returned by component verification
 struct SignedCompileError
 {
-    var component       : SignedComponent? = nil
+    var component       : SignedCommand? = nil
     var line            : Int32? = nil
     var column          : Int32? = 0
     var error           : String? = nil
@@ -21,9 +21,9 @@ struct SignedCompileError
 /// Parses and verifies SignedComponent code
 class ComponentParser {
     
-    var component           : SignedComponent
+    var component           : SignedCommand
     
-    init(_ comp: SignedComponent) {
+    init(_ comp: SignedCommand) {
         component = comp
     }
     

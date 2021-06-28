@@ -169,33 +169,39 @@ class RenderPipeline
             var viewportSize : vector_uint2 = vector_uint2( UInt32( finalTexture!.width ), UInt32( finalTexture!.height ) )
             renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_uint2>.stride, index: 1)
             
-            renderEncoder.setFragmentTexture(model.modeler!.texture, index: 0)
-
-            /*
-            var fragmentUniforms = pipeline.createFragmentUniform()
-
-            renderEncoder.setFragmentBuffer(pipeline.dataBuffer, offset: 0, index: 0)
-            renderEncoder.setFragmentBuffer(pipeline.lightsDataBuffer, offset: 0, index: 1)
-            renderEncoder.setFragmentBytes(&fragmentUniforms, length: MemoryLayout<GPUFragmentUniforms>.stride, index: 2)
-            renderEncoder.setFragmentTexture(depthTexture, index: 3)
-            renderEncoder.setFragmentTexture(normalTexture, index: 4)
-            renderEncoder.setFragmentTexture(lightDepthTexture, index: 5)
-            renderEncoder.setFragmentTexture(lightNormalTexture, index: 6)
-            renderEncoder.setFragmentTexture(pipeline.camOriginTexture2!, index: 7)
-            renderEncoder.setFragmentTexture(pipeline.camDirTexture!, index: 8)
-            renderEncoder.setFragmentTexture(pipeline.paramsTexture1!, index: 9)
-            renderEncoder.setFragmentTexture(pipeline.paramsTexture2!, index: 10)
-            renderEncoder.setFragmentTexture(pipeline.paramsTexture3!, index: 11)
-            renderEncoder.setFragmentTexture(pipeline.paramsTexture4!, index: 12)
-            renderEncoder.setFragmentTexture(pipeline.paramsTexture5!, index: 13)
-            renderEncoder.setFragmentTexture(pipeline.paramsTexture6!, index: 14)
-             */
+            var renderUniforms = createRenderUniform()
+            renderEncoder.setFragmentBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
+            
+            renderEncoder.setFragmentTexture(model.modeler!.texture, index: 1)
 
             // ---
             
             renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
             renderEncoder.endEncoding()
         }
+    }
+    
+    /// Create a uniform buffer containing general information about the current project
+    func createRenderUniform() -> RenderUniform
+    {
+        var renderUniform = RenderUniform()
+
+        renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
+        
+        renderUniform.cameraOrigin = float3(0, 0, 2);
+        renderUniform.cameraLookAt = float3(0, 0, 0);
+
+        //fragmentUniforms.maxDepth = Int32(maxDepth);
+        //fragmentUniforms.depth = Int32(depth);
+        //fragmentUniforms.samples = Int32(samples);
+        
+        /*
+        fragmentUniforms.screenSize = prtInstance.screenSize
+        if let ambient = getGlobalVariableValue(withName: "World.worldAmbient") {
+            fragmentUniforms.ambientColor = ambient
+        }*/
+        
+        return renderUniform
     }
     
     /// Check and allocate all textures

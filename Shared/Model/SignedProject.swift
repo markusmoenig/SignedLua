@@ -18,24 +18,11 @@ class SignedProject: Codable {
     var objects                             : [SignedObject] = []
     
     init() {
-        let cameraObject = SignedObject("Camera", role: .Camera, graphPosition: CGPoint(x: 100, y: -100))
-        let rendererObject = SignedObject("Renderer", role: .Renderer, graphPosition: CGPoint(x: 0, y: 0))
-        let randomObject = SignedObject("Random", role: .Random, graphPosition: CGPoint(x: 100, y: 100))
-        let cubeObject = SignedObject("Cube", role: .Object, graphPosition: CGPoint(x: -100, y: 100))
+        let cubeObject = SignedObject("Cube", graphPosition: CGPoint(x: -100, y: 100))
+        let cubePrimitive = SignedCommand("Cube", code: "")
 
-        let cameraComponent = SignedComponent("Camera", role: .Camera, code: "")
-        let randomComponent = SignedComponent("Random", role: .Random, code: "")
-        let cubePrimitive = SignedComponent("Cube", role: .Primitive, code: "")
-        let rendererComponent = SignedComponent("Renderer", role: .Renderer, code: "")
-
-        cameraObject.components.append(cameraComponent)
-        cubeObject.components.append(cubePrimitive)
-        randomObject.components.append(randomComponent)
-        rendererObject.components.append(rendererComponent)
+        cubeObject.commands.append(cubePrimitive)
         
-        objects.append(cameraObject)
-        objects.append(randomObject)
-        objects.append(rendererObject)
         objects.append(cubeObject)
     }
     

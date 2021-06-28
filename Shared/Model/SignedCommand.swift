@@ -7,27 +7,25 @@
 
 import Foundation
 import CoreGraphics
+import SwiftUI
 
 /// This object is the base for everything, if its an geometry object or a material
-class SignedComponent : Codable, Hashable {
+class SignedCommand : Codable, Hashable {
     
     enum Role: String, Codable {
-        case Camera, Random, Renderer, Primitive
-    }
-    
-    enum Domain: Int, Codable {
-        case twoD, threeD
+        case Geometry, Brush
     }
     
     var id              = UUID()
     var name            : String
     
     var role            : Role
-    var domain          : Domain
 
     var code            : String = ""
     
     var graphPosition   = CGPoint(x: 100, y: 100)
+    
+    var subCommands     : [SignedCommand] = []
     
     // To identify the editor session
     var scriptContext   = ""
@@ -36,16 +34,15 @@ class SignedComponent : Codable, Hashable {
         case id
         case name
         case role
-        case domain
         case code
+        case subCommands
         case graphPosition
     }
     
-    init(_ name: String = "Unnamed", role: Role = .Primitive, domain: Domain = .threeD, graphPosition: CGPoint = CGPoint(x: 100, y: 100), code: String = "")
+    init(_ name: String = "Unnamed", role: Role = .Geometry, graphPosition: CGPoint = CGPoint(x: 100, y: 100), code: String = "")
     {
         self.name = name
         self.role = role
-        self.domain = domain
         self.code = code
     }
     
@@ -55,7 +52,7 @@ class SignedComponent : Codable, Hashable {
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         role = try container.decode(Role.self, forKey: .role)
-        domain = try container.decode(Domain.self, forKey: .domain)
+        subCommands = try container.decode([SignedCommand].self, forKey: .subCommands)
         code = try container.decode(String.self, forKey: .code)
         graphPosition = try container.decode(CGPoint.self, forKey: .graphPosition)
     }
@@ -66,12 +63,11 @@ class SignedComponent : Codable, Hashable {
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(role, forKey: .role)
-        try container.encode(domain, forKey: .domain)
         try container.encode(code, forKey: .code)
         try container.encode(graphPosition, forKey: .graphPosition)
     }
     
-    static func ==(lhs: SignedComponent, rhs: SignedComponent) -> Bool {
+    static func ==(lhs: SignedCommand, rhs: SignedCommand) -> Bool {
         return lhs.id == rhs.id
     }
     

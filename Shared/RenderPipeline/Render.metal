@@ -158,7 +158,7 @@ float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     
-    float d = modelTexture.sample(textureSampler, (p / scale + float3(0.5, 0.5, 0.5))).x;
+    float d = modelTexture.sample(textureSampler, (p / scale + float3(0.5))).x;
     return d;
 }
 
@@ -176,17 +176,17 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 
 /// Render
 fragment float4 render(RasterizerData in [[stage_in]],
-//                               constant BoxUniform *data [[ buffer(0) ]],
-                               texture3d<float> modelTexture [[ texture(0) ]] )
+                               constant RenderUniform *data [[ buffer(0) ]],
+                               texture3d<float> modelTexture [[ texture(1) ]] )
 {
     float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);//* in.viewportSize) - in.viewportSize / 2;
     
-    float3 ro = float3(0, 1, 3);
-    float3 rd = float3(0, 0, 0);
+    float3 ro = data->cameraOrigin;
+    float3 rd = data->cameraLookAt;
     
     rd = getCamerayRay(uv, ro, rd, 80, in.viewportSize);
 
-    float scale = 3.0;
+    float scale = 1.0;
 
     float r = 0.5 * scale;
     float2 d = hitBBox(ro, rd, float3(-r, -r, -r), float3(r, r, r));
@@ -201,7 +201,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
         bool hit = false;
         
         float t = d.x;
-        for(int i = 0; i < 370; ++i)
+        for(int i = 0; i < 120; ++i)
         {
             float3 p = ro + rd * t;
             float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
@@ -211,7 +211,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
                 break;
             }
             
-            t += d * 0.2;
+            t += d * 0.6;
 
             //if (t >= maxDist)
             //    break;

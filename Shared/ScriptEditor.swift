@@ -51,7 +51,7 @@ class ScriptEditor
          })
     }
     
-    func createSession(_ component: SignedComponent,_ cb: (()->())? = nil)
+    func createSession(_ component: SignedCommand,_ cb: (()->())? = nil)
     {
         if component.scriptContext.isEmpty {
             component.scriptContext = "session" + String(sessions)
@@ -90,7 +90,7 @@ class ScriptEditor
          })
     }
     
-    func getComponentValue(_ component: SignedComponent,_ cb: @escaping (String)->() )
+    func getComponentValue(_ component: SignedCommand,_ cb: @escaping (String)->() )
     {
         webView.evaluateJavaScript(
             """
@@ -123,7 +123,7 @@ class ScriptEditor
         })
     }
     
-    func setComponentSession(_ component: SignedComponent)
+    func setComponentSession(_ component: SignedCommand)
     {
         func setSession()
         {
@@ -283,7 +283,7 @@ class ScriptEditor
     /// The code was updated in the editor, set the value to the current component
     func updated()
     {
-        if let component = model.selectedComponent {
+        if let component = model.selectedCommand {
             getComponentValue(component, { (value) in
                 component.code = value
                 if let device = self.model.renderer?.device {
