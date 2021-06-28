@@ -27,13 +27,11 @@ class Model: NSObject, ObservableObject {
 
     /// Reference to the renderer
     var renderer                            : RenderPipeline? = nil
+    var modeler                             : ModelingPipeline? = nil
 
     /// Custom render size
     var renderSize                          : SIMD2<Int>? = nil
     
-    /// The current preview render
-    var previewRenderer                     : RenderPipeline? = nil
-
     override init() {
         project = SignedProject()
         super.init()

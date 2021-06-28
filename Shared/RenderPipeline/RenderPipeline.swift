@@ -43,9 +43,7 @@ class RenderPipeline
     var testShader      : TestShader!
     
     var semaphore       : DispatchSemaphore
-    
-    var texture3D       : MTLTexture? = nil
-    
+        
     var renderStates    : RenderStates
     
     init(_ view: MTKView,_ model: Model)
@@ -57,6 +55,8 @@ class RenderPipeline
         semaphore = DispatchSemaphore(value: 1)
         
         renderStates = RenderStates(device)
+        
+        model.modeler = ModelingPipeline(view, model)
     }
     
     func render()
@@ -74,7 +74,7 @@ class RenderPipeline
         
         checkTextures()
         
-        if texture3D != nil {
+        if model.modeler?.texture != nil {
             startRendering()
             
             runRender()
@@ -169,7 +169,7 @@ class RenderPipeline
             var viewportSize : vector_uint2 = vector_uint2( UInt32( finalTexture!.width ), UInt32( finalTexture!.height ) )
             renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_uint2>.stride, index: 1)
             
-            renderEncoder.setFragmentTexture(texture3D!, index: 0)
+            renderEncoder.setFragmentTexture(model.modeler!.texture, index: 0)
 
             /*
             var fragmentUniforms = pipeline.createFragmentUniform()
@@ -203,11 +203,6 @@ class RenderPipeline
     {
         var resChanged = false
 
-        if texture3D == nil {
-            let size = 512
-            texture3D = allocateTexture3D(width: size, height: size, depth: size)
-        }
-        
         func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
             if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
                 if let texture = texture {
@@ -252,20 +247,6 @@ class RenderPipeline
         textureDescriptor.width = width == 0 ? 1 : width
         textureDescriptor.height = height == 0 ? 1 : height
         
-        textureDescriptor.usage = MTLTextureUsage.unknown
-        return device.makeTexture(descriptor: textureDescriptor)
-    }
-    
-    /// Allocate a texture of the given size
-    func allocateTexture3D(width: Int, height: Int, depth: Int, format: MTLPixelFormat = .rgba16Float) -> MTLTexture?
-    {
-        let textureDescriptor = MTLTextureDescriptor()
-        textureDescriptor.textureType = MTLTextureType.type3D
-        textureDescriptor.pixelFormat = format
-        textureDescriptor.width = width == 0 ? 1 : width
-        textureDescriptor.height = height == 0 ? 1 : height
-        textureDescriptor.depth = depth == 0 ? 1 : depth
-
         textureDescriptor.usage = MTLTextureUsage.unknown
         return device.makeTexture(descriptor: textureDescriptor)
     }
