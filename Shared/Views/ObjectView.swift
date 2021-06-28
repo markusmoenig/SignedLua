@@ -29,10 +29,6 @@ struct ObjectView: View {
         }
         
         .onReceive(model.componentPreviewNeedsUpdate) { _ in
-            if let renderer = model.previewRenderer {
-                renderer.compileComponent()
-                renderer.render()
-            }
         }
         
         .onReceive(model.objectSelected) { object in

@@ -24,6 +24,9 @@ class RenderPipeline
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
     
+    var quadVertexBuffer: MTLBuffer? = nil
+    var quadViewport    : MTLViewport? = nil
+    
     var model           : Model
     
     var renderSize      = SIMD2<Int>()
@@ -41,39 +44,45 @@ class RenderPipeline
     
     var semaphore       : DispatchSemaphore
     
-    //
-    var previewComponent: SignedComponent? = nil
+    var texture3D       : MTLTexture? = nil
     
-    var previewShader   : BaseShader? = nil
+    var renderStates    : RenderStates
     
-    init(_ view: MTKView,_ model: Model, component: SignedComponent? = nil)
+    init(_ view: MTKView,_ model: Model)
     {
         self.view = view
         self.model = model
-        self.previewComponent = component
         
         device = view.device!
         semaphore = DispatchSemaphore(value: 1)
         
-        if component != nil {
-            compileComponent()
-        }
-    }
-    
-    func compile() {
-        testShader = TestShader(pipeline: self)
-    }
-    
-    func compileComponent() {
-        if let component = previewComponent {
-            if component.role == .Random {
-                self.previewShader = RandomPreviewShader(pipeline: self, component: component)
-            }
-        }
+        renderStates = RenderStates(device)
     }
     
     func render()
     {
+        status = .Rendering
+        stopRendering = false
+
+        if let rSize = self.model.renderSize {
+            renderSize.x = rSize.x
+            renderSize.y = rSize.y
+        } else {
+            renderSize.x = Int(self.view.frame.width)
+            renderSize.y = Int(self.view.frame.height)
+        }
+        
+        checkTextures()
+        
+        if texture3D != nil {
+            startRendering()
+            
+            runRender()
+            
+            commitAndStopRendering()
+        }
+        
+        /*
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
 
             if self.status != .Idle && self.isStopped == false {
@@ -101,6 +110,7 @@ class RenderPipeline
             //    return
             //}
                     
+            /*
             self.startCompute()
             
             if self.previewComponent != nil {
@@ -112,6 +122,7 @@ class RenderPipeline
                 self.compile()
                 self.testShader.render(outTexture: self.finalTexture!)
             }
+            */
 
             self.depth = 0
             self.samples = 0
@@ -121,32 +132,70 @@ class RenderPipeline
             self.status = .Idle
             self.updateOnce()
         }
+         */
     }
     
-    /// Starts compute operation
-    func startCompute()
+    func startRendering()
     {
         if commandQueue == nil {
             commandQueue = device.makeCommandQueue()
         }
         commandBuffer = commandQueue.makeCommandBuffer()
+        quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(renderSize.x), Float(renderSize.y)))
+        quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0)
     }
     
-    /// Stops compute operation
-    func stopCompute(syncTexture: MTLTexture? = nil, waitUntilCompleted: Bool = false)
+    func commitAndStopRendering()
     {
-        #if os(OSX)
-        if let texture = syncTexture {
-            let blitEncoder = commandBuffer!.makeBlitCommandEncoder()!
-            blitEncoder.synchronize(texture: texture, slice: 0, level: 0)
-            blitEncoder.endEncoding()
-        }
-        #endif
-        commandBuffer?.commit()
-        if waitUntilCompleted {
-            commandBuffer?.waitUntilCompleted()
-        }
+        commandBuffer.commit()
         commandBuffer = nil
+        quadVertexBuffer = nil
+        quadViewport = nil
+    }
+    
+    func runRender() {
+        if let renderState = renderStates.getState(stateName: "render") {
+            let renderPassDescriptor = MTLRenderPassDescriptor()
+            renderPassDescriptor.colorAttachments[0].texture = finalTexture!
+            renderPassDescriptor.colorAttachments[0].loadAction = .dontCare
+            
+            let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
+            renderEncoder.setRenderPipelineState(renderState)
+            
+            // ---
+            renderEncoder.setViewport(quadViewport!)
+            renderEncoder.setVertexBuffer(quadVertexBuffer, offset: 0, index: 0)
+            
+            var viewportSize : vector_uint2 = vector_uint2( UInt32( finalTexture!.width ), UInt32( finalTexture!.height ) )
+            renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_uint2>.stride, index: 1)
+            
+            renderEncoder.setFragmentTexture(texture3D!, index: 0)
+
+            /*
+            var fragmentUniforms = pipeline.createFragmentUniform()
+
+            renderEncoder.setFragmentBuffer(pipeline.dataBuffer, offset: 0, index: 0)
+            renderEncoder.setFragmentBuffer(pipeline.lightsDataBuffer, offset: 0, index: 1)
+            renderEncoder.setFragmentBytes(&fragmentUniforms, length: MemoryLayout<GPUFragmentUniforms>.stride, index: 2)
+            renderEncoder.setFragmentTexture(depthTexture, index: 3)
+            renderEncoder.setFragmentTexture(normalTexture, index: 4)
+            renderEncoder.setFragmentTexture(lightDepthTexture, index: 5)
+            renderEncoder.setFragmentTexture(lightNormalTexture, index: 6)
+            renderEncoder.setFragmentTexture(pipeline.camOriginTexture2!, index: 7)
+            renderEncoder.setFragmentTexture(pipeline.camDirTexture!, index: 8)
+            renderEncoder.setFragmentTexture(pipeline.paramsTexture1!, index: 9)
+            renderEncoder.setFragmentTexture(pipeline.paramsTexture2!, index: 10)
+            renderEncoder.setFragmentTexture(pipeline.paramsTexture3!, index: 11)
+            renderEncoder.setFragmentTexture(pipeline.paramsTexture4!, index: 12)
+            renderEncoder.setFragmentTexture(pipeline.paramsTexture5!, index: 13)
+            renderEncoder.setFragmentTexture(pipeline.paramsTexture6!, index: 14)
+             */
+
+            // ---
+            
+            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
+            renderEncoder.endEncoding()
+        }
     }
     
     /// Check and allocate all textures
@@ -154,6 +203,11 @@ class RenderPipeline
     {
         var resChanged = false
 
+        if texture3D == nil {
+            let size = 512
+            texture3D = allocateTexture3D(width: size, height: size, depth: size)
+        }
+        
         func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
             if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
                 if let texture = texture {
@@ -190,7 +244,7 @@ class RenderPipeline
     }
     
     /// Allocate a texture of the given size
-    func allocateTexture2D(width: Int, height: Int, format: MTLPixelFormat = .rgba16Float) -> MTLTexture?
+    func allocateTexture2D(width: Int, height: Int, format: MTLPixelFormat = .bgra8Unorm) -> MTLTexture?
     {
         let textureDescriptor = MTLTextureDescriptor()
         textureDescriptor.textureType = MTLTextureType.type2D
@@ -198,6 +252,20 @@ class RenderPipeline
         textureDescriptor.width = width == 0 ? 1 : width
         textureDescriptor.height = height == 0 ? 1 : height
         
+        textureDescriptor.usage = MTLTextureUsage.unknown
+        return device.makeTexture(descriptor: textureDescriptor)
+    }
+    
+    /// Allocate a texture of the given size
+    func allocateTexture3D(width: Int, height: Int, depth: Int, format: MTLPixelFormat = .rgba16Float) -> MTLTexture?
+    {
+        let textureDescriptor = MTLTextureDescriptor()
+        textureDescriptor.textureType = MTLTextureType.type3D
+        textureDescriptor.pixelFormat = format
+        textureDescriptor.width = width == 0 ? 1 : width
+        textureDescriptor.height = height == 0 ? 1 : height
+        textureDescriptor.depth = depth == 0 ? 1 : depth
+
         textureDescriptor.usage = MTLTextureUsage.unknown
         return device.makeTexture(descriptor: textureDescriptor)
     }
@@ -212,5 +280,27 @@ class RenderPipeline
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
         renderEncoder.endEncoding()
+    }
+    
+    /// Creates a vertex buffer for a quad shader
+    func getQuadVertexBuffer(_ rect: MMRect ) -> MTLBuffer?
+    {
+        let left = -rect.width / 2 + rect.x
+        let right = left + rect.width//self.width / 2 - x
+        
+        let top = rect.height / 2 - rect.y
+        let bottom = top - rect.height
+        
+        let quadVertices: [Float] = [
+            right, bottom, 1.0, 0.0,
+            left, bottom, 0.0, 0.0,
+            left, top, 0.0, 1.0,
+            
+            right, bottom, 1.0, 0.0,
+            left, top, 0.0, 1.0,
+            right, top, 1.0, 1.0,
+            ]
+        
+        return device.makeBuffer(bytes: quadVertices, length: quadVertices.count * MemoryLayout<Float>.stride, options: [])!
     }
 }

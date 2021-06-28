@@ -66,19 +66,15 @@ struct ContentView: View {
                         .zIndex(0)
                         .animation(.default)
                         .allowsHitTesting(true)
-                    ToolsView(document.core)
-                        .zIndex(1)
+                    //ToolsView(document.core)
+                    //    .zIndex(1)
                      
                 }
                 
-                Divider()
+                //Divider()
                 
-                ProjectView(document.model)
-                    .frame(width: 400)
-            }
-         
-            if let object =  selection {
-                ObjectView(model: document.model)//, object: object)
+                ///ProjectView(document.model)
+                //    .frame(width: 400)
             }
         }
         

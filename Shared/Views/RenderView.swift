@@ -41,7 +41,9 @@ public class STKView        : MTKView
     
     func update()
     {
+        renderer?.render()
         if drawables?.encodeStart(float4(0,0,0,0)) != nil {
+            
             if let texture = renderer?.finalTexture {
                 drawables?.drawBox(position: float2(0,0), size: float2(Float(texture.width), Float(texture.height)), rounding: 0, borderSize: 0, onion: 0, fillColor: float4(0,0,0,1), borderColor: float4(0,0,0,0), texture: texture)
             }
@@ -53,13 +55,10 @@ public class STKView        : MTKView
     /// Setup the view
     func platformInit(_ model: Model, component: SignedComponent? = nil)
     {
-        renderer = RenderPipeline(self, model, component: component)
+        renderer = RenderPipeline(self, model)
         drawables = MetalDrawables(self)
-        if component == nil {
-            model.renderer = renderer
-        } else {
-            model.previewRenderer = renderer
-        }
+        model.renderer = renderer
+        
         #if os(OSX)
         layer?.isOpaque = false
         #endif

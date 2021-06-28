@@ -16,8 +16,8 @@ struct PersistenceController {
     let container: NSPersistentContainer
 
     init(inMemory: Bool = false) {
-
-        container = NSPersistentCloudKitContainer(name: "DataModel")
+        
+        container = NSPersistentContainer(name: "DataModel")
 
         guard let description = container.persistentStoreDescriptions.first else {
             fatalError("Error")
