@@ -140,25 +140,15 @@ class ModelingPipeline
     }
     
     /// Compute the threads and thread groups for the given state and texture
-    func calculateThreadGroups(_ state: MTLComputePipelineState, _ encoder: MTLComputeCommandEncoder,_ texture: MTLTexture, limitThreads: Bool = false)
+    func calculateThreadGroups(_ state: MTLComputePipelineState, _ encoder: MTLComputeCommandEncoder,_ texture: MTLTexture)
     {
         
-        let w = 8//limitThreads ? 1 : state.threadExecutionWidth
-        let h = 8//limitThreads ? 1 : state.maxTotalThreadsPerThreadgroup / w
-        let d = 8//
+        let w = state.threadExecutionWidth//limitThreads ? 1 : state.threadExecutionWidth
+        let h = state.maxTotalThreadsPerThreadgroup / w//limitThreads ? 1 : state.maxTotalThreadsPerThreadgroup / w
+        let d = 1//
         let threadsPerThreadgroup = MTLSizeMake(w, h, d)
-
-        let threadgroupsPerGrid = MTLSize(width: (texture.width + w - 1) / w, height: (texture.height + h - 1) / h, depth: (texture.depth + d - 1) / d)
         
-        /*
-        _threadgroupSize = MTLSizeMake(16, 16, 1);
-
-        // Calculate the number of rows and columns of threadgroups given the size of the
-        // input image. Ensure that the grid covers the entire image (or more).
-        _threadgroupCount.width  = (_inputTexture.width  + _threadgroupSize.width -  1) / _threadgroupSize.width;
-        _threadgroupCount.height = (_inputTexture.height + _threadgroupSize.height - 1) / _threadgroupSize.height;
-        // The image data is 2D, so set depth to 1.
-        _threadgroupCount.depth = 1;*/
+        let threadgroupsPerGrid = MTLSize(width: (texture.width + w - 1) / w, height: (texture.height + h - 1) / h, depth: (texture.depth + d - 1) / d)
         
         encoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
     }
