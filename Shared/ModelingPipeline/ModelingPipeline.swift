@@ -35,7 +35,7 @@ class ModelingPipeline
         
         if texture == nil {
             let size = 512
-            texture = allocateTexture3D(width: size, height: size, depth: size)
+            texture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
             
             executeCommand()
         }

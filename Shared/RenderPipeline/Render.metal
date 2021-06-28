@@ -97,8 +97,6 @@ float2 hitBBox( float3 rO, float3 rD, float3 min, float3 max )
     return float2(lo, hi);
 }
 
-
-
 float rand()
 {
     return 0.5;
