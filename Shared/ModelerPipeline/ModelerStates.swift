@@ -1,5 +1,5 @@
 //
-//  ModelStates.swift
+//  ModelerStates.swift
 //  Signed
 //
 //  Created by Markus Moenig on 28/6/21.
@@ -7,7 +7,7 @@
 
 import MetalKit
 
-class ModelingStates {
+class ModelerStates {
     
     var defaultLibrary          : MTLLibrary!
     var computeStates           : [String: MTLComputePipelineState] = [:]
@@ -19,7 +19,7 @@ class ModelingStates {
         self.device = device
         defaultLibrary = device.makeDefaultLibrary()
         
-        computeStates["test"] = createComputeState(name: "test")        
+        computeStates["modelerCmd"] = createComputeState(name: "modelerCmd")        
     }
     
     /// Creates a compute state from an optional library and the function name

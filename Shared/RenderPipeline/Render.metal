@@ -176,17 +176,17 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 
 /// Render
 fragment float4 render(RasterizerData in [[stage_in]],
-                               constant RenderUniform *data [[ buffer(0) ]],
+                               constant RenderUniform &renderData [[ buffer(0) ]],
                                texture3d<float> modelTexture [[ texture(1) ]] )
 {
     float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);//* in.viewportSize) - in.viewportSize / 2;
     
-    float3 ro = data->cameraOrigin;
-    float3 rd = data->cameraLookAt;
+    float3 ro = renderData.cameraOrigin;
+    float3 rd = renderData.cameraLookAt;
     
     rd = getCamerayRay(uv, ro, rd, 80, in.viewportSize);
 
-    float scale = 1.0;
+    float scale = 3.0;
 
     float r = 0.5 * scale;
     float2 d = hitBBox(ro, rd, float3(-r, -r, -r), float3(r, r, r));

@@ -56,7 +56,7 @@ class RenderPipeline
         
         renderStates = RenderStates(device)
         
-        model.modeler = ModelingPipeline(view, model)
+        model.modeler = ModelerPipeline(view, model)
     }
     
     func render()
@@ -157,7 +157,7 @@ class RenderPipeline
         if let renderState = renderStates.getState(stateName: "render") {
             let renderPassDescriptor = MTLRenderPassDescriptor()
             renderPassDescriptor.colorAttachments[0].texture = finalTexture!
-            renderPassDescriptor.colorAttachments[0].loadAction = .dontCare
+            renderPassDescriptor.colorAttachments[0].loadAction = .load
             
             let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
             renderEncoder.setRenderPipelineState(renderState)
@@ -188,7 +188,7 @@ class RenderPipeline
 
         renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
         
-        renderUniform.cameraOrigin = float3(0, 0, 2);
+        renderUniform.cameraOrigin = float3(0, 0, 4);
         renderUniform.cameraLookAt = float3(0, 0, 0);
 
         //fragmentUniforms.maxDepth = Int32(maxDepth);

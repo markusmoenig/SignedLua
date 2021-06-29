@@ -1,5 +1,5 @@
 //
-//  ModelingPipeline.swift
+//  ModelerPipeline.swift
 //  Signed
 //
 //  Created by Markus Moenig on 28/6/21.
@@ -7,7 +7,7 @@
 
 import MetalKit
 
-class ModelingPipeline
+class ModelerPipeline
 {
     var view            : MTKView
     var device          : MTLDevice
@@ -21,7 +21,7 @@ class ModelingPipeline
     
     var semaphore       : DispatchSemaphore
     
-    var modelingStates  : ModelingStates
+    var modelingStates  : ModelerStates
     
     init(_ view: MTKView,_ model: Model)
     {
@@ -31,7 +31,7 @@ class ModelingPipeline
         device = view.device!
         semaphore = DispatchSemaphore(value: 1)
         
-        modelingStates = ModelingStates(device)
+        modelingStates = ModelerStates(device)
         
         if texture == nil {
             let size = 512
@@ -49,11 +49,14 @@ class ModelingPipeline
             if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
                 
                 // Evaluate shapes
-                if let state = modelingStates.getComputeState(stateName: "test") {
+                if let state = modelingStates.getComputeState(stateName: "modelerCmd") {
                 
                     computeEncoder.setComputePipelineState( state )
                     
-                    computeEncoder.setTexture( texture, index: 0 )
+                    var modelerUniform = createModelerUniform()
+                    computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
+                    
+                    computeEncoder.setTexture(texture, index: 1 )
 
                     calculateThreadGroups(state, computeEncoder, texture)
                 }
@@ -62,55 +65,22 @@ class ModelingPipeline
             
             stopCompute(waitUntilCompleted: true)
         }
-        /*
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
+    }
+    
+    /// Creates the uniform
+    func createModelerUniform() -> ModelerUniform
+    {
+        var modelerUniform = ModelerUniform()
+        
+        modelerUniform.actionType = Modeler_Add;
+        modelerUniform.primitiveType = Modeler_Box;
+        
+        modelerUniform.size = float3(0.4, 0.4, 0.4);
 
-            if self.status != .Idle && self.isStopped == false {
-                return
-            }
-            
-            if self.status == .Invalid {
-                return
-            }
+        modelerUniform.position = float3(0, -0.9, 0);
+        modelerUniform.radius = 0.0;
 
-            self.status = .Rendering
-            self.stopRendering = false
-
-            if let rSize = self.model.renderSize {
-                self.renderSize.x = rSize.x
-                self.renderSize.y = rSize.y
-            } else {
-                self.renderSize.x = Int(self.view.frame.width)
-                self.renderSize.y = Int(self.view.frame.height)
-            }
-            
-            self.checkTextures()
-            
-            //if self.update() == false {
-            //    return
-            //}
-                    
-            self.startCompute()
-            
-            if self.previewComponent != nil {
-
-                if let previewShader = self.previewShader {
-                    previewShader.render(outTexture: self.finalTexture!)
-                }
-            } else {
-                self.compile()
-                self.testShader.render(outTexture: self.finalTexture!)
-            }
-
-            self.depth = 0
-            self.samples = 0
-            //self.computePass()
-            self.stopCompute()
-            
-            self.status = .Idle
-            self.updateOnce()
-        }
-        */
+        return modelerUniform
     }
     
     /// Starts compute operation

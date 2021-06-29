@@ -61,7 +61,8 @@ struct ContentView: View {
             VStack(spacing: 2) {
                     
 
-                    ZStack(alignment: .bottomLeading) {
+                HStack {
+                    ZStack(alignment: .bottom) {
                         // Show tools
                         
                         RenderView(model: document.model)
@@ -71,14 +72,26 @@ struct ContentView: View {
                         //ToolsView(document.core)
                         //    .zIndex(1)
                          
+                        Button(action: {
+                            
+                        })
+                        {
+                            Text("CAMERA")
+                        }
+                        .buttonStyle(.borderless)
                     }
                     
-                    CommandView(model: document.model)
-                    .frame(height: geometry.size.height / 2.5)
+                    SideView(model: document.model)
+                        .frame(width: geometry.size.width / 2.5)
                 }
+                
+                Divider()
+                    
+                CommandView(model: document.model)
+                    .frame(height: geometry.size.height / 5)
+
             }
-            
-    
+        }
         
         .onReceive(document.model.objectSelected) { object in
             selection = object

@@ -8,6 +8,8 @@
 #include <metal_stdlib>
 using namespace metal;
 
+#import "../Metal.h"
+
 // Precision-adjusted variations of https://www.shadertoy.com/view/4djSRW
 float hash(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }
 float hash(float2 p) {float3 p3 = fract(float3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }
@@ -30,8 +32,28 @@ float noise(float3 x) {
                    mix( hash(n + dot(step, float3(0, 1, 1))), hash(n + dot(step, float3(1, 1, 1))), u.x), u.y), u.z);
 }
 
-kernel void test(texture3d<half, access::write>  modelTexture  [[texture(0)]],
-                         uint3 gid                       [[thread_position_in_grid]])
+// Thanks Inigo, https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+
+float sdSphere(float3 p, float s)
+{
+    return length(p)-s;
+}
+
+float sdBox(float3 p, float3 b)
+{
+    float3 q = abs(p) - b;
+    return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+}
+
+float sdRoundBox(float3 p, float3 b, float r )
+{
+    float3 q = abs(p) - b + r;
+    return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
+}
+
+kernel void modelerCmd(constant ModelerUniform           &mData [[ buffer(0) ]],
+                       texture3d<half, access::write>    modelTexture  [[texture(1)]],
+                       uint3 gid                         [[thread_position_in_grid]])
 {
     /*
     //float2 size = float2(valueTexture.get_width(), valueTexture.get_height());
@@ -42,9 +64,20 @@ kernel void test(texture3d<half, access::write>  modelTexture  [[texture(0)]],
     valueTexture.write(color, gid);*/
     
     float3 size = float3(modelTexture.get_width(), modelTexture.get_height(), modelTexture.get_depth());
-    float3 uv = float3(gid) / size - float3(0.5);// - 0.5;// * size / 2.0;// - size / 2.0;
+    float3 uv = float3(gid) / size - float3(0.5);
 
-    half4 color = half4(length(uv) - 0.495) + noise(uv * 160) / 80;
+    float dist = INFINITY;
+    
+    if (mData.primitiveType == Modeler_Sphere) {
+        dist = sdSphere(uv - mData.position, mData.radius);
+    } else
+    if (mData.primitiveType == Modeler_Box) {
+        dist = sdRoundBox(uv - mData.position, mData.size, mData.radius);
+    }
+    
+    //half4 out = half4(dist);//half4(length(uv) - 0.495) + noise(uv * 160) / 80;
 
-    modelTexture.write(color, gid);
+    //dist += noise(uv * 160) / 80;
+    
+    modelTexture.write(half4(dist), gid);
 }

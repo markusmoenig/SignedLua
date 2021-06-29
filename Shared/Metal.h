@@ -104,4 +104,36 @@ typedef struct {
     float               maxDistance;
 } GPUFragmentUniforms;
 
+#define Modeler_None            0
+#define Modeler_Add             1
+
+#define Modeler_Sphere          0
+#define Modeler_Box             1
+
+typedef struct {
+    
+    int                 actionType;
+    int                 primitiveType;
+    
+    simd_float3         randomVector;
+
+    simd_float3         position;
+    simd_float3         rotation;
+    
+    float               radius;
+    simd_float3         size;
+
+    
+    int                 samples;
+    int                 depth;
+    int                 maxDepth;
+        
+    // bbox
+    simd_float3         P;
+    simd_float3         L;
+    matrix_float3x3     F;
+    
+    float               maxDistance;
+} ModelerUniform;
+
 #endif /* Metal_h */

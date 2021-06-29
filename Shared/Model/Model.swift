@@ -27,7 +27,7 @@ class Model: NSObject, ObservableObject {
 
     /// Reference to the renderer
     var renderer                            : RenderPipeline? = nil
-    var modeler                             : ModelingPipeline? = nil
+    var modeler                             : ModelerPipeline? = nil
 
     /// Custom render size
     var renderSize                          : SIMD2<Int>? = nil
