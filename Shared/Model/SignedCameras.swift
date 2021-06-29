@@ -19,6 +19,7 @@ class SignedPinholeCamera : Codable, Hashable {
     var zoom            : Float = 2
 
     var lastDelta       = float2(0, 0)
+    var lastZoomDelta   = Float(0)
 
     // To identify the editor session
     var scriptContext   = ""
@@ -64,6 +65,12 @@ class SignedPinholeCamera : Codable, Hashable {
         lastDelta = delta
     }
     
+    func addZoomDelta(_ delta: Float)
+    {
+        zoom += delta - lastZoomDelta
+        lastZoomDelta = delta
+    }
+    
     func getPosition() -> float3 {        
         
         func rot(_ a: Float) -> float2x2 {
@@ -71,7 +78,6 @@ class SignedPinholeCamera : Codable, Hashable {
         }
 
         var pos = float3()
-
         
         let ry = orbit.x.truncatingRemainder(dividingBy: 360).degreesToRadians
         let rx = orbit.y.truncatingRemainder(dividingBy: 360).degreesToRadians
@@ -81,32 +87,6 @@ class SignedPinholeCamera : Codable, Hashable {
         
         pos.x = zoom * cos(ry) - zoom * sin(ry)
         pos.z = pos.z * sin(ry) + pos.z * cos(ry)
-        
-        /*
-        let angle = orbit.x.truncatingRemainder(dividingBy: 360).degreesToRadians
-
-        pos.x = 3 * cos(angle) - sin(angle) * 3
-        pos.y = orbit.y / 10
-        pos.z = 3 * sin(angle) + cos(angle) * 3
-         */
-        
-        //ro.yz *= rx;
-        //rd.yz *= rx;
-        //ro.xz *= ry;
-        //rd.xz *= ry;
-        
-        /*
-        orbitX += delta.x
-        orbitY += delta.y
-
-        let angle = orbitX.degreesToRadians// orbitX.truncatingRemainder(dividingBy: 360).degreesToRadians
-        //orbitY = orbitY.truncatingRemainder(dividingBy: 360)
-
-        project.camera.position.x = 3 * cos(angle) - sin(angle) * 3
-        project.camera.position.y = 3 * sin(angle) + cos(angle) * 3
-
-
-        print(delta)*/
         
         return pos
     }
