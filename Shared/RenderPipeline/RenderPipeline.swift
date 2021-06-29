@@ -188,7 +188,7 @@ class RenderPipeline
 
         renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
         
-        renderUniform.cameraOrigin = float3(0, 0, 4);
+        renderUniform.cameraOrigin = model.project.camera.getPosition()
         renderUniform.cameraLookAt = float3(0, 0, 0);
 
         //fragmentUniforms.maxDepth = Int32(maxDepth);

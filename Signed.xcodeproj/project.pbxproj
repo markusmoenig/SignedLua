@@ -72,6 +72,8 @@
 		2B2E02D5258C52B10073DAE9 /* Variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D3258C52B10073DAE9 /* Variables.swift */; };
 		2B2E02D9258C53F40073DAE9 /* AtomNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */; };
 		2B2E02DA258C53F40073DAE9 /* AtomNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */; };
+		2B35C8DD268AE082001A601F /* SignedCameras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B35C8DC268AE082001A601F /* SignedCameras.swift */; };
+		2B35C8DE268AE082001A601F /* SignedCameras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B35C8DC268AE082001A601F /* SignedCameras.swift */; };
 		2B37E6C0268850CE000439EF /* CommandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B37E6BF268850CE000439EF /* CommandView.swift */; };
 		2B37E6C1268850CE000439EF /* CommandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B37E6BF268850CE000439EF /* CommandView.swift */; };
 		2B3CD1FF268A9D46007FCADF /* SideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3CD1FE268A9D46007FCADF /* SideView.swift */; };
@@ -203,6 +205,7 @@
 		2B2E02C8258C3F600073DAE9 /* Expression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expression.swift; sourceTree = "<group>"; };
 		2B2E02D3258C52B10073DAE9 /* Variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variables.swift; sourceTree = "<group>"; };
 		2B2E02D8258C53F40073DAE9 /* AtomNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomNodes.swift; sourceTree = "<group>"; };
+		2B35C8DC268AE082001A601F /* SignedCameras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedCameras.swift; sourceTree = "<group>"; };
 		2B37E6BF268850CE000439EF /* CommandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandView.swift; sourceTree = "<group>"; };
 		2B3CD1FE268A9D46007FCADF /* SideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideView.swift; sourceTree = "<group>"; };
 		2B400E9C25AD3F55006493A0 /* BranchNodes2D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchNodes2D.swift; sourceTree = "<group>"; };
@@ -441,6 +444,7 @@
 		2BC9944C2685A59500F75A54 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				2B35C8DC268AE082001A601F /* SignedCameras.swift */,
 				2B8F435F2686AF9C00AFDA4D /* SignedCommand.swift */,
 				2BC994502685AB5400F75A54 /* SignedObject.swift */,
 				2B52C5F8268805A700CAB2F2 /* SignedProject.swift */,
@@ -622,6 +626,7 @@
 				2B407E792689602A004E6F4C /* ModelerPipeline.swift in Sources */,
 				2B71C50C2682CF4500DC7F17 /* LibraryView.swift in Sources */,
 				2B224F8125844C1900F32354 /* Drawables.metal in Sources */,
+				2B35C8DD268AE082001A601F /* SignedCameras.swift in Sources */,
 				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F412584485300F32354 /* SignedApp.swift in Sources */,
@@ -702,6 +707,7 @@
 				2B407E7A2689602A004E6F4C /* ModelerPipeline.swift in Sources */,
 				2B71C50D2682CF4500DC7F17 /* LibraryView.swift in Sources */,
 				2B224F8225844C1900F32354 /* Drawables.metal in Sources */,
+				2B35C8DE268AE082001A601F /* SignedCameras.swift in Sources */,
 				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F422584485300F32354 /* SignedApp.swift in Sources */,

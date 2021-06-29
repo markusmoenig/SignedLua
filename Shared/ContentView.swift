@@ -41,6 +41,11 @@ struct ContentView: View {
     @State private var toolsAreOn                       : Bool = false
     
     @State private var searchText = ""
+    
+    @State private var isOrbiting                       : Bool = false
+    @State private var orbitX                           : Float = 0
+    @State private var orbitY                           : Float = 0
+
 
     #if os(macOS)
     let leftPanelWidth                      : CGFloat = 180
@@ -62,7 +67,7 @@ struct ContentView: View {
                     
 
                 HStack {
-                    ZStack(alignment: .bottom) {
+                    ZStack(alignment: .bottomLeading) {
                         // Show tools
                         
                         RenderView(model: document.model)
@@ -76,9 +81,39 @@ struct ContentView: View {
                             
                         })
                         {
-                            Text("CAMERA")
+                            ZStack(alignment: .center) {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray, lineWidth: 0)
+                                Text("Orbit")
+                            }
                         }
-                        .buttonStyle(.borderless)
+                        .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
+                        .font(.system(size: 16))
+                        .background(isOrbiting ? Color.gray : Color.clear)
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray, lineWidth: 1)
+                        )
+                        .padding(.leading, 10)
+                        .padding(.bottom, 10)
+                        .buttonStyle(.plain)
+                        
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 4)
+                            
+                                .onChanged({ info in
+
+                                    isOrbiting = true
+                                    let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
+                                    
+                                    document.model.project.camera.addOrbitDelta(delta)
+                                    document.model.renderer?.updateOnce()
+                                })
+                                .onEnded({ info in
+                                    isOrbiting = false
+                                })
+                        )
                     }
                     
                     SideView(model: document.model)
