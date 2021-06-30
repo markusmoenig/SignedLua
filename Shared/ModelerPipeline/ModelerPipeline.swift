@@ -35,13 +35,12 @@ class ModelerPipeline
         
         if texture == nil {
             let size = 512
-            texture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
-            
-            executeCommand()
+            texture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)            
         }
     }
     
-    func executeCommand()
+    ///
+    func executeCommand(_ cmd: SignedCommand)
     {
         if let texture = texture {
             startCompute()

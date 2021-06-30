@@ -21,12 +21,11 @@ class SignedProject: Codable {
     var camera                              : SignedPinholeCamera
     
     init() {
-        let cubeObject = SignedObject("Cube", graphPosition: CGPoint(x: -100, y: 100))
-        let cubePrimitive = SignedCommand("Cube", code: "")
+        let object = SignedObject("Unnamed", graphPosition: CGPoint(x: -100, y: 100))
+        let primitive = SignedCommand("Box")
 
-        cubeObject.commands.append(cubePrimitive)
-        
-        objects.append(cubeObject)
+        object.commands.append(primitive)        
+        objects.append(object)
         
         camera = SignedPinholeCamera()
     }
