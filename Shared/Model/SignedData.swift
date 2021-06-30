@@ -89,9 +89,9 @@ class SignedData: Codable {
         case data
     }
     
-    init(_ d: [SignedDataEntity])
+    init(_ data: [SignedDataEntity])
     {
-        data = d
+        self.data = data
     }
     
     required init(from decoder: Decoder) throws
@@ -120,7 +120,7 @@ class SignedData: Codable {
     /// Get an Float key
     func getFloat(_ key: String,_ time: Double? = nil) -> Float? {
         for e in data {
-            if e.key == key && e.type == .Int && e.time == time {
+            if e.key == key && e.type == .Float && e.time == time {
                 return e.value.x
             }
         }
@@ -131,7 +131,7 @@ class SignedData: Codable {
     /// Get an Float2 key
     func getFloat2(_ key: String,_ time: Double? = nil) -> float2? {
         for e in data {
-            if e.key == key && e.type == .Int && e.time == time {
+            if e.key == key && e.type == .Float2 && e.time == time {
                 return float2(e.value.x, e.value.y)
             }
         }
@@ -142,7 +142,7 @@ class SignedData: Codable {
     /// Get an Float3 key
     func getFloat3(_ key: String,_ time: Double? = nil) -> float3? {
         for e in data {
-            if e.key == key && e.type == .Int && e.time == time {
+            if e.key == key && e.type == .Float3 && e.time == time {
                 return float3(e.value.x, e.value.y, e.value.z)
             }
         }
@@ -153,7 +153,7 @@ class SignedData: Codable {
     /// Get an Float4 key
     func getFloat4(_ key: String,_ time: Double? = nil) -> float4? {
         for e in data {
-            if e.key == key && e.type == .Int && e.time == time {
+            if e.key == key && e.type == .Float4 && e.time == time {
                 return e.value
             }
         }

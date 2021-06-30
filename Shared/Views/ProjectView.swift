@@ -58,7 +58,6 @@ struct ProjectView: View {
                     context.draw(Text(object.name), at: CGPoint(x: 10, y: 4), anchor: .topLeading)
                     
                 }
-                .offset(x: object.graphPosition.x, y: object.graphPosition.y)
                 .frame(width: 100, height: 100)
                 //.border(Color.blue)
                 .scaleEffect(scale)

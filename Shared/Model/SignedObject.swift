@@ -18,21 +18,21 @@ class SignedObject : Codable, Hashable {
     
     /// The commands stack
     var commands        : [SignedCommand] = []
-
-    var graphPosition   = CGPoint(x: 100, y: 100)
     
     private enum CodingKeys: String, CodingKey {
         case id
         case name
         case children
         case commands
-        case graphPosition
     }
     
-    init(_ name: String = "Unnamed", graphPosition: CGPoint = CGPoint.zero)
+    init(_ name: String = "Unnamed")
     {
         self.name = name
-        self.graphPosition = graphPosition
+        
+        let initialCmd = SignedCommand("Base Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("position", float3(0,0,0)), SignedDataEntity("size", float3(0.4,0.4,0.4))]))
+        
+        commands.append(initialCmd)
     }
     
     required init(from decoder: Decoder) throws
@@ -42,7 +42,6 @@ class SignedObject : Codable, Hashable {
         name = try container.decode(String.self, forKey: .name)
         children = try container.decode([SignedObject].self, forKey: .children)
         commands = try container.decode([SignedCommand].self, forKey: .commands)
-        graphPosition = try container.decode(CGPoint.self, forKey: .graphPosition)
     }
     
     func encode(to encoder: Encoder) throws
@@ -52,7 +51,6 @@ class SignedObject : Codable, Hashable {
         try container.encode(name, forKey: .name)
         try container.encode(children, forKey: .children)
         try container.encode(commands, forKey: .commands)
-        try container.encode(graphPosition, forKey: .graphPosition)
     }
     
     static func ==(lhs: SignedObject, rhs: SignedObject) -> Bool {

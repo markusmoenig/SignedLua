@@ -12,15 +12,15 @@ import SwiftUI
 /// This object is the base for everything, if its an geometry object or a material
 class SignedCommand : Codable, Hashable {
     
-    enum Role: String, Codable {
+    enum Role: Int32, Codable {
         case Geometry, Brush
     }
     
-    enum Action: String, Codable {
-        case Add, Subtract
+    enum Action: Int32, Codable {
+        case None, Add, Subtract
     }
     
-    enum Primitive: String, Codable {
+    enum Primitive: Int32, Codable {
         case Sphere, Box
     }
     
@@ -30,6 +30,8 @@ class SignedCommand : Codable, Hashable {
     var role            : Role
     var action          : Action
     var primitive       : Primitive
+    
+    var data            : SignedData
 
     var code            : String = ""
         
@@ -44,16 +46,18 @@ class SignedCommand : Codable, Hashable {
         case role
         case action
         case primitive
+        case data
         case code
         case subCommands
     }
     
-    init(_ name: String = "Unnamed", role: Role = .Geometry, action: Action = .Add, primitive: Primitive = .Box)
+    init(_ name: String = "Unnamed", role: Role = .Geometry, action: Action = .Add, primitive: Primitive = .Box, data: SignedData = SignedData([]))
     {
         self.name = name
         self.role = role
         self.action = action
         self.primitive = primitive
+        self.data = data
     }
     
     required init(from decoder: Decoder) throws
@@ -66,6 +70,8 @@ class SignedCommand : Codable, Hashable {
         action = try container.decode(Action.self, forKey: .action)
         primitive = try container.decode(Primitive.self, forKey: .primitive)
 
+        data = try container.decode(SignedData.self, forKey: .data)
+
         subCommands = try container.decode([SignedCommand].self, forKey: .subCommands)
         code = try container.decode(String.self, forKey: .code)
     }
@@ -76,6 +82,7 @@ class SignedCommand : Codable, Hashable {
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(role, forKey: .role)
+        try container.encode(data, forKey: .data)
         try container.encode(code, forKey: .code)
     }
     

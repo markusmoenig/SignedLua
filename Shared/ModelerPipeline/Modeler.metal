@@ -73,7 +73,7 @@ kernel void modelerCmd(constant ModelerUniform           &mData [[ buffer(0) ]],
         dist = sdSphere(uv - mData.position, mData.radius);
     } else
     if (mData.primitiveType == Modeler_Box) {
-        dist = sdRoundBox(uv - mData.position, mData.size, mData.radius);
+        dist = sdRoundBox(uv - mData.position, mData.size, mData.rounding);
     }
     
     //half4 out = half4(dist);//half4(length(uv) - 0.495) + noise(uv * 160) / 80;

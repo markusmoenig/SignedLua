@@ -35,11 +35,23 @@ class ModelerPipeline
         
         if texture == nil {
             let size = 512
-            texture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)            
+            texture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
+        }
+        
+        if let object = model.project.objects.first {
+            executeObject(object)
         }
     }
     
-    ///
+    /// Executes all commands of the object
+    func executeObject(_ object: SignedObject)
+    {
+        for cmd in object.commands {
+            executeCommand(cmd)
+        }
+    }
+    
+    /// Executes a single command
     func executeCommand(_ cmd: SignedCommand)
     {
         if let texture = texture {
@@ -52,7 +64,7 @@ class ModelerPipeline
                 
                     computeEncoder.setComputePipelineState( state )
                     
-                    var modelerUniform = createModelerUniform()
+                    var modelerUniform = createModelerUniform(cmd)
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
                     
                     computeEncoder.setTexture(texture, index: 1 )
@@ -64,6 +76,33 @@ class ModelerPipeline
             
             stopCompute(waitUntilCompleted: true)
         }
+    }
+    
+    /// Creates the uniform
+    func createModelerUniform(_ cmd: SignedCommand) -> ModelerUniform
+    {
+        var modelerUniform = ModelerUniform()
+                
+        modelerUniform.actionType = cmd.action.rawValue
+        modelerUniform.primitiveType = cmd.primitive.rawValue
+        
+        if let position = cmd.data.getFloat3("position") {
+            modelerUniform.position = position
+        }
+        
+        if let size = cmd.data.getFloat3("size") {
+            modelerUniform.size = size
+        }
+        
+        if let radius = cmd.data.getFloat("radius") {
+            modelerUniform.radius = radius
+        }
+        
+        if let rounding = cmd.data.getFloat("rounding") {
+            modelerUniform.rounding = rounding
+        }
+
+        return modelerUniform
     }
     
     /// Returns the hit position and normal for a given screen position
@@ -118,22 +157,6 @@ class ModelerPipeline
             print(distAndNormal, hitPoint)
         }
         return rc
-    }
-    
-    /// Creates the uniform
-    func createModelerUniform() -> ModelerUniform
-    {
-        var modelerUniform = ModelerUniform()
-        
-        modelerUniform.actionType = Modeler_Add;
-        modelerUniform.primitiveType = Modeler_Box;
-        
-        modelerUniform.size = float3(0.4, 0.4, 0.4);
-
-        modelerUniform.position = float3(0, -0.9, 0);
-        modelerUniform.radius = 0.0;
-
-        return modelerUniform
     }
     
     /// Starts compute operation

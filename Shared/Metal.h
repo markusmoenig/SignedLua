@@ -135,7 +135,9 @@ typedef struct {
     simd_float3         rotation;
     
     float               radius;
+    
     simd_float3         size;
+    float               rounding;
 
     int                 samples;
     int                 depth;
