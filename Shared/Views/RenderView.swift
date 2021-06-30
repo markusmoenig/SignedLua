@@ -10,8 +10,8 @@ import MetalKit
 
 public class STKView        : MTKView
 {
-    //var core                : Core!
-
+    var model               : Model!
+    
     var keysDown            : [Float] = []
     
     var mouseIsDown         : Bool = false
@@ -58,6 +58,7 @@ public class STKView        : MTKView
         renderer = RenderPipeline(self, model)
         drawables = MetalDrawables(self)
         model.renderer = renderer
+        self.model = model
         
         #if os(OSX)
         layer?.isOpaque = false
@@ -68,6 +69,64 @@ public class STKView        : MTKView
 
     override public var acceptsFirstResponder: Bool { return true }
 
+    /// To get continuous mouse events on macOS
+    override public func updateTrackingAreas()
+    {
+        let options : NSTrackingArea.Options = [.mouseEnteredAndExited, .mouseMoved, .activeInKeyWindow]
+        let trackingArea = NSTrackingArea(rect: self.bounds, options: options,
+                                      owner: self, userInfo: nil)
+        self.addTrackingArea(trackingArea)
+    }
+    
+    func setMousePos(_ event: NSEvent)
+    {
+        var location = event.locationInWindow
+        location.y = location.y - CGFloat(frame.height)
+        location = convert(location, from: nil)
+        
+        mousePos.x = Float(location.x)
+        mousePos.y = -Float(location.y)
+    }
+    
+    override public func keyDown(with event: NSEvent)
+    {
+        keysDown.append(Float(event.keyCode))
+    }
+    
+    override public func keyUp(with event: NSEvent)
+    {
+        keysDown.removeAll{$0 == Float(event.keyCode)}
+    }
+        
+    override public func mouseDown(with event: NSEvent) {
+        setMousePos(event)
+        
+        if event.clickCount > 1 {
+            hasDoubleTap = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
+                self.hasDoubleTap = false
+            }
+        }
+    }
+    
+    override public func mouseDragged(with event: NSEvent) {
+        setMousePos(event)
+    }
+    
+    override public func mouseMoved(with event: NSEvent) {
+        setMousePos(event)
+        
+        let size = float2(Float(frame.width), Float(frame.height))
+        model.modeler?.getSceneHit(mousePos / size, size)
+    }
+    
+    override public func mouseUp(with event: NSEvent) {
+        mouseIsDown = false
+        hasTap = false
+        hasDoubleTap = false
+        setMousePos(event)
+    }
+    
     #endif
 }
 

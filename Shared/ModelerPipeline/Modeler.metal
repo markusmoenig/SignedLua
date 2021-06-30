@@ -51,6 +51,7 @@ float sdRoundBox(float3 p, float3 b, float r )
     return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
 }
 
+/// Executes one modeler command
 kernel void modelerCmd(constant ModelerUniform           &mData [[ buffer(0) ]],
                        texture3d<half, access::write>    modelTexture  [[texture(1)]],
                        uint3 gid                         [[thread_position_in_grid]])

@@ -67,6 +67,60 @@ class ModelerPipeline
         }
     }
     
+    /// Returns the hit position and normal for a given screen position
+    func getSceneHit(_ uv: float2, _ size: float2) -> (float3, float3)? {
+        var rc : (float3, float3)? = nil
+        
+        if let texture = texture {
+            
+            let outBuffer = device.makeBuffer(length: 2 * MemoryLayout<SIMD4<Float>>.stride, options: [])!
+
+            startCompute()
+
+            if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+                
+                // Evaluate shapes
+                if let state = modelingStates.getComputeState(stateName: "modelerHitScene") {
+                
+                    computeEncoder.setComputePipelineState( state )
+                    
+                    var modelerHitUniform = ModelerHitUniform()
+
+                    modelerHitUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
+                    
+                    modelerHitUniform.uv = uv
+                    modelerHitUniform.size = size
+                    modelerHitUniform.scale = 3.0;
+                    modelerHitUniform.cameraOrigin = model.project.camera.getPosition()
+                    modelerHitUniform.cameraLookAt = float3(0, 0, 0);
+                    
+                    computeEncoder.setBytes(&modelerHitUniform, length: MemoryLayout<ModelerHitUniform>.stride, index: 0)
+                    computeEncoder.setTexture(texture, index: 1 )
+                    computeEncoder.setBuffer(outBuffer, offset: 0, index: 2)
+
+                    let numThreadgroups = MTLSize(width: 1, height: 1, depth: 1)
+                    let threadsPerThreadgroup = MTLSize(width: 1, height: 1, depth: 1)
+                    computeEncoder.dispatchThreadgroups(numThreadgroups, threadsPerThreadgroup: threadsPerThreadgroup)
+
+                }
+                computeEncoder.endEncoding()
+            }
+            
+            stopCompute(waitUntilCompleted: true)
+            
+            let result = outBuffer.contents().bindMemory(to: SIMD4<Float>.self, capacity: 1)
+            
+            let distAndNormal = result[0]
+            let hitPoint = result[1]
+            
+            if distAndNormal.x > 0 {
+                
+            }
+            print(distAndNormal, hitPoint)
+        }
+        return rc
+    }
+    
     /// Creates the uniform
     func createModelerUniform() -> ModelerUniform
     {

@@ -173,7 +173,6 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
     return normalize(n);
 }
 
-
 /// Render
 fragment float4 render(RasterizerData in [[stage_in]],
                                constant RenderUniform &renderData [[ buffer(0) ]],
@@ -189,18 +188,17 @@ fragment float4 render(RasterizerData in [[stage_in]],
     float scale = 3.0;
 
     float r = 0.5 * scale;
-    float2 d = hitBBox(ro, rd, float3(-r, -r, -r), float3(r, r, r));
+    float2 bbox = hitBBox(ro, rd, float3(-r, -r, -r), float3(r, r, r));
     
     float4 color = float4(0,0,0,1);
     
-    
-    if (d.x > 0.0) {
+    if (bbox.x > 0.0) {
         //color = float4(1);
         // Raymarch into the texture
     
         bool hit = false;
         
-        float t = d.x;
+        float t = bbox.x;
         for(int i = 0; i < 120; ++i)
         {
             float3 p = ro + rd * t;
@@ -213,8 +211,8 @@ fragment float4 render(RasterizerData in [[stage_in]],
             
             t += d * 0.6;
 
-            //if (t >= maxDist)
-            //    break;
+            if (t >= bbox.y)
+                break;
         }
         
         if (hit == true) {
@@ -223,4 +221,58 @@ fragment float4 render(RasterizerData in [[stage_in]],
     }
 
     return color;
+}
+
+/// Hits the scene and returns the distance and normal
+kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffer(0) ]],
+                            texture3d<float>                     modelTexture [[ texture(1) ]],
+                            device float4 *out                   [[ buffer(2) ]],
+                            uint gid                             [[thread_position_in_grid]])
+{
+    float3 ro = mData.cameraOrigin;
+    float3 rd = mData.cameraLookAt;
+    
+    rd = getCamerayRay(mData.uv, ro, rd, 80, mData.size);
+    
+    float scale = mData.scale;
+
+    float r = 0.5 * scale;
+    float2 bbox = hitBBox(ro, rd, float3(-r, -r, -r), float3(r, r, r));
+    
+    float4 result1 = float4(-1);
+    float4 result2 = float4(-1);
+
+    if (bbox.x > 0.0) {
+        //color = float4(1);
+        // Raymarch into the texture
+    
+        bool hit = false;
+        
+        float t = bbox.x;
+        for(int i = 0; i < 120; ++i)
+        {
+            float3 p = ro + rd * t;
+            float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
+
+            if (abs(d) < (0.0001*t)) {
+                hit = true;
+                break;
+            }
+            
+            t += d * 0.6;
+
+            if (t >= bbox.y)
+                break;
+        }
+        
+        if (hit == true) {
+            result1.x = t;
+            float3 p = ro + rd * t;
+            result1.yzw = getNormal(p, modelTexture, scale);
+            result2.xyz = p;
+        }
+    }
+    
+    out[gid] = float4(result1);
+    out[gid+1] = float4(result2);
 }

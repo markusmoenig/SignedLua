@@ -73,6 +73,22 @@ typedef struct {
     
     simd_float3         randomVector;
 
+    int                 samples;
+    int                 depth;
+    int                 maxDepth;
+        
+    // bbox
+    simd_float3         P;
+    simd_float3         L;
+    matrix_float3x3     F;
+    
+    float               maxDistance;
+} GPUFragmentUniforms;
+
+typedef struct {
+    
+    simd_float3         randomVector;
+
     simd_float3         cameraOrigin;
     simd_float3         cameraLookAt;
     
@@ -91,18 +107,16 @@ typedef struct {
 typedef struct {
     
     simd_float3         randomVector;
-
-    int                 samples;
-    int                 depth;
-    int                 maxDepth;
-        
-    // bbox
-    simd_float3         P;
-    simd_float3         L;
-    matrix_float3x3     F;
     
-    float               maxDistance;
-} GPUFragmentUniforms;
+    simd_float2         uv;
+    simd_float2         size;
+    
+    float               scale;
+    
+    simd_float3         cameraOrigin;
+    simd_float3         cameraLookAt;
+    
+} ModelerHitUniform;
 
 #define Modeler_None            0
 #define Modeler_Add             1
@@ -123,7 +137,6 @@ typedef struct {
     float               radius;
     simd_float3         size;
 
-    
     int                 samples;
     int                 depth;
     int                 maxDepth;

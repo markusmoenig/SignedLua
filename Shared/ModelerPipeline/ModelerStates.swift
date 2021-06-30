@@ -20,6 +20,7 @@ class ModelerStates {
         defaultLibrary = device.makeDefaultLibrary()
         
         computeStates["modelerCmd"] = createComputeState(name: "modelerCmd")        
+        computeStates["modelerHitScene"] = createComputeState(name: "modelerHitScene")
     }
     
     /// Creates a compute state from an optional library and the function name
