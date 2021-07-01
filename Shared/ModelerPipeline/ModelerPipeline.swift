@@ -87,19 +87,19 @@ class ModelerPipeline
         modelerUniform.actionType = cmd.action.rawValue
         modelerUniform.primitiveType = cmd.primitive.rawValue
         
-        if let position = cmd.data.getFloat3("position") {
+        if let position = cmd.data.getFloat3("Position") {
             modelerUniform.position = position
         }
         
-        if let size = cmd.data.getFloat3("size") {
+        if let size = cmd.data.getFloat3("Size") {
             modelerUniform.size = size
         }
         
-        if let radius = cmd.data.getFloat("radius") {
+        if let radius = cmd.data.getFloat("Radius") {
             modelerUniform.radius = radius
         }
         
-        if let rounding = cmd.data.getFloat("rounding") {
+        if let rounding = cmd.data.getFloat("Rounding") {
             modelerUniform.rounding = rounding
         }
 

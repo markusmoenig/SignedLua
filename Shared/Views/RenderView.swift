@@ -111,14 +111,15 @@ public class STKView        : MTKView
         if let object = model.selectedObject {
             let size = float2(Float(frame.width), Float(frame.height))
             if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
-                let cmd = SignedCommand("Base Box", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("position", hit.0 / model.project.scale), SignedDataEntity("radius", Float(0.02))]))
-
-                object.commands.append(cmd)
-                model.modeler?.executeCommand(cmd)
-                renderer?.updateOnce()
-                
-                model.selectedCommand = cmd
-                model.commandSelected.send(cmd)
+                if let cmd = model.selectedShape?.copy() {
+                    cmd.data.set("Position", hit.0 / model.project.scale)
+                    object.commands.append(cmd)
+                    model.modeler?.executeCommand(cmd)
+                    renderer?.updateOnce()
+                    
+                    model.selectedCommand = cmd
+                    model.commandSelected.send(cmd)
+                }
             }
         }
     }

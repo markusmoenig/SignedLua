@@ -82,8 +82,11 @@ class SignedCommand : Codable, Hashable {
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(role, forKey: .role)
+        try container.encode(action, forKey: .action)
+        try container.encode(primitive, forKey: .primitive)
         try container.encode(data, forKey: .data)
         try container.encode(code, forKey: .code)
+        try container.encode(subCommands, forKey: .subCommands)
     }
     
     static func ==(lhs: SignedCommand, rhs: SignedCommand) -> Bool {
@@ -92,6 +95,18 @@ class SignedCommand : Codable, Hashable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+    
+    /// Creates a copy of itself
+    func copy() -> SignedCommand?
+    {
+        if let data = try? JSONEncoder().encode(self) {
+            if let copied = try? JSONDecoder().decode(SignedCommand.self, from: data) {
+                copied.id = UUID()
+                return copied
+            }
+        }
+        return nil
     }
 }
 

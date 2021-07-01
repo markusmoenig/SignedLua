@@ -26,7 +26,7 @@ struct BrowserView: View {
                 NavigationLink(tag: NavigationItem.shapes, selection: $selection) {
                     ShapeView(model: model)
                 } label: {
-                    Label("Shapes", systemImage: "circle.fill")
+                    Label("Shapes", systemImage: "square")
                 }
                 
                 NavigationLink(tag: NavigationItem.materials, selection: $selection) {

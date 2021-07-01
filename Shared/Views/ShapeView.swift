@@ -11,7 +11,7 @@ struct ShapeView: View {
     
     let model                               : Model
     
-    @State var selected                     : SignedShape? = nil
+    @State var selected                     : SignedCommand? = nil
     
     init(model: Model) {
         self.model = model
@@ -32,6 +32,8 @@ struct ShapeView: View {
                             .frame(width: 60, height: 60)
                             .onTapGesture(perform: {
                                 selected = shape
+                                model.selectedShape = shape
+                                model.shapeSelected.send(shape)
                             })
                         
                         if shape === selected {

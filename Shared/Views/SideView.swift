@@ -10,12 +10,12 @@ import SwiftUI
 struct SideView: View {
     
     enum Mode {
-        case Camera, Settings
+        case shape, camera, settings
     }
     
     let model                               : Model
     
-    @State var mode                         : Mode? = .Camera
+    @State var mode                         : Mode? = .camera
 
     @State var selection                    : SignedObject? = nil
     
@@ -24,20 +24,28 @@ struct SideView: View {
                 
         VStack(alignment: .leading) {
             HStack {
-
+                
                 Button(action: {
-                    mode = .Camera
+                    mode = .shape
                 })
                 {
-                    Image(systemName: mode == .Camera ? "camera.fill" : "camera")
+                    Image(systemName: mode == .shape ? "square.fill" : "square")
+                }
+                .buttonStyle(.borderless)
+
+                Button(action: {
+                    mode = .camera
+                })
+                {
+                    Image(systemName: mode == .camera ? "camera.fill" : "camera")
                 }
                 .buttonStyle(.borderless)
                 
                 Button(action: {
-                    mode = .Settings
+                    mode = .settings
                 })
                 {
-                    Image(systemName: mode == .Settings ? "gearshape.fill" : "gearshape")
+                    Image(systemName: mode == .settings ? "gearshape.fill" : "gearshape")
                 }
                 .buttonStyle(.borderless)
                 
@@ -46,7 +54,10 @@ struct SideView: View {
             
             Divider()            
             
-            if mode == .Settings {
+            if mode == .shape {
+                DataView(model: model, data: model.selectedShape!.data)
+            } else
+            if mode == .settings {
                 SettingsView(model: model)
             }
             
@@ -59,13 +70,9 @@ struct SideView: View {
         }
         
         
-        .onReceive(model.objectSelected) { object in
-            selection = object
-            model.selectedObject = object
-            model.selectedCommand = object.commands.first
-            if let component = model.selectedCommand {
-                model.scriptEditor?.setComponentSession(component)
-            }
+        .onReceive(model.shapeSelected) { shape in
+            mode = .camera
+            mode = .shape
         }
     }
 }
