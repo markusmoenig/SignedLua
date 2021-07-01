@@ -53,7 +53,7 @@ float sdRoundBox(float3 p, float3 b, float r )
 
 /// Executes one modeler command
 kernel void modelerCmd(constant ModelerUniform           &mData [[ buffer(0) ]],
-                       texture3d<half, access::write>    modelTexture  [[texture(1)]],
+                       texture3d<half, access::read_write>    modelTexture  [[texture(1)]],
                        uint3 gid                         [[thread_position_in_grid]])
 {
     /*
@@ -67,18 +67,27 @@ kernel void modelerCmd(constant ModelerUniform           &mData [[ buffer(0) ]],
     float3 size = float3(modelTexture.get_width(), modelTexture.get_height(), modelTexture.get_depth());
     float3 uv = float3(gid) / size - float3(0.5);
 
-    float dist = INFINITY;
+    float dist = modelTexture.read(gid).x, newDist = INFINITY;
     
     if (mData.primitiveType == Modeler_Sphere) {
-        dist = sdSphere(uv - mData.position, mData.radius);
+        newDist = sdSphere(uv - mData.position, mData.radius);
     } else
     if (mData.primitiveType == Modeler_Box) {
-        dist = sdRoundBox(uv - mData.position, mData.size, mData.rounding);
+        newDist = sdRoundBox(uv - mData.position, mData.size, mData.rounding);
     }
+    
+    dist = min(dist, newDist);
     
     //half4 out = half4(dist);//half4(length(uv) - 0.495) + noise(uv * 160) / 80;
 
     //dist += noise(uv * 160) / 80;
     
     modelTexture.write(half4(dist), gid);
+}
+
+/// Clears the texture
+kernel void modelerClear(texture3d<half, access::write>    modelTexture  [[texture(0)]],
+                         uint3 gid                         [[thread_position_in_grid]])
+{
+    modelTexture.write(half4(1000), gid);
 }

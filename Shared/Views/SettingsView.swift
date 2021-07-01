@@ -9,12 +9,9 @@ import SwiftUI
 
 struct SettingsView: View {
     
-    enum Status {
-        case ParameterList, Renderer, Library
-    }
+    var model                               : Model
     
-    let core                                : Core
-    
+    /*
     @State var status                       : Status = .ParameterList
     
     @State var updateView                   : Bool = false
@@ -34,15 +31,32 @@ struct SettingsView: View {
     let toolBarTopPadding                   : CGFloat = 8
     let toolBarSpacing                      : CGFloat = 6
     #endif
+     
+     */
     
-    init(_ core: Core)
-    {
-        self.core = core
-    }
-    
+    @State var scaleValue                   : Double = 3
+    @State var scaleValueText               = "3"
+
     var body: some View {
         
-        VStack {
+        VStack(alignment: .leading) {
+            
+            Text("Scale")
+            HStack {
+                Slider(value: Binding<Double>(get: {scaleValue}, set: { v in
+                    scaleValue = v
+                    scaleValueText = String(Int(v))
+                    
+                    model.project.scale = Float(scaleValue)
+                    model.renderer?.updateOnce()
+                }), in: Double(1)...Double(10), step: Double(1))
+                    .frame(width: 100)
+                Text(scaleValueText)
+                    .frame(maxWidth: 40)
+            }
+        }
+        .padding()
+            /*
             HStack(spacing: toolBarSpacing) {
                 Button(action: {
                     status = .ParameterList
@@ -129,7 +143,8 @@ struct SettingsView: View {
                 LibraryView()
                 Spacer()
             }
-        }
+            
+        }*/
     }
 }
 

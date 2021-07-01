@@ -92,6 +92,8 @@ typedef struct {
     simd_float3         cameraOrigin;
     simd_float3         cameraLookAt;
     
+    float               scale;
+    
     int                 samples;
     int                 depth;
     int                 maxDepth;

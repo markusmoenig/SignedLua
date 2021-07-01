@@ -18,6 +18,9 @@ class SignedProject: Codable {
     /// The objects in the project
     var objects                             : [SignedObject] = []
     
+    /// The scale of the scene
+    var scale                               = Float(3)
+    
     var camera                              : SignedPinholeCamera
     
     init() {

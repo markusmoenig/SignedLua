@@ -185,21 +185,19 @@ fragment float4 render(RasterizerData in [[stage_in]],
     
     rd = getCamerayRay(uv, ro, rd, 80, in.viewportSize);
 
-    float scale = 3.0;
+    float scale = renderData.scale;
 
     float r = 0.5 * scale;
     float2 bbox = hitBBox(ro, rd, float3(-r, -r, -r), float3(r, r, r));
     
     float4 color = float4(0,0,0,1);
     
-    if (bbox.x > 0.0) {
-        //color = float4(1);
-        // Raymarch into the texture
+    if (bbox.y > 0.0) {
     
         bool hit = false;
         
         float t = bbox.x;
-        for(int i = 0; i < 120; ++i)
+        for(int i = 0; i < 200; ++i)
         {
             float3 p = ro + rd * t;
             float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
@@ -209,7 +207,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
                 break;
             }
             
-            t += d * 0.6;
+            t += d;
 
             if (t >= bbox.y)
                 break;

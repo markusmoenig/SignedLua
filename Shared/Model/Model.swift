@@ -35,5 +35,7 @@ class Model: NSObject, ObservableObject {
     override init() {
         project = SignedProject()
         super.init()
+        
+        selectedObject = project.objects.first
     }
 }

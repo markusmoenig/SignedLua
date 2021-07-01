@@ -107,6 +107,18 @@ public class STKView        : MTKView
                 self.hasDoubleTap = false
             }
         }
+        
+        if let object = model.selectedObject {
+            let size = float2(Float(frame.width), Float(frame.height))
+            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+                let cmd = SignedCommand("Base Box", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("position", hit.0 / model.project.scale), SignedDataEntity("radius", Float(0.2))]))
+
+                print(hit.0)
+                object.commands.append(cmd)
+                model.modeler?.executeCommand(cmd)
+                renderer?.updateOnce()
+            }
+        }
     }
     
     override public func mouseDragged(with event: NSEvent) {
@@ -116,8 +128,8 @@ public class STKView        : MTKView
     override public func mouseMoved(with event: NSEvent) {
         setMousePos(event)
         
-        let size = float2(Float(frame.width), Float(frame.height))
-        model.modeler?.getSceneHit(mousePos / size, size)
+        //let size = float2(Float(frame.width), Float(frame.height))
+        //model.modeler?.getSceneHit(mousePos / size, size)
     }
     
     override public func mouseUp(with event: NSEvent) {

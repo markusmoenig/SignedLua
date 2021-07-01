@@ -61,10 +61,10 @@ struct ContentView: View {
         
         GeometryReader { geometry in
 
-            VStack(spacing: 2) {
+            HStack(spacing: 2) {
                     
-
-                HStack {
+                VStack {
+                     
                     ZStack(alignment: .bottomLeading) {
                         // Show tools
                         
@@ -152,14 +152,16 @@ struct ContentView: View {
                         )
                     }
                     
-                    SideView(model: document.model)
-                        .frame(width: geometry.size.width / 2.5)
+                    BrowserView(model: document.model)
+                        .frame(height: geometry.size.height / 5)
+
                 }
+
                 
                 Divider()
                     
-                CommandView(model: document.model)
-                    .frame(height: geometry.size.height / 5)
+                SideView(model: document.model)
+                    .frame(width: geometry.size.width / 2.5)
 
             }
         }

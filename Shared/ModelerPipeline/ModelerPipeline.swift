@@ -46,6 +46,7 @@ class ModelerPipeline
     /// Executes all commands of the object
     func executeObject(_ object: SignedObject)
     {
+        clear()
         for cmd in object.commands {
             executeCommand(cmd)
         }
@@ -58,8 +59,6 @@ class ModelerPipeline
             startCompute()
 
             if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
-                
-                // Evaluate shapes
                 if let state = modelingStates.getComputeState(stateName: "modelerCmd") {
                 
                     computeEncoder.setComputePipelineState( state )
@@ -72,8 +71,7 @@ class ModelerPipeline
                     calculateThreadGroups(state, computeEncoder, texture)
                 }
                 computeEncoder.endEncoding()
-            }
-            
+            }            
             stopCompute(waitUntilCompleted: true)
         }
     }
@@ -105,6 +103,26 @@ class ModelerPipeline
         return modelerUniform
     }
     
+    /// Clears the modeling texture
+    func clear()
+    {
+        if let texture = texture {
+            startCompute()
+
+            if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+                
+                if let state = modelingStates.getComputeState(stateName: "modelerClear") {
+                    computeEncoder.setComputePipelineState( state )
+                    computeEncoder.setTexture(texture, index: 0 )
+                    calculateThreadGroups(state, computeEncoder, texture)
+                }
+                computeEncoder.endEncoding()
+            }
+            
+            stopCompute(waitUntilCompleted: true)
+        }
+    }
+    
     /// Returns the hit position and normal for a given screen position
     func getSceneHit(_ uv: float2, _ size: float2) -> (float3, float3)? {
         var rc : (float3, float3)? = nil
@@ -128,7 +146,7 @@ class ModelerPipeline
                     
                     modelerHitUniform.uv = uv
                     modelerHitUniform.size = size
-                    modelerHitUniform.scale = 3.0;
+                    modelerHitUniform.scale = model.project.scale
                     modelerHitUniform.cameraOrigin = model.project.camera.getPosition()
                     modelerHitUniform.cameraLookAt = float3(0, 0, 0);
                     
@@ -152,9 +170,8 @@ class ModelerPipeline
             let hitPoint = result[1]
             
             if distAndNormal.x > 0 {
-                
+                rc = (float3(hitPoint.x, hitPoint.y, hitPoint.z), float3(distAndNormal.y, distAndNormal.z, distAndNormal.w))
             }
-            print(distAndNormal, hitPoint)
         }
         return rc
     }

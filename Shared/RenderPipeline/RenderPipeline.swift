@@ -190,6 +190,8 @@ class RenderPipeline
         
         renderUniform.cameraOrigin = model.project.camera.getPosition()
         renderUniform.cameraLookAt = float3(0, 0, 0);
+        
+        renderUniform.scale = model.project.scale
 
         //fragmentUniforms.maxDepth = Int32(maxDepth);
         //fragmentUniforms.depth = Int32(depth);
