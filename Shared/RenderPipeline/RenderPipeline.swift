@@ -190,8 +190,28 @@ class RenderPipeline
         
         renderUniform.cameraOrigin = model.project.camera.getPosition()
         renderUniform.cameraLookAt = float3(0, 0, 0);
-        
         renderUniform.scale = model.project.scale
+        
+        /*
+        if (strcmp(light_type, "Quad") == 0)
+         {
+             light.type = LightType::RectLight;
+             light.u = v1 - light.position;
+             light.v = v2 - light.position;
+             light.area = Vec3::Length(Vec3::Cross(light.u, light.v));
+         }
+         else if (strcmp(light_type, "Sphere") == 0)
+         {
+             light.type = LightType::SphereLight;
+             light.area = 4.0f * PI * light.radius * light.radius;
+         }*/
+        
+        renderUniform.numOfLights = 1
+        renderUniform.lights.0.position = float3(0,2,0)
+        renderUniform.lights.0.emission = float3(10,1,1)
+        renderUniform.lights.0.params.x = 1
+        renderUniform.lights.0.params.y = 4.0 * Float.pi * 1 * 1;//light.radius * light.radius;
+        renderUniform.lights.0.params.z = 1
 
         //fragmentUniforms.maxDepth = Int32(maxDepth);
         //fragmentUniforms.depth = Int32(depth);

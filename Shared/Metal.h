@@ -125,6 +125,10 @@ typedef struct {
 } RenderUniform;
 
 typedef struct {
+    int                 samples;
+} AccumUniform;
+
+typedef struct {
     
     simd_float3         randomVector;
     
