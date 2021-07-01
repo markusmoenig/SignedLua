@@ -87,10 +87,28 @@ typedef struct {
 
 typedef struct {
     
+    simd_float3     position;
+    simd_float3     emission;
+
+    simd_float3     u; // u vector for rect
+    simd_float3     v; // v vector for rect
+    simd_float3     params;
+    
+    float           radius;
+    float           area;
+    float           type; // 0->Rect, 1->Sphere, 2->Distant
+    
+} RenderAnalyticalLight;
+
+typedef struct {
+    
     simd_float3         randomVector;
 
     simd_float3         cameraOrigin;
     simd_float3         cameraLookAt;
+    
+    int                 numOfLights;
+    RenderAnalyticalLight lights[4];
     
     float               scale;
     

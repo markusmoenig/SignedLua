@@ -727,6 +727,109 @@ float3 DisneyEval(State state, float3 V, float3 N, float3 L, thread float &pdf)
 }
 
 
+//-----------------------------------------------------------------------
+float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderUniform &renderData)
+//-----------------------------------------------------------------------
+{
+    float3 Li = float3(0.0);
+    float3 surfacePos = state.fhp + state.normal * EPS;
+
+    BsdfSampleRec bsdfSampleRec;
+
+    // Environment Light
+#ifdef ENVMAP
+#ifndef CONSTANT_BG
+    {
+        vec3 color;
+        vec4 dirPdf = EnvSample(color);
+        vec3 lightDir = dirPdf.xyz;
+        float lightPdf = dirPdf.w;
+
+        Ray shadowRay = Ray(surfacePos, lightDir);
+        bool inShadow = AnyHit(shadowRay, INFINITY - EPS);
+
+        if (!inShadow)
+        {
+            bsdfSampleRec.f = DisneyEval(state, -r.direction, state.ffnormal, lightDir, bsdfSampleRec.pdf);
+
+            if (bsdfSampleRec.pdf > 0.0)
+            {
+                float misWeight = powerHeuristic(lightPdf, bsdfSampleRec.pdf);
+                if (misWeight > 0.0)
+                    Li += misWeight * bsdfSampleRec.f * abs(dot(lightDir, state.ffnormal)) * color / lightPdf;
+            }
+        }
+    }
+#endif
+#endif
+
+    // Analytic Lights
+//#ifdef LIGHTS
+    {
+        LightSampleRec lightSampleRec;
+        Light light;
+
+        //Pick a light to sample
+        int index = int(rand(dataIn) * float(dataIn.numOfLights)) * 5;
+
+        RenderAnalyticalLight l = renderData.lights[index];
+        
+        // Fetch light Data
+        /*
+        vec3 position = texelFetch(lightsTex, ivec2(index + 0, 0), 0).xyz;
+        vec3 emission = texelFetch(lightsTex, ivec2(index + 1, 0), 0).xyz;
+        vec3 u        = texelFetch(lightsTex, ivec2(index + 2, 0), 0).xyz; // u vector for rect
+        vec3 v        = texelFetch(lightsTex, ivec2(index + 3, 0), 0).xyz; // v vector for rect
+        vec3 params   = texelFetch(lightsTex, ivec2(index + 4, 0), 0).xyz;
+        float radius  = params.x;
+        float area    = params.y;
+        float type    = params.z; // 0->Rect, 1->Sphere, 2->Distant
+        */
+        
+        light.position = l.position;//texelFetch(lightsTex, ivec2(index + 0, 0), 0).xyz;
+        light.emission = l.emission;//texelFetch(lightsTex, ivec2(index + 1, 0), 0).xyz;
+        light.u        = l.u;//texelFetch(lightsTex, ivec2(index + 2, 0), 0).xyz; // u vector for rect
+        light.v        = l.v;//texelFetch(lightsTex, ivec2(index + 3, 0), 0).xyz; // v vector for rect
+        float3 params   = l.params;//texelFetch(lightsTex, ivec2(index + 4, 0), 0).xyz;
+        light.radius  = params.x;
+        light.area    = params.y;
+        light.type    = params.z; // 0->Rect, 1->Sphere, 2->Distant
+        
+        //light = Light(position, emission, u, v, radius, area, type);
+        sampleOneLight(light, surfacePos, lightSampleRec, dataIn);
+
+        if (dot(lightSampleRec.direction, lightSampleRec.normal) < 0.0)
+        {
+            //Ray shadowRay = Ray(surfacePos, lightSampleRec.direction);
+            bool inShadow = false;//AnyHit(shadowRay, lightSampleRec.dist - EPS);
+
+            if (!inShadow)
+            {
+                bsdfSampleRec.f = DisneyEval(state, -ray.direction, state.ffnormal, lightSampleRec.direction, bsdfSampleRec.pdf);
+
+                float weight = 1.0;
+                if(light.area > 0.0)
+                    weight = powerHeuristic(lightSampleRec.pdf, bsdfSampleRec.pdf);
+
+                if (bsdfSampleRec.pdf > 0.0)
+                    Li += weight * bsdfSampleRec.f * abs(dot(state.ffnormal, lightSampleRec.direction)) * lightSampleRec.emission / lightSampleRec.pdf;
+            }
+        }
+    }
+//#endif
+
+    return Li;
+}
+
+//-----------------------------------------------------------------------
+void Onb(float3 N, thread float3 &T, thread float3 &B)
+//-----------------------------------------------------------------------
+{
+    float3 UpVector = abs(N.z) < 0.999 ? float3(0, 0, 1) : float3(1, 0, 0);
+    T = normalize(cross(UpVector, N));
+    B = cross(N, T);
+}
+
 // MARK: Disney End
 
 float2 hitBBox( float3 rO, float3 rD, float3 min, float3 max )
@@ -866,48 +969,129 @@ fragment float4 render(RasterizerData in [[stage_in]],
     
     float3 ro = renderData.cameraOrigin;
     float3 rd = renderData.cameraLookAt;
-    
+    float scale = renderData.scale;
+
     struct DataIn dataIn;
     
     dataIn.seed = uv;
     dataIn.randomVector = renderData.randomVector;
     
     rd = getCamerayRay(uv, ro, rd, 80, in.viewportSize, dataIn);
-
-    float scale = renderData.scale;
-
-    float r = 0.5 * scale;
-    float2 bbox = hitBBox(ro, rd, float3(-r, -r, -r), float3(r, r, r));
     
-    float4 color = float4(0,0,0,1);
+    int maxDepth = 1;
     
-    if (bbox.y > 0.0) {
+    float3 radiance = float3(0.0);
+    float3 throughput = float3(1.0);
+    State state;
+    LightSampleRec lightSampleRec;
+    BsdfSampleRec bsdfSampleRec;
+    float3 absorption = float3(0.0);
+    state.specularBounce = false;
     
-        bool hit = false;
-        
+    Ray ray;
+    ray.origin = ro;
+    ray.direction = rd;
+    
+    for (int depth = 0; depth < maxDepth; depth++)
+    {
+        state.depth = depth;
+     
+        float r = 0.5 * scale;
+        float2 bbox = hitBBox(ro, rd, float3(-r, -r, -r), float3(r, r, r));
         float t = bbox.x;
-        for(int i = 0; i < 200; ++i)
-        {
-            float3 p = ro + rd * t;
-            float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
 
-            if (abs(d) < (0.0001*t)) {
-                hit = true;
-                break;
+        //float4 color = float4(0,0,0,1);
+        
+        if (bbox.y > 0.0) {
+        
+            bool hit = false;
+            
+            for(int i = 0; i < 200; ++i)
+            {
+                float3 p = ro + rd * t;
+                float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
+
+                if (abs(d) < (0.0001*t)) {
+                    hit = true;
+                    break;
+                }
+                
+                t += d;
+
+                if (t >= bbox.y)
+                    break;
             }
             
-            t += d;
-
-            if (t >= bbox.y)
-                break;
+            if (hit == true) {
+                float3 normal = getNormal(ro + rd * t, modelTexture, scale);
+                
+                state.normal = normal;
+                state.ffnormal = dot(normal, ray.direction) <= 0.0 ? normal : normal * -1.0;
+                
+            } else {
+                t = INFINITY;
+            }
+        } else {
+            t = INFINITY;
         }
         
-        if (hit == true) {
-            color.xyz = getNormal(ro + rd * t, modelTexture, scale);
+        if (t == INFINITY) {
+            return float4(radiance, 1.0);
         }
+        
+        Onb(state.normal, state.tangent, state.bitangent);
+        
+        // Get material
+        
+        state.mat.albedo = float3(0.5);
+        state.mat.roughness = 0.5;
+        
+        // Reset absorption when ray is going out of surface
+        if (dot(state.normal, state.ffnormal) > 0.0)
+            absorption = float3(0.0);
+
+        radiance += state.mat.emission * throughput;
+
+//#ifdef LIGHTS
+        if (state.isEmitter)
+        {
+            radiance += EmitterSample(ray, state, lightSampleRec, bsdfSampleRec) * throughput;
+            break;
+        }
+//#endif
+        
+        // Add absoption
+        throughput *= exp(-absorption * t);
+
+        radiance += DirectLight(ray, state, dataIn, renderData) * throughput;
+
+        bsdfSampleRec.f = DisneySample(state, -ray.direction, state.ffnormal, bsdfSampleRec.L, bsdfSampleRec.pdf, dataIn);
+
+        // Set absorption only if the ray is currently inside the object.
+        if (dot(state.ffnormal, bsdfSampleRec.L) < 0.0)
+            absorption = -log(state.mat.extinction) / state.mat.atDistance;
+
+        if (bsdfSampleRec.pdf > 0.0)
+            throughput *= bsdfSampleRec.f * abs(dot(state.ffnormal, bsdfSampleRec.L)) / bsdfSampleRec.pdf;
+        else
+            break;
+
+#ifdef RR
+        // Russian roulette
+        if (depth >= RR_DEPTH)
+        {
+            float q = min(max(throughput.x, max(throughput.y, throughput.z)) + 0.001, 0.95);
+            if (rand() > q)
+                break;
+            throughput /= q;
+        }
+#endif
+
+        ray.direction = bsdfSampleRec.L;
+        ray.origin = state.fhp + ray.direction * EPS;
     }
 
-    return color;
+    return float4(radiance, 1.0);
 }
 
 // MARK: Hit Scene Entry Point
@@ -935,9 +1119,8 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
     float4 result2 = float4(-1);
 
     if (bbox.x > 0.0) {
-        //color = float4(1);
+
         // Raymarch into the texture
-    
         bool hit = false;
         
         float t = bbox.x;
@@ -951,7 +1134,7 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
                 break;
             }
             
-            t += d * 0.6;
+            t += d;
 
             if (t >= bbox.y)
                 break;
