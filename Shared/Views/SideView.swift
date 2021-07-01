@@ -52,10 +52,12 @@ struct SideView: View {
             
             Spacer()
             
+            Divider()
+            
+            StackView(model: model)
+                .frame(maxHeight: 100)
         }
         
-        .onReceive(model.componentPreviewNeedsUpdate) { _ in
-        }
         
         .onReceive(model.objectSelected) { object in
             selection = object

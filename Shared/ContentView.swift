@@ -153,7 +153,7 @@ struct ContentView: View {
                     }
                     
                     BrowserView(model: document.model)
-                        .frame(height: geometry.size.height / 5)
+                        .frame(minHeight: 100, maxHeight: 100)
 
                 }
 
@@ -162,7 +162,6 @@ struct ContentView: View {
                     
                 SideView(model: document.model)
                     .frame(width: geometry.size.width / 2.5)
-
             }
         }
         

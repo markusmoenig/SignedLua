@@ -292,7 +292,7 @@ class ScriptEditor
                         DispatchQueue.main.async {
                             if errors.isEmpty {
                                 self.clearAnnotations()
-                                self.model.componentPreviewNeedsUpdate.send()
+                                //self.model.componentPreviewNeedsUpdate.send()
                             } else {
                                 self.setErrors(errors)
                             }

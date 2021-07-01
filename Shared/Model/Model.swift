@@ -19,8 +19,8 @@ class Model: NSObject, ObservableObject {
     /// Send when an object has been selected
     let objectSelected                      = PassthroughSubject<SignedObject, Never>()
 
-    /// Send when an object has been selected
-    let componentPreviewNeedsUpdate         = PassthroughSubject<Void, Never>()
+    /// Send when an command has been selected
+    let commandSelected                     = PassthroughSubject<SignedCommand, Never>()
     
     /// Reference to the underlying script editor
     var scriptEditor                        : ScriptEditor? = nil
@@ -32,10 +32,20 @@ class Model: NSObject, ObservableObject {
     /// Custom render size
     var renderSize                          : SIMD2<Int>? = nil
     
+    /// The currently supported shapes
+    var shapes                              : [SignedShape] = []
+    
     override init() {
         project = SignedProject()
         super.init()
         
         selectedObject = project.objects.first
+        
+        createShapes()
+    }
+    
+    func createShapes() {
+        shapes = [SignedShape("Sphere"), SignedShape("Box")]
+
     }
 }

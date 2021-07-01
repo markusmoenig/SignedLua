@@ -24,7 +24,7 @@ struct BrowserView: View {
         NavigationView {
             List {
                 NavigationLink(tag: NavigationItem.shapes, selection: $selection) {
-                    ShapesView(model: model)
+                    ShapeView(model: model)
                 } label: {
                     Label("Shapes", systemImage: "circle.fill")
                 }
@@ -43,8 +43,8 @@ struct BrowserView: View {
             }
         }
         
-        .onReceive(model.componentPreviewNeedsUpdate) { _ in
-        }
+        //.onReceive(model.componentPreviewNeedsUpdate) { _ in
+        //}
         
         .onReceive(model.objectSelected) { object in
 

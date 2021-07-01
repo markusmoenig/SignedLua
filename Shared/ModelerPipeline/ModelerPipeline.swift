@@ -44,11 +44,14 @@ class ModelerPipeline
     }
     
     /// Executes all commands of the object
-    func executeObject(_ object: SignedObject)
+    func executeObject(_ object: SignedObject, until: SignedCommand? = nil)
     {
         clear()
         for cmd in object.commands {
             executeCommand(cmd)
+            if cmd === until {
+                break
+            }
         }
     }
     
