@@ -90,30 +90,6 @@ struct Ray
     float3 direction;
 };
 
-struct Material
-{
-    float3 albedo;
-    float specular;
-    float3 emission;
-    float anisotropic;
-    float metallic;
-    float roughness;
-    float subsurface;
-    float specularTint;
-    float sheen;
-    float sheenTint;
-    float clearcoat;
-    float clearcoatGloss;
-    float specTrans;
-    float ior;
-    float atDistance;
-    float3 extinction;
-    float3 texIDs;
-    // Roughness calculated from anisotropic param
-    float ax;
-    float ay;
-};
-
 struct Camera
 {
     float3 up;
@@ -123,17 +99,6 @@ struct Camera
     float fov;
     float focalDist;
     float aperture;
-};
-
-struct Light
-{
-    float3 position;
-    float3 emission;
-    float3 u;
-    float3 v;
-    float radius;
-    float area;
-    float type;
 };
 
 struct State
@@ -846,6 +811,7 @@ float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, th
     return finalRayDir;
 }
 
+/// Gets the distance at the given point
 float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
@@ -854,6 +820,16 @@ float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
     return d;
 }
 
+/// Gets the color and roughness at the given point
+float4 getColorAndRoughness(float3 p, texture3d<float> colorTexture, float scale = 1.0)
+{
+    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
+    
+    float4 color = colorTexture.sample(textureSampler, (p / scale + float3(0.5)));
+    return color;
+}
+
+/// Calculates the normal at the given point
 float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 {
     float3 epsilon = float3(0.001, 0., 0.);
@@ -905,13 +881,12 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
 //#ifdef LIGHTS
     {
         LightSampleRec lightSampleRec;
-        Light light;
 
         //Pick a light to sample
         int index = int(rand(dataIn) * float(dataIn.numOfLights)) * 5;
 
-        RenderAnalyticalLight l = renderData.lights[index];
-        
+        Light light = renderData.lights[index];
+
         // Fetch light Data
         /*
         vec3 position = texelFetch(lightsTex, ivec2(index + 0, 0), 0).xyz;
@@ -923,12 +898,8 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
         float area    = params.y;
         float type    = params.z; // 0->Rect, 1->Sphere, 2->Distant
         */
-        
-        light.position = l.position;//texelFetch(lightsTex, ivec2(index + 0, 0), 0).xyz;
-        light.emission = l.emission;//texelFetch(lightsTex, ivec2(index + 1, 0), 0).xyz;
-        light.u        = l.u;//texelFetch(lightsTex, ivec2(index + 2, 0), 0).xyz; // u vector for rect
-        light.v        = l.v;//texelFetch(lightsTex, ivec2(index + 3, 0), 0).xyz; // v vector for rect
-        float3 params   = l.params;//texelFetch(lightsTex, ivec2(index + 4, 0), 0).xyz;
+
+        float3 params   = light.params;//texelFetch(lightsTex, ivec2(index + 4, 0), 0).xyz;
         light.radius  = params.x;
         light.area    = params.y;
         light.type    = params.z; // 0->Rect, 1->Sphere, 2->Distant
@@ -976,9 +947,10 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
 // MARK: Render Entry Point
 fragment float4 render(RasterizerData in [[stage_in]],
                                constant RenderUniform &renderData [[ buffer(0) ]],
-                               texture3d<float> modelTexture [[ texture(1) ]] )
+                               texture3d<float> modelTexture [[ texture(1) ]],
+                               texture3d<float> colorTexture [[ texture(2) ]] )
 {
-    float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);//* in.viewportSize) - in.viewportSize / 2;
+    float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
     
     float3 ro = renderData.cameraOrigin;
     float3 rd = renderData.cameraLookAt;
@@ -1060,11 +1032,13 @@ fragment float4 render(RasterizerData in [[stage_in]],
         
         // Get material
         
-        state.mat.albedo = float3(0.5);
+        float4 colorAndRoughness = getColorAndRoughness(state.fhp, colorTexture, scale);
+        
+        state.mat.albedo = colorAndRoughness.xyz;
         state.mat.specular = 0;
         state.mat.anisotropic = 0;
         state.mat.metallic = 0;
-        state.mat.roughness = 0.5;
+        state.mat.roughness = colorAndRoughness.w;
         state.mat.subsurface = 0;
         state.mat.specularTint = 0;
         state.mat.sheen = 0;

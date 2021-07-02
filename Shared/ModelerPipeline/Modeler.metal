@@ -52,10 +52,11 @@ float sdRoundBox(float3 p, float3 b, float r )
 }
 
 /// Executes one modeler command
-kernel void modelerCmd(constant ModelerUniform           &mData [[ buffer(0) ]],
-                       texture3d<half, access::read_write>    modelTexture  [[texture(1)]],
-                       uint3 gid                         [[thread_position_in_grid]])
-{    
+kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer(0) ]],
+                       texture3d<half, access::read_write>      modelTexture  [[texture(1)]],
+                       texture3d<half, access::write>           colorTexture  [[texture(2)]],
+                       uint3 gid                                [[thread_position_in_grid]])
+{
     float3 size = float3(modelTexture.get_width(), modelTexture.get_height(), modelTexture.get_depth());
     float3 uv = float3(gid) / size - float3(0.5);
 
@@ -70,12 +71,18 @@ kernel void modelerCmd(constant ModelerUniform           &mData [[ buffer(0) ]],
     
     dist = min(dist, newDist);
     
+    if (dist == newDist) {
+        colorTexture.write(half4(float4(mData.material.albedo, mData.material.roughness)), gid);
+    }
+    
     modelTexture.write(half4(dist), gid);
 }
 
 /// Clears the texture
 kernel void modelerClear(texture3d<half, access::write>    modelTexture  [[texture(0)]],
+                         texture3d<half, access::write>    colorTexture  [[texture(1)]],
                          uint3 gid                         [[thread_position_in_grid]])
 {
     modelTexture.write(half4(1000), gid);
+    colorTexture.write(half4(0.5), gid);
 }

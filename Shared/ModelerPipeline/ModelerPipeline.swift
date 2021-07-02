@@ -13,6 +13,7 @@ class ModelerPipeline
     var device          : MTLDevice
         
     var texture         : MTLTexture? = nil
+    var colorTexture    : MTLTexture? = nil
 
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
@@ -36,6 +37,7 @@ class ModelerPipeline
         if texture == nil {
             let size = 512
             texture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
+            colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         }
         
         if let object = model.project.objects.first {
@@ -70,6 +72,7 @@ class ModelerPipeline
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
                     
                     computeEncoder.setTexture(texture, index: 1 )
+                    computeEncoder.setTexture(colorTexture, index: 2 )
 
                     calculateThreadGroups(state, computeEncoder, texture)
                 }
@@ -127,11 +130,36 @@ class ModelerPipeline
         if let rounding = cmd.data.getFloat("Rounding") {
             modelerUniform.rounding = rounding
         }
+        
+        /*
+        state.mat.albedo = colorAndRoughness.xyz;
+        state.mat.specular = 0;
+        state.mat.anisotropic = 0;
+        state.mat.metallic = 0;
+        state.mat.roughness = colorAndRoughness.w;
+        state.mat.subsurface = 0;
+        state.mat.specularTint = 0;
+        state.mat.sheen = 0;
+        state.mat.sheenTint = 0;
+        state.mat.clearcoat = 0;
+        state.mat.clearcoatGloss = 0;
+        state.mat.specTrans = 0;
+        state.mat.ior = 1.45;
+        state.mat.emission = float3(0);
+        state.mat.atDistance = 1.0;*/
+        
+        modelerUniform.material.albedo = float3(0.5,0.5,0.5);
+        modelerUniform.material.roughness = 0.5;
+        
+        if cmd.primitive == .Sphere {
+            modelerUniform.material.albedo = float3(1,0,1);
+        }
+        
 
         return modelerUniform
     }
     
-    /// Clears the modeling texture
+    /// Clears the modeling textures
     func clear()
     {
         if let texture = texture {
@@ -142,6 +170,7 @@ class ModelerPipeline
                 if let state = modelingStates.getComputeState(stateName: "modelerClear") {
                     computeEncoder.setComputePipelineState( state )
                     computeEncoder.setTexture(texture, index: 0 )
+                    computeEncoder.setTexture(colorTexture, index: 1 )
                     calculateThreadGroups(state, computeEncoder, texture)
                 }
                 computeEncoder.endEncoding()
@@ -243,36 +272,6 @@ class ModelerPipeline
         
         encoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
     }
-    
-    /*
-    /// Check and allocate all textures
-    func checkTextures()
-    {
-        var resChanged = false
-
-        func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
-            if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
-                if let texture = texture {
-                    //texture.setPurgeableState(.empty)
-                }
-                resChanged = true
-                let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
-                if texture == nil { print("error allocating texture") }
-                return texture
-            } else {
-                return texture
-            }
-        }
-
-        finalTexture = checkTexture(finalTexture)
-        texture = checkTexture(texture)
-
-        if resChanged {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                //self.core.updateUI.send()
-            }
-        }
-    }*/
     
     /// Updates the view once
     func updateOnce()

@@ -118,6 +118,7 @@ class RenderPipeline
             renderEncoder.setFragmentBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
             
             renderEncoder.setFragmentTexture(model.modeler!.texture, index: 1)
+            renderEncoder.setFragmentTexture(model.modeler!.colorTexture, index: 2)
 
             // ---
             

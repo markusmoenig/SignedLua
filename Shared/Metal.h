@@ -98,7 +98,31 @@ typedef struct {
     float           area;
     float           type; // 0->Rect, 1->Sphere, 2->Distant
     
-} RenderAnalyticalLight;
+} Light;
+
+typedef struct Material
+{
+    simd_float3 albedo;
+    float       specular;
+    simd_float3 emission;
+    float       anisotropic;
+    float       metallic;
+    float       roughness;
+    float       subsurface;
+    float       specularTint;
+    float       sheen;
+    float       sheenTint;
+    float       clearcoat;
+    float       clearcoatGloss;
+    float       specTrans;
+    float       ior;
+    float       atDistance;
+    simd_float3 extinction;
+    simd_float3 texIDs;
+    // Roughness calculated from anisotropic param
+    float       ax;
+    float       ay;
+} Material;
 
 typedef struct {
     
@@ -108,10 +132,10 @@ typedef struct {
     simd_float3         cameraLookAt;
     
     int                 numOfLights;
-    RenderAnalyticalLight lights[4];
+    Light               lights[4];
     
     float               scale;
-    
+        
     int                 samples;
     int                 depth;
     int                 maxDepth;
@@ -162,6 +186,8 @@ typedef struct {
     
     simd_float3         size;
     float               rounding;
+    
+    Material            material;
 
     int                 samples;
     int                 depth;
