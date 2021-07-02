@@ -44,7 +44,7 @@ public class STKView        : MTKView
         renderer?.renderSample()
         if drawables?.encodeStart(float4(0,0,0,0)) != nil {
             
-            if let texture = renderer?.finalTexture {
+            if let texture = model.modeler?.mainKit.outputTexture {
                 drawables?.drawBox(position: float2(0,0), size: float2(Float(texture.width), Float(texture.height)), rounding: 0, borderSize: 0, onion: 0, fillColor: float4(0,0,0,1), borderColor: float4(0,0,0,0), texture: texture)
             }
             
@@ -213,8 +213,8 @@ struct RenderView: UIViewRepresentable {
     typealias UIViewType = MTKView
 
     var model               : Model
-    var component           : SignedComponent? = nil
-    
+    var command             : SignedCommand? = nil
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
@@ -233,7 +233,7 @@ struct RenderView: UIViewRepresentable {
         stkView.drawableSize = stkView.frame.size
         stkView.isPaused = false
         
-        stkView.platformInit(model, component: component)
+        stkView.platformInit(model, command: command)
 
         return stkView
     }

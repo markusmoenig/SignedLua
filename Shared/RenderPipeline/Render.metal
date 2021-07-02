@@ -977,7 +977,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
     ray.origin = ro;
     ray.direction = rd;
     
-    int maxDepth = 1;
+    int maxDepth = 4;
 
     for (int depth = 0; depth < maxDepth; depth++)
     {
@@ -1025,6 +1025,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
         }
         
         if (t == INFINITY) {
+            radiance += renderData.backgroundColor.xyz * throughput;
             return float4(radiance, 1.0);
         }
         

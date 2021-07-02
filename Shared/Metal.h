@@ -134,6 +134,8 @@ typedef struct {
     int                 numOfLights;
     Light               lights[4];
     
+    simd_float4         backgroundColor;
+    
     float               scale;
         
     int                 samples;

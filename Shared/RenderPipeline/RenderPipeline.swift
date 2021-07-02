@@ -11,9 +11,6 @@ class RenderPipeline
 {
     var view            : MTKView
     var device          : MTLDevice
-        
-    var texture         : MTLTexture? = nil
-    var finalTexture    : MTLTexture? = nil
 
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
@@ -25,7 +22,6 @@ class RenderPipeline
     
     var renderSize      = SIMD2<Int>()
         
-    var samples         : Int32 = 0
     var maxSamples      : Int = 10000
     
     var depth           : Int = 0
@@ -51,16 +47,22 @@ class RenderPipeline
     /// Restarts the renderer
     func restart(_ started: Bool = false)
     {        
-        _ = checkTextures()
+        _ = checkMainKitTextures()
         
-        if started == false {
-            startRendering()
+        if let mainKit = model.modeler?.mainKit {
+
+            if started == false {
+                startRendering()
+            }
+            
+            clearTexture(mainKit.outputTexture!)
+            
+            if started == false {
+                commitAndStopRendering()
+            }
+        
+            mainKit.samples = 0
         }
-        clearTexture(finalTexture!)
-        if started == false {
-            commitAndStopRendering()
-        }
-        samples = 0
     }
     
     /// Render a single sample
@@ -68,16 +70,18 @@ class RenderPipeline
     {
         startRendering()
 
-        if checkTextures() {
+        if checkMainKitTextures() {
             restart(true)
         }
                 
-        runRender()
+        if let mainKit = model.modeler?.mainKit {
+            runRender(mainKit)
+            
+            model.modeler?.accumulate(texture: mainKit.sampleTexture!, targetTexture: mainKit.outputTexture!, samples: mainKit.samples)
+            mainKit.samples += 1
+        }
         
         commitAndStopRendering()
-        
-        model.modeler?.accumulate(texture: texture!, targetTexture: finalTexture!, samples: samples)
-        samples += 1        
     }
     
     func startRendering()
@@ -98,10 +102,10 @@ class RenderPipeline
         quadViewport = nil
     }
     
-    func runRender() {
+    func runRender(_ kit: ModelerKit) {
         if let renderState = renderStates.getState(stateName: "render") {
             let renderPassDescriptor = MTLRenderPassDescriptor()
-            renderPassDescriptor.colorAttachments[0].texture = texture!
+            renderPassDescriptor.colorAttachments[0].texture = kit.sampleTexture!
             renderPassDescriptor.colorAttachments[0].loadAction = .load
             
             let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
@@ -111,14 +115,14 @@ class RenderPipeline
             renderEncoder.setViewport(quadViewport!)
             renderEncoder.setVertexBuffer(quadVertexBuffer, offset: 0, index: 0)
             
-            var viewportSize : vector_uint2 = vector_uint2( UInt32( finalTexture!.width ), UInt32( finalTexture!.height ) )
+            var viewportSize : vector_uint2 = vector_uint2( UInt32( kit.outputTexture!.width ), UInt32( kit.outputTexture!.height ) )
             renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_uint2>.stride, index: 1)
             
             var renderUniforms = createRenderUniform()
             renderEncoder.setFragmentBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
             
-            renderEncoder.setFragmentTexture(model.modeler!.texture, index: 1)
-            renderEncoder.setFragmentTexture(model.modeler!.colorTexture, index: 2)
+            renderEncoder.setFragmentTexture(kit.modelTexture, index: 1)
+            renderEncoder.setFragmentTexture(kit.colorTexture, index: 2)
 
             // ---
             
@@ -137,6 +141,8 @@ class RenderPipeline
         renderUniform.cameraOrigin = model.project.camera.getPosition()
         renderUniform.cameraLookAt = float3(0, 0, 0);
         renderUniform.scale = model.project.scale
+        
+        renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
         
         /*
         if (strcmp(light_type, "Quad") == 0)
@@ -164,35 +170,38 @@ class RenderPipeline
     
     
     /// Check and allocate all textures, returns true if the textures had to be changed / reallocated
-    func checkTextures() -> Bool
+    func checkMainKitTextures() -> Bool
     {
-        // Get the renderSize
-        if let rSize = self.model.renderSize {
-            renderSize.x = rSize.x
-            renderSize.y = rSize.y
-        } else {
-            renderSize.x = Int(self.view.frame.width)
-            renderSize.y = Int(self.view.frame.height)
-        }
-        
         var resChanged = false
 
-        func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
-            if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
-                if let texture = texture {
-                    //texture.setPurgeableState(.empty)
-                }
-                resChanged = true
-                let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
-                if texture == nil { print("error allocating texture") }
-                return texture
+        if let mainKit = model.modeler?.mainKit {
+            
+            // Get the renderSize
+            if let rSize = self.model.renderSize {
+                renderSize.x = rSize.x
+                renderSize.y = rSize.y
             } else {
-                return texture
+                renderSize.x = Int(self.view.frame.width)
+                renderSize.y = Int(self.view.frame.height)
             }
-        }
 
-        finalTexture = checkTexture(finalTexture)
-        texture = checkTexture(texture)
+            func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
+                if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
+                    if let texture = texture {
+                        //texture.setPurgeableState(.empty)
+                    }
+                    resChanged = true
+                    let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
+                    if texture == nil { print("error allocating texture") }
+                    return texture
+                } else {
+                    return texture
+                }
+            }
+
+            mainKit.sampleTexture = checkTexture(mainKit.sampleTexture)
+            mainKit.outputTexture = checkTexture(mainKit.outputTexture)
+        }
 
         return resChanged
     }

@@ -7,13 +7,28 @@
 
 import MetalKit
 
+/// Holds all the textures needed to model and render
+class ModelerKit {
+    
+    // For modeling
+    var modelTexture    : MTLTexture? = nil
+    var colorTexture    : MTLTexture? = nil
+    
+    // For rendering
+    var sampleTexture   : MTLTexture? = nil
+    var outputTexture   : MTLTexture? = nil
+    
+    var samples         : Int32 = 0
+
+    func isValid() -> Bool {
+        return modelTexture != nil && colorTexture != nil
+    }
+}
+
 class ModelerPipeline
 {
     var view            : MTKView
     var device          : MTLDevice
-        
-    var texture         : MTLTexture? = nil
-    var colorTexture    : MTLTexture? = nil
 
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
@@ -23,6 +38,8 @@ class ModelerPipeline
     var semaphore       : DispatchSemaphore
     
     var modelingStates  : ModelerStates
+    
+    var mainKit         : ModelerKit!
     
     init(_ view: MTKView,_ model: Model)
     {
@@ -34,11 +51,7 @@ class ModelerPipeline
         
         modelingStates = ModelerStates(device)
         
-        if texture == nil {
-            let size = 512
-            texture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
-            colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
-        }
+        mainKit = allocateKit(512)
         
         if let object = model.project.objects.first {
             executeObject(object)
@@ -58,9 +71,11 @@ class ModelerPipeline
     }
     
     /// Executes a single command
-    func executeCommand(_ cmd: SignedCommand)
+    func executeCommand(_ cmd: SignedCommand,_ modelerKit: ModelerKit? = nil)
     {
-        if let texture = texture {
+        let kitToUse : ModelerKit? = modelerKit == nil ? mainKit : modelerKit
+        
+        if let kit = kitToUse, kit.isValid() {
             startCompute()
 
             if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
@@ -71,10 +86,10 @@ class ModelerPipeline
                     var modelerUniform = createModelerUniform(cmd)
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
                     
-                    computeEncoder.setTexture(texture, index: 1 )
-                    computeEncoder.setTexture(colorTexture, index: 2 )
+                    computeEncoder.setTexture(kit.modelTexture!, index: 1 )
+                    computeEncoder.setTexture(kit.colorTexture, index: 2 )
 
-                    calculateThreadGroups(state, computeEncoder, texture)
+                    calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
                 }
                 computeEncoder.endEncoding()
             }            
@@ -160,18 +175,20 @@ class ModelerPipeline
     }
     
     /// Clears the modeling textures
-    func clear()
+    func clear(_ modelerKit: ModelerKit? = nil)
     {
-        if let texture = texture {
+        let kitToUse : ModelerKit? = modelerKit == nil ? mainKit : modelerKit
+        
+        if let kit = kitToUse, kit.isValid() {
             startCompute()
 
             if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
                 
                 if let state = modelingStates.getComputeState(stateName: "modelerClear") {
                     computeEncoder.setComputePipelineState( state )
-                    computeEncoder.setTexture(texture, index: 0 )
-                    computeEncoder.setTexture(colorTexture, index: 1 )
-                    calculateThreadGroups(state, computeEncoder, texture)
+                    computeEncoder.setTexture(kit.modelTexture!, index: 0 )
+                    computeEncoder.setTexture(kit.colorTexture!, index: 1 )
+                    calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
                 }
                 computeEncoder.endEncoding()
             }
@@ -184,7 +201,7 @@ class ModelerPipeline
     func getSceneHit(_ uv: float2, _ size: float2) -> (float3, float3)? {
         var rc : (float3, float3)? = nil
         
-        if let texture = texture {
+        if let kit = mainKit {
             
             let outBuffer = device.makeBuffer(length: 2 * MemoryLayout<SIMD4<Float>>.stride, options: [])!
 
@@ -208,7 +225,7 @@ class ModelerPipeline
                     modelerHitUniform.cameraLookAt = float3(0, 0, 0);
                     
                     computeEncoder.setBytes(&modelerHitUniform, length: MemoryLayout<ModelerHitUniform>.stride, index: 0)
-                    computeEncoder.setTexture(texture, index: 1 )
+                    computeEncoder.setTexture(kit.modelTexture, index: 1 )
                     computeEncoder.setBuffer(outBuffer, offset: 0, index: 2)
 
                     let numThreadgroups = MTLSize(width: 1, height: 1, depth: 1)
@@ -231,6 +248,14 @@ class ModelerPipeline
             }
         }
         return rc
+    }
+    
+    /// Allocates a set of textures needed for modeling
+    func allocateKit(_ size: Int) -> ModelerKit {
+        let modelerKit = ModelerKit()
+        modelerKit.modelTexture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
+        modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
+        return modelerKit
     }
     
     /// Starts compute operation
