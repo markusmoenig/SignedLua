@@ -106,7 +106,7 @@ struct ContentView: View {
                                     let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
                                     
                                     document.model.project.camera.addOrbitDelta(delta)
-                                    document.model.renderer?.updateOnce()
+                                    document.model.renderer?.restart()
                                 })
                                 .onEnded({ info in
                                     isOrbiting = false
@@ -144,7 +144,7 @@ struct ContentView: View {
                                     let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
                                     
                                     document.model.project.camera.addZoomDelta(delta.x / 3)
-                                    document.model.renderer?.updateOnce()
+                                    document.model.renderer?.restart()
                                 })
                                 .onEnded({ info in
                                     isZooming = false

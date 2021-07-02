@@ -77,7 +77,7 @@ struct DataIn {
 
 #define PI        3.14159265358979323
 #define TWO_PI    6.28318530717958648
-#define INFINITY  1000000.0
+//#define INFINITY  1000000.0
 #define EPS       0.0001
 
 #define QUAD_LIGHT 0
@@ -941,7 +941,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
             //Ray shadowRay = Ray(surfacePos, lightSampleRec.direction);
             bool inShadow = false;//AnyHit(shadowRay, lightSampleRec.dist - EPS);
 
-            float t = 0.001;
+            float t = 0.0;
             for(int i = 0; i < 70; ++i)
             {
                 float3 p = surfacePos + lightSampleRec.direction * t;
@@ -952,7 +952,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
                     break;
                 }
                 
-                t += d;
+                t += d * scale;
             }
 
             if (!inShadow)
@@ -1031,7 +1031,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
                     break;
                 }
                 
-                t += d;
+                t += d * scale;
 
                 if (t >= bbox.y)
                     break;
@@ -1185,29 +1185,21 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
     out[gid+1] = float4(result2);
 }
 
-/*
- make this a kernel function
-fragment float4 renderAccum(RasterizerData in [[stage_in]],
-                             constant AccumUniform &uniform [[ buffer(0) ]],
-                             texture2d<float, access::read> sampleTexture [[texture(1)]],
-                             texture2d<float, access::read_write> finalTexture [[texture(2)]])
+// MARK: Accumulation Entry Point
+kernel void modelerAccum(constant AccumUniform                      &uniform [[ buffer(0) ]],
+                         texture2d<float>                           sampleTexture [[texture(1)]],
+                         texture2d<float, access::read_write>       finalTexture [[texture(2)]],
+                         uint2 gid                                  [[thread_position_in_grid]])
 {
-    float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
-    float2 size = in.viewportSize;
+    float4 sample = sampleTexture.read(gid);
+    float4 final = finalTexture.read(gid);
 
-    ushort2 textureUV = ushort2(uv.x * size.x, (1.0 - uv.y) * size.y);
-
-    float4 sample = sampleTexture.read(textureUV);
-    float4 final = finalTexture.read(textureUV);
-
-    //sample.xyz = pow(sample.xyz, 1.0 / 2.2);
-    sample = clamp(sample, 0, 1);
+    sample.xyz = pow(sample.xyz, 1.0 / 2.2);
+    //sample = clamp(sample, 0, 1);
 
     float k = float(uniform.samples + 1);
     final = final * (1.0 - 1.0/k) + sample * (1.0/k);
 
-    finalTexture.write(final, textureUV);
-
-    return float4(1);
+    finalTexture.write(final, gid);
 }
-*/
+

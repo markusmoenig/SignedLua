@@ -42,7 +42,7 @@ struct StackView: View {
                         model.selectedCommand = cmd
                         model.commandSelected.send(cmd)
                         model.modeler?.executeObject(selected, until: cmd)
-                        model.renderer?.updateOnce()
+                        model.renderer?.restart()
                     }
                     .contextMenu {
                         Text("hallo")

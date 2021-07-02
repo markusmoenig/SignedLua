@@ -9,14 +9,8 @@ import MetalKit
 
 class RenderPipeline
 {
-    enum Status {
-        case Idle, Compiling, Rendering, Invalid
-    }
-    
     var view            : MTKView
     var device          : MTLDevice
-
-    var status          : Status = .Idle
         
     var texture         : MTLTexture? = nil
     var finalTexture    : MTLTexture? = nil
@@ -31,17 +25,12 @@ class RenderPipeline
     
     var renderSize      = SIMD2<Int>()
         
-    var samples         : Int = 0
+    var samples         : Int32 = 0
     var maxSamples      : Int = 10000
-    
-    var stopRendering   = false
-    var isStopped       = false
     
     var depth           : Int = 0
     var maxDepth        : Int = 4
-    
-    var testShader      : TestShader!
-    
+        
     var semaphore       : DispatchSemaphore
         
     var renderStates    : RenderStates
@@ -59,80 +48,36 @@ class RenderPipeline
         model.modeler = ModelerPipeline(view, model)
     }
     
-    func render()
-    {
-        status = .Rendering
-        stopRendering = false
-
-        if let rSize = self.model.renderSize {
-            renderSize.x = rSize.x
-            renderSize.y = rSize.y
-        } else {
-            renderSize.x = Int(self.view.frame.width)
-            renderSize.y = Int(self.view.frame.height)
-        }
+    /// Restarts the renderer
+    func restart(_ started: Bool = false)
+    {        
+        _ = checkTextures()
         
-        checkTextures()
-        
-        if model.modeler?.texture != nil {
+        if started == false {
             startRendering()
-            
-            runRender()
-            
+        }
+        clearTexture(finalTexture!)
+        if started == false {
             commitAndStopRendering()
         }
-        
-        /*
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
+        samples = 0
+    }
+    
+    /// Render a single sample
+    func renderSample()
+    {
+        startRendering()
 
-            if self.status != .Idle && self.isStopped == false {
-                return
-            }
-            
-            if self.status == .Invalid {
-                return
-            }
-
-            self.status = .Rendering
-            self.stopRendering = false
-
-            if let rSize = self.model.renderSize {
-                self.renderSize.x = rSize.x
-                self.renderSize.y = rSize.y
-            } else {
-                self.renderSize.x = Int(self.view.frame.width)
-                self.renderSize.y = Int(self.view.frame.height)
-            }
-            
-            self.checkTextures()
-            
-            //if self.update() == false {
-            //    return
-            //}
-                    
-            /*
-            self.startCompute()
-            
-            if self.previewComponent != nil {
-
-                if let previewShader = self.previewShader {
-                    previewShader.render(outTexture: self.finalTexture!)
-                }
-            } else {
-                self.compile()
-                self.testShader.render(outTexture: self.finalTexture!)
-            }
-            */
-
-            self.depth = 0
-            self.samples = 0
-            //self.computePass()
-            self.stopCompute()
-            
-            self.status = .Idle
-            self.updateOnce()
+        if checkTextures() {
+            restart(true)
         }
-         */
+                
+        runRender()
+        
+        commitAndStopRendering()
+        
+        model.modeler?.accumulate(texture: texture!, targetTexture: finalTexture!, samples: samples)
+        samples += 1        
     }
     
     func startRendering()
@@ -156,7 +101,7 @@ class RenderPipeline
     func runRender() {
         if let renderState = renderStates.getState(stateName: "render") {
             let renderPassDescriptor = MTLRenderPassDescriptor()
-            renderPassDescriptor.colorAttachments[0].texture = finalTexture!
+            renderPassDescriptor.colorAttachments[0].texture = texture!
             renderPassDescriptor.colorAttachments[0].loadAction = .load
             
             let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
@@ -212,23 +157,23 @@ class RenderPipeline
         renderUniform.lights.0.params.x = 1
         renderUniform.lights.0.params.y = 4.0 * Float.pi * 1 * 1;//light.radius * light.radius;
         renderUniform.lights.0.params.z = 1
-
-        //fragmentUniforms.maxDepth = Int32(maxDepth);
-        //fragmentUniforms.depth = Int32(depth);
-        //fragmentUniforms.samples = Int32(samples);
-        
-        /*
-        fragmentUniforms.screenSize = prtInstance.screenSize
-        if let ambient = getGlobalVariableValue(withName: "World.worldAmbient") {
-            fragmentUniforms.ambientColor = ambient
-        }*/
         
         return renderUniform
     }
     
-    /// Check and allocate all textures
-    func checkTextures()
+    
+    /// Check and allocate all textures, returns true if the textures had to be changed / reallocated
+    func checkTextures() -> Bool
     {
+        // Get the renderSize
+        if let rSize = self.model.renderSize {
+            renderSize.x = rSize.x
+            renderSize.y = rSize.y
+        } else {
+            renderSize.x = Int(self.view.frame.width)
+            renderSize.y = Int(self.view.frame.height)
+        }
+        
         var resChanged = false
 
         func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
@@ -248,11 +193,7 @@ class RenderPipeline
         finalTexture = checkTexture(finalTexture)
         texture = checkTexture(texture)
 
-        if resChanged {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                //self.core.updateUI.send()
-            }
-        }
+        return resChanged
     }
     
     /// Updates the view once
@@ -267,7 +208,7 @@ class RenderPipeline
     }
     
     /// Allocate a texture of the given size
-    func allocateTexture2D(width: Int, height: Int, format: MTLPixelFormat = .bgra8Unorm) -> MTLTexture?
+    func allocateTexture2D(width: Int, height: Int, format: MTLPixelFormat = .rgba16Float) -> MTLTexture?
     {
         let textureDescriptor = MTLTextureDescriptor()
         textureDescriptor.textureType = MTLTextureType.type2D

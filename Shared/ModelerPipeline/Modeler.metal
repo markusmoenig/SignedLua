@@ -55,15 +55,7 @@ float sdRoundBox(float3 p, float3 b, float r )
 kernel void modelerCmd(constant ModelerUniform           &mData [[ buffer(0) ]],
                        texture3d<half, access::read_write>    modelTexture  [[texture(1)]],
                        uint3 gid                         [[thread_position_in_grid]])
-{
-    /*
-    //float2 size = float2(valueTexture.get_width(), valueTexture.get_height());
-    float2 uv = float2(float(gid.x), float(gid.y));
-    
-    float v = round(hash21(uv));
-    
-    valueTexture.write(color, gid);*/
-    
+{    
     float3 size = float3(modelTexture.get_width(), modelTexture.get_height(), modelTexture.get_depth());
     float3 uv = float3(gid) / size - float3(0.5);
 
@@ -77,10 +69,6 @@ kernel void modelerCmd(constant ModelerUniform           &mData [[ buffer(0) ]],
     }
     
     dist = min(dist, newDist);
-    
-    //half4 out = half4(dist);//half4(length(uv) - 0.495) + noise(uv * 160) / 80;
-
-    //dist += noise(uv * 160) / 80;
     
     modelTexture.write(half4(dist), gid);
 }

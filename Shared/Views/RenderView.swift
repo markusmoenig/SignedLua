@@ -41,7 +41,7 @@ public class STKView        : MTKView
     
     func update()
     {
-        renderer?.render()
+        renderer?.renderSample()
         if drawables?.encodeStart(float4(0,0,0,0)) != nil {
             
             if let texture = renderer?.finalTexture {
@@ -115,7 +115,7 @@ public class STKView        : MTKView
                     cmd.data.set("Position", hit.0 / model.project.scale)
                     object.commands.append(cmd)
                     model.modeler?.executeCommand(cmd)
-                    renderer?.updateOnce()
+                    renderer?.restart()
                     
                     model.selectedCommand = cmd
                     model.commandSelected.send(cmd)
@@ -168,7 +168,7 @@ struct RenderView: NSViewRepresentable {
         stkView.framebufferOnly = false
         stkView.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
         stkView.drawableSize = stkView.frame.size
-        stkView.isPaused = true
+        stkView.isPaused = false
         
         stkView.platformInit(model, command: command)
 
@@ -231,7 +231,7 @@ struct RenderView: UIViewRepresentable {
         stkView.framebufferOnly = false
         stkView.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
         stkView.drawableSize = stkView.frame.size
-        stkView.isPaused = true
+        stkView.isPaused = false
         
         stkView.platformInit(model, component: component)
 

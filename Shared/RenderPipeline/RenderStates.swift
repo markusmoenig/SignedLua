@@ -30,7 +30,7 @@ class RenderStates {
 
             pipelineStateDescriptor.vertexFunction = vertexFunction
             //        pipelineStateDescriptor.fragmentFunction = fragmentFunction
-            pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm;
+            pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.rgba16Float;
             
             pipelineStateDescriptor.colorAttachments[0].isBlendingEnabled = true
             pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = .add
@@ -41,7 +41,7 @@ class RenderStates {
             pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
             
             states["render"] = createQuadState(name: "render")
-        }        
+        }
     }
     
     /// Creates a quad state from an optional library and the function name

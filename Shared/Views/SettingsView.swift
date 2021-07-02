@@ -48,7 +48,7 @@ struct SettingsView: View {
                     scaleValueText = String(Int(v))
                     
                     model.project.scale = Float(scaleValue)
-                    model.renderer?.updateOnce()
+                    model.renderer?.restart()
                 }), in: Double(1)...Double(10), step: Double(1))
                     .frame(width: 100)
                 Text(scaleValueText)

@@ -79,6 +79,31 @@ class ModelerPipeline
         }
     }
     
+    /// Accumulates the rendered texture into the target, placed here for convenience (compute)
+    func accumulate(texture: MTLTexture, targetTexture: MTLTexture, samples: Int32)
+    {
+        startCompute()
+
+        if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+            if let state = modelingStates.getComputeState(stateName: "modelerAccum") {
+            
+                computeEncoder.setComputePipelineState( state )
+                
+                var uniform = AccumUniform()
+                uniform.samples = samples
+                                
+                computeEncoder.setBytes(&uniform, length: MemoryLayout<RenderUniform>.stride, index: 0)
+                
+                computeEncoder.setTexture(texture, index: 1 )
+                computeEncoder.setTexture(targetTexture, index: 2 )
+
+                calculateThreadGroups(state, computeEncoder, texture)
+            }
+            computeEncoder.endEncoding()
+        }
+        stopCompute(waitUntilCompleted: true)
+    }
+    
     /// Creates the uniform
     func createModelerUniform(_ cmd: SignedCommand) -> ModelerUniform
     {
