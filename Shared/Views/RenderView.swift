@@ -112,13 +112,18 @@ public class STKView        : MTKView
             let size = float2(Float(frame.width), Float(frame.height))
             if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
                 if let cmd = model.selectedShape?.copy() {
-                    cmd.data.set("Position", hit.0 / model.project.scale)
-                    object.commands.append(cmd)
-                    model.modeler?.executeCommand(cmd)
+                    //object.commands.append(cmd)
+                    //model.modeler?.executeCommand(cmd)
+                    
+                    cmd.data.set("Position", hit.0)// / model.project.scale)
+
+                    model.editingCmd = cmd//.primitive = cmd.primitive
+                    //   cmd.data.set("Position", hit.0 / model.project.scale)
+
                     renderer?.restart()
                     
-                    model.selectedCommand = cmd
-                    model.commandSelected.send(cmd)
+                    //model.selectedCommand = cmd
+                    //model.commandSelected.send(cmd)
                 }
             }
         }

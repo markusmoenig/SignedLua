@@ -156,8 +156,11 @@ class RenderPipeline
             var renderUniforms = createRenderUniform(model.modeler?.mainKit !== kit)
             renderEncoder.setFragmentBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
             
-            renderEncoder.setFragmentTexture(kit.modelTexture, index: 1)
-            renderEncoder.setFragmentTexture(kit.colorTexture, index: 2)
+            var modelerUniform = model.modeler?.createModelerUniform(model.editingCmd)
+            renderEncoder.setFragmentBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
+            
+            renderEncoder.setFragmentTexture(kit.modelTexture, index: 2)
+            renderEncoder.setFragmentTexture(kit.colorTexture, index: 3)
 
             // ---
             
@@ -182,7 +185,7 @@ class RenderPipeline
             
             renderUniform.numOfLights = 1
             renderUniform.lights.0.position = float3(0,2,0)
-            renderUniform.lights.0.emission = float3(10,1,1)
+            renderUniform.lights.0.emission = float3(10,10,10)
             renderUniform.lights.0.params.x = 1
             renderUniform.lights.0.params.y = 4.0 * Float.pi * 1 * 1;//light.radius * light.radius;
             renderUniform.lights.0.params.z = 1

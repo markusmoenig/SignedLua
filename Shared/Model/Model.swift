@@ -47,6 +47,9 @@ class Model: NSObject, ObservableObject {
     /// The currently supported shapes
     var shapes                              : [SignedCommand] = []
     
+    /// The current editing command
+    var editingCmd                          = SignedCommand()
+    
     override init() {
         project = SignedProject()
         super.init()

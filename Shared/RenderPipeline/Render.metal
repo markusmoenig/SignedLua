@@ -841,8 +841,10 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
     return normalize(n);
 }
 
+float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData);
+
 //-----------------------------------------------------------------------
-float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderUniform &renderData,  texture3d<float> modelTexture, float scale = 1.0)
+float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderUniform &renderData, constant ModelerUniform  &mData, texture3d<float> modelTexture, float scale = 1.0)
 //-----------------------------------------------------------------------
 {
     float3 Li = float3(0.0);
@@ -917,6 +919,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
             {
                 float3 p = surfacePos + lightSampleRec.direction * t;
                 float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
+                d = applyModelerData(p, d, mData);
 
                 if (abs(d) < (0.0001*t)) {
                     inShadow = true;
@@ -947,8 +950,9 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
 // MARK: Render Entry Point
 fragment float4 render(RasterizerData in [[stage_in]],
                                constant RenderUniform &renderData [[ buffer(0) ]],
-                               texture3d<float> modelTexture [[ texture(1) ]],
-                               texture3d<float> colorTexture [[ texture(2) ]] )
+                               constant ModelerUniform &mData [[ buffer(1) ]],
+                               texture3d<float> modelTexture [[ texture(2) ]],
+                               texture3d<float> colorTexture [[ texture(3) ]] )
 {
     float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
     
@@ -997,6 +1001,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
             {
                 float3 p = ray.origin + ray.direction * t;
                 float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
+                d = applyModelerData(p, d, mData);
 
                 if (abs(d) < (0.0001*t)) {
                     hit = true;
@@ -1071,7 +1076,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
         // Add absoption
         throughput *= exp(-absorption * t);
 
-        radiance += DirectLight(ray, state, dataIn, renderData, modelTexture, scale) * throughput;
+        radiance += DirectLight(ray, state, dataIn, renderData, mData, modelTexture, scale) * throughput;
 
         bsdfSampleRec.f = DisneySample(state, -ray.direction, state.ffnormal, bsdfSampleRec.L, bsdfSampleRec.pdf, dataIn);
 

@@ -51,6 +51,20 @@ float sdRoundBox(float3 p, float3 b, float r )
     return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
 }
 
+float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData)
+{
+    float newDist = INFINITY;
+    
+    if (mData.primitiveType == Modeler_Sphere) {
+        newDist = sdSphere(uv - mData.position, mData.radius);
+    } else
+    if (mData.primitiveType == Modeler_Box) {
+        newDist = sdRoundBox(uv - mData.position, mData.size, mData.rounding);
+    }
+    
+    return min(dist, newDist);
+}
+
 /// Executes one modeler command
 kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer(0) ]],
                        texture3d<half, access::read_write>      modelTexture  [[texture(1)]],
@@ -60,22 +74,14 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
     float3 size = float3(modelTexture.get_width(), modelTexture.get_height(), modelTexture.get_depth());
     float3 uv = float3(gid) / size - float3(0.5);
 
-    float dist = modelTexture.read(gid).x, newDist = INFINITY;
-    
-    if (mData.primitiveType == Modeler_Sphere) {
-        newDist = sdSphere(uv - mData.position, mData.radius);
-    } else
-    if (mData.primitiveType == Modeler_Box) {
-        newDist = sdRoundBox(uv - mData.position, mData.size, mData.rounding);
-    }
-    
-    dist = min(dist, newDist);
+    float dist = modelTexture.read(gid).x;
+    float newDist = applyModelerData(uv, dist, mData);
     
     if (dist == newDist) {
         colorTexture.write(half4(float4(mData.material.albedo, mData.material.roughness)), gid);
     }
     
-    modelTexture.write(half4(dist), gid);
+    modelTexture.write(half4(newDist), gid);
 }
 
 /// Clears the texture

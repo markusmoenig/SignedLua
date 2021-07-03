@@ -44,67 +44,120 @@ struct BrowserView: View {
          }
         }*/
         
-        HStack {
-            List {
+        VStack(alignment: .leading, spacing: 1) {
+
+            HStack(alignment: .top) {
                 Button(action: {
-                    selection =  .shapes
                 })
                 {
-                    Label("Shapes", systemImage: "square")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
-                        .padding(.leading, 6)
-                        .foregroundColor(.white)
+                    Text("Orbit")
                 }
-                .buttonStyle(PlainButtonStyle())
-                .listRowBackground(Group {
-                    if selection == .shapes {
-                        Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
-                    } else { Color.clear }
+                .buttonStyle(.borderless)
+                .padding(.leading, 10)
+                .padding(.bottom, 4)
+                          
+                //Divider()
+
+                Button(action: {
                 })
+                {
+                    Text("Orbit")
+                }
+                .buttonStyle(.borderless)
+                
+                Spacer()
                 
                 Button(action: {
-                    selection =  .materials
+                    if let object = model.selectedObject {
+                        if let cmd = model.editingCmd.copy() {
+                            
+                            //let position = cmd.data.getFloat3("Position")! * model.project.scale
+                            cmd.data.set("Position", float3(0,0,0))
+                            cmd.data.set("Radius", Float(0.4))
+
+                            object.commands.append(cmd)
+                            model.modeler?.executeCommand(cmd)
+                            model.renderer?.restart()
+                            
+                            model.selectedCommand = cmd
+                            model.commandSelected.send(cmd)
+                        }
+                    }
                 })
                 {
-                    Label("Materials", systemImage: "light.max")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
-                        .padding(.leading, 6)
-                        .foregroundColor(.white)
+                    Text("Accept")
                 }
-                .buttonStyle(PlainButtonStyle())
-                .listRowBackground(Group {
-                    if selection == .materials {
-                        Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
-                    } else { Color.clear }
-                })
+                .buttonStyle(.borderless)
+                .padding(.trailing, 10)
+                //.disabled(true)
                 
-                Button(action: {
-                    selection =  .scripts
-                })
-                {
-                    Label("Scripts", systemImage: "j.square")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
-                        .padding(.leading, 6)
-                        .foregroundColor(.white)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .listRowBackground(Group {
-                    if selection == .scripts {
-                        Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
-                    } else { Color.clear }
-                })
+                //Spacer()
             }
-            .frame(maxWidth: 130)
             
             Divider()
             
-            if selection == .shapes {
-                ShapeView(model: model)
+            HStack {
+                List {
+                    Button(action: {
+                        selection =  .shapes
+                    })
+                    {
+                        Label("Shapes", systemImage: "square")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                            .padding(.leading, 6)
+                            .foregroundColor(.white)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .listRowBackground(Group {
+                        if selection == .shapes {
+                            Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
+                        } else { Color.clear }
+                    })
+                    
+                    Button(action: {
+                        selection =  .materials
+                    })
+                    {
+                        Label("Materials", systemImage: "light.max")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                            .padding(.leading, 6)
+                            .foregroundColor(.white)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .listRowBackground(Group {
+                        if selection == .materials {
+                            Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
+                        } else { Color.clear }
+                    })
+                    
+                    Button(action: {
+                        selection =  .scripts
+                    })
+                    {
+                        Label("Scripts", systemImage: "j.square")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                            .padding(.leading, 6)
+                            .foregroundColor(.white)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .listRowBackground(Group {
+                        if selection == .scripts {
+                            Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
+                        } else { Color.clear }
+                    })
+                }
+                .frame(maxWidth: 130)
+                
+                Divider()
+                
+                if selection == .shapes {
+                    ShapeView(model: model)
+                }
+                Spacer()
             }
-            Spacer()
         }
         
         //.onReceive(model.componentPreviewNeedsUpdate) { _ in
