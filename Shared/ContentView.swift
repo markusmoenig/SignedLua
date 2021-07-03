@@ -43,6 +43,7 @@ struct ContentView: View {
     @State private var searchText = ""
     
     @State private var isOrbiting                       : Bool = false
+    @State private var isMoving                         : Bool = false
     @State private var isZooming                        : Bool = false
 
     #if os(macOS)
@@ -94,7 +95,7 @@ struct ContentView: View {
                                 .stroke(Color.gray, lineWidth: 1)
                         )
                         .padding(.leading, 10)
-                        .padding(.bottom, 40)
+                        .padding(.bottom, 70)
                         .buttonStyle(.plain)
                         
                         .simultaneousGesture(
@@ -105,11 +106,51 @@ struct ContentView: View {
                                     isOrbiting = true
                                     let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
                                     
-                                    document.model.project.camera.addOrbitDelta(delta)
+                                    document.model.project.camera.rotateDelta(delta * 0.01)
                                     document.model.renderer?.restart()
                                 })
                                 .onEnded({ info in
                                     isOrbiting = false
+                                    document.model.project.camera.lastDelta = float2(0,0)
+                                })
+                        )
+                        
+                        Button(action: {
+                            
+                        })
+                        {
+                            ZStack(alignment: .center) {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray, lineWidth: 0)
+                                Text("Move")
+                            }
+                        }
+                        .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
+                        .font(.system(size: 16))
+                        .background(isMoving ? Color.accentColor : Color.clear)
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray, lineWidth: 1)
+                        )
+                        .padding(.leading, 10)
+                        .padding(.bottom, 40)
+                        .buttonStyle(.plain)
+                        
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 4)
+                            
+                                .onChanged({ info in
+
+                                    isMoving = true
+                                    let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
+                                    
+                                    document.model.project.camera.moveDelta(delta * 0.01, aspect: getAspectRatio())
+                                    document.model.renderer?.restart()
+                                })
+                                .onEnded({ info in
+                                    isMoving = false
+                                    document.model.project.camera.lastDelta = float2(0,0)
                                 })
                         )
                         
@@ -143,11 +184,12 @@ struct ContentView: View {
                                     isZooming = true
                                     let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
                                     
-                                    document.model.project.camera.addZoomDelta(delta.x / 3)
+                                    document.model.project.camera.zoomDelta(delta.x * 0.04)
                                     document.model.renderer?.restart()
                                 })
                                 .onEnded({ info in
                                     isZooming = false
+                                    document.model.project.camera.lastZoomDelta = 0
                                 })
                         )
                     }
@@ -361,12 +403,13 @@ struct ContentView: View {
             }
         }
         label: {
-            Text("\(document.core.renderPipeline == nil ? "" : String(document.core.renderPipeline.renderSize.x) + " x " + String(document.core.renderPipeline.renderSize.y))")
-            //Label("View", systemImage: "viewfinder")
+            Text(computeResolutionText())
         }
-        .onReceive(self.document.core.updateUI) { state in
+        
+        .onReceive(self.document.model.updateUI) { _ in
             updateView.toggle()
         }
+        
         // Custom Resolution Popover
         .popover(isPresented: self.$showCustomResPopover,
                  arrowEdge: .top
@@ -451,6 +494,27 @@ struct ContentView: View {
         label: {
             Label("Dollar", systemImage: "gift")//dollarsign.circle")
         }
+    }
+    
+    /// Returns the resolution of the current preview
+    func computeResolutionText() -> String {
+        let string = ""
+        if let width = document.model.modeler?.mainKit?.sampleTexture?.width {
+            if let height = document.model.modeler?.mainKit?.sampleTexture?.height {
+                return "\(width) x \(height)"
+            }
+        }
+        return string
+    }
+    
+    /// Returns the resolution of the current preview
+    func getAspectRatio() -> Float {
+        if let width = document.model.modeler?.mainKit?.sampleTexture?.width {
+            if let height = document.model.modeler?.mainKit?.sampleTexture?.height {
+                return Float(width) / Float(height)
+            }
+        }
+        return 1
     }
     
     /// Supplies the search results for the given searchText

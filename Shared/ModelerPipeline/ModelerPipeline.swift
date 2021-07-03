@@ -256,7 +256,7 @@ class ModelerPipeline
         let kitToUse : ModelerKit? = modelerKit == nil ? mainKit : modelerKit
 
         if let kit = kitToUse {
-            func makeCGIImage(texture: MTLTexture, forImage: Bool = false) -> CGImage?
+            func makeCGIImage(texture: MTLTexture) -> CGImage?
             {
                 let width = texture.width
                 let height = texture.height

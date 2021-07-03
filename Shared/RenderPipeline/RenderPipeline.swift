@@ -175,7 +175,7 @@ class RenderPipeline
         
         if icon == false {
             renderUniform.cameraOrigin = model.project.camera.getPosition()
-            renderUniform.cameraLookAt = float3(0, 0, 0);
+            renderUniform.cameraLookAt = model.project.camera.getLookAt()
             renderUniform.scale = model.project.scale
             
             renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
@@ -238,9 +238,9 @@ class RenderPipeline
 
             func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
                 if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
-                    if let texture = texture {
+                    //if let texture = texture {
                         //texture.setPurgeableState(.empty)
-                    }
+                    //}
                     resChanged = true
                     let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
                     if texture == nil { print("error allocating texture") }
@@ -252,6 +252,12 @@ class RenderPipeline
 
             mainKit.sampleTexture = checkTexture(mainKit.sampleTexture)
             mainKit.outputTexture = checkTexture(mainKit.outputTexture)
+        }
+        
+        if resChanged {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.model.updateUI.send()
+            }
         }
 
         return resChanged

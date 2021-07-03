@@ -31,6 +31,9 @@ class Model: NSObject, ObservableObject {
     /// Send when an icon for  a cmd has been rendered
     let iconFinished                        = PassthroughSubject<SignedCommand, Never>()
     
+    /// UI needs to be updated
+    let updateUI                            = PassthroughSubject<Void, Never>()
+    
     /// Reference to the underlying script editor
     var scriptEditor                        : ScriptEditor? = nil
 
