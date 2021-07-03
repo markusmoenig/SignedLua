@@ -145,7 +145,7 @@ struct ContentView: View {
                                     isMoving = true
                                     let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
                                     
-                                    document.model.project.camera.moveDelta(delta * 0.01, aspect: getAspectRatio())
+                                    document.model.project.camera.moveDelta(delta * 0.003, aspect: getAspectRatio())
                                     document.model.renderer?.restart()
                                 })
                                 .onEnded({ info in
