@@ -30,7 +30,10 @@ class RenderPipeline
     var semaphore       : DispatchSemaphore
         
     var renderStates    : RenderStates
-    
+        
+    ///
+    var iconQueue       : [SignedCommand] = []
+        
     init(_ view: MTKView,_ model: Model)
     {
         self.view = view
@@ -82,6 +85,38 @@ class RenderPipeline
         }
         
         commitAndStopRendering()
+        
+        // Render an icon sample ?
+        if let icon = iconQueue.first {
+            startRendering()
+                    
+            if let iconKit = model.modeler?.iconKit, iconKit.isValid() {
+                
+                if iconKit.samples == 0 {
+                    clearTexture(iconKit.outputTexture!)
+                }
+                
+                runRender(iconKit)
+                
+                model.modeler?.accumulate(texture: iconKit.sampleTexture!, targetTexture: iconKit.outputTexture!, samples: iconKit.samples)
+                iconKit.samples += 1
+                
+                if iconKit.samples == ModelerPipeline.IconSamples {
+                    iconQueue.removeFirst()
+                    
+                    icon.icon = model.modeler?.kitToImage(iconKit)
+                    model.iconFinished.send(icon)
+                    
+                    // Init the next one to render
+                    iconKit.samples = 0
+                    if let next = iconQueue.first {
+                        model.modeler?.executeCommand(next, iconKit, clearFirst: true)
+                    }
+                }
+            }
+            
+            commitAndStopRendering()
+        }
     }
     
     func startRendering()
@@ -118,7 +153,7 @@ class RenderPipeline
             var viewportSize : vector_uint2 = vector_uint2( UInt32( kit.outputTexture!.width ), UInt32( kit.outputTexture!.height ) )
             renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_uint2>.stride, index: 1)
             
-            var renderUniforms = createRenderUniform()
+            var renderUniforms = createRenderUniform(model.modeler?.mainKit !== kit)
             renderEncoder.setFragmentBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
             
             renderEncoder.setFragmentTexture(kit.modelTexture, index: 1)
@@ -132,18 +167,41 @@ class RenderPipeline
     }
     
     /// Create a uniform buffer containing general information about the current project
-    func createRenderUniform() -> RenderUniform
+    func createRenderUniform(_ icon: Bool = false) -> RenderUniform
     {
         var renderUniform = RenderUniform()
 
         renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
         
-        renderUniform.cameraOrigin = model.project.camera.getPosition()
-        renderUniform.cameraLookAt = float3(0, 0, 0);
-        renderUniform.scale = model.project.scale
-        
-        renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
-        
+        if icon == false {
+            renderUniform.cameraOrigin = model.project.camera.getPosition()
+            renderUniform.cameraLookAt = float3(0, 0, 0);
+            renderUniform.scale = model.project.scale
+            
+            renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
+            
+            renderUniform.numOfLights = 1
+            renderUniform.lights.0.position = float3(0,2,0)
+            renderUniform.lights.0.emission = float3(10,1,1)
+            renderUniform.lights.0.params.x = 1
+            renderUniform.lights.0.params.y = 4.0 * Float.pi * 1 * 1;//light.radius * light.radius;
+            renderUniform.lights.0.params.z = 1
+        } else {
+            renderUniform.cameraOrigin = float3(0, 0, 2)
+            renderUniform.cameraLookAt = float3(0, 0, 0);
+            renderUniform.scale = 1
+            
+            renderUniform.backgroundColor = float4(0,0,0,1);
+            
+            renderUniform.numOfLights = 1
+            renderUniform.lights.0.position = float3(0,2,0)
+            renderUniform.lights.0.emission = float3(10,10,10)
+            renderUniform.lights.0.params.x = 1
+            renderUniform.lights.0.params.y = 4.0 * Float.pi * 1 * 1;//light.radius * light.radius;
+            renderUniform.lights.0.params.z = 1
+            
+        }
+                
         /*
         if (strcmp(light_type, "Quad") == 0)
          {
@@ -157,13 +215,6 @@ class RenderPipeline
              light.type = LightType::SphereLight;
              light.area = 4.0f * PI * light.radius * light.radius;
          }*/
-        
-        renderUniform.numOfLights = 1
-        renderUniform.lights.0.position = float3(0,2,0)
-        renderUniform.lights.0.emission = float3(10,1,1)
-        renderUniform.lights.0.params.x = 1
-        renderUniform.lights.0.params.y = 4.0 * Float.pi * 1 * 1;//light.radius * light.radius;
-        renderUniform.lights.0.params.z = 1
         
         return renderUniform
     }

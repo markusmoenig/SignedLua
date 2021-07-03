@@ -57,7 +57,7 @@ public class STKView        : MTKView
     {
         renderer = RenderPipeline(self, model)
         drawables = MetalDrawables(self)
-        model.renderer = renderer
+        model.setRenderer(renderer)
         self.model = model
         
         #if os(OSX)

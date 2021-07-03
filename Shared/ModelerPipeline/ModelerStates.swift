@@ -23,6 +23,7 @@ class ModelerStates {
         computeStates["modelerHitScene"] = createComputeState(name: "modelerHitScene")
         computeStates["modelerClear"] = createComputeState(name: "modelerClear")
         computeStates["modelerAccum"] = createComputeState(name: "modelerAccum")
+        computeStates["modelerMakeCGIImage"] = createComputeState(name: "modelerMakeCGIImage")
     }
     
     /// Creates a compute state from an optional library and the function name

@@ -19,6 +19,7 @@ class ModelerKit {
     var outputTexture   : MTLTexture? = nil
     
     var samples         : Int32 = 0
+    var maxSamples      : Int32 = 100
 
     func isValid() -> Bool {
         return modelTexture != nil && colorTexture != nil
@@ -39,8 +40,15 @@ class ModelerPipeline
     
     var modelingStates  : ModelerStates
     
+    /// The main kit for rendering the preview
     var mainKit         : ModelerKit!
     
+    /// The kit used to render previews
+    var iconKit         : ModelerKit!
+    
+    static var IconSize : Int = 60
+    static var IconSamples : Int = 60
+
     init(_ view: MTKView,_ model: Model)
     {
         self.view = view
@@ -52,7 +60,11 @@ class ModelerPipeline
         modelingStates = ModelerStates(device)
         
         mainKit = allocateKit(512)
+        iconKit = allocateKit(ModelerPipeline.IconSize)
         
+        iconKit.sampleTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
+        iconKit.outputTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
+
         if let object = model.project.objects.first {
             executeObject(object)
         }
@@ -71,9 +83,13 @@ class ModelerPipeline
     }
     
     /// Executes a single command
-    func executeCommand(_ cmd: SignedCommand,_ modelerKit: ModelerKit? = nil)
+    func executeCommand(_ cmd: SignedCommand,_ modelerKit: ModelerKit? = nil, clearFirst: Bool = false)
     {
         let kitToUse : ModelerKit? = modelerKit == nil ? mainKit : modelerKit
+        
+        if clearFirst {
+            clear(kitToUse)
+        }
         
         if let kit = kitToUse, kit.isValid() {
             startCompute()
@@ -146,30 +162,7 @@ class ModelerPipeline
             modelerUniform.rounding = rounding
         }
         
-        /*
-        state.mat.albedo = colorAndRoughness.xyz;
-        state.mat.specular = 0;
-        state.mat.anisotropic = 0;
-        state.mat.metallic = 0;
-        state.mat.roughness = colorAndRoughness.w;
-        state.mat.subsurface = 0;
-        state.mat.specularTint = 0;
-        state.mat.sheen = 0;
-        state.mat.sheenTint = 0;
-        state.mat.clearcoat = 0;
-        state.mat.clearcoatGloss = 0;
-        state.mat.specTrans = 0;
-        state.mat.ior = 1.45;
-        state.mat.emission = float3(0);
-        state.mat.atDistance = 1.0;*/
-        
-        modelerUniform.material.albedo = float3(0.5,0.5,0.5);
-        modelerUniform.material.roughness = 0.5;
-        
-        if cmd.primitive == .Sphere {
-            modelerUniform.material.albedo = float3(1,0,1);
-        }
-        
+        modelerUniform.material = cmd.material.toMaterialStruct()
 
         return modelerUniform
     }
@@ -256,6 +249,68 @@ class ModelerPipeline
         modelerKit.modelTexture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
         modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         return modelerKit
+    }
+    
+    /// Converts a kit to a CGIImage
+    func kitToImage(_ modelerKit: ModelerKit? = nil) -> CGImage? {
+        let kitToUse : ModelerKit? = modelerKit == nil ? mainKit : modelerKit
+
+        if let kit = kitToUse {
+            func makeCGIImage(texture: MTLTexture, forImage: Bool = false) -> CGImage?
+            {
+                let width = texture.width
+                let height = texture.height
+                let pixelByteCount = 4 * MemoryLayout<UInt8>.size
+                let imageBytesPerRow = width * pixelByteCount
+                let imageByteCount = imageBytesPerRow * height
+                
+                let imageBytes = UnsafeMutableRawPointer.allocate(byteCount: imageByteCount, alignment: pixelByteCount)
+                defer {
+                    imageBytes.deallocate()
+                }
+
+                texture.getBytes(imageBytes,
+                                 bytesPerRow: imageBytesPerRow,
+                                 from: MTLRegionMake2D(0, 0, width, height),
+                                 mipmapLevel: 0)
+                guard let colorSpace = CGColorSpace(name: CGColorSpace.linearSRGB) else { return nil }
+                let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
+                guard let bitmapContext = CGContext(data: nil,
+                                                    width: width,
+                                                    height: height,
+                                                    bitsPerComponent: 8,
+                                                    bytesPerRow: imageBytesPerRow,
+                                                    space: colorSpace,
+                                                    bitmapInfo: bitmapInfo) else { return nil }
+                bitmapContext.data?.copyMemory(from: imageBytes, byteCount: imageByteCount)
+                let image = bitmapContext.makeImage()
+                return image
+            }
+            
+            startCompute()
+
+            if let texture = allocateTexture2D(width: kit.outputTexture!.width, height: kit.outputTexture!.height, format: .bgra8Unorm) {
+                
+                if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+                    
+                    // Evaluate shapes
+                    if let state = modelingStates.getComputeState(stateName: "modelerMakeCGIImage") {
+                    
+                        computeEncoder.setComputePipelineState( state )
+                        computeEncoder.setTexture(texture, index: 0)
+                        computeEncoder.setTexture(kit.outputTexture, index: 1)
+
+                        calculateThreadGroups(state, computeEncoder, kit.outputTexture!)
+                    }
+                    computeEncoder.endEncoding()
+                }
+                
+                stopCompute(syncTexture: texture, waitUntilCompleted: true)
+                
+                return makeCGIImage(texture: texture)
+            }
+        }
+        return nil
     }
     
     /// Starts compute operation

@@ -280,7 +280,14 @@ struct ContentView: View {
                     storeManager.getProducts()
                 }
             }
-        })
+        })*/
+        
+        .toolbar {
+            ToolbarItemGroup(placement: .automatic) {
+                          
+                toolPreviewMenu
+            }
+        }
         
         // Export Image
         .fileExporter(
@@ -291,7 +298,16 @@ struct ContentView: View {
         ) { result in
             do {
                 let url = try result.get()
-                let core = document.core
+                
+                if let image = document.model.modeler?.kitToImage() {
+                    if let imageDestination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) {
+                        CGImageDestinationAddImage(imageDestination, image, nil)
+                        CGImageDestinationFinalize(imageDestination)
+                    }
+                }
+                
+                //let core = document.core
+                /*
                 if let texture = core.renderPipeline.getTexture() {
                     if let cgiTexture = core.makeCGIImage(texture) {
                         if let image = makeCGIImage(texture: cgiTexture, forImage: true) {
@@ -301,12 +317,12 @@ struct ContentView: View {
                             }
                         }
                     }
-                }
+                }*/
             } catch {
                 // Handle failure.
             }
         }
-        */
+
     }
     
     /// Preview Menu

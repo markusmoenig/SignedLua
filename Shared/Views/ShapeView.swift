@@ -27,14 +27,24 @@ struct ShapeView: View {
                 ForEach(model.shapes, id: \.id) { shape in
                     
                     ZStack(alignment: .center) {
-                        Rectangle()
-                            .fill(Color.secondary)
-                            .frame(width: 60, height: 60)
-                            .onTapGesture(perform: {
-                                selected = shape
-                                model.selectedShape = shape
-                                model.shapeSelected.send(shape)
-                            })
+                        
+                        if let image = shape.icon {
+                            Image(image, scale: 1.0, label: Text(shape.name))
+                                .onTapGesture(perform: {
+                                    selected = shape
+                                    model.selectedShape = shape
+                                    model.shapeSelected.send(shape)
+                                })
+                        } else {
+                            Rectangle()
+                                .fill(Color.secondary)
+                                .frame(width: 60, height: 60)
+                                .onTapGesture(perform: {
+                                    selected = shape
+                                    model.selectedShape = shape
+                                    model.shapeSelected.send(shape)
+                                })
+                        }
                         
                         if shape === selected {
                             Rectangle()
@@ -52,5 +62,11 @@ struct ShapeView: View {
             .padding()
         }
 
+        .onReceive(model.iconFinished) { cmd in
+            let buffer = selected
+            selected = nil
+            selected = buffer
+            print("finished", cmd.name)
+        }
     }
 }

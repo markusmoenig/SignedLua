@@ -817,7 +817,7 @@ float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     
     float d = modelTexture.sample(textureSampler, (p / scale + float3(0.5))).x;
-    return d;
+    return d * scale;
 }
 
 /// Gets the color and roughness at the given point
@@ -923,7 +923,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
                     break;
                 }
                 
-                t += d * scale;
+                t += d;
             }
 
             if (!inShadow)
@@ -1003,7 +1003,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
                     break;
                 }
                 
-                t += d * scale;
+                t += d;
 
                 if (t >= bbox.y)
                     break;
@@ -1126,7 +1126,7 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
     float4 result1 = float4(-1);
     float4 result2 = float4(-1);
 
-    if (bbox.x > 0.0) {
+    if (bbox.y > 0.0) {
 
         // Raymarch into the texture
         bool hit = false;
@@ -1135,7 +1135,7 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
         for(int i = 0; i < 120; ++i)
         {
             float3 p = ro + rd * t;
-            float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
+            float d = getDistance(p, modelTexture, scale);
 
             if (abs(d) < (0.0001*t)) {
                 hit = true;

@@ -86,3 +86,13 @@ kernel void modelerClear(texture3d<half, access::write>    modelTexture  [[textu
     modelTexture.write(half4(1000), gid);
     colorTexture.write(half4(0.5), gid);
 }
+
+/// Converts the image to the color space required to create an CGIImage
+kernel void modelerMakeCGIImage(texture2d<half, access::write>          outTexture  [[texture(0)]],
+                                texture2d<half, access::read>           inTexture [[texture(1)]],
+                                uint2 gid                               [[thread_position_in_grid]])
+{
+    half4 color = inTexture.read(gid).zyxw;
+    color.xyz = pow(color.xyz, 2.2);
+    outTexture.write(color, gid);
+}

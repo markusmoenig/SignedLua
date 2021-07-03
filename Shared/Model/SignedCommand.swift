@@ -32,13 +32,16 @@ class SignedCommand : Codable, Hashable {
     var primitive       : Primitive
     
     var data            : SignedData
+    var material        : SignedMaterial
 
     var code            : String = ""
-        
+            
     var subCommands     : [SignedCommand] = []
     
     // To identify the editor session
     var scriptContext   = ""
+    
+    var icon            : CGImage? = nil
     
     private enum CodingKeys: String, CodingKey {
         case id
@@ -47,17 +50,19 @@ class SignedCommand : Codable, Hashable {
         case action
         case primitive
         case data
+        case material
         case code
         case subCommands
     }
     
-    init(_ name: String = "Unnamed", role: Role = .Geometry, action: Action = .Add, primitive: Primitive = .Box, data: SignedData = SignedData([]))
+    init(_ name: String = "Unnamed", role: Role = .Geometry, action: Action = .Add, primitive: Primitive = .Box, data: SignedData = SignedData([]), material: SignedMaterial = SignedMaterial())
     {
         self.name = name
         self.role = role
         self.action = action
         self.primitive = primitive
         self.data = data
+        self.material = material
     }
     
     required init(from decoder: Decoder) throws
@@ -71,6 +76,7 @@ class SignedCommand : Codable, Hashable {
         primitive = try container.decode(Primitive.self, forKey: .primitive)
 
         data = try container.decode(SignedData.self, forKey: .data)
+        material = try container.decode(SignedMaterial.self, forKey: .material)
 
         subCommands = try container.decode([SignedCommand].self, forKey: .subCommands)
         code = try container.decode(String.self, forKey: .code)
@@ -85,6 +91,7 @@ class SignedCommand : Codable, Hashable {
         try container.encode(action, forKey: .action)
         try container.encode(primitive, forKey: .primitive)
         try container.encode(data, forKey: .data)
+        try container.encode(material, forKey: .material)
         try container.encode(code, forKey: .code)
         try container.encode(subCommands, forKey: .subCommands)
     }
