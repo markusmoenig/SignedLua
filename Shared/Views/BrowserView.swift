@@ -129,7 +129,7 @@ struct BrowserView: View {
                         selection =  .materials
                     })
                     {
-                        Label("Materials", systemImage: "light.max")
+                        Label("Materials", systemImage: "paintpalette")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
                             .padding(.leading, 6)
@@ -165,6 +165,9 @@ struct BrowserView: View {
                 
                 if selection == .shapes {
                     ShapeView(model: model)
+                } else
+                if selection == .materials {
+                    MaterialView(model: model)
                 }
                 Spacer()
             }

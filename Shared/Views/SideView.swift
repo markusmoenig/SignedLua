@@ -10,12 +10,12 @@ import SwiftUI
 struct SideView: View {
     
     enum Mode {
-        case shape, camera, settings
+        case shape, material, camera, settings
     }
     
     let model                               : Model
     
-    @State var mode                         : Mode? = .camera
+    @State var mode                         : Mode? = .shape
 
     @State var selection                    : SignedObject? = nil
     
@@ -30,6 +30,14 @@ struct SideView: View {
                 })
                 {
                     Image(systemName: mode == .shape ? "square.fill" : "square")
+                }
+                .buttonStyle(.borderless)
+                
+                Button(action: {
+                    mode = .material
+                })
+                {
+                    Image(systemName: mode == .material ? "paintpalette.fill" : "paintpalette")
                 }
                 .buttonStyle(.borderless)
 
@@ -55,7 +63,10 @@ struct SideView: View {
             Divider()            
             
             if mode == .shape {
-                DataView(model: model, data: model.selectedShape!.data)
+                DataView(model: model, data: model.editingCmd.data)
+            } else
+            if mode == .material {
+                DataView(model: model, data: model.editingCmd.material.data)
             } else
             if mode == .settings {
                 SettingsView(model: model)
@@ -69,10 +80,14 @@ struct SideView: View {
                 .frame(maxHeight: 100)
         }
         
-        
         .onReceive(model.shapeSelected) { shape in
             mode = .camera
             mode = .shape
+        }
+        
+        .onReceive(model.materialSelected) { shape in
+            mode = .camera
+            mode = .material
         }
     }
 }

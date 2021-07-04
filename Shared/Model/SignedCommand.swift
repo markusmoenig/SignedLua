@@ -115,5 +115,26 @@ class SignedCommand : Codable, Hashable {
         }
         return nil
     }
+    
+    /// Copies the geometry part of the command
+    func copyGeometry(from: SignedCommand) {
+        primitive = from.primitive
+        
+        if let data = try? JSONEncoder().encode(from.data) {
+            if let copied = try? JSONDecoder().decode(SignedData.self, from: data) {
+                self.data = copied
+            }
+        }
+    }
+    
+    /// Copies the material part of the command
+    func copyMaterial(from: SignedCommand) {
+        
+        if let data = try? JSONEncoder().encode(from.material) {
+            if let copied = try? JSONDecoder().decode(SignedMaterial.self, from: data) {
+                self.material = copied
+            }
+        }
+    }
 }
 

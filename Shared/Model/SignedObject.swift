@@ -30,7 +30,7 @@ class SignedObject : Codable, Hashable {
     {
         self.name = name
         
-        let initialCmd = SignedCommand("Ground", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,-0.9,0)), SignedDataEntity("Size", float3(0.5,0.5,0.5))]))
+        let initialCmd = SignedCommand("Ground", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,-0.9,0)), SignedDataEntity("Size", float3(0.5,0.5,0.5) * Float(Modeler_Global_Scale))]))
         
         commands.append(initialCmd)
     }

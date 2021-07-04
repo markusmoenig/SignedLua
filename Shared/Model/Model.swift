@@ -13,12 +13,15 @@ class Model: NSObject, ObservableObject {
     /// The project itself
     var project                             : SignedProject
     
-    @Published var selectedObject           : SignedObject? = nil
-    @Published var selectedCommand          : SignedCommand? = nil
+    var selectedObject                      : SignedObject? = nil
+    var selectedCommand                     : SignedCommand? = nil
 
     /// Currently selected shape in the browser
-    @Published var selectedShape            : SignedCommand? = nil
+    var selectedShape                       : SignedCommand? = nil
 
+    /// Currently selected shape in the browser
+    var selectedMaterial                    : SignedCommand? = nil
+    
     /// Send when an object has been selected
     let objectSelected                      = PassthroughSubject<SignedObject, Never>()
 
@@ -28,8 +31,14 @@ class Model: NSObject, ObservableObject {
     /// Send when a shape  has been selected
     let shapeSelected                       = PassthroughSubject<SignedCommand, Never>()
     
+    /// Send when a material  has been selected
+    let materialSelected                    = PassthroughSubject<SignedCommand, Never>()
+    
     /// Send when an icon for  a cmd has been rendered
     let iconFinished                        = PassthroughSubject<SignedCommand, Never>()
+    
+    /// Editing cmd changed, update the UI
+    let editingCmdChanged                   = PassthroughSubject<SignedCommand, Never>()
     
     /// UI needs to be updated
     let updateUI                            = PassthroughSubject<Void, Never>()
@@ -47,6 +56,9 @@ class Model: NSObject, ObservableObject {
     /// The currently supported shapes
     var shapes                              : [SignedCommand] = []
     
+    /// Material library
+    var materials                           : [SignedCommand] = []
+    
     /// The current editing command
     var editingCmd                          = SignedCommand()
     
@@ -57,6 +69,7 @@ class Model: NSObject, ObservableObject {
         selectedObject = project.objects.first
         
         createShapes()
+        createMaterials()
     }
     
     /// Sets the renderer
@@ -64,6 +77,7 @@ class Model: NSObject, ObservableObject {
     {
         self.renderer = renderer
         self.renderer?.iconQueue += shapes
+        self.renderer?.iconQueue += materials
         self.modeler?.executeCommand(shapes.first!, self.modeler?.iconKit, clearFirst: true)
     }
     
@@ -74,5 +88,14 @@ class Model: NSObject, ObservableObject {
             SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Size", float3(0.2,0.2,0.2))]))
         ]
         selectedShape = shapes.first
+    }
+    
+    /// Initialises the inbuilt materials
+    func createMaterials() {
+        materials = [
+            SignedCommand("Gold", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Radius", Float(0.4))]), material: SignedMaterial(albedo: float3(1,0,0), metallic: 1, roughness: 0.01)),
+            SignedCommand("Stone", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Radius", Float(0.4))]), material: SignedMaterial(albedo: float3(0.8,0.8,0.8), roughness: 0.7)),
+        ]
+        selectedMaterial = materials.first
     }
 }

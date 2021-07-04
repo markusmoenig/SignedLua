@@ -164,7 +164,7 @@ class ModelerPipeline
         }
         
         modelerUniform.material = cmd.material.toMaterialStruct()
-
+        
         return modelerUniform
     }
     

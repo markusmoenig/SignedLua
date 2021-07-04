@@ -1,13 +1,13 @@
 //
-//  ShapeView.swift
+//  MaterialView.swift
 //  Signed
 //
-//  Created by Markus Moenig on 1/7/21.
+//  Created by Markus Moenig on 4/7/21.
 //
 
 import SwiftUI
 
-struct ShapeView: View {
+struct MaterialView: View {
     
     let model                               : Model
     
@@ -24,17 +24,17 @@ struct ShapeView: View {
         
         ScrollView(.horizontal) {
             LazyHGrid(rows: rows, alignment: .center) {
-                ForEach(model.shapes, id: \.id) { shape in
+                ForEach(model.materials, id: \.id) { material in
                     
                     ZStack(alignment: .center) {
                         
-                        if let image = shape.icon {
-                            Image(image, scale: 1.0, label: Text(shape.name))
+                        if let image = material.icon {
+                            Image(image, scale: 1.0, label: Text(material.name))
                                 .onTapGesture(perform: {
-                                    selected = shape
-                                    model.selectedShape = shape
-                                    model.editingCmd.copyGeometry(from: shape)
-                                    model.shapeSelected.send(shape)
+                                    selected = material
+                                    model.selectedMaterial = material
+                                    model.editingCmd.copyMaterial(from: material)
+                                    model.materialSelected.send(material)
                                     model.editingCmdChanged.send(model.editingCmd)
                                     model.renderer?.restart()
                                 })
@@ -43,23 +43,23 @@ struct ShapeView: View {
                                 .fill(Color.secondary)
                                 .frame(width: 60, height: 60)
                                 .onTapGesture(perform: {
-                                    selected = shape
-                                    model.selectedShape = shape
-                                    model.editingCmd.copyGeometry(from: shape)
-                                    model.shapeSelected.send(shape)
+                                    selected = material
+                                    model.selectedMaterial = material
+                                    model.editingCmd.copyMaterial(from: material)
+                                    model.materialSelected.send(material)
                                     model.editingCmdChanged.send(model.editingCmd)
                                     model.renderer?.restart()
                                 })
                         }
                         
-                        if shape === selected {
+                        if material === selected {
                             Rectangle()
                                 .stroke(Color.primary, lineWidth: 2)
                                 .frame(width: 60, height: 60)
                                 .allowsHitTesting(false)
                         }
                         
-                        Text(shape.name)
+                        Text(material.name)
                             .padding(.top, 40)
                             .allowsHitTesting(false)
                     }
