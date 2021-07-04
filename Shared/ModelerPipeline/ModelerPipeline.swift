@@ -13,7 +13,8 @@ class ModelerKit {
     // For modeling
     var modelTexture    : MTLTexture? = nil
     var colorTexture    : MTLTexture? = nil
-    
+    var materialTexture1: MTLTexture? = nil
+
     // For rendering
     var sampleTexture   : MTLTexture? = nil
     var outputTexture   : MTLTexture? = nil
@@ -248,6 +249,7 @@ class ModelerPipeline
         let modelerKit = ModelerKit()
         modelerKit.modelTexture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
         modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
+        modelerKit.materialTexture1 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         return modelerKit
     }
     

@@ -51,15 +51,15 @@ float sdRoundBox(float3 p, float3 b, float r )
     return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
 }
 
-float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData)
+float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, float scale)
 {
     float newDist = INFINITY;
     
     if (mData.primitiveType == Modeler_Sphere) {
-        newDist = sdSphere(uv - mData.position, mData.radius);
+        newDist = sdSphere(uv - mData.position * scale, mData.radius * scale);
     } else
     if (mData.primitiveType == Modeler_Box) {
-        newDist = sdRoundBox(uv - mData.position, mData.size, mData.rounding);
+        newDist = sdRoundBox(uv - mData.position * scale, mData.size * scale, mData.rounding);
     }
     
     return min(dist, newDist);
@@ -75,7 +75,7 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
     float3 uv = float3(gid) / size - float3(0.5);
 
     float dist = modelTexture.read(gid).x;
-    float newDist = applyModelerData(uv, dist, mData);
+    float newDist = applyModelerData(uv, dist, mData, 1.0);
     
     if (dist == newDist) {
         colorTexture.write(half4(float4(mData.material.albedo, mData.material.roughness)), gid);

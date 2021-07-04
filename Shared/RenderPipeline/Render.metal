@@ -811,6 +811,19 @@ float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, th
     return finalRayDir;
 }
 
+float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, float scale);
+
+/// Gets the distance at the given point
+float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUniform &mData, float scale = 1.0)
+{
+    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
+    
+    float d = modelTexture.sample(textureSampler, (p / scale + float3(0.5))).x * scale;
+    d = applyModelerData(p, d, mData, scale);
+
+    return d;
+}
+
 /// Gets the distance at the given point
 float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 {
@@ -830,6 +843,18 @@ float4 getColorAndRoughness(float3 p, texture3d<float> colorTexture, float scale
 }
 
 /// Calculates the normal at the given point
+float3 getNormal(float3 p, texture3d<float> modelTexture, constant ModelerUniform  &mData, float scale = 1.0)
+{
+    float3 epsilon = float3(0.001, 0., 0.);
+
+    float3 n = float3(getDistance(p + epsilon.xyy, modelTexture, mData, scale) - getDistance(p - epsilon.xyy, modelTexture, mData, scale),
+                      getDistance(p + epsilon.yxy, modelTexture, mData, scale) - getDistance(p - epsilon.yxy, modelTexture, mData, scale),
+                      getDistance(p + epsilon.yyx, modelTexture, mData, scale) - getDistance(p - epsilon.yyx, modelTexture, mData, scale));
+
+    return normalize(n);
+}
+
+/// Calculates the normal at the given point
 float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 {
     float3 epsilon = float3(0.001, 0., 0.);
@@ -840,8 +865,6 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 
     return normalize(n);
 }
-
-float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData);
 
 //-----------------------------------------------------------------------
 float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderUniform &renderData, constant ModelerUniform  &mData, texture3d<float> modelTexture, float scale = 1.0)
@@ -918,8 +941,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
             for(int i = 0; i < 70; ++i)
             {
                 float3 p = surfacePos + lightSampleRec.direction * t;
-                float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
-                d = applyModelerData(p, d, mData);
+                float d = getDistance(p, modelTexture, mData, scale);//map(p, dataIn);
 
                 if (abs(d) < (0.0001*t)) {
                     inShadow = true;
@@ -1000,8 +1022,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
             for(int i = 0; i < 200; ++i)
             {
                 float3 p = ray.origin + ray.direction * t;
-                float d = getDistance(p, modelTexture, scale);//map(p, dataIn);
-                d = applyModelerData(p, d, mData);
+                float d = getDistance(p, modelTexture, mData, scale);//map(p, dataIn);
 
                 if (abs(d) < (0.0001*t)) {
                     hit = true;
@@ -1016,7 +1037,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
             
             if (hit == true) {
                 float3 position = ray.origin + ray.direction * t;
-                float3 normal = getNormal(position, modelTexture, scale);
+                float3 normal = getNormal(position, modelTexture, mData, scale);
                 
                 state.fhp = position;
                 state.normal = normal;
@@ -1157,7 +1178,7 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
             result1.x = t;
             float3 p = ro + rd * t;
             result1.yzw = getNormal(p, modelTexture, scale);
-            result2.xyz = p;
+            result2.xyz = p / 3.0;
         }
     }
     
