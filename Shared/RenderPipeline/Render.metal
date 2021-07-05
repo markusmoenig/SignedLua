@@ -150,6 +150,54 @@ float3 FaceForward(float3 a, float3 b)
     return dot(a, b) < 0.0 ? -b : b;
 }
 
+// intersect.glsl
+
+//-----------------------------------------------------------------------
+float SphereIntersect(float rad, float3 pos, Ray r)
+//-----------------------------------------------------------------------
+{
+    float3 op = pos - r.origin;
+    float eps = 0.001;
+    float b = dot(op, r.direction);
+    float det = b * b - dot(op, op) + rad * rad;
+    if (det < 0.0)
+        return INFINITY;
+
+    det = sqrt(det);
+    float t1 = b - det;
+    if (t1 > eps)
+        return t1;
+
+    float t2 = b + det;
+    if (t2 > eps)
+        return t2;
+
+    return INFINITY;
+}
+
+//-----------------------------------------------------------------------
+float RectIntersect(float3 pos, float3 u, float3 v, float4 plane, Ray r)
+//-----------------------------------------------------------------------
+{
+    float3 n = float3(plane);
+    float dt = dot(r.direction, n);
+    float t = (plane.w - dot(n, r.origin)) / dt;
+    if (t > EPS)
+    {
+        float3 p = r.origin + r.direction * t;
+        float3 vi = p - pos;
+        float a1 = dot(u, vi);
+        if (a1 >= 0. && a1 <= 1.)
+        {
+            float a2 = dot(v, vi);
+            if (a2 >= 0. && a2 <= 1.)
+                return t;
+        }
+    }
+
+    return INFINITY;
+}
+
 // sampling.glsl
 
 //----------------------------------------------------------------------
@@ -811,15 +859,23 @@ float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, th
     return finalRayDir;
 }
 
-float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, float scale);
+float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float scal);
 
 /// Gets the distance at the given point
-float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUniform &mData, float scale = 1.0)
+float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUniform &mData, thread bool &editHit, float scale = 1.0)
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     
+    editHit = false;
+    
     float d = modelTexture.sample(textureSampler, (p / scale + float3(0.5))).x * scale;
-    d = applyModelerData(p, d, mData, scale);
+    float editingDist = applyModelerData(p, d, mData, scale);
+    
+    if (d != editingDist) {
+        editHit = true;
+    }
+    
+    d = editingDist;
 
     return d;
 }
@@ -834,7 +890,7 @@ float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 }
 
 /// Gets the color and roughness at the given point
-float4 getColorAndRoughness(float3 p, texture3d<float> colorTexture, float scale = 1.0)
+float4 getMaterialData(float3 p, texture3d<float> colorTexture, float scale = 1.0)
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     
@@ -846,10 +902,12 @@ float4 getColorAndRoughness(float3 p, texture3d<float> colorTexture, float scale
 float3 getNormal(float3 p, texture3d<float> modelTexture, constant ModelerUniform  &mData, float scale = 1.0)
 {
     float3 epsilon = float3(0.001, 0., 0.);
+    
+    bool editHit;
 
-    float3 n = float3(getDistance(p + epsilon.xyy, modelTexture, mData, scale) - getDistance(p - epsilon.xyy, modelTexture, mData, scale),
-                      getDistance(p + epsilon.yxy, modelTexture, mData, scale) - getDistance(p - epsilon.yxy, modelTexture, mData, scale),
-                      getDistance(p + epsilon.yyx, modelTexture, mData, scale) - getDistance(p - epsilon.yyx, modelTexture, mData, scale));
+    float3 n = float3(getDistance(p + epsilon.xyy, modelTexture, mData, editHit, scale) - getDistance(p - epsilon.xyy, modelTexture, mData, editHit, scale),
+                      getDistance(p + epsilon.yxy, modelTexture, mData, editHit, scale) - getDistance(p - epsilon.yxy, modelTexture, mData, editHit, scale),
+                      getDistance(p + epsilon.yyx, modelTexture, mData, editHit, scale) - getDistance(p - epsilon.yyx, modelTexture, mData, editHit, scale));
 
     return normalize(n);
 }
@@ -931,6 +989,8 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
         
         //light = Light(position, emission, u, v, radius, area, type);
         sampleOneLight(light, surfacePos, lightSampleRec, dataIn);
+        
+        bool editHit;
 
         if (dot(lightSampleRec.direction, lightSampleRec.normal) < 0.0)
         {
@@ -941,7 +1001,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
             for(int i = 0; i < 70; ++i)
             {
                 float3 p = surfacePos + lightSampleRec.direction * t;
-                float d = getDistance(p, modelTexture, mData, scale);//map(p, dataIn);
+                float d = getDistance(p, modelTexture, mData, editHit, scale);//map(p, dataIn);
 
                 if (abs(d) < (0.0001*t)) {
                     inShadow = true;
@@ -974,7 +1034,11 @@ fragment float4 render(RasterizerData in [[stage_in]],
                                constant RenderUniform &renderData [[ buffer(0) ]],
                                constant ModelerUniform &mData [[ buffer(1) ]],
                                texture3d<float> modelTexture [[ texture(2) ]],
-                               texture3d<float> colorTexture [[ texture(3) ]] )
+                               texture3d<float> colorTexture [[ texture(3) ]],
+                               texture3d<float> materialTexture1 [[ texture(4) ]],
+                               texture3d<float> materialTexture2 [[ texture(5) ]],
+                               texture3d<float> materialTexture3 [[ texture(6) ]],
+                               texture3d<float> materialTexture4 [[ texture(7) ]])
 {
     float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
     
@@ -1003,7 +1067,9 @@ fragment float4 render(RasterizerData in [[stage_in]],
     ray.origin = ro;
     ray.direction = rd;
     
-    int maxDepth = 4;
+    bool editHit;
+    
+    int maxDepth = 5;
 
     for (int depth = 0; depth < maxDepth; depth++)
     {
@@ -1022,9 +1088,9 @@ fragment float4 render(RasterizerData in [[stage_in]],
             for(int i = 0; i < 200; ++i)
             {
                 float3 p = ray.origin + ray.direction * t;
-                float d = getDistance(p, modelTexture, mData, scale);//map(p, dataIn);
+                float d = abs(getDistance(p, modelTexture, mData, editHit, scale));//map(p, dataIn);
 
-                if (abs(d) < (0.0001*t)) {
+                if (d < (0.0001*t)) {
                     hit = true;
                     break;
                 }
@@ -1050,6 +1116,67 @@ fragment float4 render(RasterizerData in [[stage_in]],
             }
         }
         
+        // Lights
+        
+        for (int i = 0; i < renderData.numOfLights; i++)
+        {
+            Light light = renderData.lights[i];
+
+            /*
+            // Fetch light Data
+            vec3 position = texelFetch(lightsTex, ivec2(i * 5 + 0, 0), 0).xyz;
+            vec3 emission = texelFetch(lightsTex, ivec2(i * 5 + 1, 0), 0).xyz;
+            vec3 u        = texelFetch(lightsTex, ivec2(i * 5 + 2, 0), 0).xyz;
+            vec3 v        = texelFetch(lightsTex, ivec2(i * 5 + 3, 0), 0).xyz;
+            vec3 params   = texelFetch(lightsTex, ivec2(i * 5 + 4, 0), 0).xyz;
+            float radius  = params.x;
+            float area    = params.y;
+            float type    = params.z;
+             */
+             
+
+            // Intersect rectangular area light
+            if (light.params.z == 0.)
+            {
+                float3 u = light.u;
+                float3 v = light.v;
+                float3 normal = normalize(cross(light.u, light.v));
+                if (dot(normal, ray.direction) > 0.) // Hide backfacing quad light
+                    continue;
+                float4 plane = float4(normal, dot(normal, light.position));
+                u *= 1.0f / dot(u, u);
+                v *= 1.0f / dot(v, v);
+
+                float d = RectIntersect(light.position, u, v, plane, ray);
+                if (d < 0.)
+                    d = INFINITY;
+                if (d < t)
+                {
+                    t = d;
+                    float cosTheta = dot(-ray.direction, normal);
+                    float pdf = (t * t) / (light.params.y * cosTheta);
+                    lightSampleRec.emission = light.emission;
+                    lightSampleRec.pdf = pdf;
+                    state.isEmitter = true;
+                }
+            } else
+            // Intersect spherical area light
+            if (light.params.z == 1.0)
+            {
+                float d = SphereIntersect(light.params.x, light.position, ray);
+                if (d < 0.)
+                    d = INFINITY;
+                if (d < t)
+                {
+                    t = d;
+                    float pdf = (t * t) / light.params.y;
+                    lightSampleRec.emission = light.emission;
+                    lightSampleRec.pdf = pdf;
+                    state.isEmitter = true;
+                }
+            }
+        }
+        
         if (t == INFINITY) {
             radiance += renderData.backgroundColor.xyz * throughput;
             return float4(radiance, 1.0);
@@ -1059,23 +1186,32 @@ fragment float4 render(RasterizerData in [[stage_in]],
         
         // Get material
         
-        float4 colorAndRoughness = getColorAndRoughness(state.fhp, colorTexture, scale);
-        
-        state.mat.albedo = colorAndRoughness.xyz;
-        state.mat.specular = 0;
-        state.mat.anisotropic = 0;
-        state.mat.metallic = 0;
-        state.mat.roughness = colorAndRoughness.w;
-        state.mat.subsurface = 0;
-        state.mat.specularTint = 0;
-        state.mat.sheen = 0;
-        state.mat.sheenTint = 0;
-        state.mat.clearcoat = 0;
-        state.mat.clearcoatGloss = 0;
-        state.mat.specTrans = 0;
-        state.mat.ior = 1.45;
-        state.mat.emission = float3(0);
-        state.mat.atDistance = 1.0;
+        if (editHit == false) {
+            float4 colorAndRoughness = getMaterialData(state.fhp, colorTexture, scale);
+            float4 specularMetallicSubsurfaceClearcoat = getMaterialData(state.fhp, materialTexture1, scale);
+            float4 anisotropicSpecularTintSheenSheenTint = getMaterialData(state.fhp, materialTexture2, scale);
+            float4 clearcoatGlossSpecTransIor = getMaterialData(state.fhp, materialTexture3, scale);
+            float3 emission = getMaterialData(state.fhp, materialTexture4, scale).xyz;
+            
+            state.mat.albedo = colorAndRoughness.xyz;
+            state.mat.specular = specularMetallicSubsurfaceClearcoat.x;
+            state.mat.anisotropic = anisotropicSpecularTintSheenSheenTint.x;
+            state.mat.metallic = specularMetallicSubsurfaceClearcoat.y;
+            state.mat.roughness = max(colorAndRoughness.w, 0.001);
+            state.mat.subsurface = specularMetallicSubsurfaceClearcoat.z;
+            state.mat.specularTint = anisotropicSpecularTintSheenSheenTint.y;
+            state.mat.sheen = anisotropicSpecularTintSheenSheenTint.z;
+            state.mat.sheenTint = anisotropicSpecularTintSheenSheenTint.w;
+            state.mat.clearcoat = specularMetallicSubsurfaceClearcoat.w;
+            state.mat.clearcoatGloss = clearcoatGlossSpecTransIor.x;
+            state.mat.specTrans = clearcoatGlossSpecTransIor.y;
+            state.mat.ior = clearcoatGlossSpecTransIor.w;
+            state.mat.emission = emission;
+            state.mat.atDistance = 1.0;
+        } else {
+            state.mat = mData.material;
+            state.mat.roughness = max(state.mat.roughness, 0.001);
+        }
         
         //state.isEmitter = false;
         state.eta = dot(state.normal, state.ffnormal) > 0.0 ? (1.0 / state.mat.ior) : state.mat.ior;

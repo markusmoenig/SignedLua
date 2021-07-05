@@ -18,46 +18,53 @@ class SignedDataEntity: Codable {
     var type        : DataType
     var value       : float4
     var time        : Double?
+    var range       : float2
     
     private enum CodingKeys: String, CodingKey {
         case key
         case type
         case value
+        case range
         case time
     }
     
-    init(_ key: String,_ v: Int,_ t: Double? = nil) {
+    init(_ key: String,_ v: Int,_ r: float2 = float2(0,1),_ t: Double? = nil) {
         self.key = key
         type = .Int
         value = float4(Float(v), 0, 0, 0)
+        range = r
         time = t
     }
     
-    init(_ key: String,_ v: Float,_ t: Double? = nil) {
+    init(_ key: String,_ v: Float,_ r: float2 = float2(0,1),_ t: Double? = nil) {
         self.key = key
         type = .Float
         value = float4(v, 0, 0, 0)
+        range = r
         time = t
     }
     
-    init(_ key: String,_ v: float2,_ t: Double? = nil) {
+    init(_ key: String,_ v: float2,_ r: float2 = float2(0,1),_ t: Double? = nil) {
         self.key = key
         type = .Float2
         value = float4(v.x, v.y, 0, 0)
+        range = r
         time = t
     }
     
-    init(_ key: String,_ v: float3,_ t: Double? = nil) {
+    init(_ key: String,_ v: float3,_ r: float2 = float2(0,1),_ t: Double? = nil) {
         self.key = key
         type = .Float3
         value = float4(v.x, v.y, v.z, 0)
+        range = r
         time = t
     }
     
-    init(_ key: String,_ v: float4,_ t: Double? = nil) {
+    init(_ key: String,_ v: float4,_ r: float2 = float2(0,1),_ t: Double? = nil) {
         self.key = key
         type = .Float4
         value = v
+        range = r
         time = t
     }
     
@@ -67,6 +74,7 @@ class SignedDataEntity: Codable {
         key = try container.decode(String.self, forKey: .key)
         type = try container.decode(DataType.self, forKey: .type)
         value = try container.decode(float4.self, forKey: .value)
+        range = try container.decode(float2.self, forKey: .range)
         time = try container.decode(Double?.self, forKey: .time)
     }
     
@@ -76,6 +84,7 @@ class SignedDataEntity: Codable {
         try container.encode(key, forKey: .key)
         try container.encode(type, forKey: .type)
         try container.encode(value, forKey: .value)
+        try container.encode(range, forKey: .range)
         try container.encode(time, forKey: .time)
     }
 }
@@ -162,47 +171,47 @@ class SignedData: Codable {
     }
     
     /// Set Int
-    func set(_ key: String,_ value: Int,_ time: Double? = nil) {
+    func set(_ key: String,_ value: Int,_ range: float2 = float2(0,1),_ time: Double? = nil) {
         if let ex = getExisting(key, .Int, time) {
             ex.value = float4(Float(value), 0, 0, 0)
         } else {
-            data.append(SignedDataEntity(key, value, time))
+            data.append(SignedDataEntity(key, value, range, time))
         }
     }
     
     /// Set Float
-    func set(_ key: String,_ value: Float,_ time: Double? = nil) {
+    func set(_ key: String,_ value: Float,_ range: float2 = float2(0,1),_ time: Double? = nil) {
         if let ex = getExisting(key, .Float, time) {
             ex.value = float4(value, 0, 0, 0)
         } else {
-            data.append(SignedDataEntity(key, value, time))
+            data.append(SignedDataEntity(key, value, range, time))
         }
     }
     
     /// Set Float2
-    func set(_ key: String,_ value: float2,_ time: Double? = nil) {
+    func set(_ key: String,_ value: float2,_ range: float2 = float2(0,1),_ time: Double? = nil) {
         if let ex = getExisting(key, .Float2, time) {
             ex.value = float4(value.x, value.y, 0, 0)
         } else {
-            data.append(SignedDataEntity(key, value, time))
+            data.append(SignedDataEntity(key, value, range, time))
         }
     }
     
     /// Set Float3
-    func set(_ key: String,_ value: float3,_ time: Double? = nil) {
+    func set(_ key: String,_ value: float3,_ range: float2 = float2(0,1),_ time: Double? = nil) {
         if let ex = getExisting(key, .Float3, time) {
             ex.value = float4(value.x, value.y, value.z, 0)
         } else {
-            data.append(SignedDataEntity(key, value, time))
+            data.append(SignedDataEntity(key, value, range, time))
         }
     }
     
     /// Set Float4
-    func set(_ key: String,_ value: float4,_ time: Double? = nil) {
+    func set(_ key: String,_ value: float4,_ range: float2 = float2(0,1),_ time: Double? = nil) {
         if let ex = getExisting(key, .Float4, time) {
             ex.value = value
         } else {
-            data.append(SignedDataEntity(key, value, time))
+            data.append(SignedDataEntity(key, value, range, time))
         }
     }
     

@@ -84,7 +84,7 @@ class Model: NSObject, ObservableObject {
     /// Initialises the currently available shapes
     func createShapes() {
         shapes = [
-            SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Radius", Float(0.4))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
+            SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Radius", Float(0.4), float2(0, 10))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
             SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Size", float3(0.2,0.2,0.2))]))
         ]
         selectedShape = shapes.first

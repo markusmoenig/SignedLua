@@ -14,6 +14,9 @@ class ModelerKit {
     var modelTexture    : MTLTexture? = nil
     var colorTexture    : MTLTexture? = nil
     var materialTexture1: MTLTexture? = nil
+    var materialTexture2: MTLTexture? = nil
+    var materialTexture3: MTLTexture? = nil
+    var materialTexture4: MTLTexture? = nil
 
     // For rendering
     var sampleTexture   : MTLTexture? = nil
@@ -105,6 +108,10 @@ class ModelerPipeline
                     
                     computeEncoder.setTexture(kit.modelTexture!, index: 1 )
                     computeEncoder.setTexture(kit.colorTexture, index: 2 )
+                    computeEncoder.setTexture(kit.materialTexture1!, index: 3 )
+                    computeEncoder.setTexture(kit.materialTexture2!, index: 4 )
+                    computeEncoder.setTexture(kit.materialTexture3!, index: 5 )
+                    computeEncoder.setTexture(kit.materialTexture4!, index: 6 )
 
                     calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
                 }
@@ -182,6 +189,10 @@ class ModelerPipeline
                     computeEncoder.setComputePipelineState( state )
                     computeEncoder.setTexture(kit.modelTexture!, index: 0 )
                     computeEncoder.setTexture(kit.colorTexture!, index: 1 )
+                    computeEncoder.setTexture(kit.materialTexture1!, index: 2 )
+                    computeEncoder.setTexture(kit.materialTexture2!, index: 3 )
+                    computeEncoder.setTexture(kit.materialTexture3!, index: 4 )
+                    computeEncoder.setTexture(kit.materialTexture4!, index: 5 )
                     calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
                 }
                 computeEncoder.endEncoding()
@@ -250,6 +261,9 @@ class ModelerPipeline
         modelerKit.modelTexture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
         modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         modelerKit.materialTexture1 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
+        modelerKit.materialTexture2 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
+        modelerKit.materialTexture3 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
+        modelerKit.materialTexture4 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         return modelerKit
     }
     

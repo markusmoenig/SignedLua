@@ -70,6 +70,10 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, f
 kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer(0) ]],
                        texture3d<half, access::read_write>      modelTexture  [[texture(1)]],
                        texture3d<half, access::write>           colorTexture  [[texture(2)]],
+                       texture3d<half, access::write>           materialTexture1  [[texture(3)]],
+                       texture3d<half, access::write>           materialTexture2  [[texture(4)]],
+                       texture3d<half, access::write>           materialTexture3  [[texture(5)]],
+                       texture3d<half, access::write>           materialTexture4  [[texture(6)]],
                        uint3 gid                                [[thread_position_in_grid]])
 {
     float3 size = float3(modelTexture.get_width(), modelTexture.get_height(), modelTexture.get_depth());
@@ -80,6 +84,10 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
     
     if (dist != newDist) {
         colorTexture.write(half4(float4(mData.material.albedo, mData.material.roughness)), gid);
+        materialTexture1.write(half4(float4(mData.material.specular, mData.material.metallic, mData.material.subsurface, mData.material.clearcoat)), gid);
+        materialTexture2.write(half4(float4(mData.material.anisotropic, mData.material.specularTint, mData.material.sheen, mData.material.sheenTint)), gid);
+        materialTexture3.write(half4(float4(mData.material.clearcoatGloss, mData.material.specTrans, mData.material.ior, 0)), gid);
+        materialTexture3.write(half4(float4(mData.material.emission, 0)), gid);
     }
     
     modelTexture.write(half4(newDist), gid);
@@ -88,10 +96,18 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
 /// Clears the texture
 kernel void modelerClear(texture3d<half, access::write>    modelTexture  [[texture(0)]],
                          texture3d<half, access::write>    colorTexture  [[texture(1)]],
+                         texture3d<half, access::write>    materialTexture1  [[texture(2)]],
+                         texture3d<half, access::write>    materialTexture2  [[texture(3)]],
+                         texture3d<half, access::write>    materialTexture3  [[texture(4)]],
+                         texture3d<half, access::write>    materialTexture4  [[texture(5)]],
                          uint3 gid                         [[thread_position_in_grid]])
 {
     modelTexture.write(half4(1000), gid);
     colorTexture.write(half4(0.5), gid);
+    materialTexture1.write(half4(0), gid);
+    materialTexture2.write(half4(0), gid);
+    materialTexture3.write(half4(0), gid);
+    materialTexture4.write(half4(0), gid);
 }
 
 /// Converts the image to the color space required to create an CGIImage

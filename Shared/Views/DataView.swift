@@ -20,7 +20,7 @@ struct FloatDataView: View {
         self.model = model
         self.entity = entity
         
-        value = Double(entity.value.x)
+        _value = State(initialValue: Double(entity.value.x))
         _valueText = State(initialValue: String(format: "%.02f", entity.value.x))
     }
 
@@ -35,7 +35,7 @@ struct FloatDataView: View {
 
                     entity.value.x = Float(value)
                     model.renderer?.restart()
-                }), in: Double(0)...Double(10))//, step: Double(parameter.step))
+                }), in: Double(entity.range.x)...Double(entity.range.y))//, step: Double(parameter.step))
                 Text(valueText)
                     .frame(maxWidth: 40)
             }
