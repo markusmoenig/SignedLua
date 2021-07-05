@@ -87,7 +87,7 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
         materialTexture1.write(half4(float4(mData.material.specular, mData.material.metallic, mData.material.subsurface, mData.material.clearcoat)), gid);
         materialTexture2.write(half4(float4(mData.material.anisotropic, mData.material.specularTint, mData.material.sheen, mData.material.sheenTint)), gid);
         materialTexture3.write(half4(float4(mData.material.clearcoatGloss, mData.material.specTrans, mData.material.ior, 0)), gid);
-        materialTexture3.write(half4(float4(mData.material.emission, 0)), gid);
+        materialTexture4.write(half4(float4(mData.material.emission, 0)), gid);
     }
     
     modelTexture.write(half4(newDist), gid);

@@ -1081,7 +1081,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
         float t = INFINITY;
         
         if (bbox.y > 0.0) {
-        
+                    
             t = bbox.x;
             bool hit = false;
             

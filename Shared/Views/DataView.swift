@@ -40,6 +40,10 @@ struct FloatDataView: View {
                     .frame(maxWidth: 40)
             }
         }
+        
+        .onReceive(model.updateDataViews) { _ in
+            valueText = String(format: "%.02f", entity.value.x)
+        }
     }
 }
 
@@ -87,6 +91,12 @@ struct Float3DataView: View {
                     .border(.blue)
             }
         }
+        
+        .onReceive(model.updateDataViews) { _ in
+            xText = String(format: "%.02f", entity.value.x)
+            yText = String(format: "%.02f", entity.value.y)
+            zText = String(format: "%.02f", entity.value.z)
+        }
     }
 }
 
@@ -94,6 +104,8 @@ struct DataView: View {
     
     let model                               : Model
     let data                                : SignedData
+    
+    @State var updateView                   : Bool = false
     
     var body: some View {
         ScrollView {

@@ -12,6 +12,8 @@ class SignedPinholeCamera : Codable, Hashable {
     
     var id              = UUID()
     var name            : String
+    
+    var data            : SignedData
             
     var position        = float3(0, 0, 3)
     var lookAt          = float3(0, 0, 0)
@@ -25,12 +27,17 @@ class SignedPinholeCamera : Codable, Hashable {
     private enum CodingKeys: String, CodingKey {
         case id
         case name
-        case position
+        case data
     }
     
     init(_ name: String = "Pinhole")
     {
         self.name = name
+        data = SignedData([])
+        
+        data.set("Position", float3(0,0,3))
+        data.set("Look At", float3(0,0,0))
+        data.set("Fov", Float(80))
     }
     
     required init(from decoder: Decoder) throws
@@ -38,7 +45,7 @@ class SignedPinholeCamera : Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
-        position = try container.decode(float3.self, forKey: .position)
+        data = try container.decode(SignedData.self, forKey: .data)
     }
     
     func encode(to encoder: Encoder) throws
@@ -46,7 +53,7 @@ class SignedPinholeCamera : Codable, Hashable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
-        try container.encode(position, forKey: .position)
+        try container.encode(data, forKey: .data)
     }
     
     static func ==(lhs: SignedPinholeCamera, rhs: SignedPinholeCamera) -> Bool {
@@ -62,9 +69,13 @@ class SignedPinholeCamera : Codable, Hashable {
     {
         let d = delta - lastZoomDelta
         
+        var position = getPosition()
+        
         position -= lookAt
         position *= d + 1
         position += lookAt
+        
+        data.set("Position", position)
         
         lastZoomDelta = delta
     }
@@ -74,10 +85,15 @@ class SignedPinholeCamera : Codable, Hashable {
     {
         let d = delta - lastDelta
         let dir = calculateDirXY()
+        
+        var position = getPosition()
+        let lookAt = getLookAt()
 
         position = rotateToAPoint(p: position, o: lookAt, v: dir.0, alpha: -d.x * Float.pi)
         position = rotateToAPoint(p: position, o: lookAt, v: dir.1, alpha: d.y * Float.pi)
-        
+
+        data.set("Position", position)
+
         lastDelta = delta
     }
     
@@ -85,6 +101,9 @@ class SignedPinholeCamera : Codable, Hashable {
     func moveDelta(_ delta: float2, aspect: Float)
     {
         let d = delta - lastDelta
+        
+        var position = getPosition()
+        var lookAt = getLookAt()
         
         let dir = calculateDirXY()
         let e = position - lookAt
@@ -96,17 +115,20 @@ class SignedPinholeCamera : Codable, Hashable {
         if add.x.isNaN == false && add.y.isNaN == false && add.z.isNaN == false {
             position += add
             lookAt += add
+            
+            data.set("Position", position)
+            data.set("Look At", lookAt)
         }
         
         lastDelta = delta
     }
     
     func getPosition() -> float3 {        
-        return position
+        return data.getFloat3("Position")!
     }
     
     func getLookAt() -> float3 {
-        return lookAt
+        return data.getFloat3("Look At")!
     }
     
     func calculateDirXY() -> (float3, float3)

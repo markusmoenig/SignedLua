@@ -16,10 +16,8 @@ struct SideView: View {
     let model                               : Model
     
     @State var mode                         : Mode? = .shape
-
     @State var selection                    : SignedObject? = nil
-    
-    
+        
     var body: some View {
                 
         VStack(alignment: .leading) {
@@ -67,6 +65,9 @@ struct SideView: View {
             } else
             if mode == .material {
                 DataView(model: model, data: model.editingCmd.material.data)
+            } else
+            if mode == .camera {
+                DataView(model: model, data: model.project.camera.data)
             } else
             if mode == .settings {
                 SettingsView(model: model)

@@ -40,7 +40,10 @@ class Model: NSObject, ObservableObject {
     /// Editing cmd changed, update the UI
     let editingCmdChanged                   = PassthroughSubject<SignedCommand, Never>()
     
-    /// UI needs to be updated
+    /// UIs of the DataViews needs to be updated
+    let updateDataViews                     = PassthroughSubject<Void, Never>()
+    
+    /// Update UIs
     let updateUI                            = PassthroughSubject<Void, Never>()
     
     /// Reference to the underlying script editor
@@ -85,7 +88,7 @@ class Model: NSObject, ObservableObject {
     func createShapes() {
         shapes = [
             SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Radius", Float(0.4), float2(0, 10))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
-            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Size", float3(0.2,0.2,0.2))]))
+            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Size", float3(0.2,0.2,0.2) * 10)]))
         ]
         selectedShape = shapes.first
     }

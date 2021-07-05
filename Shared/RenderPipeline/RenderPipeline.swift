@@ -217,18 +217,34 @@ class RenderPipeline
             renderUniform.lights.0.params.y = length(cross(renderUniform.lights.0.u, renderUniform.lights.0.v));
             renderUniform.lights.0.params.z = 0
         } else {
-            renderUniform.cameraOrigin = float3(0, 0, 2)
+            renderUniform.cameraOrigin = float3(0, 0, 3)
             renderUniform.cameraLookAt = float3(0, 0, 0);
-            renderUniform.scale = 1
+            renderUniform.scale = 1//model.project.scale
             
             renderUniform.backgroundColor = float4(1,0,0,1);
             
             renderUniform.numOfLights = 1
+
+            /*
             renderUniform.lights.0.position = float3(0,1.5,0)
             renderUniform.lights.0.emission = float3(10,10,10)
             renderUniform.lights.0.params.x = 1
             renderUniform.lights.0.params.y = 4.0 * Float.pi * 1 * 1;//light.radius * light.radius;
-            renderUniform.lights.0.params.z = 1
+            renderUniform.lights.0.params.z = 1*/
+            
+            let v1 = float3(2, 0, 0)
+            let v2 = float3(0, 0, 2)
+            
+            //let v1 = float3(1, 1, 1)
+            //let v2 = float3(1, 1, 1)
+
+            renderUniform.lights.0.position = float3(-1, 1, -1)
+            renderUniform.lights.0.emission = float3(10,10,10)
+            renderUniform.lights.0.u = v1// - renderUniform.lights.0.position
+            renderUniform.lights.0.v = v2// - renderUniform.lights.0.position
+            renderUniform.lights.0.params.x = 1
+            renderUniform.lights.0.params.y = length(cross(renderUniform.lights.0.u, renderUniform.lights.0.v));
+            renderUniform.lights.0.params.z = 0
         }
                 
         /*

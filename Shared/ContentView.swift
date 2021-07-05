@@ -108,6 +108,7 @@ struct ContentView: View {
                                     
                                     document.model.project.camera.rotateDelta(delta * 0.01)
                                     document.model.renderer?.restart()
+                                    document.model.updateDataViews.send()
                                 })
                                 .onEnded({ info in
                                     isOrbiting = false
@@ -147,6 +148,7 @@ struct ContentView: View {
                                     
                                     document.model.project.camera.moveDelta(delta * 0.003, aspect: getAspectRatio())
                                     document.model.renderer?.restart()
+                                    document.model.updateDataViews.send()
                                 })
                                 .onEnded({ info in
                                     isMoving = false
@@ -186,6 +188,7 @@ struct ContentView: View {
                                     
                                     document.model.project.camera.zoomDelta(delta.x * 0.04)
                                     document.model.renderer?.restart()
+                                    document.model.updateDataViews.send()
                                 })
                                 .onEnded({ info in
                                     isZooming = false
