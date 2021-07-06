@@ -64,12 +64,15 @@ class Model: NSObject, ObservableObject {
     
     /// The current editing command
     var editingCmd                          = SignedCommand()
-    
+    var iconCmd                             = SignedCommand()
+
     override init() {
         project = SignedProject()
         super.init()
         
         selectedObject = project.objects.first
+        
+        iconCmd.action = .None
         
         createShapes()
         createMaterials()
@@ -81,14 +84,14 @@ class Model: NSObject, ObservableObject {
         self.renderer = renderer
         self.renderer?.iconQueue += shapes
         self.renderer?.iconQueue += materials
-        self.modeler?.executeCommand(shapes.first!, self.modeler?.iconKit, clearFirst: true)
+        self.renderer?.installNextIconCmd(shapes.first)
     }
     
     /// Initialises the currently available shapes
     func createShapes() {
         shapes = [
             SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Radius", Float(0.4), float2(0, 10))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
-            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Size", float3(0.2,0.2,0.2) * 10)]))
+            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Size", float3(0.3,0.3,0.3))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]
         selectedShape = shapes.first
     }

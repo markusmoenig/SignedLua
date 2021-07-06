@@ -37,6 +37,19 @@ renderQuadVertexShader(uint vertexID [[ vertex_id ]],
     return out;
 }
 
+// For the visual bounding box of the 3D texture
+// Box Frame - exact   (https://www.shadertoy.com/view/3ljcRh)
+
+float sdBoxFrame(float3 p, float3 b, float e)
+{
+  p = abs(p  )-b;
+  float3 q = abs(p+e)-e;
+  return min(min(
+      length(max(float3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),
+      length(max(float3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),
+      length(max(float3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));
+}
+
 // MARK: Disney Start
 
 // Based on the Disney BSDF Pathtracer at https://github.com/knightcrawler25/GLSL-PathTracer
@@ -1069,7 +1082,8 @@ fragment float4 render(RasterizerData in [[stage_in]],
     
     bool editHit;
     
-    int maxDepth = 5;
+    int maxDepth = renderData.maxDepth;
+    //bool didHitBBox = false;
 
     for (int depth = 0; depth < maxDepth; depth++)
     {
@@ -1084,14 +1098,23 @@ fragment float4 render(RasterizerData in [[stage_in]],
                     
             t = bbox.x;
             bool hit = false;
+            //float bd = INFINITY;
             
             for(int i = 0; i < 200; ++i)
             {
                 float3 p = ray.origin + ray.direction * t;
                 float d = abs(getDistance(p, modelTexture, mData, editHit, scale));//map(p, dataIn);
+                
+                // --- Visual Bounding Box, only test on the first pass
+                //if (i == 0) {
+                //    bd = sdBoxFrame(p, float(r), 0.004);
+                //    d = min(d, bd);
+                //}
+                // ---
 
                 if (d < (0.0001*t)) {
                     hit = true;
+                    //if (i == 0 && d == bd) didHitBBox = true;
                     break;
                 }
                 
@@ -1181,6 +1204,11 @@ fragment float4 render(RasterizerData in [[stage_in]],
             radiance += renderData.backgroundColor.xyz * throughput;
             return float4(radiance, 1.0);
         }
+        
+        //if (didHitBBox) {
+        //    radiance = float3(1);
+        //    break;
+        //}
         
         Onb(state.normal, state.tangent, state.bitangent);
         
@@ -1314,7 +1342,7 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
             result1.x = t;
             float3 p = ro + rd * t;
             result1.yzw = getNormal(p, modelTexture, scale);
-            result2.xyz = p / 3.0;
+            result2.xyz = p;
         }
     }
     

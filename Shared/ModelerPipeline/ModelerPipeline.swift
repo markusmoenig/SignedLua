@@ -51,7 +51,7 @@ class ModelerPipeline
     var iconKit         : ModelerKit!
     
     static var IconSize : Int = 60
-    static var IconSamples : Int = 60
+    static var IconSamples : Int = 40
 
     init(_ view: MTKView,_ model: Model)
     {
@@ -125,7 +125,6 @@ class ModelerPipeline
     func accumulate(texture: MTLTexture, targetTexture: MTLTexture, samples: Int32)
     {
         startCompute()
-
         if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
             if let state = modelingStates.getComputeState(stateName: "modelerAccum") {
             

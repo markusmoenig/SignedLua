@@ -88,7 +88,7 @@ class RenderPipeline
         
         // Render an icon sample ?
         if let icon = iconQueue.first {
-            startRendering()
+            startRendering(SIMD2<Int>(ModelerPipeline.IconSize, ModelerPipeline.IconSize))
                     
             if let iconKit = model.modeler?.iconKit, iconKit.isValid() {
                 
@@ -109,9 +109,7 @@ class RenderPipeline
                     
                     // Init the next one to render
                     iconKit.samples = 0
-                    if let next = iconQueue.first {
-                        model.modeler?.executeCommand(next, iconKit, clearFirst: true)
-                    }
+                    installNextIconCmd(iconQueue.first)
                 }
             }
             
@@ -119,14 +117,28 @@ class RenderPipeline
         }
     }
     
-    func startRendering()
+    func installNextIconCmd(_ cmd: SignedCommand?) {
+        if let cmd = cmd {
+            model.iconCmd = cmd//.copy()!
+            //model.iconCmd.material.data.set("Emission", float3(1,0.2,0.2))
+        } else {
+            //model.iconCmd = cmd//.copy()!
+        }
+    }
+    
+    func startRendering(_ customSize: SIMD2<Int>? = nil)
     {
         if commandQueue == nil {
             commandQueue = device.makeCommandQueue()
         }
         commandBuffer = commandQueue.makeCommandBuffer()
-        quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(renderSize.x), Float(renderSize.y)))
-        quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0)
+        if customSize == nil {
+            quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(renderSize.x), Float(renderSize.y)))
+            quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0)
+        } else {
+            quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(customSize!.x), Float(customSize!.y)))
+            quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(customSize!.x), height: Double(customSize!.y), znear: 0.0, zfar: 1.0)
+        }
     }
     
     func commitAndStopRendering()
@@ -156,7 +168,7 @@ class RenderPipeline
             var renderUniforms = createRenderUniform(model.modeler?.mainKit !== kit)
             renderEncoder.setFragmentBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
             
-            var modelerUniform = model.modeler?.createModelerUniform(model.editingCmd)
+            var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd)
             renderEncoder.setFragmentBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
             
             renderEncoder.setFragmentTexture(kit.modelTexture, index: 2)
@@ -185,6 +197,8 @@ class RenderPipeline
             renderUniform.cameraLookAt = model.project.camera.getLookAt()
             renderUniform.scale = model.project.scale
             
+            renderUniform.maxDepth = 3;
+
             renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
             
             renderUniform.numOfLights = 1
@@ -210,20 +224,22 @@ class RenderPipeline
             //let v2 = float3(1, 1, 1)
 
             renderUniform.lights.0.position = float3(-1, 1, -1)
-            renderUniform.lights.0.emission = float3(10,10,10)
+            renderUniform.lights.0.emission = float3(10, 10, 10)
             renderUniform.lights.0.u = v1// - renderUniform.lights.0.position
             renderUniform.lights.0.v = v2// - renderUniform.lights.0.position
             renderUniform.lights.0.params.x = 1
             renderUniform.lights.0.params.y = length(cross(renderUniform.lights.0.u, renderUniform.lights.0.v));
             renderUniform.lights.0.params.z = 0
         } else {
-            renderUniform.cameraOrigin = float3(0, 0, 3)
-            renderUniform.cameraLookAt = float3(0, 0, 0);
-            renderUniform.scale = 1//model.project.scale
+            renderUniform.cameraOrigin = float3(0, 0.5, 0)
+            renderUniform.cameraLookAt = float3(0.001, 0, 0);
+            renderUniform.scale = 8//model.project.scale
             
-            renderUniform.backgroundColor = float4(1,0,0,1);
+            renderUniform.maxDepth = 1;
+
+            renderUniform.backgroundColor = float4(0.1, 0.1, 0.1, 1);
             
-            renderUniform.numOfLights = 1
+            renderUniform.numOfLights = 0
 
             /*
             renderUniform.lights.0.position = float3(0,1.5,0)
@@ -239,7 +255,7 @@ class RenderPipeline
             //let v2 = float3(1, 1, 1)
 
             renderUniform.lights.0.position = float3(-1, 1, -1)
-            renderUniform.lights.0.emission = float3(10,10,10)
+            renderUniform.lights.0.emission = float3(1, 1, 1)
             renderUniform.lights.0.u = v1// - renderUniform.lights.0.position
             renderUniform.lights.0.v = v2// - renderUniform.lights.0.position
             renderUniform.lights.0.params.x = 1
@@ -263,7 +279,6 @@ class RenderPipeline
         
         return renderUniform
     }
-    
     
     /// Check and allocate all textures, returns true if the textures had to be changed / reallocated
     func checkMainKitTextures() -> Bool
