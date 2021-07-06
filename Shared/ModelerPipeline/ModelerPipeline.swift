@@ -23,7 +23,7 @@ class ModelerKit {
     var outputTexture   : MTLTexture? = nil
     
     var samples         : Int32 = 0
-    var maxSamples      : Int32 = 100
+    var maxSamples      : Int32 = 400
 
     func isValid() -> Bool {
         return modelTexture != nil && colorTexture != nil
@@ -50,8 +50,8 @@ class ModelerPipeline
     /// The kit used to render previews
     var iconKit         : ModelerKit!
     
-    static var IconSize : Int = 60
-    static var IconSamples : Int = 40
+    static var IconSize : Int = 80
+    static var IconSamples : Int = 200
 
     init(_ view: MTKView,_ model: Model)
     {
@@ -167,6 +167,14 @@ class ModelerPipeline
         
         if let rounding = cmd.data.getFloat("Rounding") {
             modelerUniform.rounding = rounding
+        }
+        
+        modelerUniform.normal = cmd.normal
+        
+        if let surfaceDistance = cmd.data.getFloat("Surface Distance") {
+            modelerUniform.surfaceDistance = surfaceDistance
+        } else {
+            modelerUniform.surfaceDistance = 0
         }
         
         modelerUniform.material = cmd.material.toMaterialStruct()

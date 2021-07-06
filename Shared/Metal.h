@@ -191,18 +191,11 @@ typedef struct {
     simd_float3         size;
     float               rounding;
     
-    Material            material;
-
-    int                 samples;
-    int                 depth;
-    int                 maxDepth;
-        
-    // bbox
-    simd_float3         P;
-    simd_float3         L;
-    matrix_float3x3     F;
+    simd_float3         normal;
+    float               surfaceDistance;
     
-    float               maxDistance;
+    Material            material;
+    
 } ModelerUniform;
 
 #endif /* Metal_h */

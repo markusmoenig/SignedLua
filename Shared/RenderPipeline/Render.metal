@@ -1131,9 +1131,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
                 state.fhp = position;
                 state.normal = normal;
                 state.ffnormal = dot(normal, ray.direction) <= 0.0 ? normal : normal * -1.0;
-                
-                //radiance = float3(1);
-                
+                                
             } else {
                 t = INFINITY;
             }
@@ -1156,7 +1154,6 @@ fragment float4 render(RasterizerData in [[stage_in]],
             float area    = params.y;
             float type    = params.z;
              */
-             
 
             // Intersect rectangular area light
             if (light.params.z == 0.)

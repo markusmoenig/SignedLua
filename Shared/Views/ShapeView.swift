@@ -15,7 +15,7 @@ struct ShapeView: View {
     
     init(model: Model) {
         self.model = model
-        _selected = State(initialValue: model.shapes.first)
+        _selected = State(initialValue: model.selectedShape)
     }
 
     var body: some View {
@@ -41,7 +41,7 @@ struct ShapeView: View {
                         } else {
                             Rectangle()
                                 .fill(Color.secondary)
-                                .frame(width: 60, height: 60)
+                                .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
                                 .onTapGesture(perform: {
                                     selected = shape
                                     model.selectedShape = shape
@@ -54,14 +54,21 @@ struct ShapeView: View {
                         
                         if shape === selected {
                             Rectangle()
-                                .stroke(Color.primary, lineWidth: 2)
-                                .frame(width: 60, height: 60)
+                                .stroke(Color.accentColor, lineWidth: 2)
+                                .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
                                 .allowsHitTesting(false)
                         }
                         
+                        Rectangle()
+                            .fill(.black)
+                            .opacity(0.4)
+                            .frame(width: CGFloat(ModelerPipeline.IconSize - (shape === selected ? 2 : 0)), height: CGFloat(20 - (shape === selected ? 1 : 0)))
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - (20 + (shape === selected ? 1 : 0))))
+                        
                         Text(shape.name)
-                            .padding(.top, 40)
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - 20))
                             .allowsHitTesting(false)
+                            .foregroundColor(.white)
                     }
                 }
             }

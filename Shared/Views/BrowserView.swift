@@ -70,21 +70,6 @@ struct BrowserView: View {
                 Button(action: {
                     if let object = model.selectedObject {
                         if let cmd = model.editingCmd.copy() {
-                            
-                            //let position = cmd.data.getFloat3("Position")! / model.project.scale
-                            //cmd.data.set("Position", position)
-                            
-                            //let radius = cmd.data.getFloat("Radius")! / model.project.scale
-                            //cmd.data.set("Radius", radius)
-
-                            //cmd.data.set("Position", float3(0,0,0))
-                            //cmd.data.set("Radius", Float(0.4))
-                            
-                            //print(cmd.data.getFloat3("Position"))
-                            //print(cmd.data.getFloat("Radius"))
-
-                            model.editingCmd = SignedCommand()
-
                             object.commands.append(cmd)
                             model.modeler?.executeCommand(cmd)
                             model.renderer?.restart()
@@ -110,6 +95,9 @@ struct BrowserView: View {
                 List {
                     Button(action: {
                         selection =  .shapes
+                        if let selectedShape = model.selectedShape {
+                            self.model.shapeSelected.send(selectedShape)
+                        }
                     })
                     {
                         Label("Shapes", systemImage: "square")
@@ -127,6 +115,9 @@ struct BrowserView: View {
                     
                     Button(action: {
                         selection =  .materials
+                        if let selectedMaterial = model.selectedMaterial {
+                            self.model.materialSelected.send(selectedMaterial)
+                        }
                     })
                     {
                         Label("Materials", systemImage: "paintpalette")

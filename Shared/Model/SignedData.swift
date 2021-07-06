@@ -170,6 +170,16 @@ class SignedData: Codable {
         return nil
     }
     
+    /// Checks if a given key exists
+    func exists(_ key : String) -> Bool {
+        for e in data {
+            if e.key == key {
+                return true
+            }
+        }
+        return false
+    }
+    
     /// Set Int
     func set(_ key: String,_ value: Int,_ range: float2 = float2(0,1),_ time: Double? = nil) {
         if let ex = getExisting(key, .Int, time) {

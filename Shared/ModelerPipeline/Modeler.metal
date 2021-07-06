@@ -56,11 +56,13 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, f
 {
     float newDist = INFINITY;
     
+    float3 position = mData.position * scale + mData.normal * mData.surfaceDistance * scale;
+    
     if (mData.primitiveType == Modeler_Sphere) {
-        newDist = sdSphere(uv - mData.position * scale, mData.radius * scale / Modeler_Global_Scale);
+        newDist = sdSphere(uv - position, mData.radius * scale / Modeler_Global_Scale);
     } else
     if (mData.primitiveType == Modeler_Box) {
-        newDist = sdRoundBox(uv - mData.position * scale, mData.size * scale / Modeler_Global_Scale, mData.rounding);
+        newDist = sdRoundBox(uv - position, mData.size * scale / Modeler_Global_Scale, mData.rounding);
     }
     
     return min(dist, newDist);
@@ -102,7 +104,7 @@ kernel void modelerClear(texture3d<half, access::write>    modelTexture  [[textu
                          texture3d<half, access::write>    materialTexture4  [[texture(5)]],
                          uint3 gid                         [[thread_position_in_grid]])
 {
-    modelTexture.write(half4(1000), gid);
+    modelTexture.write(half4(INFINITY), gid);
     colorTexture.write(half4(0.5), gid);
     materialTexture1.write(half4(0), gid);
     materialTexture2.write(half4(0), gid);

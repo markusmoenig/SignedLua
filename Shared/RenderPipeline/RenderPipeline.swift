@@ -117,12 +117,17 @@ class RenderPipeline
         }
     }
     
+    /// Installs the next icon command
     func installNextIconCmd(_ cmd: SignedCommand?) {
         if let cmd = cmd {
             model.iconCmd = cmd//.copy()!
+
+            //model.iconCmd.action = .None
+            //model.modeler?.executeCommand(cmd, model.modeler?.iconKit, clearFirst: true)
             //model.iconCmd.material.data.set("Emission", float3(1,0.2,0.2))
         } else {
             //model.iconCmd = cmd//.copy()!
+            model.iconCmd.action = .None
         }
     }
     
@@ -233,13 +238,13 @@ class RenderPipeline
         } else {
             renderUniform.cameraOrigin = float3(0, 0.5, 0)
             renderUniform.cameraLookAt = float3(0.001, 0, 0);
-            renderUniform.scale = 8//model.project.scale
+            renderUniform.scale = 6//model.project.scale
             
-            renderUniform.maxDepth = 1;
+            renderUniform.maxDepth = 3;
 
             renderUniform.backgroundColor = float4(0.1, 0.1, 0.1, 1);
             
-            renderUniform.numOfLights = 0
+            renderUniform.numOfLights = 1
 
             /*
             renderUniform.lights.0.position = float3(0,1.5,0)
@@ -255,7 +260,7 @@ class RenderPipeline
             //let v2 = float3(1, 1, 1)
 
             renderUniform.lights.0.position = float3(-1, 1, -1)
-            renderUniform.lights.0.emission = float3(1, 1, 1)
+            renderUniform.lights.0.emission = float3(10, 10, 10)
             renderUniform.lights.0.u = v1// - renderUniform.lights.0.position
             renderUniform.lights.0.v = v2// - renderUniform.lights.0.position
             renderUniform.lights.0.params.x = 1

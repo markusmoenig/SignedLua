@@ -15,7 +15,7 @@ struct MaterialView: View {
     
     init(model: Model) {
         self.model = model
-        _selected = State(initialValue: model.shapes.first)
+        _selected = State(initialValue: model.selectedMaterial)
     }
 
     var body: some View {
@@ -41,7 +41,7 @@ struct MaterialView: View {
                         } else {
                             Rectangle()
                                 .fill(Color.secondary)
-                                .frame(width: 60, height: 60)
+                                .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
                                 .onTapGesture(perform: {
                                     selected = material
                                     model.selectedMaterial = material
@@ -54,14 +54,21 @@ struct MaterialView: View {
                         
                         if material === selected {
                             Rectangle()
-                                .stroke(Color.primary, lineWidth: 2)
-                                .frame(width: 60, height: 60)
+                                .stroke(Color.accentColor, lineWidth: 2)
+                                .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
                                 .allowsHitTesting(false)
                         }
                         
+                        Rectangle()
+                            .fill(.black)
+                            .opacity(0.4)
+                            .frame(width: CGFloat(ModelerPipeline.IconSize - (material === selected ? 2 : 0)), height: CGFloat(20 - (material === selected ? 1 : 0)))
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - (20 + (material === selected ? 1 : 0))))
+                        
                         Text(material.name)
-                            .padding(.top, 40)
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - 20))
                             .allowsHitTesting(false)
+                            .foregroundColor(.white)
                     }
                 }
             }

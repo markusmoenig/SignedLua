@@ -76,6 +76,10 @@ class Model: NSObject, ObservableObject {
         
         createShapes()
         createMaterials()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.shapeSelected.send(self.selectedShape!)
+        }
     }
     
     /// Sets the renderer
@@ -85,13 +89,16 @@ class Model: NSObject, ObservableObject {
         self.renderer?.iconQueue += shapes
         self.renderer?.iconQueue += materials
         self.renderer?.installNextIconCmd(shapes.first)
+        
+        editingCmd = shapes.first!.copy()!
+        editingCmd.action = .None
     }
     
     /// Initialises the currently available shapes
     func createShapes() {
         shapes = [
-            SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Radius", Float(0.4), float2(0, 10))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
-            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Size", float3(0.3,0.3,0.3))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
+            SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([ SignedDataEntity("Radius", Float(0.4), float2(0, 10))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
+            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]
         selectedShape = shapes.first
     }

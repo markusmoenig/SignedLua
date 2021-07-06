@@ -108,18 +108,12 @@ public class STKView        : MTKView
             }
         }
         
-        let size = float2(Float(frame.width), Float(frame.height))
-        if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
-            let cmd = model.editingCmd
-            cmd.data.set("Position", hit.0 / model.project.scale)
-            
-            renderer?.restart()
-            model.updateDataViews.send()
-        }
+        edit()
     }
     
     override public func mouseDragged(with event: NSEvent) {
         setMousePos(event)
+        edit()
     }
     
     override public func mouseMoved(with event: NSEvent) {
@@ -137,6 +131,19 @@ public class STKView        : MTKView
     }
     
     #endif
+    
+    func edit()
+    {
+        let size = float2(Float(frame.width), Float(frame.height))
+        if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+            let cmd = model.editingCmd
+            cmd.data.set("Position", hit.0 / model.project.scale)            
+            cmd.normal = hit.1
+
+            renderer?.restart()
+            model.updateDataViews.send()
+        }
+    }
 }
 
 #if os(OSX)
