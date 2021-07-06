@@ -198,7 +198,7 @@ struct ContentView: View {
                     }
                     
                     BrowserView(model: document.model)
-                        .frame(minHeight: 120, maxHeight: 120)
+                        .frame(minHeight: 120, maxHeight: 140)
 
                 }
 

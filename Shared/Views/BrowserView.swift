@@ -150,8 +150,13 @@ struct BrowserView: View {
                         } else { Color.clear }
                     })
                 }
+                #if os(OSX)
                 .frame(maxWidth: 130)
-                
+                #elseif os(iOS)
+                .frame(maxWidth: 230)
+                .listStyle(.plain)
+                #endif
+
                 Divider()
                 
                 if selection == .shapes {
@@ -162,6 +167,7 @@ struct BrowserView: View {
                 }
                 Spacer()
             }
+            .padding(.top, 0)
         }
         
         //.onReceive(model.componentPreviewNeedsUpdate) { _ in

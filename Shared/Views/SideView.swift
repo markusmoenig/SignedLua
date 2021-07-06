@@ -28,14 +28,16 @@ struct SideView: View {
                 })
                 {
                     Image(systemName: mode == .shape ? "square.fill" : "square")
+                        .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
-                
+
                 Button(action: {
                     mode = .material
                 })
                 {
                     Image(systemName: mode == .material ? "paintpalette.fill" : "paintpalette")
+                        .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
 
@@ -44,6 +46,7 @@ struct SideView: View {
                 })
                 {
                     Image(systemName: mode == .camera ? "camera.fill" : "camera")
+                        .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
                 
@@ -52,11 +55,13 @@ struct SideView: View {
                 })
                 {
                     Image(systemName: mode == .settings ? "gearshape.fill" : "gearshape")
+                        .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
                 
             }
-            .padding(.top, 4)
+            .padding(.top, 6)
+            .padding(.leading, 6)
             
             Divider()            
             

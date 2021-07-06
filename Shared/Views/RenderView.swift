@@ -52,6 +52,8 @@ public class STKView        : MTKView
         }
     }
     
+    #if os(OSX)
+
     /// Setup the view
     func platformInit(_ model: Model, command: SignedCommand? = nil)
     {
@@ -60,13 +62,9 @@ public class STKView        : MTKView
         model.setRenderer(renderer)
         self.model = model
         
-        #if os(OSX)
         layer?.isOpaque = false
-        #endif
     }
     
-    #if os(OSX)
-
     override public var acceptsFirstResponder: Bool { return true }
 
     /// To get continuous mouse events on macOS
@@ -130,8 +128,112 @@ public class STKView        : MTKView
         setMousePos(event)
     }
     
+    #elseif os(iOS)
+
+    /// Setup the view
+    func platformInit(_ model: Model, command: SignedCommand? = nil)
+    {
+        renderer = RenderPipeline(self, model)
+        drawables = MetalDrawables(self)
+        model.setRenderer(renderer)
+        self.model = model
+        
+        let tapRecognizer = UITapGestureRecognizer(target: self, action:(#selector(self.handleTapGesture(_:))))
+        tapRecognizer.numberOfTapsRequired = 1
+        addGestureRecognizer(tapRecognizer)
+        
+        let panRecognizer = UIPanGestureRecognizer(target: self, action:(#selector(self.handlePanGesture(_:))))
+        panRecognizer.minimumNumberOfTouches = 2
+        addGestureRecognizer(panRecognizer)
+        
+        let pinchRecognizer = UIPinchGestureRecognizer(target: self, action:(#selector(self.handlePinchGesture(_:))))
+        addGestureRecognizer(pinchRecognizer)
+    }
+
+    @objc func handleTapGesture(_ recognizer: UITapGestureRecognizer)
+    {
+        if recognizer.numberOfTouches == 1 {
+            hasTap = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
+                self.hasTap = false
+            }
+        } else
+        if recognizer.numberOfTouches >= 1 {
+            hasDoubleTap = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
+                self.hasDoubleTap = false
+            }
+        }
+    }
+
+    var lastX, lastY    : Float?
+    @objc func handlePanGesture(_ recognizer: UIPanGestureRecognizer)
+    {
+        if recognizer.numberOfTouches > 1 {
+            let translation = recognizer.translation(in: self)
+            
+            if ( recognizer.state == .began ) {
+                lastX = 0
+                lastY = 0
+            }
+            
+            let delta = float3(Float(translation.x) - lastX!, Float(translation.y) - lastY!, Float(recognizer.numberOfTouches))
+            
+            lastX = Float(translation.x)
+            lastY = Float(translation.y)
+            
+            //if let node = core.graphBuilder.currentNode {
+            //    node.toolScrollWheel(delta, core.toolContext)
+            //}
+        }
+    }
+
+    var firstTouch      : Bool = false
+    @objc func handlePinchGesture(_ recognizer: UIPinchGestureRecognizer)
+    {
+        //if let cameraNode = getCameraNode() {
+        //    cameraNode.toolPinchGesture(Float(recognizer.scale), firstTouch, core.toolContext)
+        //}
+        
+        firstTouch = false
+    }
+
+    func setMousePos(_ x: Float, _ y: Float)
+    {
+        mousePos.x = x
+        mousePos.y = y
+        
+        //mousePos.x /= Float(bounds.width) / core.texture!.width// / game.scaleFactor
+        //mousePos.y /= Float(bounds.height) / core.texture!.height// / game.scaleFactor
+    }
+
+    override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        mouseIsDown = true
+        firstTouch = true
+        if let touch = touches.first {
+            let point = touch.location(in: self)
+            setMousePos(Float(point.x), Float(point.y))
+            edit()
+        }
+    }
+
+    override public func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            let point = touch.location(in: self)
+            setMousePos(Float(point.x), Float(point.y))
+            edit()
+        }
+    }
+
+    override public func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        mouseIsDown = false
+        if let touch = touches.first {
+            let point = touch.location(in: self)
+                setMousePos(Float(point.x), Float(point.y))
+        }
+    }
     #endif
-    
+
     func edit()
     {
         let size = float2(Float(frame.width), Float(frame.height))
