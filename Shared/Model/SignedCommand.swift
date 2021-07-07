@@ -72,7 +72,7 @@ class SignedCommand : Codable, Hashable {
         }
         
         if self.data.exists("Position") == false {
-            self.data.data.insert(SignedDataEntity("Position", float3(0,0,0)), at: 0)
+            self.data.data.insert(SignedDataEntity("Position", float3(0,0,0), float2(-0.5, 0.5)), at: 0)
         }
         
         if self.data.exists("Surface Distance") == false {

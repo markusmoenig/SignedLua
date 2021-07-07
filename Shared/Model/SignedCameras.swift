@@ -15,7 +15,7 @@ class SignedPinholeCamera : Codable, Hashable {
     
     var data            : SignedData
             
-    var position        = float3(0, 0, 3)
+    var position        = float3(0, 0, -3)
     var lookAt          = float3(0, 0, 0)
 
     var fov             : Float = 80
@@ -35,9 +35,9 @@ class SignedPinholeCamera : Codable, Hashable {
         self.name = name
         data = SignedData([])
         
-        data.set("Position", float3(0,0,3))
-        data.set("Look At", float3(0,0,0))
-        data.set("Fov", Float(80))
+        data.set("Position", float3(0,0,-3), float2(-5, 5))
+        data.set("Look At", float3(0,0,0), float2(-5, 5))
+        data.set("Fov", Float(80), float2(0, 160))
     }
     
     required init(from decoder: Decoder) throws

@@ -19,6 +19,7 @@ class SignedDataEntity: Codable, Hashable {
     var key         : String
     var type        : DataType
     var value       : float4
+    var defaultValue: float4
     var time        : Double?
     var range       : float2
         
@@ -28,6 +29,7 @@ class SignedDataEntity: Codable, Hashable {
         case value
         case range
         case time
+        case defaultValue
     }
     
     init(_ key: String,_ v: Int,_ r: float2 = float2(0,1),_ t: Double? = nil) {
@@ -36,6 +38,8 @@ class SignedDataEntity: Codable, Hashable {
         value = float4(Float(v), 0, 0, 0)
         range = r
         time = t
+        
+        defaultValue = value
     }
     
     init(_ key: String,_ v: Float,_ r: float2 = float2(0,1),_ t: Double? = nil) {
@@ -44,6 +48,8 @@ class SignedDataEntity: Codable, Hashable {
         value = float4(v, 0, 0, 0)
         range = r
         time = t
+        
+        defaultValue = value
     }
     
     init(_ key: String,_ v: float2,_ r: float2 = float2(0,1),_ t: Double? = nil) {
@@ -52,6 +58,8 @@ class SignedDataEntity: Codable, Hashable {
         value = float4(v.x, v.y, 0, 0)
         range = r
         time = t
+        
+        defaultValue = value
     }
     
     init(_ key: String,_ v: float3,_ r: float2 = float2(0,1),_ t: Double? = nil) {
@@ -60,6 +68,8 @@ class SignedDataEntity: Codable, Hashable {
         value = float4(v.x, v.y, v.z, 0)
         range = r
         time = t
+        
+        defaultValue = value
     }
     
     init(_ key: String,_ v: float4,_ r: float2 = float2(0,1),_ t: Double? = nil) {
@@ -68,6 +78,8 @@ class SignedDataEntity: Codable, Hashable {
         value = v
         range = r
         time = t
+        
+        defaultValue = value
     }
     
     required init(from decoder: Decoder) throws
@@ -78,6 +90,7 @@ class SignedDataEntity: Codable, Hashable {
         value = try container.decode(float4.self, forKey: .value)
         range = try container.decode(float2.self, forKey: .range)
         time = try container.decode(Double?.self, forKey: .time)
+        defaultValue = try container.decode(float4.self, forKey: .defaultValue)
     }
     
     func encode(to encoder: Encoder) throws
@@ -88,6 +101,7 @@ class SignedDataEntity: Codable, Hashable {
         try container.encode(value, forKey: .value)
         try container.encode(range, forKey: .range)
         try container.encode(time, forKey: .time)
+        try container.encode(defaultValue, forKey: .defaultValue)
     }
     
     static func ==(lhs: SignedDataEntity, rhs: SignedDataEntity) -> Bool {
