@@ -8,18 +8,20 @@
 import Foundation
 
 /// A singlee data entity of a given type and optionally at a given time, for convenience and speed use float4 to store
-class SignedDataEntity: Codable {
+class SignedDataEntity: Codable, Hashable {
     
     enum DataType: String, Codable {
-        case Int, Float, Float2, Float3, Float4, Color
+        case Int, Float, Float2, Float3, Float4, Color3, Color4
     }
     
+    var id          = UUID()
+
     var key         : String
     var type        : DataType
     var value       : float4
     var time        : Double?
     var range       : float2
-    
+        
     private enum CodingKeys: String, CodingKey {
         case key
         case type
@@ -86,6 +88,14 @@ class SignedDataEntity: Codable {
         try container.encode(value, forKey: .value)
         try container.encode(range, forKey: .range)
         try container.encode(time, forKey: .time)
+    }
+    
+    static func ==(lhs: SignedDataEntity, rhs: SignedDataEntity) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
@@ -233,5 +243,12 @@ class SignedData: Codable {
             }
         }
         return nil
+    }
+    
+    func debug() {
+        print("start")
+        for e in data {
+            print(e.key, e.value)
+        }
     }
 }

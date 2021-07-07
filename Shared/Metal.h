@@ -185,7 +185,7 @@ typedef struct {
 
     simd_float3         position;
     simd_float3         rotation;
-    
+
     float               radius;
     
     simd_float3         size;

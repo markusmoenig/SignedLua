@@ -111,7 +111,7 @@ struct DataView: View {
         ScrollView {
             VStack(alignment: .leading) {
                 
-                ForEach(data.data, id: \.key) { entity in
+                ForEach(data.data, id: \.id) { entity in
                     if entity.type == .Float {
                         FloatDataView(model, entity)
                             .padding(2)

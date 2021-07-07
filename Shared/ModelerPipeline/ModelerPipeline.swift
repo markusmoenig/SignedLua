@@ -156,6 +156,10 @@ class ModelerPipeline
         if let position = cmd.data.getFloat3("Position") {
             modelerUniform.position = position
         }
+                
+        if let rotation = cmd.data.getFloat3("Rotation") {
+            modelerUniform.rotation = rotation
+        }
         
         if let size = cmd.data.getFloat3("Size") {
             modelerUniform.size = size

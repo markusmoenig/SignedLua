@@ -32,6 +32,16 @@ float noise(float3 x) {
                    mix( hash(n + dot(step, float3(0, 1, 1))), hash(n + dot(step, float3(1, 1, 1))), u.x), u.y), u.z);
 }
 
+float degrees(float radians)
+{
+    return radians * 180.0 / M_PI_F;
+}
+
+float radians(float degrees)
+{
+    return degrees * M_PI_F / 180.0;
+}
+
 // Thanks Inigo, https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 
 float sdSphere(float3 p, float s)
@@ -51,18 +61,48 @@ float sdRoundBox(float3 p, float3 b, float r )
     return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
 }
 
+float2 rotate(float2 pos, float angle)
+{
+    float ca = cos(angle), sa = sin(angle);
+    return pos * float2x2(ca, sa, -sa, ca);
+}
+
+float2 rotatePivot(float2 pos, float angle, float2 pivot)
+{
+    float ca = cos(angle), sa = sin(angle);
+    return pivot + (pos-pivot) * float2x2(ca, sa, -sa, ca);
+}
+
 /// Computes the given distance for the given modeler cmd
 float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, float scale)
 {
     float newDist = INFINITY;
     
+    /*
+    float3 transformedPosition = (position - objectPosition) / objectScale * \(scale.toMetal());
+    
+    transformedPosition = translate(transformedPosition, \(position.toMetal()));
+    float3 offsetFromCenter = objectPosition - \(position.toMetal());
+
+    float3 rotation = objectRotation + \(rotation.toMetal());
+
+    transformedPosition.yz = rotatePivot(transformedPosition.yz, radians(rotation.x), offsetFromCenter.yz );
+    transformedPosition.xz = rotatePivot(transformedPosition.xz, radians(rotation.y), offsetFromCenter.xz );
+    transformedPosition.xy = rotatePivot(transformedPosition.xy, radians(rotation.z), offsetFromCenter.xy );*/
+
     float3 position = mData.position * scale + mData.normal * mData.surfaceDistance * scale;
     
+    float3 p = uv - position;
+    
+    p.yz = rotate(p.yz, radians(mData.rotation.x));
+    p.xz = rotate(p.xz, radians(mData.rotation.y));
+    p.xy = rotate(p.xy, radians(mData.rotation.z));
+    
     if (mData.primitiveType == Modeler_Sphere) {
-        newDist = sdSphere(uv - position, mData.radius * scale / Modeler_Global_Scale);
+        newDist = sdSphere(p, mData.radius * scale / Modeler_Global_Scale);
     } else
     if (mData.primitiveType == Modeler_Box) {
-        newDist = sdRoundBox(uv - position, mData.size * scale / Modeler_Global_Scale, mData.rounding);
+        newDist = sdRoundBox(p, mData.size * scale / Modeler_Global_Scale, mData.rounding);
     }
     
     return min(dist, newDist);

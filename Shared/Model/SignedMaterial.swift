@@ -29,7 +29,7 @@ class SignedMaterial: Codable {
         data.set("Sheen", sheen)
         data.set("SheenTint", sheenTint)
         data.set("Clearcoat", clearcoat)
-        data.set("ClearcoatGloss", clearcoatGloss)
+        data.set("Clearcoat Gloss", clearcoatGloss)
         data.set("Transmission", specTrans)
         data.set("IOR", ior)
         data.set("Emission", emission)
@@ -60,7 +60,7 @@ class SignedMaterial: Codable {
         material.sheen = data.getFloat("Sheen")!
         material.sheenTint = data.getFloat("SheenTint")!
         material.clearcoat = data.getFloat("Clearcoat")!
-        material.clearcoatGloss = data.getFloat("ClearcoatGloss")!
+        material.clearcoatGloss = data.getFloat("Clearcoat Gloss")!
         material.specTrans = data.getFloat("Transmission")!
         material.ior = data.getFloat("IOR")!
         material.emission = data.getFloat3("Emission")!

@@ -10,6 +10,13 @@ import Combine
 
 class Model: NSObject, ObservableObject {
     
+    enum EditingMode {
+        case single
+        case multiple
+    }
+    
+    var editingMode                         : EditingMode? = .single
+    
     /// The project itself
     var project                             : SignedProject
     
@@ -90,15 +97,15 @@ class Model: NSObject, ObservableObject {
         self.renderer?.iconQueue += materials
         self.renderer?.installNextIconCmd(shapes.first)
         
-        editingCmd = shapes.first!.copy()!
+        editingCmd.copyGeometry(from: shapes.first!)
         editingCmd.action = .None
     }
     
     /// Initialises the currently available shapes
     func createShapes() {
         shapes = [
-            SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([ SignedDataEntity("Radius", Float(0.4), float2(0, 10))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
-            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
+            SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Radius", Float(0.4), float2(0, 10))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
+            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Rotation", float3(0,0,0), float2(0,360)), SignedDataEntity("Size", float3(0.3,0.3,0.3))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]
         selectedShape = shapes.first
     }
@@ -106,8 +113,8 @@ class Model: NSObject, ObservableObject {
     /// Initialises the inbuilt materials
     func createMaterials() {
         materials = [
-            SignedCommand("Gold", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Radius", Float(0.4))]), material: SignedMaterial(albedo: float3(1,0,0), metallic: 1, roughness: 0.01)),
-            SignedCommand("Stone", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Position", float3(0,0,0)), SignedDataEntity("Radius", Float(0.4))]), material: SignedMaterial(albedo: float3(0.8,0.8,0.8), roughness: 0.7)),
+            SignedCommand("Gold", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Radius", Float(0.4))]), material: SignedMaterial(albedo: float3(1,0,0), metallic: 1, roughness: 0.01)),
+            SignedCommand("Stone", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Radius", Float(0.4))]), material: SignedMaterial(albedo: float3(0.8,0.8,0.8), roughness: 0.7)),
         ]
         selectedMaterial = materials.first
     }

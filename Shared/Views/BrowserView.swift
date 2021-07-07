@@ -18,6 +18,7 @@ struct BrowserView: View {
     let model                               : Model
     
     @State private var selection            : NavigationItem? = .shapes
+    @State private var editingMode          : Model.EditingMode? = .single
 
     var body: some View {
                 
@@ -48,9 +49,12 @@ struct BrowserView: View {
 
             HStack(alignment: .top) {
                 Button(action: {
+                    editingMode = .single
+                    model.editingMode = .single
                 })
                 {
-                    Text("Orbit")
+                    Image(systemName: editingMode == .single ? "circlebadge.fill" : "circlebadge")
+                        .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
                 .padding(.leading, 10)
@@ -59,9 +63,12 @@ struct BrowserView: View {
                 //Divider()
 
                 Button(action: {
+                    editingMode = .multiple
+                    model.editingMode = .multiple
                 })
                 {
-                    Text("Orbit")
+                    Image(systemName: editingMode == .multiple ? "circlebadge.2.fill" : "circlebadge.2")
+                        .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
                 

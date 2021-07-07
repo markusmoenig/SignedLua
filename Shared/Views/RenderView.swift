@@ -42,13 +42,17 @@ public class STKView        : MTKView
     func update()
     {
         renderer?.renderSample()
-        if drawables?.encodeStart(float4(0,0,0,0)) != nil {
-            
-            if let texture = model.modeler?.mainKit.outputTexture {
-                drawables?.drawBox(position: float2(0,0), size: float2(Float(texture.width), Float(texture.height)), rounding: 0, borderSize: 0, onion: 0, fillColor: float4(0,0,0,1), borderColor: float4(0,0,0,0), texture: texture)
+        if let modeler = model?.modeler {
+            if modeler.mainKit.samples >= 1 {
+                if drawables?.encodeStart(float4(0,0,0,0)) != nil {
+                    
+                    if let texture = model.modeler?.mainKit.outputTexture {
+                        drawables?.drawBox(position: float2(0,0), size: float2(Float(texture.width), Float(texture.height)), rounding: 0, borderSize: 0, onion: 0, fillColor: float4(0,0,0,1), borderColor: float4(0,0,0,0), texture: texture)
+                    }
+                    
+                    drawables?.encodeEnd()
+                }
             }
-            
-            drawables?.encodeEnd()
         }
     }
     
@@ -241,6 +245,20 @@ public class STKView        : MTKView
             let cmd = model.editingCmd
             cmd.data.set("Position", hit.0 / model.project.scale)            
             cmd.normal = hit.1
+            
+            if model.editingMode == .multiple {
+                
+                if let object = model.selectedObject {
+                    if let cmd = model.editingCmd.copy() {
+                        object.commands.append(cmd)
+                        model.modeler?.executeCommand(cmd)
+                        
+                        model.selectedCommand = cmd
+                        model.commandSelected.send(cmd)
+                    }
+                }
+                
+            }
 
             renderer?.restart()
             model.updateDataViews.send()

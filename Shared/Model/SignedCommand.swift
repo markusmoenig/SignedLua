@@ -67,6 +67,10 @@ class SignedCommand : Codable, Hashable {
         self.data = data
         self.material = material
         
+        if self.data.exists("Rotation") == false {
+            self.data.data.insert(SignedDataEntity("Rotation", float3(0,0,0), float2(0, 360)), at: 0)
+        }
+        
         if self.data.exists("Position") == false {
             self.data.data.insert(SignedDataEntity("Position", float3(0,0,0)), at: 0)
         }
