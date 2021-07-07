@@ -27,7 +27,7 @@ struct SideView: View {
                     mode = .shape
                 })
                 {
-                    Image(systemName: mode == .shape ? "square.fill" : "square")
+                    Image(systemName: mode == .shape ? "cube.fill" : "cube")
                         .imageScale(.large)
                 }
                 .buttonStyle(.borderless)

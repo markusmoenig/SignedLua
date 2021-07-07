@@ -107,7 +107,7 @@ struct BrowserView: View {
                         }
                     })
                     {
-                        Label("Shapes", systemImage: "square")
+                        Label("Shapes", systemImage: "cube")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
                             .padding(.leading, 6)

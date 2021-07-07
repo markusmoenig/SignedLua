@@ -105,7 +105,15 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, f
         newDist = sdRoundBox(p, mData.size * scale / Modeler_Global_Scale, mData.rounding);
     }
     
-    return min(dist, newDist);
+    float rc = INFINITY;
+    
+    if (mData.actionType == Modeler_Subtract) {
+        rc = max(dist, -newDist);
+    } else {
+        rc = min(dist, newDist);
+    }
+    
+    return rc;
 }
 
 /// Executes one modeler command

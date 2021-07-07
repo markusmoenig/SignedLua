@@ -172,6 +172,7 @@ typedef struct {
 
 #define Modeler_None            0
 #define Modeler_Add             1
+#define Modeler_Subtract        2
 
 #define Modeler_Sphere          0
 #define Modeler_Box             1
