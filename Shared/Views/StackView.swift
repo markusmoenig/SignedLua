@@ -32,7 +32,12 @@ struct StackView: View {
                             lineWidth: 2)
                          */
                         
-                        context.draw(Text(cmd.name), at: CGPoint(x: 4, y: 2), anchor: .topLeading)
+                        var text = cmd.name
+                        if cmd.subCommands.count > 0 {
+                            text += " (\(cmd.subCommands.count))"
+                        }
+                        
+                        context.draw(Text(text), at: CGPoint(x: 4, y: 2), anchor: .topLeading)
                         
                     }
                     .frame(width: 100, height: 20)
@@ -41,8 +46,10 @@ struct StackView: View {
                     .onTapGesture {
                         model.selectedCommand = cmd
                         model.commandSelected.send(cmd)
-                        model.modeler?.executeObject(selected, until: cmd)
-                        model.renderer?.restart()
+                        //model.modeler?.executeObject(selected, until: cmd)
+                        model.modeler?.buildIndex = nil
+                        model.modeler?.buildTo = cmd
+                        //model.renderer?.restart()
                     }
                     .contextMenu {
                         Text("hallo")

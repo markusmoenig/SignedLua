@@ -71,6 +71,11 @@ class RenderPipeline
     /// Render a single sample
     func renderSample()
     {
+        if model.modeler?.buildTo != nil {
+            model.modeler?.executeNext()
+            return
+        }
+        
         startRendering()
 
         if checkMainKitTextures() {
@@ -82,9 +87,14 @@ class RenderPipeline
             
             model.modeler?.accumulate(texture: mainKit.sampleTexture!, targetTexture: mainKit.outputTexture!, samples: mainKit.samples)
             mainKit.samples += 1
+
+            //commandBuffer?.addCompletedHandler { cb in
+                //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+                //mainKit.samples += 1
+            //}
         }
         
-        commitAndStopRendering()
+        commitAndStopRendering()//waitUntilCompleted: true)
         
         // Render an icon sample ?
         if let icon = iconQueue.first {
@@ -146,9 +156,14 @@ class RenderPipeline
         }
     }
     
-    func commitAndStopRendering()
+    func commitAndStopRendering(waitUntilCompleted: Bool = false)
     {
         commandBuffer.commit()
+        
+        if waitUntilCompleted {
+            commandBuffer?.waitUntilCompleted()
+        }
+        
         commandBuffer = nil
         quadVertexBuffer = nil
         quadViewport = nil

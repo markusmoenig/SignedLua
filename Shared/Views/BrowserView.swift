@@ -18,7 +18,9 @@ struct BrowserView: View {
     let model                               : Model
     
     @State private var selection            : NavigationItem? = .shapes
+    
     @State private var editingMode          : Model.EditingMode? = .single
+    @State private var editingBooleanMode   : Model.EditingBooleanMode? = .plus
 
     var body: some View {
                 
@@ -68,6 +70,32 @@ struct BrowserView: View {
                 })
                 {
                     Image(systemName: editingMode == .multiple ? "circlebadge.2.fill" : "circlebadge.2")
+                        .imageScale(.large)
+                }
+                .buttonStyle(.borderless)
+                
+                Divider()
+                    .frame(maxHeight: 16)
+                
+                Button(action: {
+                    editingBooleanMode = .plus
+                    model.editingBooleanMode = .plus
+                })
+                {
+                    Image(systemName: editingBooleanMode == .plus ? "plus.square.fill" : "plus.square")
+                        .imageScale(.large)
+                }
+                .buttonStyle(.borderless)
+                .padding(.bottom, 4)
+                          
+                //Divider()
+
+                Button(action: {
+                    editingBooleanMode = .minus
+                    model.editingBooleanMode = .minus
+                })
+                {
+                    Image(systemName: editingBooleanMode == .minus ? "minus.square.fill" : "minus.square")
                         .imageScale(.large)
                 }
                 .buttonStyle(.borderless)

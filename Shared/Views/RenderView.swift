@@ -10,6 +10,10 @@ import MetalKit
 
 public class STKView        : MTKView
 {
+    enum EditingState {
+        case Starting, InProgress, Ending
+    }
+    
     var model               : Model!
     
     var keysDown            : [Float] = []
@@ -28,6 +32,8 @@ public class STKView        : MTKView
     
     var renderer            : RenderPipeline? = nil
     var drawables           : MetalDrawables? = nil
+    
+    var currentEditingCmd   : SignedCommand? = nil
     
     func reset()
     {
@@ -51,6 +57,78 @@ public class STKView        : MTKView
                     }
                     
                     drawables?.encodeEnd()
+                }
+            }
+        }
+    }
+    
+    /// Perform an editing command
+    func editCommand(editingState: EditingState)
+    {
+        //print("editCommand", editingState, model.editingMode)
+        
+        let size = float2(Float(frame.width), Float(frame.height))
+
+        if model.editingMode == .single {
+            
+            // In single mode we just update the position of the current cmd as the cmd
+            // itself will need to be approved by the user via the "Accept" button
+            
+            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+                
+                let cmd = model.editingCmd
+                cmd.data.set("Position", hit.0 / model.project.scale)
+                cmd.normal = hit.1
+                
+                if model.editingBooleanMode == .minus {
+                    cmd.action = .Subtract
+                } else {
+                    cmd.action = .Add
+                }
+                
+                renderer?.restart()
+                model.updateDataViews.send()
+            }
+
+        } else
+        if model.editingMode == .multiple {
+
+            // In multiple mode we instantly create the cmds and add them as subCommands
+            // to the current cmd which we create on .Starting of the edit.
+            
+            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+                
+                let cmd = model.editingCmd.copy()!
+                cmd.data.set("Position", hit.0 / model.project.scale)
+                cmd.normal = hit.1
+                
+                if model.editingBooleanMode == .minus {
+                    cmd.action = .Subtract
+                } else {
+                    cmd.action = .Add
+                }
+                    
+                if let object = model.selectedObject {
+                    
+                    if editingState == .Starting {
+                        currentEditingCmd = cmd
+                        object.commands.append(cmd)
+                    } else
+                    if editingState == .InProgress {
+                        currentEditingCmd?.subCommands.append(cmd)
+                    } else
+                    if editingState == .Ending {
+                        
+                        model.modeler?.executeCommand(currentEditingCmd!)
+
+                        model.selectedCommand = currentEditingCmd
+                        model.commandSelected.send(currentEditingCmd!)
+                        
+                        currentEditingCmd = nil
+                        
+                        renderer?.restart()
+                        model.updateDataViews.send()
+                    }
                 }
             }
         }
@@ -110,12 +188,12 @@ public class STKView        : MTKView
             }
         }
         
-        edit()
+        editCommand(editingState: .Starting)
     }
     
     override public func mouseDragged(with event: NSEvent) {
         setMousePos(event)
-        edit()
+        editCommand(editingState: .InProgress)
     }
     
     override public func mouseMoved(with event: NSEvent) {
@@ -126,6 +204,9 @@ public class STKView        : MTKView
     }
     
     override public func mouseUp(with event: NSEvent) {
+        
+        editCommand(editingState: .Ending)
+
         mouseIsDown = false
         hasTap = false
         hasDoubleTap = false
@@ -237,33 +318,6 @@ public class STKView        : MTKView
         }
     }
     #endif
-
-    func edit()
-    {
-        let size = float2(Float(frame.width), Float(frame.height))
-        if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
-            let cmd = model.editingCmd
-            cmd.data.set("Position", hit.0 / model.project.scale)            
-            cmd.normal = hit.1
-            
-            if model.editingMode == .multiple {
-                
-                if let object = model.selectedObject {
-                    if let cmd = model.editingCmd.copy() {
-                        object.commands.append(cmd)
-                        model.modeler?.executeCommand(cmd)
-                        
-                        model.selectedCommand = cmd
-                        model.commandSelected.send(cmd)
-                    }
-                }
-                
-            }
-
-            renderer?.restart()
-            model.updateDataViews.send()
-        }
-    }
 }
 
 #if os(OSX)
