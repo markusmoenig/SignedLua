@@ -70,12 +70,16 @@ class SignedPinholeCamera : Codable, Hashable {
         let d = delta - lastZoomDelta
         
         var position = getPosition()
-        
+        var lookAt = getLookAt()
+
         position -= lookAt
         position *= d + 1
         position += lookAt
         
         data.set("Position", position)
+        
+        lookAt.y = position.y
+        data.set("Look At", lookAt)
         
         lastZoomDelta = delta
     }
@@ -87,12 +91,15 @@ class SignedPinholeCamera : Codable, Hashable {
         let dir = calculateDirXY()
         
         var position = getPosition()
-        let lookAt = getLookAt()
+        var lookAt = getLookAt()
 
         position = rotateToAPoint(p: position, o: lookAt, v: dir.0, alpha: -d.x * Float.pi)
         position = rotateToAPoint(p: position, o: lookAt, v: dir.1, alpha: d.y * Float.pi)
 
         data.set("Position", position)
+        
+        lookAt.y = position.y
+        data.set("Look At", lookAt)
 
         lastDelta = delta
     }

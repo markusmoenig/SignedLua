@@ -73,6 +73,44 @@ float2 rotatePivot(float2 pos, float angle, float2 pivot)
     return pivot + (pos-pivot) * float2x2(ca, sa, -sa, ca);
 }
 
+// generates a random radious at (integer) position p
+float rad(float3 p)
+{
+    p  = 17.0*fract( p*0.3183099+float3(.11,.17,.13) );
+    float r = fract( p.x*p.y*p.z*(p.x+p.y+p.z) );
+    return 0.7*r*r;
+}
+
+// https://www.shadertoy.com/view/Ws3XWl
+float noiseSDF(float3 p, float level)
+{
+    float3 i = floor(p);
+    float3 f = fract(p);
+    #define SPH(i,f,c) length(f-c) - rad(i+c) * level
+    return min(min(min(SPH(i,f,float3(0,0,0)),
+                       SPH(i,f,float3(0,0,1))),
+                   min(SPH(i,f,float3(0,1,0)),
+                       SPH(i,f,float3(0,1,1)))),
+               min(min(SPH(i,f,float3(1,0,0)),
+                       SPH(i,f,float3(1,0,1))),
+                   min(SPH(i,f,float3(1,1,0)),
+                       SPH(i,f,float3(1,1,1)))));
+}
+
+// http://iquilezles.org/www/articles/smin/smin.htm
+float smin( float a, float b, float k )
+{
+    float h = max(k-abs(a-b),0.0);
+    return min(a, b) - h*h*0.25/k;
+}
+
+// http://iquilezles.org/www/articles/smin/smin.htm
+float smax( float a, float b, float k )
+{
+    float h = max(k-abs(a-b),0.0);
+    return max(a, b) + h*h*0.25/k;
+}
+
 /// Computes the given distance for the given modeler cmd
 float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, float scale)
 {
@@ -103,6 +141,48 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, f
     } else
     if (mData.primitiveType == Modeler_Box) {
         newDist = sdRoundBox(p, mData.size * scale / Modeler_Global_Scale, mData.rounding);
+    }
+    
+    // Noise
+
+    if (mData.noise > 0) {
+        const float3x3 m = float3x3( 0.00,  1.60,  1.20,
+                            -1.60,  0.72, -0.96,
+                            -1.20, -0.96,  1.28 );
+
+        newDist /= scale;
+        float3  q = p / scale;
+        
+        float level = mData.noise;
+        float t = 0.0;
+        float s = 1;
+        const int ioct = 11;
+        for( int i=0; i<ioct; i++)
+        {
+            float n = noiseSDF(q, 1) * s * level;
+            n = smax(n, newDist -0.1 * s * level, 0.3 * s * level);
+            newDist = smin(n,newDist,0.3 * s * level);
+
+            t += newDist;
+            q = m * q;
+            q.z += -1.8 * t * s * level;
+            s = 0.415 * s;
+        }
+        
+        /*
+        // fbm
+        float t = 0.0;
+        float s = 1.0;
+        for( int i=0; i<6; i++ )
+        {
+            newDist = smax( newDist, -noiseSDF(p)*s, 0.2*s );
+            t += newDist;
+            p = 2.01*m*p; // next octave
+            s = 0.50*s;
+        }
+        */
+        
+        newDist *= scale;
     }
     
     float rc = INFINITY;

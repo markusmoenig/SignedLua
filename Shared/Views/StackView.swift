@@ -32,10 +32,7 @@ struct StackView: View {
                             lineWidth: 2)
                          */
                         
-                        var text = cmd.name
-                        if cmd.subCommands.count > 0 {
-                            text += " (\(cmd.subCommands.count))"
-                        }
+                        let text = cmd.name
                         
                         context.draw(Text(text), at: CGPoint(x: 4, y: 2), anchor: .topLeading)
                         

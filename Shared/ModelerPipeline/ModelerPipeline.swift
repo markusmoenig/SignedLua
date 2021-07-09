@@ -51,7 +51,7 @@ class ModelerPipeline
     var iconKit         : ModelerKit!
     
     static var IconSize : Int = 80
-    static var IconSamples : Int = 200
+    static var IconSamples : Int = 20
     
     var buildIndex      : Int? = nil
     var buildTo         : SignedCommand? = nil
@@ -144,31 +144,24 @@ class ModelerPipeline
         if let kit = kitToUse, kit.isValid() {
             startCompute()
 
-            func execute(_ cmd: SignedCommand) {
-                if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
-                    if let state = modelingStates.getComputeState(stateName: "modelerCmd") {
+            if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+                if let state = modelingStates.getComputeState(stateName: "modelerCmd") {
+                
+                    computeEncoder.setComputePipelineState( state )
                     
-                        computeEncoder.setComputePipelineState( state )
-                        
-                        var modelerUniform = createModelerUniform(cmd)
-                        computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
-                        
-                        computeEncoder.setTexture(kit.modelTexture!, index: 1 )
-                        computeEncoder.setTexture(kit.colorTexture, index: 2 )
-                        computeEncoder.setTexture(kit.materialTexture1!, index: 3 )
-                        computeEncoder.setTexture(kit.materialTexture2!, index: 4 )
-                        computeEncoder.setTexture(kit.materialTexture3!, index: 5 )
-                        computeEncoder.setTexture(kit.materialTexture4!, index: 6 )
+                    var modelerUniform = createModelerUniform(cmd)
+                    computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
+                    
+                    computeEncoder.setTexture(kit.modelTexture!, index: 1 )
+                    computeEncoder.setTexture(kit.colorTexture, index: 2 )
+                    computeEncoder.setTexture(kit.materialTexture1!, index: 3 )
+                    computeEncoder.setTexture(kit.materialTexture2!, index: 4 )
+                    computeEncoder.setTexture(kit.materialTexture3!, index: 5 )
+                    computeEncoder.setTexture(kit.materialTexture4!, index: 6 )
 
-                        calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
-                    }
-                    computeEncoder.endEncoding()
+                    calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
                 }
-            }
-            
-            execute(cmd)
-            for subCmd in cmd.subCommands {
-                execute(subCmd)
+                computeEncoder.endEncoding()
             }
             
             commandBuffer?.addCompletedHandler { cb in
@@ -230,6 +223,10 @@ class ModelerPipeline
         
         if let rounding = cmd.data.getFloat("Rounding") {
             modelerUniform.rounding = rounding
+        }
+        
+        if let noise = cmd.data.getFloat("Noise") {
+            modelerUniform.noise = noise
         }
         
         modelerUniform.normal = cmd.normal
@@ -297,7 +294,7 @@ class ModelerPipeline
                     modelerHitUniform.size = size
                     modelerHitUniform.scale = model.project.scale
                     modelerHitUniform.cameraOrigin = model.project.camera.getPosition()
-                    modelerHitUniform.cameraLookAt = float3(0, 0, 0);
+                    modelerHitUniform.cameraLookAt = model.project.camera.getLookAt()
                     
                     computeEncoder.setBytes(&modelerHitUniform, length: MemoryLayout<ModelerHitUniform>.stride, index: 0)
                     computeEncoder.setTexture(kit.modelTexture, index: 1 )

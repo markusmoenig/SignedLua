@@ -65,69 +65,52 @@ public class STKView        : MTKView
     /// Perform an editing command
     func editCommand(editingState: EditingState)
     {
+        if model.editingMode == .multiple && editingState != .Starting { return }
+
         //print("editCommand", editingState, model.editingMode)
         
         let size = float2(Float(frame.width), Float(frame.height))
 
-        if model.editingMode == .single {
+        if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+
+            let cmd = model.editingCmd
+            cmd.data.set("Position", hit.0 / model.project.scale)
+            cmd.normal = hit.1
             
-            // In single mode we just update the position of the current cmd as the cmd
-            // itself will need to be approved by the user via the "Accept" button
+            if model.editingMode == .single {
             
-            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
-                
-                let cmd = model.editingCmd
-                cmd.data.set("Position", hit.0 / model.project.scale)
-                cmd.normal = hit.1
+                // In single mode we just update the position of the current cmd as the cmd
+                // itself will need to be approved by the user via the "Accept" button
                 
                 if model.editingBooleanMode == .minus {
                     cmd.action = .Subtract
                 } else {
                     cmd.action = .Add
                 }
-                
+
                 renderer?.restart()
                 model.updateDataViews.send()
-            }
+            } else
+            if model.editingMode == .multiple {
 
-        } else
-        if model.editingMode == .multiple {
-
-            // In multiple mode we instantly create the cmds and add them as subCommands
-            // to the current cmd which we create on .Starting of the edit.
-            
-            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+                // In multiple mode we auto accept the cmd and add it to the stack
                 
-                let cmd = model.editingCmd.copy()!
-                cmd.data.set("Position", hit.0 / model.project.scale)
-                cmd.normal = hit.1
-                
-                if model.editingBooleanMode == .minus {
-                    cmd.action = .Subtract
-                } else {
-                    cmd.action = .Add
-                }
+                if editingState == .Starting {
+                    if let object = model.selectedObject {
+                        if let cmd = model.editingCmd.copy() {
                     
-                if let object = model.selectedObject {
+                            if model.editingBooleanMode == .minus {
+                                cmd.action = .Subtract
+                            } else {
+                                cmd.action = .Add
+                            }
                     
-                    if editingState == .Starting {
-                        currentEditingCmd = cmd
-                        object.commands.append(cmd)
-                    } else
-                    if editingState == .InProgress {
-                        currentEditingCmd?.subCommands.append(cmd)
-                    } else
-                    if editingState == .Ending {
-                        
-                        model.modeler?.executeCommand(currentEditingCmd!)
+                            object.commands.append(cmd)
+                            model.modeler?.executeCommand(cmd)
 
-                        model.selectedCommand = currentEditingCmd
-                        model.commandSelected.send(currentEditingCmd!)
-                        
-                        currentEditingCmd = nil
-                        
-                        renderer?.restart()
-                        model.updateDataViews.send()
+                            renderer?.restart()
+                            model.updateDataViews.send()
+                        }
                     }
                 }
             }

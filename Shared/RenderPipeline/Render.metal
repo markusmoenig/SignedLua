@@ -1154,7 +1154,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
             float area    = params.y;
             float type    = params.z;
              */
-
+            
             // Intersect rectangular area light
             if (light.params.z == 0.)
             {

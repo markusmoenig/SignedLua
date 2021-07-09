@@ -37,9 +37,7 @@ class SignedCommand : Codable, Hashable {
     var normal          : float3 = float3()
 
     var code            : String = ""
-            
-    var subCommands     : [SignedCommand] = []
-    
+                
     // To identify the editor session
     var scriptContext   = ""
     
@@ -55,7 +53,6 @@ class SignedCommand : Codable, Hashable {
         case material
         case normal
         case code
-        case subCommands
     }
     
     init(_ name: String = "Unnamed", role: Role = .Geometry, action: Action = .Add, primitive: Primitive = .Box, data: SignedData = SignedData([]), material: SignedMaterial = SignedMaterial())
@@ -73,6 +70,10 @@ class SignedCommand : Codable, Hashable {
         
         if self.data.exists("Position") == false {
             self.data.data.insert(SignedDataEntity("Position", float3(0,0,0), float2(-0.5, 0.5)), at: 0)
+        }
+        
+        if self.data.exists("Noise") == false {
+            self.data.data.append(SignedDataEntity("Noise", Float(0), float2(0, 2)))
         }
         
         if self.data.exists("Surface Distance") == false {
@@ -95,7 +96,6 @@ class SignedCommand : Codable, Hashable {
 
         normal = try container.decode(float3.self, forKey: .normal)
 
-        subCommands = try container.decode([SignedCommand].self, forKey: .subCommands)
         code = try container.decode(String.self, forKey: .code)
     }
     
@@ -111,7 +111,6 @@ class SignedCommand : Codable, Hashable {
         try container.encode(material, forKey: .material)
         try container.encode(normal, forKey: .normal)
         try container.encode(code, forKey: .code)
-        try container.encode(subCommands, forKey: .subCommands)
     }
     
     static func ==(lhs: SignedCommand, rhs: SignedCommand) -> Bool {
