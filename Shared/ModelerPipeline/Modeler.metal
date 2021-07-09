@@ -111,6 +111,18 @@ float smax( float a, float b, float k )
     return max(a, b) + h*h*0.25/k;
 }
 
+float opSmoothUnion( float d1, float d2, float k ) {
+    float h = clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 );
+    return mix( d2, d1, h ) - k*h*(1.0-h); }
+
+float opSmoothSubtraction( float d1, float d2, float k ) {
+    float h = clamp( 0.5 - 0.5*(d2+d1)/k, 0.0, 1.0 );
+    return mix( d2, -d1, h ) + k*h*(1.0-h); }
+
+float opSmoothIntersection( float d1, float d2, float k ) {
+    float h = clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 );
+    return mix( d2, d1, h ) + k*h*(1.0-h); }
+
 /// Computes the given distance for the given modeler cmd
 float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, float scale)
 {
@@ -188,9 +200,9 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform  &mData, f
     float rc = INFINITY;
     
     if (mData.actionType == Modeler_Subtract) {
-        rc = max(dist, -newDist);
+        rc = opSmoothSubtraction(newDist, dist, mData.smoothing);//max(dist, -newDist);
     } else {
-        rc = min(dist, newDist);
+        rc = opSmoothUnion(dist, newDist, mData.smoothing);//min(dist, newDist);
     }
     
     return rc;
@@ -212,7 +224,7 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
     float dist = modelTexture.read(gid).x;
     float newDist = applyModelerData(uv, dist, mData, 1.0);
     
-    if (dist != newDist) {
+    if (dist != newDist && newDist < 0.1) {
         colorTexture.write(half4(float4(mData.material.albedo, mData.material.roughness)), gid);
         materialTexture1.write(half4(float4(mData.material.specular, mData.material.metallic, mData.material.subsurface, mData.material.clearcoat)), gid);
         materialTexture2.write(half4(float4(mData.material.anisotropic, mData.material.specularTint, mData.material.sheen, mData.material.sheenTint)), gid);
@@ -232,7 +244,7 @@ kernel void modelerClear(texture3d<half, access::write>    modelTexture  [[textu
                          texture3d<half, access::write>    materialTexture4  [[texture(5)]],
                          uint3 gid                         [[thread_position_in_grid]])
 {
-    modelTexture.write(half4(INFINITY), gid);
+    modelTexture.write(half4(2), gid);
     colorTexture.write(half4(0.5), gid);
     materialTexture1.write(half4(0), gid);
     materialTexture2.write(half4(0), gid);

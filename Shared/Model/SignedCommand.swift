@@ -79,6 +79,10 @@ class SignedCommand : Codable, Hashable {
         if self.data.exists("Surface Distance") == false {
             self.data.data.append(SignedDataEntity("Surface Distance", Float(0), float2(-0.5, 0.5)))
         }
+        
+        if self.data.exists("Smoothing") == false {
+            self.data.data.append(SignedDataEntity("Smoothing", Float(0.1), float2(0.001, 1)))
+        }
     }
     
     required init(from decoder: Decoder) throws

@@ -20,7 +20,13 @@ class Model: NSObject, ObservableObject {
         case minus
     }
     
+    enum EditingBrushMode {
+        case Geometry
+        case Paint
+    }
+    
     var editingMode                         : EditingMode? = .single
+    var editingBrushMode                    : EditingBrushMode? = .Geometry
     var editingBooleanMode                  : EditingBooleanMode? = .plus
 
     /// The project itself

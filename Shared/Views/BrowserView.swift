@@ -9,6 +9,11 @@ import SwiftUI
 
 struct BrowserView: View {
         
+    enum BrushMode {
+        case Geometry
+        case Paint
+    }
+    
     enum NavigationItem {
         case shapes
         case materials
@@ -21,6 +26,8 @@ struct BrowserView: View {
     
     @State private var editingMode          : Model.EditingMode? = .single
     @State private var editingBooleanMode   : Model.EditingBooleanMode? = .plus
+
+    @State private var editingBrushMode     : Model.EditingBrushMode? = .Geometry
 
     var body: some View {
                 
@@ -50,12 +57,12 @@ struct BrowserView: View {
         VStack(alignment: .leading, spacing: 1) {
 
             HStack(alignment: .top) {
+                                
                 Button(action: {
-                    editingMode = .single
-                    model.editingMode = .single
+                    editingBrushMode = .Geometry
                 })
                 {
-                    Image(systemName: editingMode == .single ? "circlebadge.fill" : "circlebadge")
+                    Image(systemName: editingBrushMode == .Geometry ? "cube.fill" : "cube")
                         .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
@@ -65,11 +72,10 @@ struct BrowserView: View {
                 //Divider()
 
                 Button(action: {
-                    editingMode = .multiple
-                    model.editingMode = .multiple
+                    editingBrushMode = .Paint
                 })
                 {
-                    Image(systemName: editingMode == .multiple ? "circlebadge.2.fill" : "circlebadge.2")
+                    Image(systemName: editingBrushMode == .Paint ? "paintbrush.pointed.fill" : "paintbrush.pointed")
                         .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
@@ -77,51 +83,81 @@ struct BrowserView: View {
                 Divider()
                     .frame(maxHeight: 16)
                 
-                Button(action: {
-                    editingBooleanMode = .plus
-                    model.editingBooleanMode = .plus
-                })
-                {
-                    Image(systemName: editingBooleanMode == .plus ? "plus.square.fill" : "plus.square")
-                        .imageScale(.large)
-                }
-                .buttonStyle(.borderless)
-                .padding(.bottom, 4)
-                          
-                //Divider()
-
-                Button(action: {
-                    editingBooleanMode = .minus
-                    model.editingBooleanMode = .minus
-                })
-                {
-                    Image(systemName: editingBooleanMode == .minus ? "minus.square.fill" : "minus.square")
-                        .imageScale(.large)
-                }
-                .buttonStyle(.borderless)
-                
-                Spacer()
-                
-                Button(action: {
-                    if let object = model.selectedObject {
-                        if let cmd = model.editingCmd.copy() {
-                            object.commands.append(cmd)
-                            model.modeler?.executeCommand(cmd)
-                            model.renderer?.restart()
-                            
-                            model.selectedCommand = cmd
-                            model.commandSelected.send(cmd)
-                        }
+                if editingBrushMode == .Geometry {
+                    
+                    Button(action: {
+                        editingMode = .single
+                        model.editingMode = .single
+                    })
+                    {
+                        Image(systemName: editingMode == .single ? "circlebadge.fill" : "circlebadge")
+                            .imageScale(.large)
                     }
-                })
-                {
-                    Text("Accept")
+                    .buttonStyle(.borderless)
+                    .padding(.leading, 10)
+                    .padding(.bottom, 4)
+                              
+                    //Divider()
+
+                    Button(action: {
+                        editingMode = .multiple
+                        model.editingMode = .multiple
+                    })
+                    {
+                        Image(systemName: editingMode == .multiple ? "circlebadge.2.fill" : "circlebadge.2")
+                            .imageScale(.large)
+                    }
+                    .buttonStyle(.borderless)
+                    
+                    Divider()
+                        .frame(maxHeight: 16)
+                    
+                    Button(action: {
+                        editingBooleanMode = .plus
+                        model.editingBooleanMode = .plus
+                    })
+                    {
+                        Image(systemName: editingBooleanMode == .plus ? "plus.square.fill" : "plus.square")
+                            .imageScale(.large)
+                    }
+                    .buttonStyle(.borderless)
+                    .padding(.bottom, 4)
+                              
+                    //Divider()
+
+                    Button(action: {
+                        editingBooleanMode = .minus
+                        model.editingBooleanMode = .minus
+                    })
+                    {
+                        Image(systemName: editingBooleanMode == .minus ? "minus.square.fill" : "minus.square")
+                            .imageScale(.large)
+                    }
+                    .buttonStyle(.borderless)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        if let object = model.selectedObject {
+                            if let cmd = model.editingCmd.copy() {
+                                object.commands.append(cmd)
+                                model.modeler?.executeCommand(cmd)
+                                model.renderer?.restart()
+                                
+                                model.selectedCommand = cmd
+                                model.commandSelected.send(cmd)
+                            }
+                        }
+                    })
+                    {
+                        Text("Accept")
+                    }
+                    .buttonStyle(.borderless)
+                    .padding(.trailing, 10)
+                    //.disabled(true)
+                    
+                    //Spacer()
                 }
-                .buttonStyle(.borderless)
-                .padding(.trailing, 10)
-                //.disabled(true)
-                
-                //Spacer()
             }
             
             Divider()

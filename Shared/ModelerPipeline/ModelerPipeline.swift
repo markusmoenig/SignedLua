@@ -229,6 +229,10 @@ class ModelerPipeline
             modelerUniform.noise = noise
         }
         
+        if let smoothing = cmd.data.getFloat("Smoothing") {
+            modelerUniform.smoothing = smoothing
+        }
+        
         modelerUniform.normal = cmd.normal
         
         if let surfaceDistance = cmd.data.getFloat("Surface Distance") {

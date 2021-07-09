@@ -188,6 +188,7 @@ typedef struct {
     simd_float3         rotation;
 
     float               noise;
+    float               smoothing;
 
     float               radius;
     

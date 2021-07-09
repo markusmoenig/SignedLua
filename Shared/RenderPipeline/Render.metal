@@ -1011,7 +1011,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
             bool inShadow = false;//AnyHit(shadowRay, lightSampleRec.dist - EPS);
 
             float t = 0.0;
-            for(int i = 0; i < 70; ++i)
+            for(int i = 0; i < 160; ++i)
             {
                 float3 p = surfacePos + lightSampleRec.direction * t;
                 float d = getDistance(p, modelTexture, mData, editHit, scale);//map(p, dataIn);
@@ -1100,7 +1100,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
             bool hit = false;
             //float bd = INFINITY;
             
-            for(int i = 0; i < 200; ++i)
+            for(int i = 0; i < 260; ++i)
             {
                 float3 p = ray.origin + ray.direction * t;
                 float d = abs(getDistance(p, modelTexture, mData, editHit, scale));//map(p, dataIn);
