@@ -91,6 +91,7 @@ class Model: NSObject, ObservableObject {
         
         selectedObject = project.objects.first
         
+        editingCmd.action = .None
         iconCmd.action = .None
         
         createShapes()

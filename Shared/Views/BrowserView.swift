@@ -146,6 +146,8 @@ struct BrowserView: View {
                                 
                                 model.selectedCommand = cmd
                                 model.commandSelected.send(cmd)
+                                
+                                model.editingCmd.action = .None
                             }
                         }
                     })

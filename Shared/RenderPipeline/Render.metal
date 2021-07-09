@@ -873,13 +873,14 @@ float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, th
 }
 
 float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float scal, thread float &materialMixValue);
+Material mixMaterials(Material materialA, Material materialB, float k);
 
 /// Gets the distance at the given point
-float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUniform &mData, thread bool &editHit, float scale = 1.0)
+float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUniform &mData, thread bool &editHit, thread float &materialMixValue, float scale = 1.0)
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     
-    editHit = false; float materialMixValue;
+    editHit = false;
     
     float d = modelTexture.sample(textureSampler, (p / scale + float3(0.5))).x * scale;
     float editingDist = applyModelerData(p, d, mData, scale, materialMixValue);
@@ -916,11 +917,11 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, constant ModelerUnifor
 {
     float3 epsilon = float3(0.001, 0., 0.);
     
-    bool editHit;
+    bool editHit; float materialMixValue;
 
-    float3 n = float3(getDistance(p + epsilon.xyy, modelTexture, mData, editHit, scale) - getDistance(p - epsilon.xyy, modelTexture, mData, editHit, scale),
-                      getDistance(p + epsilon.yxy, modelTexture, mData, editHit, scale) - getDistance(p - epsilon.yxy, modelTexture, mData, editHit, scale),
-                      getDistance(p + epsilon.yyx, modelTexture, mData, editHit, scale) - getDistance(p - epsilon.yyx, modelTexture, mData, editHit, scale));
+    float3 n = float3(getDistance(p + epsilon.xyy, modelTexture, mData, editHit, materialMixValue, scale) - getDistance(p - epsilon.xyy, modelTexture, mData, editHit, materialMixValue, scale),
+                      getDistance(p + epsilon.yxy, modelTexture, mData, editHit, materialMixValue, scale) - getDistance(p - epsilon.yxy, modelTexture, mData, editHit, materialMixValue, scale),
+                      getDistance(p + epsilon.yyx, modelTexture, mData, editHit, materialMixValue, scale) - getDistance(p - epsilon.yyx, modelTexture, mData, editHit, materialMixValue, scale));
 
     return normalize(n);
 }
@@ -1003,7 +1004,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
         //light = Light(position, emission, u, v, radius, area, type);
         sampleOneLight(light, surfacePos, lightSampleRec, dataIn);
         
-        bool editHit;
+        bool editHit; float materialMixValue;
 
         if (dot(lightSampleRec.direction, lightSampleRec.normal) < 0.0)
         {
@@ -1015,7 +1016,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
                 for(int i = 0; i < 160; ++i)
                 {
                     float3 p = surfacePos + lightSampleRec.direction * t;
-                    float d = getDistance(p, modelTexture, mData, editHit, scale);//map(p, dataIn);
+                    float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);//map(p, dataIn);
 
                     if (abs(d) < (0.0001*t)) {
                         inShadow = true;
@@ -1082,7 +1083,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
     ray.origin = ro;
     ray.direction = rd;
     
-    bool editHit;
+    bool editHit; float materialMixValue;
     
     int maxDepth = renderData.maxDepth;
     //bool didHitBBox = false;
@@ -1105,7 +1106,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
             for(int i = 0; i < 260; ++i)
             {
                 float3 p = ray.origin + ray.direction * t;
-                float d = abs(getDistance(p, modelTexture, mData, editHit, scale));//map(p, dataIn);
+                float d = abs(getDistance(p, modelTexture, mData, editHit, materialMixValue, scale));//map(p, dataIn);
                 
                 // --- Visual Bounding Box, only test on the first pass
                 //if (i == 0) {
@@ -1199,39 +1200,32 @@ fragment float4 render(RasterizerData in [[stage_in]],
         //}
         
         Onb(state.normal, state.tangent, state.bitangent);
-        
-        // Get material
-        
-        if (editHit == false) {
             
-            float4 colorAndRoughness = getMaterialData(state.fhp, colorTexture, scale);
-            float4 specularMetallicSubsurfaceClearcoat = getMaterialData(state.fhp, materialTexture1, scale);
-            float4 anisotropicSpecularTintSheenSheenTint = getMaterialData(state.fhp, materialTexture2, scale);
-            float4 clearcoatGlossSpecTransIor = getMaterialData(state.fhp, materialTexture3, scale);
-            float3 emission = getMaterialData(state.fhp, materialTexture4, scale).xyz;
-            
-            state.mat.albedo = colorAndRoughness.xyz;
-            state.mat.specular = specularMetallicSubsurfaceClearcoat.x;
-            state.mat.anisotropic = anisotropicSpecularTintSheenSheenTint.x;
-            state.mat.metallic = specularMetallicSubsurfaceClearcoat.y;
-            state.mat.roughness = max(colorAndRoughness.w, 0.001);
-            state.mat.subsurface = specularMetallicSubsurfaceClearcoat.z;
-            state.mat.specularTint = anisotropicSpecularTintSheenSheenTint.y;
-            state.mat.sheen = anisotropicSpecularTintSheenSheenTint.z;
-            state.mat.sheenTint = anisotropicSpecularTintSheenSheenTint.w;
-            state.mat.clearcoat = specularMetallicSubsurfaceClearcoat.w;
-            state.mat.clearcoatGloss = clearcoatGlossSpecTransIor.x;
-            state.mat.specTrans = clearcoatGlossSpecTransIor.y;
-            state.mat.ior = clearcoatGlossSpecTransIor.w;
-            state.mat.emission = emission;
-            state.mat.atDistance = 1.0;
-        } else {
-            state.mat = mData.material;
-            state.mat.roughness = max(state.mat.roughness, 0.001);
-            state.mat.atDistance = 1.0;
-        }
+        float4 colorAndRoughness = getMaterialData(state.fhp, colorTexture, scale);
+        float4 specularMetallicSubsurfaceClearcoat = getMaterialData(state.fhp, materialTexture1, scale);
+        float4 anisotropicSpecularTintSheenSheenTint = getMaterialData(state.fhp, materialTexture2, scale);
+        float4 clearcoatGlossSpecTransIor = getMaterialData(state.fhp, materialTexture3, scale);
+        float3 emission = getMaterialData(state.fhp, materialTexture4, scale).xyz;
         
-        //state.isEmitter = false;
+        state.mat.albedo = colorAndRoughness.xyz;
+        state.mat.specular = specularMetallicSubsurfaceClearcoat.x;
+        state.mat.anisotropic = anisotropicSpecularTintSheenSheenTint.x;
+        state.mat.metallic = specularMetallicSubsurfaceClearcoat.y;
+        state.mat.roughness = colorAndRoughness.w;
+        state.mat.subsurface = specularMetallicSubsurfaceClearcoat.z;
+        state.mat.specularTint = anisotropicSpecularTintSheenSheenTint.y;
+        state.mat.sheen = anisotropicSpecularTintSheenSheenTint.z;
+        state.mat.sheenTint = anisotropicSpecularTintSheenSheenTint.w;
+        state.mat.clearcoat = specularMetallicSubsurfaceClearcoat.w;
+        state.mat.clearcoatGloss = clearcoatGlossSpecTransIor.x;
+        state.mat.specTrans = clearcoatGlossSpecTransIor.y;
+        state.mat.ior = clearcoatGlossSpecTransIor.w;
+        state.mat.emission = emission;
+        state.mat.atDistance = 1.0;
+        
+        state.mat = mixMaterials(state.mat, mData.material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
+        state.mat.roughness = max(state.mat.roughness, 0.001);
+
         state.eta = dot(state.normal, state.ffnormal) > 0.0 ? (1.0 / state.mat.ior) : state.mat.ior;
 
         // Reset absorption when ray is going out of surface

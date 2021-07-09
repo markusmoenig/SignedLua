@@ -32,6 +32,33 @@ float noise(float3 x) {
                    mix( hash(n + dot(step, float3(0, 1, 1))), hash(n + dot(step, float3(1, 1, 1))), u.x), u.y), u.z);
 }
 
+Material mixMaterials(Material materialA, Material materialB, float k)
+{
+    Material material;
+
+    material.albedo = mix(materialA.albedo, materialB.albedo, k);
+    material.specular = mix(materialA.specular, materialB.specular, k);
+
+    material.emission = mix(materialA.emission, materialB.emission, k);
+    material.anisotropic = mix(materialA.anisotropic, materialB.anisotropic, k);
+
+    material.metallic = mix(materialA.metallic, materialB.metallic, k);
+    material.roughness = mix(materialA.roughness, materialB.roughness, k);
+    material.subsurface = mix(materialA.subsurface, materialB.subsurface, k);
+    material.specularTint = mix(materialA.specularTint, materialB.specularTint, k);
+
+    material.sheen = mix(materialA.sheen, materialB.sheen, k);
+    material.sheenTint = mix(materialA.sheenTint, materialB.sheenTint, k);
+    material.clearcoat = mix(materialA.clearcoat, materialB.clearcoat, k);
+    material.clearcoatGloss = mix(materialA.clearcoatGloss, materialB.clearcoatGloss, k);
+
+    material.specTrans = mix(materialA.specTrans, materialB.specTrans, k);
+    material.ior = mix(materialA.ior, materialB.ior, k);
+    material.extinction = mix(materialA.extinction, materialB.extinction, k);
+
+    return material;
+}
+
 float degrees(float radians)
 {
     return radians * 180.0 / M_PI_F;
@@ -127,9 +154,14 @@ float opSmoothIntersection( float d1, float d2, float k ) {
 
 /// Computes the given distance for the given modeler cmd
 float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float scale, thread float &materialMixValue)
-{
-    float newDist = INFINITY;
+{    
+    if (mData.actionType == Modeler_None) {
+        materialMixValue = 1;
+        return dist;
+    }
     
+    float newDist = INFINITY;
+
     /*
     float3 transformedPosition = (position - objectPosition) / objectScale * \(scale.toMetal());
     
@@ -202,9 +234,9 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     float rc = INFINITY;
         
     if (mData.actionType == Modeler_Subtract) {
-        rc = opSmoothSubtraction(newDist, dist, mData.smoothing, materialMixValue);//max(dist, -newDist);
+        rc = opSmoothSubtraction(newDist, dist, mData.smoothing * scale, materialMixValue);//max(dist, -newDist);
     } else {
-        rc = opSmoothUnion(dist, newDist, mData.smoothing, materialMixValue);//min(dist, newDist);
+        rc = opSmoothUnion(dist, newDist, mData.smoothing * scale, materialMixValue);//min(dist, newDist);
     }
     
     return rc;
@@ -227,40 +259,40 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
     
     float dist = modelTexture.read(gid).x;
     float newDist = applyModelerData(uv, dist, mData, 1.0, materialMixValue);
-    
-    if (dist != newDist && newDist < 0.1) {
         
-        if (materialMixValue > 0) {
-            float4 colorAndRoughness = float4(colorTexture.read(gid));//getMaterialData(state.fhp, colorTexture, scale);
-            float4 specularMetallicSubsurfaceClearcoat = float4(materialTexture1.read(gid));//getMaterialData(state.fhp, materialTexture1, scale);
-            float4 anisotropicSpecularTintSheenSheenTint = float4(materialTexture2.read(gid));
-            float4 clearcoatGlossSpecTransIor = float4(materialTexture3.read(gid));
-            float3 emission = float4(materialTexture1.read(gid)).xyz;
-            
-            Material mat;
-            
-            mat.albedo = colorAndRoughness.xyz;
-            mat.specular = specularMetallicSubsurfaceClearcoat.x;
-            mat.anisotropic = anisotropicSpecularTintSheenSheenTint.x;
-            mat.metallic = specularMetallicSubsurfaceClearcoat.y;
-            mat.roughness = max(colorAndRoughness.w, 0.001);
-            mat.subsurface = specularMetallicSubsurfaceClearcoat.z;
-            mat.specularTint = anisotropicSpecularTintSheenSheenTint.y;
-            mat.sheen = anisotropicSpecularTintSheenSheenTint.z;
-            mat.sheenTint = anisotropicSpecularTintSheenSheenTint.w;
-            mat.clearcoat = specularMetallicSubsurfaceClearcoat.w;
-            mat.clearcoatGloss = clearcoatGlossSpecTransIor.x;
-            mat.specTrans = clearcoatGlossSpecTransIor.y;
-            mat.ior = clearcoatGlossSpecTransIor.w;
-            mat.emission = emission;
-            mat.atDistance = 1.0;
-        }
+    if (dist != newDist && (newDist < 0.1)) {
         
-        colorTexture.write(half4(float4(mData.material.albedo, mData.material.roughness)), gid);
-        materialTexture1.write(half4(float4(mData.material.specular, mData.material.metallic, mData.material.subsurface, mData.material.clearcoat)), gid);
-        materialTexture2.write(half4(float4(mData.material.anisotropic, mData.material.specularTint, mData.material.sheen, mData.material.sheenTint)), gid);
-        materialTexture3.write(half4(float4(mData.material.clearcoatGloss, mData.material.specTrans, mData.material.ior, 0)), gid);
-        materialTexture4.write(half4(float4(mData.material.emission, 0)), gid);
+        float4 colorAndRoughness = float4(colorTexture.read(gid));
+        float4 specularMetallicSubsurfaceClearcoat = float4(materialTexture1.read(gid));
+        float4 anisotropicSpecularTintSheenSheenTint = float4(materialTexture2.read(gid));
+        float4 clearcoatGlossSpecTransIor = float4(materialTexture3.read(gid));
+        float3 emission = float4(materialTexture4.read(gid)).xyz;
+        
+        Material mat;
+        
+        mat.albedo = colorAndRoughness.xyz;
+        mat.specular = specularMetallicSubsurfaceClearcoat.x;
+        mat.anisotropic = anisotropicSpecularTintSheenSheenTint.x;
+        mat.metallic = specularMetallicSubsurfaceClearcoat.y;
+        mat.roughness = max(colorAndRoughness.w, 0.001);
+        mat.subsurface = specularMetallicSubsurfaceClearcoat.z;
+        mat.specularTint = anisotropicSpecularTintSheenSheenTint.y;
+        mat.sheen = anisotropicSpecularTintSheenSheenTint.z;
+        mat.sheenTint = anisotropicSpecularTintSheenSheenTint.w;
+        mat.clearcoat = specularMetallicSubsurfaceClearcoat.w;
+        mat.clearcoatGloss = clearcoatGlossSpecTransIor.x;
+        mat.specTrans = clearcoatGlossSpecTransIor.y;
+        mat.ior = clearcoatGlossSpecTransIor.w;
+        mat.emission = emission;
+        mat.atDistance = 1.0;
+        
+        Material outMaterial = mixMaterials(mat, mData.material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
+        
+        colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);
+        materialTexture1.write(half4(float4(outMaterial.specular, outMaterial.metallic, outMaterial.subsurface, outMaterial.clearcoat)), gid);
+        materialTexture2.write(half4(float4(outMaterial.anisotropic, outMaterial.specularTint, outMaterial.sheen, outMaterial.sheenTint)), gid);
+        materialTexture3.write(half4(float4(outMaterial.clearcoatGloss, outMaterial.specTrans, outMaterial.ior, 0)), gid);
+        materialTexture4.write(half4(float4(outMaterial.emission, 0)), gid);
     }
     
     modelTexture.write(half4(newDist), gid);

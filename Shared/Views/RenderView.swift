@@ -110,6 +110,8 @@ public class STKView        : MTKView
 
                             renderer?.restart()
                             model.updateDataViews.send()
+                            
+                            model.editingCmd.action = .None
                         }
                     }
                 }
