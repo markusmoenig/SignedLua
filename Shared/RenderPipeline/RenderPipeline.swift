@@ -131,6 +131,7 @@ class RenderPipeline
     func installNextIconCmd(_ cmd: SignedCommand?) {
         if let cmd = cmd {
             model.iconCmd = cmd//.copy()!
+            model.modeler?.clear(model.modeler?.iconKit)
 
             //model.iconCmd.action = .None
             //model.modeler?.executeCommand(cmd, model.modeler?.iconKit, clearFirst: true)
@@ -217,11 +218,12 @@ class RenderPipeline
             renderUniform.cameraLookAt = model.project.camera.getLookAt()
             renderUniform.scale = model.project.scale
             
-            renderUniform.maxDepth = 3;
+            renderUniform.maxDepth = 6;
 
             renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
             
             renderUniform.numOfLights = 1
+            renderUniform.noShadows = 0;
 
             /*
             renderUniform.lights.0.position = float3(0,1,0)
@@ -260,7 +262,9 @@ class RenderPipeline
             renderUniform.cameraLookAt = float3(0, -0.08, 0);
             renderUniform.scale = 7//model.project.scale
             
-            renderUniform.maxDepth = 3;
+            renderUniform.maxDepth = 2;
+
+            renderUniform.noShadows = 1;
 
             renderUniform.backgroundColor = float4(0.1, 0.1, 0.1, 1);
             

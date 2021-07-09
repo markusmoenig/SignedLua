@@ -281,7 +281,7 @@ public class STKView        : MTKView
         if let touch = touches.first {
             let point = touch.location(in: self)
             setMousePos(Float(point.x), Float(point.y))
-            edit()
+            editCommand(editingState: .Starting)
         }
     }
 
@@ -289,7 +289,7 @@ public class STKView        : MTKView
         if let touch = touches.first {
             let point = touch.location(in: self)
             setMousePos(Float(point.x), Float(point.y))
-            edit()
+            editCommand(editingState: .InProgress)
         }
     }
 
@@ -297,7 +297,8 @@ public class STKView        : MTKView
         mouseIsDown = false
         if let touch = touches.first {
             let point = touch.location(in: self)
-                setMousePos(Float(point.x), Float(point.y))
+            setMousePos(Float(point.x), Float(point.y))
+            editCommand(editingState: .Ending)
         }
     }
     #endif

@@ -51,7 +51,7 @@ class ModelerPipeline
     var iconKit         : ModelerKit!
     
     static var IconSize : Int = 80
-    static var IconSamples : Int = 20
+    static var IconSamples : Int = 40
     
     var buildIndex      : Int? = nil
     var buildTo         : SignedCommand? = nil
@@ -329,12 +329,22 @@ class ModelerPipeline
     /// Allocates a set of textures needed for modeling
     func allocateKit(_ size: Int) -> ModelerKit {
         let modelerKit = ModelerKit()
+        
+        print(device.supportsFeatureSet(.macOS_GPUFamily2_v1))
         modelerKit.modelTexture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
-        modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
+        modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float);////.bgra8Unorm)
+        modelerKit.materialTexture1 = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)
+        modelerKit.materialTexture2 = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)
+        modelerKit.materialTexture3 = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)
+        modelerKit.materialTexture4 = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)
+        
+        /*
+        modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm);////.bgra8Unorm)
         modelerKit.materialTexture1 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         modelerKit.materialTexture2 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         modelerKit.materialTexture3 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
-        modelerKit.materialTexture4 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
+        modelerKit.materialTexture4 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)*/
+        
         return modelerKit
     }
     

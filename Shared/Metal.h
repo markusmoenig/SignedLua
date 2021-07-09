@@ -142,6 +142,8 @@ typedef struct {
     int                 depth;
     int                 maxDepth;
         
+    int                 noShadows;
+    
     // bbox
     simd_float3         P;
     simd_float3         L;

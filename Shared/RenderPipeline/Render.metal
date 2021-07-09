@@ -872,17 +872,17 @@ float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, th
     return finalRayDir;
 }
 
-float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float scal);
+float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float scal, thread float &materialMixValue);
 
 /// Gets the distance at the given point
 float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUniform &mData, thread bool &editHit, float scale = 1.0)
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     
-    editHit = false;
+    editHit = false; float materialMixValue;
     
     float d = modelTexture.sample(textureSampler, (p / scale + float3(0.5))).x * scale;
-    float editingDist = applyModelerData(p, d, mData, scale);
+    float editingDist = applyModelerData(p, d, mData, scale, materialMixValue);
     
     if (d != editingDist) {
         editHit = true;
@@ -1009,19 +1009,21 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
         {
             //Ray shadowRay = Ray(surfacePos, lightSampleRec.direction);
             bool inShadow = false;//AnyHit(shadowRay, lightSampleRec.dist - EPS);
+            
+            if (renderData.noShadows == 0) {
+                float t = 0.0;
+                for(int i = 0; i < 160; ++i)
+                {
+                    float3 p = surfacePos + lightSampleRec.direction * t;
+                    float d = getDistance(p, modelTexture, mData, editHit, scale);//map(p, dataIn);
 
-            float t = 0.0;
-            for(int i = 0; i < 160; ++i)
-            {
-                float3 p = surfacePos + lightSampleRec.direction * t;
-                float d = getDistance(p, modelTexture, mData, editHit, scale);//map(p, dataIn);
-
-                if (abs(d) < (0.0001*t)) {
-                    inShadow = true;
-                    break;
+                    if (abs(d) < (0.0001*t)) {
+                        inShadow = true;
+                        break;
+                    }
+                    
+                    t += d;
                 }
-                
-                t += d;
             }
 
             if (!inShadow)
@@ -1139,21 +1141,10 @@ fragment float4 render(RasterizerData in [[stage_in]],
         
         // Lights
         
+        
         for (int i = 0; i < renderData.numOfLights; i++)
         {
             Light light = renderData.lights[i];
-
-            /*
-            // Fetch light Data
-            vec3 position = texelFetch(lightsTex, ivec2(i * 5 + 0, 0), 0).xyz;
-            vec3 emission = texelFetch(lightsTex, ivec2(i * 5 + 1, 0), 0).xyz;
-            vec3 u        = texelFetch(lightsTex, ivec2(i * 5 + 2, 0), 0).xyz;
-            vec3 v        = texelFetch(lightsTex, ivec2(i * 5 + 3, 0), 0).xyz;
-            vec3 params   = texelFetch(lightsTex, ivec2(i * 5 + 4, 0), 0).xyz;
-            float radius  = params.x;
-            float area    = params.y;
-            float type    = params.z;
-             */
             
             // Intersect rectangular area light
             if (light.params.z == 0.)
@@ -1212,6 +1203,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
         // Get material
         
         if (editHit == false) {
+            
             float4 colorAndRoughness = getMaterialData(state.fhp, colorTexture, scale);
             float4 specularMetallicSubsurfaceClearcoat = getMaterialData(state.fhp, materialTexture1, scale);
             float4 anisotropicSpecularTintSheenSheenTint = getMaterialData(state.fhp, materialTexture2, scale);
@@ -1236,6 +1228,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
         } else {
             state.mat = mData.material;
             state.mat.roughness = max(state.mat.roughness, 0.001);
+            state.mat.atDistance = 1.0;
         }
         
         //state.isEmitter = false;
