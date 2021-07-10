@@ -22,7 +22,7 @@ class Model: NSObject, ObservableObject {
     
     enum EditingBrushMode {
         case Geometry
-        case Paint
+        case Brush
     }
     
     var editingMode                         : EditingMode? = .single
@@ -84,6 +84,15 @@ class Model: NSObject, ObservableObject {
     /// The current editing command
     var editingCmd                          = SignedCommand()
     var iconCmd                             = SignedCommand()
+    
+    /// Set to the current hit position of the mouse cursor
+    var editingHit                          = float3()
+    
+    /// The current modeling action is a write
+    var writeAction                         : Int32 = 0
+    
+    /// The current brush size
+    var brushSize                           : Float = 0.05
 
     override init() {
         project = SignedProject()

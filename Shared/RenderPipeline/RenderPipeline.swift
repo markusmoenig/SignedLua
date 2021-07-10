@@ -30,6 +30,8 @@ class RenderPipeline
     var semaphore       : DispatchSemaphore
         
     var renderStates    : RenderStates
+    
+    var needsRestart    : Bool = true
         
     ///
     var iconQueue       : [SignedCommand] = []
@@ -48,7 +50,13 @@ class RenderPipeline
     }
     
     /// Restarts the renderer
-    func restart(_ started: Bool = false)
+    func restart()
+    {
+        needsRestart = true
+    }
+    
+    /// Restarts the renderer
+    func performRestart(_ started: Bool = false, clear: Bool = false)
     {        
         _ = checkMainKitTextures()
         
@@ -58,7 +66,9 @@ class RenderPipeline
                 startRendering()
             }
             
-            clearTexture(mainKit.outputTexture!)
+            if clear {
+                clearTexture(mainKit.outputTexture!)
+            }
             
             if started == false {
                 commitAndStopRendering()
@@ -79,7 +89,12 @@ class RenderPipeline
         startRendering()
 
         if checkMainKitTextures() {
-            restart(true)
+            performRestart(true, clear: true)
+            needsRestart = false
+        } else
+        if needsRestart {
+            performRestart(true, clear: false)
+            needsRestart = false
         }
                 
         if let mainKit = model.modeler?.mainKit {
@@ -94,7 +109,7 @@ class RenderPipeline
             //}
         }
         
-        commitAndStopRendering()//waitUntilCompleted: true)
+        commitAndStopRendering()//(waitUntilCompleted: true)
         
         // Render an icon sample ?
         if let icon = iconQueue.first {

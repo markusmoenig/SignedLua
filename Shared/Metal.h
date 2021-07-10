@@ -85,6 +85,14 @@ typedef struct {
     float               maxDistance;
 } GPUFragmentUniforms;
 
+// For passing globals
+typedef struct DataIn {
+    simd_float2     seed;
+    simd_float3     randomVector;
+    
+    int             numOfLights;
+} DataIn;
+
 typedef struct {
     
     simd_float3     position;
@@ -150,6 +158,7 @@ typedef struct {
     matrix_float3x3     F;
     
     float               maxDistance;
+    
 } RenderUniform;
 
 typedef struct {
@@ -172,6 +181,9 @@ typedef struct {
 
 #define Modeler_Global_Scale    10.0
 
+#define Modeler_Geometry        0
+#define Modeler_Brush           1
+
 #define Modeler_None            0
 #define Modeler_Add             1
 #define Modeler_Subtract        2
@@ -181,6 +193,7 @@ typedef struct {
 
 typedef struct {
     
+    int                 roleType;
     int                 actionType;
     int                 primitiveType;
     
@@ -202,6 +215,11 @@ typedef struct {
     
     Material            material;
     
+    // If we are using a brush, the brush hit is used to render a preview
+    simd_float3         brushHit;
+    
+    int                 writeBrush;
+    float               brushSize;
 } ModelerUniform;
 
 #endif /* Metal_h */

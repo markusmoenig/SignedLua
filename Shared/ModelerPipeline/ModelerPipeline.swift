@@ -202,9 +202,14 @@ class ModelerPipeline
     {
         var modelerUniform = ModelerUniform()
                 
+        modelerUniform.roleType = cmd.role.rawValue
         modelerUniform.actionType = cmd.action.rawValue
         modelerUniform.primitiveType = cmd.primitive.rawValue
         
+        modelerUniform.brushHit = model.editingHit
+        modelerUniform.writeBrush = model.writeAction
+        modelerUniform.brushSize = model.brushSize
+
         if let position = cmd.data.getFloat3("Position") {
             modelerUniform.position = position
         }

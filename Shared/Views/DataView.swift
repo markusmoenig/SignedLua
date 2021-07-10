@@ -15,18 +15,21 @@ struct DataFloatSliderView: View {
     var value                               : Binding<Float>
     var range                               : Binding<float2>
 
+    var factor                              : CGFloat = 1
+
     @State var valueText                    : String = ""
     @State var clipWidth                    : CGFloat = 0
     
     @State var color                        : Color
 
-    init(_ model: Model,_ value :Binding<Float>,_ range: Binding<float2>,_ color: Color = Color.accentColor)
+    init(_ model: Model,_ value :Binding<Float>,_ range: Binding<float2>,_ color: Color = Color.accentColor,_ factor: CGFloat = 1)
     {
         self.model = model
         self.value = value
         self.range = range
         self.color = color
-
+        self.factor = factor
+        
         _valueText = State(initialValue: String(format: "%.02f", value.wrappedValue))
     }
 
@@ -47,7 +50,7 @@ struct DataFloatSliderView: View {
                     Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 8),
                     with: .color(color))
 
-                context.draw(Text(valueText), at: CGPoint(x: geom.size.width / 2, y: geom.size.height), anchor: .center)
+                context.draw(Text(valueText), at: CGPoint(x: geom.size.width / 2, y: geom.size.height / factor), anchor: .center)
                 
             }
             .frame(width: geom.size.width, height: 19)

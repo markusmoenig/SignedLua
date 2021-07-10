@@ -48,8 +48,8 @@ public class STKView        : MTKView
     func update()
     {
         renderer?.renderSample()
-        if let modeler = model?.modeler {
-            if modeler.mainKit.samples >= 1 {
+        //if let modeler = model?.modeler {
+            //if modeler.mainKit.samples >= 1 {
                 if drawables?.encodeStart(float4(0,0,0,0)) != nil {
                     
                     if let texture = model.modeler?.mainKit.outputTexture {
@@ -58,6 +58,23 @@ public class STKView        : MTKView
                     
                     drawables?.encodeEnd()
                 }
+            //}
+        //}
+    }
+    
+    /// Perform the preview of an editing command, we handle only brushes here
+    func editHover()
+    {
+        let size = float2(Float(frame.width), Float(frame.height))
+
+        if model.editingBrushMode == .Brush {
+            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+                model.editingHit = hit.0
+                
+                model.editingCmd.action = .None
+                model.editingCmd.role = .Brush
+                model.writeAction = 0
+                renderer?.restart()
             }
         }
     }
@@ -65,56 +82,69 @@ public class STKView        : MTKView
     /// Perform an editing command
     func editCommand(editingState: EditingState)
     {
-        if model.editingMode == .multiple && editingState != .Starting { return }
-
-        //print("editCommand", editingState, model.editingMode)
-        
         let size = float2(Float(frame.width), Float(frame.height))
 
-        if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+        if model.editingBrushMode == .Geometry {
+            if model.editingMode == .multiple && editingState != .Starting { return }
 
-            let cmd = model.editingCmd
-            cmd.data.set("Position", hit.0 / model.project.scale)
-            cmd.normal = hit.1
+            //print("editCommand", editingState, model.editingMode)
             
-            if model.editingMode == .single {
-            
-                // In single mode we just update the position of the current cmd as the cmd
-                // itself will need to be approved by the user via the "Accept" button
-                
-                if model.editingBooleanMode == .minus {
-                    cmd.action = .Subtract
-                } else {
-                    cmd.action = .Add
-                }
+            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
 
-                renderer?.restart()
-                model.updateDataViews.send()
-            } else
-            if model.editingMode == .multiple {
+                let cmd = model.editingCmd
+                cmd.data.set("Position", hit.0 / model.project.scale)
+                cmd.normal = hit.1
+                cmd.role = .Geometry
 
-                // In multiple mode we auto accept the cmd and add it to the stack
+                if model.editingMode == .single {
                 
-                if editingState == .Starting {
-                    if let object = model.selectedObject {
-                        if let cmd = model.editingCmd.copy() {
+                    // In single mode we just update the position of the current cmd as the cmd
+                    // itself will need to be approved by the user via the "Accept" button
                     
-                            if model.editingBooleanMode == .minus {
-                                cmd.action = .Subtract
-                            } else {
-                                cmd.action = .Add
+                    if model.editingBooleanMode == .minus {
+                        cmd.action = .Subtract
+                    } else {
+                        cmd.action = .Add
+                    }
+
+                    renderer?.restart()
+                    model.updateDataViews.send()
+                } else
+                if model.editingMode == .multiple {
+
+                    // In multiple mode we auto accept the cmd and add it to the stack
+                    
+                    if editingState == .Starting {
+                        if let object = model.selectedObject {
+                            if let cmd = model.editingCmd.copy() {
+                        
+                                if model.editingBooleanMode == .minus {
+                                    cmd.action = .Subtract
+                                } else {
+                                    cmd.action = .Add
+                                }
+                        
+                                object.commands.append(cmd)
+                                model.modeler?.executeCommand(cmd)
+
+                                renderer?.restart()
+                                model.updateDataViews.send()
+                                
+                                model.editingCmd.action = .None
                             }
-                    
-                            object.commands.append(cmd)
-                            model.modeler?.executeCommand(cmd)
-
-                            renderer?.restart()
-                            model.updateDataViews.send()
-                            
-                            model.editingCmd.action = .None
                         }
                     }
                 }
+            }
+        } else
+        if model.editingBrushMode == .Brush {
+            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+                model.editingHit = hit.0
+                
+                model.editingCmd.action = .None
+                model.editingCmd.role = .Brush
+                model.writeAction = 1
+                renderer?.restart()
             }
         }
     }
@@ -183,6 +213,8 @@ public class STKView        : MTKView
     
     override public func mouseMoved(with event: NSEvent) {
         setMousePos(event)
+        
+        editHover()
         
         //let size = float2(Float(frame.width), Float(frame.height))
         //model.modeler?.getSceneHit(mousePos / size, size)

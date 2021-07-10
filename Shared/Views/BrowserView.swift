@@ -28,6 +28,9 @@ struct BrowserView: View {
     @State private var editingBooleanMode   : Model.EditingBooleanMode? = .plus
 
     @State private var editingBrushMode     : Model.EditingBrushMode? = .Geometry
+    
+    @State private var brushSize            : Float = 0.05
+    @State private var brushRange           = float2(0, 0.5)
 
     var body: some View {
                 
@@ -60,6 +63,8 @@ struct BrowserView: View {
                                 
                 Button(action: {
                     editingBrushMode = .Geometry
+                    model.editingBrushMode = .Geometry
+                    model.renderer?.restart()
                 })
                 {
                     Image(systemName: editingBrushMode == .Geometry ? "cube.fill" : "cube")
@@ -72,10 +77,14 @@ struct BrowserView: View {
                 //Divider()
 
                 Button(action: {
-                    editingBrushMode = .Paint
+                    editingBrushMode = .Brush
+                    model.editingBrushMode = .Brush
+                    
+                    model.editingCmd.action = .None
+                    model.renderer?.restart()
                 })
                 {
-                    Image(systemName: editingBrushMode == .Paint ? "paintbrush.pointed.fill" : "paintbrush.pointed")
+                    Image(systemName: editingBrushMode == .Brush ? "paintbrush.pointed.fill" : "paintbrush.pointed")
                         .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
@@ -94,7 +103,6 @@ struct BrowserView: View {
                             .imageScale(.large)
                     }
                     .buttonStyle(.borderless)
-                    .padding(.leading, 10)
                     .padding(.bottom, 4)
                               
                     //Divider()
@@ -159,6 +167,11 @@ struct BrowserView: View {
                     //.disabled(true)
                     
                     //Spacer()
+                }
+                else
+                if editingBrushMode == .Brush {
+                    DataFloatSliderView(model, $brushSize, $brushRange, .accentColor, 2)
+                        .frame(maxHeight: 19)
                 }
             }
             
@@ -248,6 +261,10 @@ struct BrowserView: View {
         
         .onReceive(model.objectSelected) { object in
 
+        }
+        
+        .onChange(of: brushSize) { value in
+            model.brushSize = value
         }
     }
 }

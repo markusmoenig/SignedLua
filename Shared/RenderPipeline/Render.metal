@@ -78,14 +78,6 @@ float sdBoxFrame(float3 p, float3 b, float e)
  * SOFTWARE.
  */
 
-// For passing globals around
-struct DataIn {
-    float2  seed;
-    float3  randomVector;
-    
-    int     numOfLights;
-};
-
 // globals.glsl
 
 #define PI        3.14159265358979323
@@ -903,13 +895,17 @@ float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
     return d * scale;
 }
 
-/// Gets the color and roughness at the given point
-float4 getMaterialData(float3 p, texture3d<float> colorTexture, float scale = 1.0)
+/// Reads material data
+float4 getMaterialData(float3 p, texture3d<float, access::read_write> materialTexture, float scale = 1.0)
 {
-    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
-    
-    float4 color = colorTexture.sample(textureSampler, (p / scale + float3(0.5)));
+    float4 color = materialTexture.read(ushort3((p / scale + float3(0.5)) * float3(512)));
     return color;
+}
+
+/// Writes material data
+void setMaterialData(float3 p, float4 value, texture3d<float, access::read_write> materialTexture, float scale = 1.0)
+{
+    materialTexture.write(value, ushort3((p / scale + float3(0.5)) * float3(512)));
 }
 
 /// Calculates the normal at the given point
@@ -1050,11 +1046,11 @@ fragment float4 render(RasterizerData in [[stage_in]],
                                constant RenderUniform &renderData [[ buffer(0) ]],
                                constant ModelerUniform &mData [[ buffer(1) ]],
                                texture3d<float> modelTexture [[ texture(2) ]],
-                               texture3d<float> colorTexture [[ texture(3) ]],
-                               texture3d<float> materialTexture1 [[ texture(4) ]],
-                               texture3d<float> materialTexture2 [[ texture(5) ]],
-                               texture3d<float> materialTexture3 [[ texture(6) ]],
-                               texture3d<float> materialTexture4 [[ texture(7) ]])
+                               texture3d<float, access::read_write> colorTexture [[ texture(3) ]],
+                               texture3d<float, access::read_write> materialTexture1 [[ texture(4) ]],
+                               texture3d<float, access::read_write> materialTexture2 [[ texture(5) ]],
+                               texture3d<float, access::read_write> materialTexture3 [[ texture(6) ]],
+                               texture3d<float, access::read_write> materialTexture4 [[ texture(7) ]])
 {
     float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
     
@@ -1223,7 +1219,29 @@ fragment float4 render(RasterizerData in [[stage_in]],
         state.mat.emission = emission;
         state.mat.atDistance = 1.0;
         
-        state.mat = mixMaterials(state.mat, mData.material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
+        if (mData.roleType == Modeler_Geometry) {
+            // Geometry preview material blending
+            state.mat = mixMaterials(state.mat, mData.material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
+        } else {
+            // Brush based Material painting
+            
+            float brushDist = distance(mData.brushHit, state.fhp);
+            
+            if (brushDist < mData.brushSize * scale) {
+            
+                brushDist /= mData.brushSize * scale;
+                state.mat = mixMaterials(state.mat, mData.material, smoothstep(0.0, 1.0, 1.0 - brushDist));
+                
+                if (mData.writeBrush && brushDist < 1) {
+                    setMaterialData(state.fhp, float4(state.mat.albedo, state.mat.roughness), colorTexture, scale);
+                    setMaterialData(state.fhp, float4(state.mat.specular, state.mat.metallic, state.mat.subsurface, state.mat.clearcoat), materialTexture1, scale);
+                    setMaterialData(state.fhp, float4(state.mat.anisotropic, state.mat.specularTint, state.mat.sheen, state.mat.sheenTint), materialTexture2, scale);
+                    setMaterialData(state.fhp, float4(state.mat.clearcoatGloss, state.mat.specTrans, state.mat.ior, 0), materialTexture3, scale);
+                    setMaterialData(state.fhp, float4(state.mat.emission, 0), materialTexture4, scale);
+                }
+            }
+        }
+        
         state.mat.roughness = max(state.mat.roughness, 0.001);
 
         state.eta = dot(state.normal, state.ffnormal) > 0.0 ? (1.0 / state.mat.ior) : state.mat.ior;
