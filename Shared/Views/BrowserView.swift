@@ -170,6 +170,9 @@ struct BrowserView: View {
                 }
                 else
                 if editingBrushMode == .Brush {
+                    Image(systemName: "scribble.variable")
+                        .foregroundColor(.gray)
+                        .imageScale(.large)
                     DataFloatSliderView(model, $brushSize, $brushRange, .accentColor, 2)
                         .frame(maxHeight: 19)
                 }

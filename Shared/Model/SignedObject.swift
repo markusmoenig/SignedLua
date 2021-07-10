@@ -9,12 +9,12 @@ import Foundation
 import CoreGraphics
 
 /// This object is the base for everything, if its an geometry object or a material
-class SignedObject : Codable, Hashable {
+class SignedObject : Codable, Hashable, Identifiable {
     
     var id              = UUID()
     var name            : String
     
-    var children        : [SignedObject] = []
+    var children        : [SignedObject]? = nil
     
     /// The commands stack
     var commands        : [SignedCommand] = []

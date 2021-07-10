@@ -16,7 +16,70 @@ struct StackView: View {
 
     var body: some View {
         
-        ScrollView(.vertical) {
+        List {
+            
+            /*
+            List(model.project.objects, children: \.children) { object in
+                Text(object.name)
+                    .foregroundColor(selectedObject == object ? .accentColor : .gray)
+                
+                ForEach(object.commands, id: \.id) { cmd in
+                    Text(cmd.name)
+                        .border(model.selectedCommand === cmd ? .white : .clear)
+                }
+            }*/
+            /*
+            
+            OutlineGroup(model.project.objects, children: \.children) { object in
+                Text(object.name)
+                    .foregroundColor(selectedObject == object ? .accentColor : .gray)
+                VStack {
+
+                    ForEach(object.commands, id: \.id) { cmd in
+                        Text(cmd.name)
+                            .border(model.selectedCommand === cmd ? .white : .clear)
+                    }
+                }
+            }*/
+            
+            if let selected = selectedObject {
+                //Section(header: Text("Command Stack")) {
+                    //ForEach(selected.commands, id: \.id) { cmd in
+                      
+                ForEach(Array(selected.commands.enumerated()), id:\.element.id) { (index, cmd) in
+
+                    //ForEach(Array(zip(1..., selected.commands)), id: \.1.id) { number, cmd in
+                        //Text("\(number). \(person.name)")
+                        Button(action: {
+                            model.selectedCommand = cmd
+                            model.commandSelected.send(cmd)
+                            model.modeler?.buildIndex = nil
+                            model.modeler?.buildTo = cmd
+                        })
+                        {
+                            Image(systemName: "cube")
+                                .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
+                            Text(String(index) + ". " + cmd.name)
+                                .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
+
+                            //Label(cmd.name, systemImage: "circle")
+                                //.frame(maxWidth: .infinity, alignment: .leading)
+                                //.contentShape(Rectangle())
+                                //.padding(.leading, 4)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        /*
+                        .listRowBackground(Group {
+                            if model.selectedCommand === cmd  {
+                                Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
+                            } else { Color.gray.mask(RoundedRectangle(cornerRadius: 4).opacity(0.1)) }
+                        })*/
+                    }
+
+                //}
+            }
+
+            /*
             if let selected = selectedObject {
                 ForEach(selected.commands, id: \.self) { cmd in
                     
@@ -52,10 +115,11 @@ struct StackView: View {
                         Text("hallo")
                     }
                 }
-            }
+            }*/
         }
-        
-        .onAppear(perform: {            
+        .listStyle(InsetListStyle(alternatesRowBackgrounds: true))
+
+        .onAppear(perform: {
             selectedObject = nil
             updateView.toggle()
             selectedObject = model.selectedObject
@@ -66,5 +130,6 @@ struct StackView: View {
             updateView.toggle()
             selectedObject = model.selectedObject
         }
+    
     }
 }
