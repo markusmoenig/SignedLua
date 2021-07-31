@@ -30,6 +30,7 @@ struct BrowserView: View {
     @State private var editingBrushMode     : Model.EditingBrushMode? = .Geometry
     
     @State private var brushSize            : Float = 0.05
+    @State private var brushName            : String = "0.05"
     @State private var brushRange           = float2(0, 0.5)
 
     var body: some View {
@@ -173,7 +174,7 @@ struct BrowserView: View {
                     Image(systemName: "scribble.variable")
                         .foregroundColor(.gray)
                         .imageScale(.large)
-                    DataFloatSliderView(model, $brushSize, $brushRange, .accentColor, 2)
+                    DataFloatSliderView(model, "Brush", $brushSize, $brushName, $brushRange, .accentColor, 2)
                         .frame(maxHeight: 19)
                 }
             }

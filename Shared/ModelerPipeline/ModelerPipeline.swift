@@ -210,41 +210,17 @@ class ModelerPipeline
         modelerUniform.writeBrush = model.writeAction
         modelerUniform.brushSize = model.brushSize
 
-        if let position = cmd.data.getFloat3("Position") {
-            modelerUniform.position = position
-        }
-                
-        if let rotation = cmd.data.getFloat3("Rotation") {
-            modelerUniform.rotation = rotation
-        }
+        modelerUniform.position = cmd.data.getFloat3("Position")
+        modelerUniform.rotation = cmd.data.getFloat3("Rotation")
+        modelerUniform.size = cmd.data.getFloat3("Size", float3(1,1,1))
+        modelerUniform.radius = cmd.data.getFloat("Radius", 1)
+        modelerUniform.rounding = cmd.data.getFloat("Rounding", 0)
+        modelerUniform.noise = cmd.data.getFloat("Noise")
         
-        if let size = cmd.data.getFloat3("Size") {
-            modelerUniform.size = size
-        }
-        
-        if let radius = cmd.data.getFloat("Radius") {
-            modelerUniform.radius = radius
-        }
-        
-        if let rounding = cmd.data.getFloat("Rounding") {
-            modelerUniform.rounding = rounding
-        }
-        
-        if let noise = cmd.data.getFloat("Noise") {
-            modelerUniform.noise = noise
-        }
-        
-        if let smoothing = cmd.data.getFloat("Smoothing") {
-            modelerUniform.smoothing = smoothing
-        }
-        
+        modelerUniform.smoothing = cmd.data.getFloat("Smoothing", 0)
         modelerUniform.normal = cmd.normal
         
-        if let surfaceDistance = cmd.data.getFloat("Surface Distance") {
-            modelerUniform.surfaceDistance = surfaceDistance
-        } else {
-            modelerUniform.surfaceDistance = 0
-        }
+        modelerUniform.surfaceDistance = cmd.data.getFloat("Surface Distance", 0)
         
         modelerUniform.material = cmd.material.toMaterialStruct()
         

@@ -131,11 +131,11 @@ class SignedPinholeCamera : Codable, Hashable {
     }
     
     func getPosition() -> float3 {        
-        return data.getFloat3("Position")!
+        return data.getFloat3("Position")
     }
     
     func getLookAt() -> float3 {
-        return data.getFloat3("Look At")!
+        return data.getFloat3("Look At")
     }
     
     func calculateDirXY() -> (float3, float3)

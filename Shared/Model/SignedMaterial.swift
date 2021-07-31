@@ -19,7 +19,7 @@ class SignedMaterial: Codable {
         
         data = SignedData([])
         
-        data.set("Color", albedo)
+        data.set("Color", albedo, float2(0,1), .Color)
         data.set("Specular", specular)
         data.set("Anisotropic", anisotropic)
         data.set("Metallic", metallic)
@@ -50,20 +50,20 @@ class SignedMaterial: Codable {
     func toMaterialStruct() -> Material {
         var material = Material()
         
-        material.albedo = data.getFloat3("Color")!
-        material.specular = data.getFloat("Specular")!
-        material.anisotropic = data.getFloat("Anisotropic")!
-        material.metallic = data.getFloat("Metallic")!
-        material.roughness = data.getFloat("Roughness")!
-        material.subsurface = data.getFloat("Subsurface")!
-        material.specularTint = data.getFloat("SpecularTint")!
-        material.sheen = data.getFloat("Sheen")!
-        material.sheenTint = data.getFloat("SheenTint")!
-        material.clearcoat = data.getFloat("Clearcoat")!
-        material.clearcoatGloss = data.getFloat("Clearcoat Gloss")!
-        material.specTrans = data.getFloat("Transmission")!
-        material.ior = data.getFloat("IOR")!
-        material.emission = data.getFloat3("Emission")!
+        material.albedo = data.getFloat3("Color")
+        material.specular = data.getFloat("Specular")
+        material.anisotropic = data.getFloat("Anisotropic")
+        material.metallic = data.getFloat("Metallic")
+        material.roughness = data.getFloat("Roughness")
+        material.subsurface = data.getFloat("Subsurface")
+        material.specularTint = data.getFloat("SpecularTint")
+        material.sheen = data.getFloat("Sheen")
+        material.sheenTint = data.getFloat("SheenTint")
+        material.clearcoat = data.getFloat("Clearcoat")
+        material.clearcoatGloss = data.getFloat("Clearcoat Gloss")
+        material.specTrans = data.getFloat("Transmission")
+        material.ior = data.getFloat("IOR")
+        material.emission = data.getFloat3("Emission")
 
         material.atDistance = 1.0
 

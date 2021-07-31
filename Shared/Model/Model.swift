@@ -140,4 +140,9 @@ class Model: NSObject, ObservableObject {
         ]
         selectedMaterial = materials.first
     }
+    
+    // A SignedData entity of the given group name has been changed. Reset the pathtracer.
+    func updateSelectedGroup(groupName: String) {
+        renderer?.restart()
+    }
 }
