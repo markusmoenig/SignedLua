@@ -92,7 +92,9 @@ public class STKView        : MTKView
             if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
 
                 let cmd = model.editingCmd
-                cmd.data.set("Position", hit.0 / model.project.scale)
+                if let transformData = cmd.dataGroups.getGroup("Transform") {
+                    transformData.set("Position", hit.0 / model.project.scale)
+                }
                 cmd.normal = hit.1
                 cmd.role = .Geometry
 

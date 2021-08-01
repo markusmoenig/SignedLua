@@ -31,7 +31,7 @@ class SignedCommand : Codable, Hashable {
     var action          : Action
     var primitive       : Primitive
     
-    var data            : SignedData
+    var dataGroups      : SignedDataGroups
     var material        : SignedMaterial
 
     var normal          : float3 = float3()
@@ -49,21 +49,24 @@ class SignedCommand : Codable, Hashable {
         case role
         case action
         case primitive
-        case data
+        case dataGroups
         case material
         case normal
         case code
     }
     
-    init(_ name: String = "Unnamed", role: Role = .Geometry, action: Action = .Add, primitive: Primitive = .Box, data: SignedData = SignedData([]), material: SignedMaterial = SignedMaterial())
+    init(_ name: String = "Unnamed", role: Role = .Geometry, action: Action = .Add, primitive: Primitive = .Box, data: [String: SignedData] = [:], material: SignedMaterial = SignedMaterial())
     {
         self.name = name
         self.role = role
         self.action = action
         self.primitive = primitive
-        self.data = data
         self.material = material
-        
+
+        self.dataGroups = SignedDataGroups(data)
+
+        initDataGroups()
+        /*
         if self.data.exists("Rotation") == false {
             self.data.data.insert(SignedDataEntity("Rotation", float3(0,0,0), float2(0, 360)), at: 0)
         }
@@ -82,7 +85,7 @@ class SignedCommand : Codable, Hashable {
         
         if self.data.exists("Smoothing") == false {
             self.data.data.append(SignedDataEntity("Smoothing", Float(0.1), float2(0.001, 1)))
-        }
+        }*/
     }
     
     required init(from decoder: Decoder) throws
@@ -95,7 +98,7 @@ class SignedCommand : Codable, Hashable {
         action = try container.decode(Action.self, forKey: .action)
         primitive = try container.decode(Primitive.self, forKey: .primitive)
 
-        data = try container.decode(SignedData.self, forKey: .data)
+        dataGroups = try container.decode(SignedDataGroups.self, forKey: .dataGroups)
         material = try container.decode(SignedMaterial.self, forKey: .material)
 
         normal = try container.decode(float3.self, forKey: .normal)
@@ -111,7 +114,7 @@ class SignedCommand : Codable, Hashable {
         try container.encode(role, forKey: .role)
         try container.encode(action, forKey: .action)
         try container.encode(primitive, forKey: .primitive)
-        try container.encode(data, forKey: .data)
+        try container.encode(dataGroups, forKey: .dataGroups)
         try container.encode(material, forKey: .material)
         try container.encode(normal, forKey: .normal)
         try container.encode(code, forKey: .code)
@@ -123,6 +126,41 @@ class SignedCommand : Codable, Hashable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+    
+    /// Initializes the data groups with default values, or, when already exists, make sure all options are present
+    func initDataGroups(fromConstructor: Bool = false) {
+            
+        addDataGroup(name: "Transform", entities: [
+            SignedDataEntity("Position", float3(0,0,0), float2(-0.5, 0.5)),
+            SignedDataEntity("Rotation", float3(0,0,0), float2(0, 360), .Slider),
+        ])
+        
+        addDataGroup(name: "Modifier", entities: [
+            SignedDataEntity("Noise", Float(0), float2(0, 2)),
+            SignedDataEntity("Surface Distance", Float(0), float2(-0.5, 0.5)),
+        ])
+        
+        addDataGroup(name: "Boolean", entities: [
+            SignedDataEntity("Smoothing", Float(0.1), float2(0.001, 1))
+        ])
+    }
+    
+    /// Creates or adds the given entities to the new or existing group. This way we can dynamically add new options to existing projects.
+    func addDataGroup(name: String, entities: [SignedDataEntity]) {
+        let group = dataGroups.getGroup(name)
+        if let group = group {
+            // If group exists, make sure all entities are present
+
+            for e in entities {
+                if group.exists(e.key) == false {
+                    group.data.append(e)
+                }
+            }
+        } else {
+            // If group does not exist add it
+            dataGroups.addGroup(name, SignedData(entities))
+        }
     }
     
     /// Creates a copy of itself
@@ -141,9 +179,9 @@ class SignedCommand : Codable, Hashable {
     func copyGeometry(from: SignedCommand) {
         primitive = from.primitive
         
-        if let data = try? JSONEncoder().encode(from.data) {
-            if let copied = try? JSONDecoder().decode(SignedData.self, from: data) {
-                self.data = copied
+        if let data = try? JSONEncoder().encode(from.dataGroups) {
+            if let copied = try? JSONDecoder().decode(SignedDataGroups.self, from: data) {
+                self.dataGroups = copied
             }
         }
     }

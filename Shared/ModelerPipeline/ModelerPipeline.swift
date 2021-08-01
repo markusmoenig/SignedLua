@@ -210,18 +210,30 @@ class ModelerPipeline
         modelerUniform.writeBrush = model.writeAction
         modelerUniform.brushSize = model.brushSize
 
-        modelerUniform.position = cmd.data.getFloat3("Position")
-        modelerUniform.rotation = cmd.data.getFloat3("Rotation")
-        modelerUniform.size = cmd.data.getFloat3("Size", float3(1,1,1))
-        modelerUniform.radius = cmd.data.getFloat("Radius", 1)
-        modelerUniform.rounding = cmd.data.getFloat("Rounding", 0)
-        modelerUniform.noise = cmd.data.getFloat("Noise")
+        if let transformData = model.editingCmd.dataGroups.getGroup("Transform") {
+            modelerUniform.position = transformData.getFloat3("Position")
+            modelerUniform.rotation = transformData.getFloat3("Rotation")
+        }
         
-        modelerUniform.smoothing = cmd.data.getFloat("Smoothing", 0)
-        modelerUniform.normal = cmd.normal
+        if let modifierData = model.editingCmd.dataGroups.getGroup("Modifier") {
+            modelerUniform.noise = modifierData.getFloat("Noise")
+            modelerUniform.surfaceDistance = modifierData.getFloat("Surface Distance", 0)
+        }
         
-        modelerUniform.surfaceDistance = cmd.data.getFloat("Surface Distance", 0)
+        if let geometryData = model.editingCmd.dataGroups.getGroup("Geometry") {
+
+            modelerUniform.size = geometryData.getFloat3("Size", float3(1,1,1))
+            modelerUniform.radius = geometryData.getFloat("Radius", 1)
+            modelerUniform.rounding = geometryData.getFloat("Rounding", 0)
+            
+            print(cmd.primitive, geometryData.debug())
+        }
         
+        if let booleanData = model.editingCmd.dataGroups.getGroup("Boolean") {
+            modelerUniform.smoothing = booleanData.getFloat("Smoothing", 0)
+        }
+        
+        modelerUniform.normal = cmd.normal                
         modelerUniform.material = cmd.material.toMaterialStruct()
         
         return modelerUniform

@@ -66,7 +66,9 @@ struct SideView: View {
             Divider()            
             
             if mode == .shape {
-                DataView(model: model, data: model.editingCmd.data)
+                if let transformData = model.editingCmd.dataGroups.getGroup("Transform") {
+                    DataView(model: model, data: transformData)
+                }
             } else
             if mode == .material {
                 DataView(model: model, data: model.editingCmd.material.data)

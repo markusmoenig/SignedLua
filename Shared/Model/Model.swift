@@ -126,8 +126,8 @@ class Model: NSObject, ObservableObject {
     /// Initialises the currently available shapes
     func createShapes() {
         shapes = [
-            SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Radius", Float(0.4), float2(0, 5))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
-            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,5)), SignedDataEntity("Rounding", Float(0.01), float2(0,1))]), material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
+            SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4), float2(0, 5))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
+            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,5)), SignedDataEntity("Rounding", Float(0.01), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]
         selectedShape = shapes.first
     }
@@ -135,8 +135,8 @@ class Model: NSObject, ObservableObject {
     /// Initialises the inbuilt materials
     func createMaterials() {
         materials = [
-            SignedCommand("Gold", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Radius", Float(0.4))]), material: SignedMaterial(albedo: float3(1,0,0), metallic: 1, roughness: 0.01)),
-            SignedCommand("Stone", role: .Geometry, action: .Add, primitive: .Sphere, data: SignedData([SignedDataEntity("Radius", Float(0.4))]), material: SignedMaterial(albedo: float3(0.8,0.8,0.8), roughness: 0.7)),
+            SignedCommand("Gold", role: .Geometry, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])], material: SignedMaterial(albedo: float3(1,0,0), metallic: 1, roughness: 0.01)),
+            SignedCommand("Stone", role: .Geometry, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])], material: SignedMaterial(albedo: float3(0.8,0.8,0.8), roughness: 0.7)),
         ]
         selectedMaterial = materials.first
     }
