@@ -149,11 +149,6 @@ class ModelerPipeline
                 
                     computeEncoder.setComputePipelineState( state )
                     
-                    if kitToUse === mainKit {
-                        print("jere")
-                        cmd.dataGroups.debug()
-                    }
-                    
                     var modelerUniform = createModelerUniform(cmd)
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
                     
