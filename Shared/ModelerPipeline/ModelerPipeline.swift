@@ -149,6 +149,11 @@ class ModelerPipeline
                 
                     computeEncoder.setComputePipelineState( state )
                     
+                    if kitToUse === mainKit {
+                        print("jere")
+                        cmd.dataGroups.debug()
+                    }
+                    
                     var modelerUniform = createModelerUniform(cmd)
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
                     
@@ -209,28 +214,25 @@ class ModelerPipeline
         modelerUniform.brushHit = model.editingHit
         modelerUniform.writeBrush = model.writeAction
         modelerUniform.brushSize = model.brushSize
-
-        if let transformData = model.editingCmd.dataGroups.getGroup("Transform") {
+        
+        if let transformData = cmd.dataGroups.getGroup("Transform") {
             modelerUniform.position = transformData.getFloat3("Position")
             modelerUniform.rotation = transformData.getFloat3("Rotation")
         }
         
-        if let modifierData = model.editingCmd.dataGroups.getGroup("Modifier") {
+        if let modifierData = cmd.dataGroups.getGroup("Modifier") {
             modelerUniform.noise = modifierData.getFloat("Noise")
             modelerUniform.surfaceDistance = modifierData.getFloat("Surface Distance", 0)
         }
         
-        if let geometryData = model.editingCmd.dataGroups.getGroup("Geometry") {
-
+        if let geometryData = cmd.dataGroups.getGroup("Geometry") {
             modelerUniform.size = geometryData.getFloat3("Size", float3(1,1,1))
             modelerUniform.radius = geometryData.getFloat("Radius", 1)
             modelerUniform.rounding = geometryData.getFloat("Rounding", 0)
-            
-            print(cmd.primitive, geometryData.debug())
         }
         
-        if let booleanData = model.editingCmd.dataGroups.getGroup("Boolean") {
-            modelerUniform.smoothing = booleanData.getFloat("Smoothing", 0)
+        if let booleanData = cmd.dataGroups.getGroup("Boolean") {
+            modelerUniform.smoothing = booleanData.getFloat("Smoothing", 0.1)
         }
         
         modelerUniform.normal = cmd.normal                

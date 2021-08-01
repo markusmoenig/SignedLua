@@ -79,7 +79,7 @@ struct ShapeView: View {
             let buffer = selected
             selected = nil
             selected = buffer
-            print("finished", cmd.name)
+            //print("finished", cmd.name)
         }
     }
 }

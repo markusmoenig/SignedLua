@@ -80,9 +80,9 @@ struct DataFloatSliderView: View {
             )
         }
         
-        //.onReceive(model.updateDataViews) { _ in
-        //    valueText = String(format: "%.02f", value.wrappedValue)
-        //}
+        .onReceive(model.updateDataViews) { _ in
+            valueText.wrappedValue = String(format: "%.02f", value.wrappedValue)
+        }
     }
     
     func getClipWidth(_ width: CGFloat) -> CGFloat {
@@ -354,11 +354,11 @@ struct DataEntityView: View {
             model.updateSelectedGroup(groupName: groupName)
         }
         
-        //.onReceive(model.updateDataViews) { _ in
-        //    xText = String(format: "%.02f", entity.value.x)
-        //    yText = String(format: "%.02f", entity.value.y)
-        //    zText = String(format: "%.02f", entity.value.z)
-        //}
+        .onReceive(model.updateDataViews) { _ in
+            xText = String(format: "%.02f", entity.value.x)
+            yText = String(format: "%.02f", entity.value.y)
+            zText = String(format: "%.02f", entity.value.z)
+        }
     }
 }
 

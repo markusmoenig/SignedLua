@@ -318,7 +318,7 @@ class SignedData: Codable, Hashable {
     }
     
     func debug() {
-        print("start debug --- ")
+        print("start debug --- ", name)
         for e in data {
             print(e.key, e.value)
         }
@@ -337,6 +337,9 @@ class SignedDataGroups: Codable {
     init(_ groups: [String: SignedData] = [:])
     {
         self.groups = groups
+        for (name, d) in self.groups {
+            d.name = name
+        }
     }
     
     required init(from decoder: Decoder) throws
@@ -372,5 +375,11 @@ class SignedDataGroups: Codable {
         }
         
         return ""
+    }
+    
+    func debug() {
+        for (_, d) in groups {
+            d.debug()
+        }
     }
 }

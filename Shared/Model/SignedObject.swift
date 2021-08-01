@@ -33,7 +33,8 @@ class SignedObject : Codable, Hashable, Identifiable {
         let initialCmd = SignedCommand("Ground", role: .Geometry, action: .Add, primitive: .Box,
                                        data: ["Transform" : SignedData([SignedDataEntity("Position", float3(0,-0.9,0)) ]),
                                               "Geometry": SignedData([SignedDataEntity("Size", float3(0.6,0.4,0.6) * Float(Modeler_Global_Scale))])
-                                             ])        
+                                             ])
+        initialCmd.dataGroups.getGroup("Geometry")?.debug()
         commands.append(initialCmd)
     }
     
