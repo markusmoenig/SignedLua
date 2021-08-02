@@ -66,26 +66,6 @@ class SignedCommand : Codable, Hashable {
         self.dataGroups = SignedDataGroups(data)
 
         initDataGroups()
-        /*
-        if self.data.exists("Rotation") == false {
-            self.data.data.insert(SignedDataEntity("Rotation", float3(0,0,0), float2(0, 360)), at: 0)
-        }
-        
-        if self.data.exists("Position") == false {
-            self.data.data.insert(SignedDataEntity("Position", float3(0,0,0), float2(-0.5, 0.5)), at: 0)
-        }
-        
-        if self.data.exists("Noise") == false {
-            self.data.data.append(SignedDataEntity("Noise", Float(0), float2(0, 2)))
-        }
-        
-        if self.data.exists("Surface Distance") == false {
-            self.data.data.append(SignedDataEntity("Surface Distance", Float(0), float2(-0.5, 0.5)))
-        }
-        
-        if self.data.exists("Smoothing") == false {
-            self.data.data.append(SignedDataEntity("Smoothing", Float(0.1), float2(0.001, 1)))
-        }*/
     }
     
     required init(from decoder: Decoder) throws
@@ -187,9 +167,9 @@ class SignedCommand : Codable, Hashable {
     }
     
     /// Copies the material part of the command
-    func copyMaterial(from: SignedCommand) {
+    func copyMaterial(from: SignedMaterial) {
         
-        if let data = try? JSONEncoder().encode(from.material) {
+        if let data = try? JSONEncoder().encode(from) {
             if let copied = try? JSONDecoder().decode(SignedMaterial.self, from: data) {
                 self.material = copied
             }

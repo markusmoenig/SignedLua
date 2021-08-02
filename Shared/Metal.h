@@ -191,6 +191,26 @@ typedef struct {
 #define Modeler_Sphere          0
 #define Modeler_Box             1
 
+typedef struct
+{
+    int                 albedoMixer;
+    int                 specularMixer;
+    int                 emissionMixer;
+    int                 anisotropicMixer;
+    int                 metallicMixer;
+    int                 roughnessMixer;
+    int                 subsurfaceMixer;
+    int                 specularTintMixer;
+    int                 sheenMixer;
+    int                 sheenTintMixer;
+    int                 clearcoatMixer;
+    int                 clearcoatGlossMixer;
+    int                 specTransMixer;
+    int                 iorMixer;
+    
+    simd_float4         albedoMixerData[5];
+} MaterialMixer;
+
 typedef struct {
     
     int                 roleType;
@@ -215,6 +235,7 @@ typedef struct {
     
     Material            material;
     Material            mixMaterial;
+    MaterialMixer       mixer;
 
     // If we are using a brush, the brush hit is used to render a preview
     simd_float3         brushHit;

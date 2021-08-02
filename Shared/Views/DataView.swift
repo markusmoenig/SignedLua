@@ -121,12 +121,17 @@ struct DataEntityView: View {
     
     // For Texture Feature
     @State private var showTexturePopup     = false
+    // For Procedural Feature
+    @State private var showProceduralPopup  = false
 
     // To Lock Values
     @State var isLocked                     = false
 
     // To Reference Library Assets (Texture Feature)
     @State private var libraryName          = ""
+    
+    // To Reference Procedural Patterns
+    @State private var proceduralName       = ""
 
     init(_ model: Model,_ name: String,_ entity: SignedDataEntity) {
         self.model = model
@@ -173,6 +178,22 @@ struct DataEntityView: View {
                     })
                     {
                         Image(systemName: entity.text.isEmpty ? "photo" : "photo.fill")
+                    }
+                    .buttonStyle(.borderless)
+                } else
+                if entity.feature == .ProceduralMixer {
+                    Button(action: {
+                        let type = getProceduralMixerType()
+                        if type == 0 {
+                            proceduralName = "None"
+                        } else
+                        if type == 1 {
+                            proceduralName = "Value Noise"
+                        }
+                        showProceduralPopup = true
+                    })
+                    {
+                        Image(systemName: entity.text.isEmpty ? "flame" : "flame.fill")
                     }
                     .buttonStyle(.borderless)
                 }
@@ -298,6 +319,7 @@ struct DataEntityView: View {
             }
         }
         
+        /*
         // Texture feature
         .popover(isPresented: self.$showTexturePopup,
                  arrowEdge: .bottom
@@ -309,6 +331,36 @@ struct DataEntityView: View {
                     entity.text = libraryName
                     model.updateSelectedGroup(groupName: groupName)
                 })
+                .frame(minWidth: 300)
+            }.padding()
+        }*/
+        
+        // Procedural Mixer feature
+        .popover(isPresented: self.$showProceduralPopup,
+                 arrowEdge: .bottom
+        ) {
+            VStack(alignment: .leading) {
+                Text("Procedural Pattern")
+                    .foregroundColor(Color.secondary)
+                
+                Menu {
+                    Button("None", action: {
+                        proceduralName = "None"
+                        setProceduralMixerType(0)
+                    })
+                    Button("Value Noise", action: {
+                        proceduralName = "Value Noise"
+                        setProceduralMixerType(1)
+                    })
+                }
+                label: {
+                    Text(proceduralName)
+                }
+                /*
+                TextField("Name", text: $libraryName, onEditingChanged: { (changed) in
+                    entity.text = libraryName
+                    model.updateSelectedGroup(groupName: groupName)
+                })*/
                 .frame(minWidth: 300)
             }.padding()
         }
@@ -358,6 +410,20 @@ struct DataEntityView: View {
             xText = String(format: "%.02f", entity.value.x)
             yText = String(format: "%.02f", entity.value.y)
             zText = String(format: "%.02f", entity.value.z)
+        }
+    }
+    
+    /// Returns the procedural mixer type of this entity
+    func getProceduralMixerType() -> Int {
+        if let subData = entity.subData {
+            return subData.getInt("MixerType", 0)
+        }
+        return 0
+    }
+    
+    func setProceduralMixerType(_ type: Int){
+        if let subData = entity.subData {
+            subData.set("MixerType", type)
         }
     }
 }

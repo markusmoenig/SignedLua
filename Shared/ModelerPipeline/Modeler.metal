@@ -14,7 +14,6 @@ using namespace metal;
 float hash(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }
 float hash(float2 p) {float3 p3 = fract(float3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }
 
-
 float noise(float3 x) {
     const float3 step = float3(110, 241, 171);
 
@@ -242,6 +241,17 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     return rc;
 }
 
+/// Computes the given distance for the given modeler cmd
+void computeModelerMaterial(float3 uv, constant ModelerUniform &mData, float scale, thread Material &material)
+{
+    material = mData.material;
+    if (mData.mixer.albedoMixer != 0) {
+        if (mData.mixer.albedoMixer == 1) {
+            material.albedo = mix(material.albedo, float3(0), noise(uv));
+        }
+    }
+}
+
 /// Executes one modeler command
 kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer(0) ]],
                        texture3d<half, access::read_write>      modelTexture  [[texture(1)]],
@@ -286,7 +296,10 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
         mat.emission = emission;
         mat.atDistance = 1.0;
         
-        Material outMaterial = mixMaterials(mat, mData.material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
+        Material material;
+        computeModelerMaterial(uv, mData, 1.0, material);
+        
+        Material outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
         
         colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);
         materialTexture1.write(half4(float4(outMaterial.specular, outMaterial.metallic, outMaterial.subsurface, outMaterial.clearcoat)), gid);

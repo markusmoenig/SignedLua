@@ -35,6 +35,20 @@ struct MaterialView: View {
         
             VStack(alignment: .center) {
                 Button(action: {
+                    let object = MaterialEntity(context: managedObjectContext)
+                    
+                    object.id = UUID()
+                    object.name = "New Material"
+                    
+                    let material = SignedMaterial()
+                    object.data = material.toData()
+                    
+                    model.materialCmds[object.id!] = material
+                    selected = object
+
+                    do {
+                        try managedObjectContext.save()
+                    } catch {}
                 })
                 {
                     //Label("Add", systemImage: "+")
@@ -58,42 +72,39 @@ struct MaterialView: View {
                                 Image(image, scale: 1.0, label: Text(object.name!))
                                     .onTapGesture(perform: {
                                         
-                                        let object = MaterialEntity(context: managedObjectContext)
-                                        
-                                        object.id = UUID()
-                                        object.name = "New Material"
-                                        
-                                        let material = SignedMaterial()
-                                        object.json = material.toJSON()
-                                        
-                                        model.materialCmds[object.id!] = material
-                                        
+                                        selected = object
                                         /*
-                                        selected = material
-                                        model.selectedMaterial = material
+                                        model.selectedMaterial = object
                                         model.editingCmd.copyMaterial(from: material)
                                         model.materialSelected.send(material)
                                         model.editingCmdChanged.send(model.editingCmd)
                                         model.renderer?.restart()*/
-                                        
-                                        do {
-                                            try managedObjectContext.save()
-                                        } catch {}
                                     })
                             } else {
                                 Rectangle()
                                     .fill(Color.secondary)
                                     .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
                                     .onTapGesture(perform: {
-                                        /*
-                                        selected = material
-                                        model.selectedMaterial = material
-                                        model.editingCmd.copyMaterial(from: material)
-                                        model.materialSelected.send(material)
-                                        model.editingCmdChanged.send(model.editingCmd)
-                                        model.renderer?.restart()
-                                         */
+                                        
+                                        selected = object
+                                        
+                                        if let material = model.materialCmds[object.id!] {
+                                            
+                                            model.selectedMaterial = material
+                                            model.editingCmd.copyMaterial(from: material)
+                                            model.materialSelected.send(material)
+                                            model.editingCmdChanged.send(model.editingCmd)
+                                            model.renderer?.restart()
+                                        }
                                     })
+                                    .contextMenu {
+                                        Button("Delete") {
+                                            managedObjectContext.delete(object)
+                                            do {
+                                                try managedObjectContext.save()
+                                            } catch {}
+                                        }
+                                    }
                             }
                             
                             if object === selected {

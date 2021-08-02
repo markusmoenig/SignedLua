@@ -19,7 +19,7 @@ class SignedDataEntity: Codable, Hashable {
     }
     
     enum Feature: String, Codable {
-        case None, Texture
+        case None, Texture, ProceduralMixer
     }
     
     var id          = UUID()
@@ -36,6 +36,8 @@ class SignedDataEntity: Codable, Hashable {
     var range       : float2
     
     var text        : String = ""
+    
+    var subData     : SignedData? = nil
         
     private enum CodingKeys: String, CodingKey {
         case key
@@ -47,6 +49,7 @@ class SignedDataEntity: Codable, Hashable {
         case time
         case defaultValue
         case text
+        case subData
     }
     
     init(_ key: String,_ v: Int,_ r: float2 = float2(0,1),_ u: UsageType = .Slider,_ f: Feature = .None,_ te: String = "",_ t: Double? = nil) {
@@ -122,6 +125,7 @@ class SignedDataEntity: Codable, Hashable {
         time = try container.decode(Double?.self, forKey: .time)
         defaultValue = try container.decode(float4.self, forKey: .defaultValue)
         text = try container.decode(String.self, forKey: .text)
+        subData = try container.decode(SignedData?.self, forKey: .subData)
     }
     
     func encode(to encoder: Encoder) throws
@@ -135,7 +139,7 @@ class SignedDataEntity: Codable, Hashable {
         try container.encode(range, forKey: .range)
         try container.encode(time, forKey: .time)
         try container.encode(defaultValue, forKey: .defaultValue)
-        try container.encode(text, forKey: .text)
+        try container.encode(subData, forKey: .subData)
     }
     
     static func ==(lhs: SignedDataEntity, rhs: SignedDataEntity) -> Bool {
@@ -249,6 +253,16 @@ class SignedData: Codable, Hashable {
         for e in data {
             if e.key == key {
                 return e.text
+            }
+        }
+        return nil
+    }
+    
+    /// Returns the entity itself
+    func getEntity(_ key : String) -> SignedDataEntity? {
+        for e in data {
+            if e.key == key {
+                return e
             }
         }
         return nil

@@ -204,7 +204,7 @@ struct BrowserView: View {
                     })
                     
                     Button(action: {
-                        selection =  .materials
+                        selection = .materials
                         if let selectedMaterial = model.selectedMaterial {
                             self.model.materialSelected.send(selectedMaterial)
                         }

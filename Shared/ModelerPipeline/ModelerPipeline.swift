@@ -232,7 +232,9 @@ class ModelerPipeline
         
         modelerUniform.normal = cmd.normal                
         modelerUniform.material = cmd.material.toMaterialStruct()
-        
+        modelerUniform.mixMaterial = cmd.material.toMixMaterialStruct()
+        modelerUniform.mixer = cmd.material.toMaterialMixerStruct()
+
         return modelerUniform
     }
     

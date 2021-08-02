@@ -39,7 +39,7 @@ class Model: NSObject, ObservableObject {
     var selectedShape                       : SignedCommand? = nil
 
     /// Currently selected shape in the browser
-    var selectedMaterial                    : SignedCommand? = nil
+    var selectedMaterial                    : SignedMaterial? = nil
     
     /// Send when an object has been selected
     let objectSelected                      = PassthroughSubject<SignedObject, Never>()
@@ -51,7 +51,7 @@ class Model: NSObject, ObservableObject {
     let shapeSelected                       = PassthroughSubject<SignedCommand, Never>()
     
     /// Send when a material  has been selected
-    let materialSelected                    = PassthroughSubject<SignedCommand, Never>()
+    let materialSelected                    = PassthroughSubject<SignedMaterial, Never>()
     
     /// Send when an icon for  a cmd has been rendered
     let iconFinished                        = PassthroughSubject<SignedCommand, Never>()
@@ -136,10 +136,22 @@ class Model: NSObject, ObservableObject {
     /// Initialises the inbuilt materials
     func createMaterials() {
         materials = [
-            SignedCommand("Gold", role: .Geometry, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])], material: SignedMaterial(albedo: float3(1,0,0), metallic: 1, roughness: 0.01)),
-            SignedCommand("Stone", role: .Geometry, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])], material: SignedMaterial(albedo: float3(0.8,0.8,0.8), roughness: 0.7)),
+            //SignedCommand("Gold", role: .Geometry, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])], material: SignedMaterial(albedo: float3(1,0,0), metallic: 1, roughness: 0.01)),
+            //SignedCommand("Stone", role: .Geometry, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])], material: SignedMaterial(albedo: float3(0.8,0.8,0.8), roughness: 0.7)),
         ]
-        selectedMaterial = materials.first
+        //selectedMaterial = materials.first
+        
+        let request = MaterialEntity.fetchRequest()
+        
+        let managedObjectContext = PersistenceController.shared.container.viewContext
+        let objects = try! managedObjectContext.fetch(request)
+
+        objects.forEach { object in
+            
+            let material = try? JSONDecoder().decode(SignedMaterial.self, from: object.data!)
+            print(object.name, material)
+            materialCmds[object.id!] = material
+        }
     }
     
     // A SignedData entity of the given group name has been changed. Reset the pathtracer.
