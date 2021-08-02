@@ -247,7 +247,7 @@ void computeModelerMaterial(float3 uv, constant ModelerUniform &mData, float sca
     material = mData.material;
     if (mData.mixer.albedoMixer != 0) {
         if (mData.mixer.albedoMixer == 1) {
-            material.albedo = mix(material.albedo, float3(0), noise(uv));
+            material.albedo = mix(material.albedo, float3(0), noise(uv * 100));
         }
     }
 }

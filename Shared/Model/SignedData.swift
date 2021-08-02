@@ -139,6 +139,7 @@ class SignedDataEntity: Codable, Hashable {
         try container.encode(range, forKey: .range)
         try container.encode(time, forKey: .time)
         try container.encode(defaultValue, forKey: .defaultValue)
+        try container.encode(text, forKey: .text)
         try container.encode(subData, forKey: .subData)
     }
     
