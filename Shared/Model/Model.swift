@@ -79,6 +79,7 @@ class Model: NSObject, ObservableObject {
     var shapes                              : [SignedCommand] = []
     
     /// Material library
+    var materialCmds                        : [UUID: SignedMaterial] = [:]
     var materials                           : [SignedCommand] = []
     
     /// The current editing command

@@ -66,9 +66,7 @@ struct SideView: View {
             Divider()            
             
             if mode == .shape {
-                if let transformData = model.editingCmd.dataGroups.getGroup("Transform") {
-                    DataView(model: model, data: transformData)
-                }
+                DataViews(model: model, data: getShapeGroups())
             } else
             if mode == .material {
                 DataView(model: model, data: model.editingCmd.material.data)
@@ -98,5 +96,24 @@ struct SideView: View {
             mode = .camera
             mode = .material
         }
+    }
+    
+    /// Returns the data groups for this shape
+    func getShapeGroups() -> [SignedData] {
+        var views : [SignedData] = []
+
+        if let transformData = model.editingCmd.dataGroups.getGroup("Transform") {
+            views.append(transformData)
+        }
+        if let geometryData = model.editingCmd.dataGroups.getGroup("Geometry") {
+            views.append(geometryData)
+        }
+        if let modifierData = model.editingCmd.dataGroups.getGroup("Modifier") {
+            views.append(modifierData)
+        }
+        if let booleanData = model.editingCmd.dataGroups.getGroup("Boolean") {
+            views.append(booleanData)
+        }
+        return views
     }
 }

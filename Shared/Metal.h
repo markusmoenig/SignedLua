@@ -214,7 +214,8 @@ typedef struct {
     float               surfaceDistance;
     
     Material            material;
-    
+    Material            mixMaterial;
+
     // If we are using a brush, the brush hit is used to render a preview
     simd_float3         brushHit;
     
