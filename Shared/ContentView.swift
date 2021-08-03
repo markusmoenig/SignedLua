@@ -104,7 +104,7 @@ struct ContentView: View {
                                 .onChanged({ info in
 
                                     isOrbiting = true
-                                    let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
+                                    let delta = float2(Float(info.location.x - info.startLocation.x), 0)//Float(info.location.y - info.startLocation.y))
                                     
                                     document.model.project.camera.rotateDelta(delta * 0.01)
                                     document.model.renderer?.restart()
@@ -144,7 +144,7 @@ struct ContentView: View {
                                 .onChanged({ info in
 
                                     isMoving = true
-                                    let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
+                                    let delta = float2(/*Float(info.location.x - info.startLocation.x)*/0, Float(info.location.y - info.startLocation.y))
                                     
                                     document.model.project.camera.moveDelta(delta * 0.003, aspect: getAspectRatio())
                                     document.model.renderer?.restart()

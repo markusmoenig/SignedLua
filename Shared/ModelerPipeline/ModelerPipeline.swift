@@ -234,6 +234,8 @@ class ModelerPipeline
         modelerUniform.material = cmd.material.toMaterialStruct()
         modelerUniform.mixMaterial = cmd.material.toMixMaterialStruct()
         modelerUniform.mixer = cmd.material.toMaterialMixerStruct()
+        
+        modelerUniform.id = Int32(model.getEditingId())
 
         return modelerUniform
     }
@@ -322,7 +324,7 @@ class ModelerPipeline
     func allocateKit(_ size: Int) -> ModelerKit {
         let modelerKit = ModelerKit()
         
-        print(device.supportsFeatureSet(.macOS_GPUFamily2_v1))
+        //print(device.supportsFeatureSet(.macOS_GPUFamily2_v1))
         modelerKit.modelTexture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
         modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float);////.bgra8Unorm)
         modelerKit.materialTexture1 = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)

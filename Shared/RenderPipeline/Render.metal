@@ -1103,7 +1103,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
             for(int i = 0; i < 260; ++i)
             {
                 float3 p = ray.origin + ray.direction * t;
-                float d = abs(getDistance(p, modelTexture, mData, editHit, materialMixValue, scale));//map(p, dataIn);
+                float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);
                 
                 // --- Visual Bounding Box, only test on the first pass
                 //if (i == 0) {
@@ -1112,7 +1112,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
                 //}
                 // ---
 
-                if (d < (0.0001*t)) {
+                if (abs(d) < (0.0001*t)) {
                     hit = true;
                     //if (i == 0 && d == bd) didHitBBox = true;
                     break;

@@ -21,12 +21,12 @@ class Model: NSObject, ObservableObject {
     }
     
     enum EditingBrushMode {
-        case Geometry
-        case Brush
+        case GeometryAndMaterial
+        case MaterialOnly
     }
     
     var editingMode                         : EditingMode? = .single
-    var editingBrushMode                    : EditingBrushMode? = .Geometry
+    var editingBrushMode                    : EditingBrushMode? = .GeometryAndMaterial
     var editingBooleanMode                  : EditingBooleanMode? = .plus
 
     /// The project itself
@@ -127,8 +127,8 @@ class Model: NSObject, ObservableObject {
     /// Initialises the currently available shapes
     func createShapes() {
         shapes = [
-            SignedCommand("Sphere", role: .Geometry, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4), float2(0, 5))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
-            SignedCommand("Box", role: .Geometry, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,5)), SignedDataEntity("Rounding", Float(0.01), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
+            SignedCommand("Sphere", role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4), float2(0, 5))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
+            SignedCommand("Box", role: .GeometryAndMaterial, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,10), .Slider), SignedDataEntity("Rounding", Float(0.01), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]
         selectedShape = shapes.first
     }
@@ -149,7 +149,6 @@ class Model: NSObject, ObservableObject {
         objects.forEach { object in
             
             let material = try? JSONDecoder().decode(SignedMaterial.self, from: object.data!)
-            print(object.name, material)
             materialCmds[object.id!] = material
         }
     }
@@ -157,5 +156,18 @@ class Model: NSObject, ObservableObject {
     // A SignedData entity of the given group name has been changed. Reset the pathtracer.
     func updateSelectedGroup(groupName: String) {
         renderer?.restart()
+    }
+    
+    /// Returns the current editing id
+    func getEditingId() -> Int {
+        var id : Int = 0
+        if let object = selectedObject {
+            for c in object.commands {
+                if c.role == .GeometryAndMaterial {
+                    id += 1
+                }
+            }
+        }
+        return id
     }
 }

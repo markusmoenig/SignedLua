@@ -360,7 +360,7 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
     float dist = modelTexture.read(gid).x;
     float newDist = applyModelerData(uv, dist, mData, 1.0, materialMixValue);
         
-    if (dist != newDist && (newDist < 0.1)) {
+    if (/*dist != newDist &&*/ (newDist < 0.001) && dist > 0) {
         
         float4 colorAndRoughness = float4(colorTexture.read(gid));
         float4 specularMetallicSubsurfaceClearcoat = float4(materialTexture1.read(gid));
@@ -395,7 +395,7 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
         materialTexture1.write(half4(float4(outMaterial.specular, outMaterial.metallic, outMaterial.subsurface, outMaterial.clearcoat)), gid);
         materialTexture2.write(half4(float4(outMaterial.anisotropic, outMaterial.specularTint, outMaterial.sheen, outMaterial.sheenTint)), gid);
         materialTexture3.write(half4(float4(outMaterial.clearcoatGloss, outMaterial.specTrans, outMaterial.ior, 0)), gid);
-        materialTexture4.write(half4(float4(outMaterial.emission, 0)), gid);
+        materialTexture4.write(half4(float4(outMaterial.emission, mData.id)), gid);
     }
     
     modelTexture.write(half4(newDist), gid);
@@ -415,7 +415,7 @@ kernel void modelerClear(texture3d<half, access::write>    modelTexture  [[textu
     materialTexture1.write(half4(0), gid);
     materialTexture2.write(half4(0), gid);
     materialTexture3.write(half4(0), gid);
-    materialTexture4.write(half4(0), gid);
+    materialTexture4.write(half4(0, 0, 0, 255), gid);
 }
 
 /// Converts the image to the color space required to create an CGIImage

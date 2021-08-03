@@ -27,7 +27,7 @@ struct BrowserView: View {
     @State private var editingMode          : Model.EditingMode? = .single
     @State private var editingBooleanMode   : Model.EditingBooleanMode? = .plus
 
-    @State private var editingBrushMode     : Model.EditingBrushMode? = .Geometry
+    @State private var editingBrushMode     : Model.EditingBrushMode? = .GeometryAndMaterial
     
     @State private var brushSize            : Float = 0.05
     @State private var brushName            : String = "0.05"
@@ -63,12 +63,12 @@ struct BrowserView: View {
             HStack(alignment: .top) {
                                 
                 Button(action: {
-                    editingBrushMode = .Geometry
-                    model.editingBrushMode = .Geometry
+                    editingBrushMode = .GeometryAndMaterial
+                    model.editingBrushMode = .GeometryAndMaterial
                     model.renderer?.restart()
                 })
                 {
-                    Image(systemName: editingBrushMode == .Geometry ? "cube.fill" : "cube")
+                    Image(systemName: editingBrushMode == .GeometryAndMaterial ? "cube.fill" : "cube")
                         .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
@@ -78,14 +78,14 @@ struct BrowserView: View {
                 //Divider()
 
                 Button(action: {
-                    editingBrushMode = .Brush
-                    model.editingBrushMode = .Brush
+                    editingBrushMode = .MaterialOnly
+                    model.editingBrushMode = .MaterialOnly
                     
                     model.editingCmd.action = .None
                     model.renderer?.restart()
                 })
                 {
-                    Image(systemName: editingBrushMode == .Brush ? "paintbrush.pointed.fill" : "paintbrush.pointed")
+                    Image(systemName: editingBrushMode == .MaterialOnly ? "paintpalette.fill" : "paintpalette")
                         .imageScale(.large)
                 }
                 .buttonStyle(.borderless)
@@ -93,7 +93,7 @@ struct BrowserView: View {
                 Divider()
                     .frame(maxHeight: 16)
                 
-                if editingBrushMode == .Geometry {
+                if editingBrushMode == .GeometryAndMaterial {
                     
                     Button(action: {
                         editingMode = .single
@@ -170,7 +170,7 @@ struct BrowserView: View {
                     //Spacer()
                 }
                 else
-                if editingBrushMode == .Brush {
+                if editingBrushMode == .MaterialOnly {
                     Image(systemName: "scribble.variable")
                         .foregroundColor(.gray)
                         .imageScale(.large)

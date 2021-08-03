@@ -66,7 +66,7 @@ public class STKView        : MTKView
     func editHover()
     {
         let size = float2(Float(frame.width), Float(frame.height))
-
+        /*
         if model.editingBrushMode == .Brush {
             if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
                 model.editingHit = hit.0
@@ -76,7 +76,7 @@ public class STKView        : MTKView
                 model.writeAction = 0
                 renderer?.restart()
             }
-        }
+        }*/
     }
     
     /// Perform an editing command
@@ -84,7 +84,7 @@ public class STKView        : MTKView
     {
         let size = float2(Float(frame.width), Float(frame.height))
 
-        if model.editingBrushMode == .Geometry {
+        if model.editingBrushMode == .GeometryAndMaterial {
             if model.editingMode == .multiple && editingState != .Starting { return }
 
             //print("editCommand", editingState, model.editingMode)
@@ -96,7 +96,7 @@ public class STKView        : MTKView
                     transformData.set("Position", hit.0 / model.project.scale)
                 }
                 cmd.normal = hit.1
-                cmd.role = .Geometry
+                cmd.role = .GeometryAndMaterial
 
                 if model.editingMode == .single {
                 
@@ -140,7 +140,8 @@ public class STKView        : MTKView
                 }
             }
         } else
-        if model.editingBrushMode == .Brush {
+        if model.editingBrushMode == .MaterialOnly {
+            /*
             if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
                 model.editingHit = hit.0
                 
@@ -148,7 +149,7 @@ public class STKView        : MTKView
                 model.editingCmd.role = .Brush
                 model.writeAction = 1
                 renderer?.restart()
-            }
+            }*/
         }
     }
     

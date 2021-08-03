@@ -257,6 +257,8 @@ typedef struct {
     int                 actionType;
     int                 primitiveType;
     
+    int                 id;
+    
     simd_float3         randomVector;
 
     simd_float3         position;

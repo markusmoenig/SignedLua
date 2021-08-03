@@ -13,7 +13,7 @@ import SwiftUI
 class SignedCommand : Codable, Hashable {
     
     enum Role: Int32, Codable {
-        case Geometry, Brush
+        case GeometryAndMaterial, MaterialOnly
     }
     
     enum Action: Int32, Codable {
@@ -55,7 +55,7 @@ class SignedCommand : Codable, Hashable {
         case code
     }
     
-    init(_ name: String = "Unnamed", role: Role = .Geometry, action: Action = .Add, primitive: Primitive = .Box, data: [String: SignedData] = [:], material: SignedMaterial = SignedMaterial())
+    init(_ name: String = "Unnamed", role: Role = .GeometryAndMaterial, action: Action = .Add, primitive: Primitive = .Box, data: [String: SignedData] = [:], material: SignedMaterial = SignedMaterial())
     {
         self.name = name
         self.role = role
