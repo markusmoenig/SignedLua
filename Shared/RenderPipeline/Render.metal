@@ -865,6 +865,7 @@ float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, th
 }
 
 float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float scal, thread float &materialMixValue);
+void computeModelerMaterial(float3 uv, constant ModelerUniform &mData, float scale, thread Material &material);
 Material mixMaterials(Material materialA, Material materialB, float k);
 
 /// Gets the distance at the given point
@@ -1219,10 +1220,12 @@ fragment float4 render(RasterizerData in [[stage_in]],
         state.mat.emission = emission;
         state.mat.atDistance = 1.0;
         
-        if (mData.roleType == Modeler_Geometry) {
+        //if (mData.roleType == Modeler_Geometry) {
             // Geometry preview material blending
-            state.mat = mixMaterials(state.mat, mData.material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
-        } else {
+            Material material;
+            computeModelerMaterial(state.fhp, mData, scale, material);
+            state.mat = mixMaterials(state.mat, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
+        /*} else {
             // Brush based Material painting
             
             float brushDist = distance(mData.brushHit, state.fhp);
@@ -1240,7 +1243,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
                     setMaterialData(state.fhp, float4(state.mat.emission, 0), materialTexture4, scale);
                 }
             }
-        }
+        }*/
         
         state.mat.roughness = max(state.mat.roughness, 0.001);
 

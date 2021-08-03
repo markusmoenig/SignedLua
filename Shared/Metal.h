@@ -208,7 +208,47 @@ typedef struct
     int                 specTransMixer;
     int                 iorMixer;
     
-    simd_float4         albedoMixerData[5];
+    float               albedoMixerScale;
+    int                 albedoMixerSmoothing;
+    
+    float               specularMixerScale;
+    int                 specularMixerSmoothing;
+    
+    float               emissionMixerScale;
+    int                 emissionMixerSmoothing;
+    
+    float               anisotropicMixerScale;
+    int                 anisotropicMixerSmoothing;
+    
+    float               metallicMixerScale;
+    int                 metallicMixerSmoothing;
+    
+    float               roughnessMixerScale;
+    int                 roughnessMixerSmoothing;
+    
+    float               subsurfaceMixerScale;
+    int                 subsurfaceMixerSmoothing;
+    
+    float               specularTintMixerScale;
+    int                 specularTintMixerSmoothing;
+    
+    float               sheenMixerScale;
+    int                 sheenMixerSmoothing;
+    
+    float               sheenTintMixerScale;
+    int                 sheenTintMixerSmoothing;
+    
+    float               clearcoatMixerScale;
+    int                 clearcoatMixerSmoothing;
+    
+    float               clearcoatGlossMixerScale;
+    int                 clearcoatGlossMixerSmoothing;
+    
+    float               specTransMixerScale;
+    int                 specTransMixerSmoothing;
+    
+    float               iorMixerScale;
+    int                 iorMixerSmoothing;
 } MaterialMixer;
 
 typedef struct {

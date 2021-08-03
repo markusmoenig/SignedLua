@@ -14,7 +14,7 @@ using namespace metal;
 float hash(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }
 float hash(float2 p) {float3 p3 = fract(float3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }
 
-float noise(float3 x) {
+float valueNoise(float3 x) {
     const float3 step = float3(110, 241, 171);
 
     float3 i = floor(x);
@@ -29,6 +29,18 @@ float noise(float3 x) {
                    mix( hash(n + dot(step, float3(0, 1, 0))), hash(n + dot(step, float3(1, 1, 0))), u.x), u.y),
                mix(mix( hash(n + dot(step, float3(0, 0, 1))), hash(n + dot(step, float3(1, 0, 1))), u.x),
                    mix( hash(n + dot(step, float3(0, 1, 1))), hash(n + dot(step, float3(1, 1, 1))), u.x), u.y), u.z);
+}
+
+float valueNoiseFBM(float3 x, int octaves) {
+    float v = 0.0;
+    float a = 0.5;
+    float3 shift = float3(100);
+    for (int i = 0; i < octaves; ++i) {
+        v += a * valueNoise(x);
+        x = x * 2.0 + shift;
+        a *= 0.5;
+    }
+    return v;
 }
 
 Material mixMaterials(Material materialA, Material materialB, float k)
@@ -247,7 +259,85 @@ void computeModelerMaterial(float3 uv, constant ModelerUniform &mData, float sca
     material = mData.material;
     if (mData.mixer.albedoMixer != 0) {
         if (mData.mixer.albedoMixer == 1) {
-            material.albedo = mix(material.albedo, float3(0), noise(uv * 100));
+            material.albedo = mix(material.albedo, mData.mixMaterial.albedo, valueNoiseFBM(uv * 100.0 * mData.mixer.albedoMixerScale / scale, mData.mixer.albedoMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.specularMixer != 0) {
+        if (mData.mixer.specularMixer == 1) {
+            material.specular = mix(material.specular, mData.mixMaterial.specular, valueNoiseFBM(uv * 100.0 * mData.mixer.specularMixerScale / scale, mData.mixer.specularMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.specularTintMixer != 0) {
+        if (mData.mixer.specularTintMixer == 1) {
+            material.specularTint = mix(material.specularTint, mData.mixMaterial.specularTint, valueNoiseFBM(uv * 100.0 * mData.mixer.specularTintMixerScale / scale, mData.mixer.specularTintMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.anisotropicMixer != 0) {
+        if (mData.mixer.anisotropicMixer == 1) {
+            material.anisotropic = mix(material.anisotropic, mData.mixMaterial.anisotropic, valueNoiseFBM(uv * 100.0 * mData.mixer.anisotropicMixerScale / scale, mData.mixer.anisotropicMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.metallicMixer != 0) {
+        if (mData.mixer.metallicMixer == 1) {
+            material.metallic = mix(material.metallic, mData.mixMaterial.metallic, valueNoiseFBM(uv * 100.0 * mData.mixer.metallicMixerScale / scale, mData.mixer.metallicMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.roughnessMixer != 0) {
+        if (mData.mixer.roughnessMixer == 1) {
+            material.roughness = mix(material.roughness, mData.mixMaterial.roughness, valueNoiseFBM(uv * 100.0 * mData.mixer.roughnessMixerScale / scale, mData.mixer.roughnessMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.subsurfaceMixer != 0) {
+        if (mData.mixer.subsurfaceMixer == 1) {
+            material.subsurface = mix(material.subsurface, mData.mixMaterial.subsurface, valueNoiseFBM(uv * 100.0 * mData.mixer.subsurfaceMixerScale / scale, mData.mixer.subsurfaceMixerSmoothing));
+        }
+    }
+ 
+    if (mData.mixer.sheenMixer != 0) {
+        if (mData.mixer.sheenMixer == 1) {
+            material.sheen = mix(material.sheen, mData.mixMaterial.sheen, valueNoiseFBM(uv * 100.0 * mData.mixer.sheenMixerScale / scale, mData.mixer.sheenMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.sheenTintMixer != 0) {
+        if (mData.mixer.sheenTintMixer == 1) {
+            material.sheenTint = mix(material.sheenTint, mData.mixMaterial.sheenTint, valueNoiseFBM(uv * 100.0 * mData.mixer.sheenTintMixerScale / scale, mData.mixer.sheenTintMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.clearcoatMixer != 0) {
+        if (mData.mixer.clearcoatMixer == 1) {
+            material.clearcoat = mix(material.clearcoat, mData.mixMaterial.clearcoat, valueNoiseFBM(uv * 100.0 * mData.mixer.clearcoatMixerScale / scale, mData.mixer.clearcoatMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.clearcoatGlossMixer != 0) {
+        if (mData.mixer.clearcoatGlossMixer == 1) {
+            material.clearcoatGloss = mix(material.clearcoatGloss, mData.mixMaterial.clearcoatGloss, valueNoiseFBM(uv * 100.0 * mData.mixer.clearcoatGlossMixerScale / scale, mData.mixer.clearcoatGlossMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.specTransMixer != 0) {
+        if (mData.mixer.specTransMixer == 1) {
+            material.specTrans = mix(material.specTrans, mData.mixMaterial.specTrans, valueNoiseFBM(uv * 100.0 * mData.mixer.specTransMixerScale / scale, mData.mixer.specTransMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.iorMixer != 0) {
+        if (mData.mixer.iorMixer == 1) {
+            material.ior = mix(material.ior, mData.mixMaterial.ior, valueNoiseFBM(uv * 100.0 * mData.mixer.iorMixerScale / scale, mData.mixer.iorMixerSmoothing));
+        }
+    }
+    
+    if (mData.mixer.emissionMixer != 0) {
+        if (mData.mixer.emissionMixer == 1) {
+            material.emission = mix(material.emission, mData.mixMaterial.emission, valueNoiseFBM(uv * 100.0 * mData.mixer.emissionMixerScale / scale, mData.mixer.emissionMixerSmoothing));
         }
     }
 }

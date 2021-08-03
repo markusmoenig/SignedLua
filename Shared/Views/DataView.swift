@@ -94,6 +94,93 @@ struct DataFloatSliderView: View {
     }
 }
 
+/// DataIntSliderView
+struct DataIntSliderView: View {
+    
+    let model                               : Model
+    let groupName                           : String
+
+    var value                               : Binding<Float>
+    var valueText                           : Binding<String>
+    var range                               : Binding<float2>
+
+    var factor                              : CGFloat = 1
+
+    @State var clipWidth                    : CGFloat = 0
+    
+    @State var color                        : Color
+
+    init(_ model: Model,_ name : String,_ value :Binding<Float>,_ valueText :Binding<String>,_ range: Binding<float2>,_ color: Color = Color.accentColor,_ factor: CGFloat = 1)
+    {
+        self.model = model
+        self.groupName = name
+        self.value = value
+        self.valueText = valueText
+        self.range = range
+        self.color = color
+        self.factor = factor
+        
+        //valueText.wrappedValue = String(format: "%.02f", value.wrappedValue)
+    }
+
+    var body: some View {
+            
+        GeometryReader { geom in
+            Canvas { context, size in
+                context.fill(
+                    Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 8),
+                    with: .color(.gray))
+                
+                var maskedContext = context
+
+                maskedContext.clip(
+                    to: Path(roundedRect: CGRect(origin: .zero, size: CGSize(width: getClipWidth(size.width), height: size.height)), cornerRadius: 0))
+                
+                maskedContext.fill(
+                    Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 8),
+                    with: .color(color))
+
+                context.draw(Text(valueText.wrappedValue), at: CGPoint(x: geom.size.width / 2, y: geom.size.height / factor), anchor: .center)
+                
+            }
+            .frame(width: geom.size.width, height: 19)
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                
+                    .onChanged({ info in
+                        
+                        let offset = Float(info.location.x / geom.size.width)
+                
+                        let r = range.wrappedValue
+                
+                        var newValue = r.x + (r.y - r.x) * offset
+                        newValue = max(newValue, r.x)
+                        newValue = min(newValue, r.y)
+                    
+                        value.wrappedValue = Float(Int(newValue))
+                        valueText.wrappedValue = String(Int(newValue))
+                        
+                        model.updateSelectedGroup(groupName: groupName)
+                    })
+                    .onEnded({ info in
+                    })
+            )
+        }
+        
+        .onReceive(model.updateDataViews) { _ in
+            valueText.wrappedValue = String(Int(value.wrappedValue))
+        }
+    }
+    
+    func getClipWidth(_ width: CGFloat) -> CGFloat {
+        let v = value.wrappedValue
+        let r = range.wrappedValue
+
+        let off = CGFloat((v - r.x) / (r.y - r.x))
+        return off * width
+    }
+}
+
 /// The view of a single DataEntity
 struct DataEntityView: View {
     
@@ -131,7 +218,7 @@ struct DataEntityView: View {
     @State private var libraryName          = ""
     
     // To Reference Procedural Patterns
-    @State private var proceduralName       = ""
+    @State private var proceduralName       = "None"
 
     init(_ model: Model,_ name: String,_ entity: SignedDataEntity) {
         self.model = model
@@ -156,6 +243,15 @@ struct DataEntityView: View {
             let comp = entity.text.components(separatedBy: ", ")
             _menuText = State(initialValue: comp[Int(entity.value.x)])
         }
+
+        // Set the mixer type name
+        let type = getProceduralMixerType()
+        if type == 0 {
+            _proceduralName = State(initialValue: "None")
+        } else
+        if type == 1 {
+            _proceduralName = State(initialValue: "Value Noise")
+        }
     }
 
     var body: some View {
@@ -163,6 +259,15 @@ struct DataEntityView: View {
             HStack {
                 Text(entity.key)
                 Spacer()
+                if entity.feature == .ProceduralMixer {
+                    Button(action: {
+                        showProceduralPopup = true
+                    })
+                    {
+                        Image(systemName: getProceduralMixerType() == 0 ? "flame" : "flame.fill")
+                    }
+                    .buttonStyle(.borderless)
+                }
                 if (entity.usage == .Slider || entity.usage == .Numeric) && entity.type != .Float {
                     Button(action: {
                         isLocked.toggle()
@@ -171,29 +276,13 @@ struct DataEntityView: View {
                         Image(systemName: isLocked ? "link.circle.fill" : "link.circle")
                     }
                     .buttonStyle(.borderless)
-                } else
+                }
                 if entity.feature == .Texture {
                     Button(action: {
                         showTexturePopup = true
                     })
                     {
                         Image(systemName: entity.text.isEmpty ? "photo" : "photo.fill")
-                    }
-                    .buttonStyle(.borderless)
-                } else
-                if entity.feature == .ProceduralMixer {
-                    Button(action: {
-                        let type = getProceduralMixerType()
-                        if type == 0 {
-                            proceduralName = "None"
-                        } else
-                        if type == 1 {
-                            proceduralName = "Value Noise"
-                        }
-                        showProceduralPopup = true
-                    })
-                    {
-                        Image(systemName: entity.text.isEmpty ? "flame" : "flame.fill")
                     }
                     .buttonStyle(.borderless)
                 }
@@ -218,6 +307,10 @@ struct DataEntityView: View {
                     } else
                     if entity.usage == .Color {
                         colorValue = Color(red: Double(entity.value.x), green: Double(entity.value.y), blue: Double(entity.value.z))
+                    }
+                    if let subData = entity.subData {
+                        subData.set("MixerType", Int(0))
+                        proceduralName = "None"
                     }
                     model.updateSelectedGroup(groupName: groupName)
                 })
@@ -246,7 +339,11 @@ struct DataEntityView: View {
                 } else
                 if entity.usage == .Slider {
                     HStack {
-                        DataFloatSliderView(model, groupName, $xValue, $xText, $valueRange, .red)
+                        if entity.type == .Int {
+                            DataIntSliderView(model, groupName, $xValue, $xText, $valueRange)
+                        } else {
+                            DataFloatSliderView(model, groupName, $xValue, $xText, $valueRange, .red)
+                        }
                         if entity.type == .Float2 || entity.type == .Float3 {
                             DataFloatSliderView(model, groupName, $yValue, $yText, $valueRange, .green)
                         }
@@ -347,22 +444,47 @@ struct DataEntityView: View {
                     Button("None", action: {
                         proceduralName = "None"
                         setProceduralMixerType(0)
+                        model.updateSelectedGroup(groupName: groupName)
                     })
                     Button("Value Noise", action: {
                         proceduralName = "Value Noise"
                         setProceduralMixerType(1)
+                        model.updateSelectedGroup(groupName: groupName)
                     })
                 }
                 label: {
                     Text(proceduralName)
+                }
+                Divider()
+                if let subEntity = entity.subData!.getEntity(entity.key) {
+                    DataEntityView(model, entity.key, subEntity)
+                        .padding(2)
+                        .padding(.leading, 6)
+                        .padding(.trailing, 6)
+                        .disabled(getProceduralMixerType() == 0)
+                }
+                if let subEntity = entity.subData!.getEntity("Scale") {
+                    DataEntityView(model, "Scale", subEntity)
+                        .padding(2)
+                        .padding(.leading, 6)
+                        .padding(.trailing, 6)
+                        .disabled(getProceduralMixerType() == 0)
+                }
+                if let subEntity = entity.subData!.getEntity("Smoothing") {
+                    DataEntityView(model, "Smoothing", subEntity)
+                        .padding(2)
+                        .padding(.leading, 6)
+                        .padding(.trailing, 6)
+                        .disabled(getProceduralMixerType() == 0)
                 }
                 /*
                 TextField("Name", text: $libraryName, onEditingChanged: { (changed) in
                     entity.text = libraryName
                     model.updateSelectedGroup(groupName: groupName)
                 })*/
-                .frame(minWidth: 300)
-            }.padding()
+            }
+            .padding()
+            .frame(minWidth: 300)
         }
         
         // Slider values changed
