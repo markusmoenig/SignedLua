@@ -122,7 +122,7 @@ class SignedCommand : Codable, Hashable {
         ])
         
         addDataGroup(name: "Boolean", entities: [
-            SignedDataEntity("Smoothing", Float(0.1), float2(0.001, 1))
+            SignedDataEntity("Smoothing", Float(0.0), float2(0, 1))
         ])
     }
     
