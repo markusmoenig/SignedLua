@@ -15,8 +15,6 @@ class SignedMaterial: Codable {
     
     var data            : SignedData
     
-    var icon            : CGImage? = nil
-
     private enum CodingKeys: String, CodingKey {
         case data
     }
@@ -58,6 +56,7 @@ class SignedMaterial: Codable {
             }
         }
         
+        data.set("Name", "Material", .TextField, .MaterialLibrary)
         setColor("Color", albedo)
         setFloat("Metallic", metallic)
         setFloat("Roughness", roughness)
@@ -192,6 +191,17 @@ class SignedMaterial: Codable {
         materialMixer.emissionMixerSmoothing = Int32(data.getEntity("Emission")!.subData!.getInt("Smoothing", 1))
         
         return materialMixer
+    }
+    
+    /// Creates a copy of itself
+    func copy() -> SignedMaterial?
+    {
+        if let data = try? JSONEncoder().encode(self) {
+            if let copied = try? JSONDecoder().decode(SignedMaterial.self, from: data) {
+                return copied
+            }
+        }
+        return nil
     }
     
     /// Copies itself to Data

@@ -11,15 +11,15 @@ import Foundation
 class SignedDataEntity: Codable, Hashable {
     
     enum DataType: String, Codable {
-        case Int, Float, Float2, Float3, Float4
+        case Int, Float, Float2, Float3, Float4, Text
     }
     
     enum UsageType: String, Codable {
-        case Numeric, Slider, Color, Menu
+        case Numeric, Slider, Color, Menu, TextField
     }
     
     enum Feature: String, Codable {
-        case None, Texture, ProceduralMixer
+        case None, Texture, ProceduralMixer, MaterialLibrary
     }
     
     var id          = UUID()
@@ -50,6 +50,19 @@ class SignedDataEntity: Codable, Hashable {
         case defaultValue
         case text
         case subData
+    }
+    
+    init(_ key: String,_ v: String,_ u: UsageType = .TextField,_ f: Feature = .None,_ t: Double? = nil) {
+        self.key = key
+        type = .Text
+        usage = u
+        feature = f
+        text = v
+        range = float2(0,0)
+        time = t
+                
+        value = float4()
+        defaultValue = float4()
     }
     
     init(_ key: String,_ v: Int,_ r: float2 = float2(0,1),_ u: UsageType = .Slider,_ f: Feature = .None,_ te: String = "",_ t: Double? = nil) {
@@ -267,6 +280,15 @@ class SignedData: Codable, Hashable {
             }
         }
         return nil
+    }
+    
+    /// Set Text
+    func set(_ key: String,_ value: String,_ usage: SignedDataEntity.UsageType = .TextField,_ feature: SignedDataEntity.Feature = .None,_ time: Double? = nil) {
+        if let ex = getExisting(key, .Int, time) {
+            ex.text = value
+        } else {
+            data.append(SignedDataEntity(key, value, usage, feature, time))
+        }
     }
     
     /// Set Int

@@ -20,65 +20,37 @@ struct MaterialView: View {
     
     let model                               : Model
     
-    @State var selected                     : MaterialEntity? = nil
+    @State var selected                     : SignedCommand? = nil
     
     init(model: Model) {
         self.model = model
-        //_selected = State(initialValue: model.selectedMaterial)
+        _selected = State(initialValue: model.selectedMaterial)
     }
 
     var body: some View {
     
         let rows: [GridItem] = Array(repeating: .init(.fixed(70)), count: 1)
-        
-        HStack {
-        
-            VStack(alignment: .center) {
-                Button(action: {
-                    let object = MaterialEntity(context: managedObjectContext)
-                    
-                    object.id = UUID()
-                    object.name = "New Material"
-                    
-                    let material = SignedMaterial()
-                    object.data = material.toData()
-                    
-                    model.materialCmds[object.id!] = material
-                    selected = object
-
-                    do {
-                        try managedObjectContext.save()
-                    } catch {}
-                })
-                {
-                    //Label("Add", systemImage: "+")
-                    //Image(systemName: "+")
-                    Text("New")
-                }
-                .buttonStyle(PlainButtonStyle())
-                .padding(.top, 10)
-                
-                Spacer()
-            }
             
-            ScrollView(.horizontal) {
-                LazyHGrid(rows: rows, alignment: .center) {
-                    //ForEach(model.materials, id: \.id) { material in
-                    ForEach(objects, id: \.self) { object in
+        ScrollView(.horizontal) {
+            LazyHGrid(rows: rows, alignment: .center) {
+                //ForEach(model.materials, id: \.id) { material in
+                ForEach(objects, id: \.self) { object in
 
-                        ZStack(alignment: .center) {
+                    ZStack(alignment: .center) {
+                        
+                        if let material = model.materials[object.id!] {
                             
-                            if let image = model.materialCmds[object.id!]?.icon {
+                            if let image = material.icon {
                                 Image(image, scale: 1.0, label: Text(object.name!))
                                     .onTapGesture(perform: {
                                         
-                                        selected = object
-                                        /*
-                                        model.selectedMaterial = object
-                                        model.editingCmd.copyMaterial(from: material)
+                                        selected = material
+                                                                                    
+                                        model.selectedMaterial = material
+                                        model.editingCmd.copyMaterial(from: material.material)
                                         model.materialSelected.send(material)
                                         model.editingCmdChanged.send(model.editingCmd)
-                                        model.renderer?.restart()*/
+                                        model.renderer?.restart()
                                     })
                             } else {
                                 Rectangle()
@@ -86,16 +58,13 @@ struct MaterialView: View {
                                     .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
                                     .onTapGesture(perform: {
                                         
-                                        selected = object
-                                        
-                                        if let material = model.materialCmds[object.id!] {
-                                            
-                                            model.selectedMaterial = material
-                                            model.editingCmd.copyMaterial(from: material)
-                                            model.materialSelected.send(material)
-                                            model.editingCmdChanged.send(model.editingCmd)
-                                            model.renderer?.restart()
-                                        }
+                                        selected = material
+                                                                                    
+                                        model.selectedMaterial = material
+                                        model.editingCmd.copyMaterial(from: material.material)
+                                        model.materialSelected.send(material)
+                                        model.editingCmdChanged.send(model.editingCmd)
+                                        model.renderer?.restart()
                                     })
                                     .contextMenu {
                                         Button("Delete") {
@@ -107,7 +76,7 @@ struct MaterialView: View {
                                     }
                             }
                             
-                            if object === selected {
+                            if material === selected {
                                 Rectangle()
                                     .stroke(Color.accentColor, lineWidth: 2)
                                     .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
@@ -117,8 +86,8 @@ struct MaterialView: View {
                             Rectangle()
                                 .fill(.black)
                                 .opacity(0.4)
-                                .frame(width: CGFloat(ModelerPipeline.IconSize - (object === selected ? 2 : 0)), height: CGFloat(20 - (object === selected ? 1 : 0)))
-                                .padding(.top, CGFloat(ModelerPipeline.IconSize - (20 + (object === selected ? 1 : 0))))
+                                .frame(width: CGFloat(ModelerPipeline.IconSize - (material === selected ? 2 : 0)), height: CGFloat(20 - (material === selected ? 1 : 0)))
+                                .padding(.top, CGFloat(ModelerPipeline.IconSize - (20 + (material === selected ? 1 : 0))))
                             
                             Text(object.name!)
                                 .padding(.top, CGFloat(ModelerPipeline.IconSize - 20))
@@ -127,10 +96,10 @@ struct MaterialView: View {
                         }
                     }
                 }
-                .padding()
             }
+            .padding()
         }
-
+    
         .onReceive(model.iconFinished) { cmd in
             let buffer = selected
             selected = nil

@@ -184,6 +184,9 @@ struct DataIntSliderView: View {
 /// The view of a single DataEntity
 struct DataEntityView: View {
     
+    @Environment(\.managedObjectContext) var managedObjectContext
+
+    
     let model                               : Model
     let groupName                           : String
     let entity                              : SignedDataEntity
@@ -205,6 +208,9 @@ struct DataEntityView: View {
 
     // For Color
     @State private var colorValue           = Color.white
+    
+    // For TextFields
+    @State private var textFieldName        = ""
     
     // For Texture Feature
     @State private var showTexturePopup     = false
@@ -237,7 +243,8 @@ struct DataEntityView: View {
         _colorValue = State(initialValue: Color(red: Double(entity.value.x), green: Double(entity.value.y), blue: Double(entity.value.z)))
         
         _libraryName = State(initialValue: entity.text)
-        
+        _textFieldName = State(initialValue: entity.text)
+
         if entity.usage == .Menu {
             _menuOptions = State(initialValue: entity.text.components(separatedBy: ", "))
             let comp = entity.text.components(separatedBy: ", ")
@@ -259,6 +266,30 @@ struct DataEntityView: View {
             HStack {
                 Text(entity.key)
                 Spacer()
+                if entity.feature == .MaterialLibrary {
+                    Button(action: {
+                        let object = MaterialEntity(context: managedObjectContext)
+                        
+                        object.id = UUID()
+                        object.name = textFieldName
+                        
+                        let material = model.editingCmd.material.copy()!
+                        object.data = material.toData()
+                        
+                        let cmd = SignedCommand(object.name!, role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])], material: material)
+                        
+                        model.materials[object.id!] = cmd
+                        model.renderer?.iconQueue += [cmd]
+                        
+                        do {
+                            try managedObjectContext.save()
+                        } catch {}
+                    })
+                    {
+                        Image(systemName: "building.columns")
+                    }
+                    .buttonStyle(.borderless)
+                }
                 if entity.feature == .ProceduralMixer {
                     Button(action: {
                         showProceduralPopup = true
@@ -320,6 +351,11 @@ struct DataEntityView: View {
                 .buttonStyle(.borderless)
             }
             HStack {
+                if entity.usage == .TextField {
+                    TextField("Name", text: $textFieldName, onEditingChanged: { (changed) in
+                        entity.text = textFieldName
+                    })
+                } else
                 if entity.usage == .Menu {
                     Menu {
                         ForEach(menuOptions, id: \.self) { optionName in
