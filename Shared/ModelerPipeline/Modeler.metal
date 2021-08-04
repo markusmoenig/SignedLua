@@ -360,42 +360,87 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
     float dist = modelTexture.read(gid).x;
     float newDist = applyModelerData(uv, dist, mData, 1.0, materialMixValue);
         
-    if (/*dist != newDist &&*/ (newDist < 0.001) && dist > 0) {
+    if (mData.roleType == Modeler_GeometryAndMaterial) {
+        // Geometry & Material
         
-        float4 colorAndRoughness = float4(colorTexture.read(gid));
-        float4 specularMetallicSubsurfaceClearcoat = float4(materialTexture1.read(gid));
-        float4 anisotropicSpecularTintSheenSheenTint = float4(materialTexture2.read(gid));
-        float4 clearcoatGlossSpecTransIor = float4(materialTexture3.read(gid));
-        float3 emission = float4(materialTexture4.read(gid)).xyz;
-        
-        Material mat;
-        
-        mat.albedo = colorAndRoughness.xyz;
-        mat.specular = specularMetallicSubsurfaceClearcoat.x;
-        mat.anisotropic = anisotropicSpecularTintSheenSheenTint.x;
-        mat.metallic = specularMetallicSubsurfaceClearcoat.y;
-        mat.roughness = max(colorAndRoughness.w, 0.001);
-        mat.subsurface = specularMetallicSubsurfaceClearcoat.z;
-        mat.specularTint = anisotropicSpecularTintSheenSheenTint.y;
-        mat.sheen = anisotropicSpecularTintSheenSheenTint.z;
-        mat.sheenTint = anisotropicSpecularTintSheenSheenTint.w;
-        mat.clearcoat = specularMetallicSubsurfaceClearcoat.w;
-        mat.clearcoatGloss = clearcoatGlossSpecTransIor.x;
-        mat.specTrans = clearcoatGlossSpecTransIor.y;
-        mat.ior = clearcoatGlossSpecTransIor.w;
-        mat.emission = emission;
-        mat.atDistance = 1.0;
-        
-        Material material;
-        computeModelerMaterial(uv, mData, 1.0, material);
-        
-        Material outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
-        
-        colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);
-        materialTexture1.write(half4(float4(outMaterial.specular, outMaterial.metallic, outMaterial.subsurface, outMaterial.clearcoat)), gid);
-        materialTexture2.write(half4(float4(outMaterial.anisotropic, outMaterial.specularTint, outMaterial.sheen, outMaterial.sheenTint)), gid);
-        materialTexture3.write(half4(float4(outMaterial.clearcoatGloss, outMaterial.specTrans, outMaterial.ior, 0)), gid);
-        materialTexture4.write(half4(float4(outMaterial.emission, mData.id)), gid);
+        if (dist != newDist && newDist < 0.001) {//}&& dist > 0) {
+            
+            float4 colorAndRoughness = float4(colorTexture.read(gid));
+            float4 specularMetallicSubsurfaceClearcoat = float4(materialTexture1.read(gid));
+            float4 anisotropicSpecularTintSheenSheenTint = float4(materialTexture2.read(gid));
+            float4 clearcoatGlossSpecTransIor = float4(materialTexture3.read(gid));
+            float3 emission = float4(materialTexture4.read(gid)).xyz;
+            
+            Material mat;
+            
+            mat.albedo = colorAndRoughness.xyz;
+            mat.specular = specularMetallicSubsurfaceClearcoat.x;
+            mat.anisotropic = anisotropicSpecularTintSheenSheenTint.x;
+            mat.metallic = specularMetallicSubsurfaceClearcoat.y;
+            mat.roughness = max(colorAndRoughness.w, 0.001);
+            mat.subsurface = specularMetallicSubsurfaceClearcoat.z;
+            mat.specularTint = anisotropicSpecularTintSheenSheenTint.y;
+            mat.sheen = anisotropicSpecularTintSheenSheenTint.z;
+            mat.sheenTint = anisotropicSpecularTintSheenSheenTint.w;
+            mat.clearcoat = specularMetallicSubsurfaceClearcoat.w;
+            mat.clearcoatGloss = clearcoatGlossSpecTransIor.x;
+            mat.specTrans = clearcoatGlossSpecTransIor.y;
+            mat.ior = clearcoatGlossSpecTransIor.z;
+            mat.emission = emission;
+            mat.atDistance = 1.0;
+            
+            Material material;
+            computeModelerMaterial(uv, mData, 1.0, material);
+            
+            Material outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
+            
+            colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);
+            materialTexture1.write(half4(float4(outMaterial.specular, outMaterial.metallic, outMaterial.subsurface, outMaterial.clearcoat)), gid);
+            materialTexture2.write(half4(float4(outMaterial.anisotropic, outMaterial.specularTint, outMaterial.sheen, outMaterial.sheenTint)), gid);
+            materialTexture3.write(half4(float4(outMaterial.clearcoatGloss, outMaterial.specTrans, outMaterial.ior, 0)), gid);
+            materialTexture4.write(half4(float4(outMaterial.emission, mData.id)), gid);
+        }
+    } else
+    if (mData.roleType == Modeler_MaterialOnly) {
+        // Material only on the given geometry id
+        float4 emissionId = float4(materialTexture4.read(gid));
+
+        if (emissionId.w == mData.id) {
+            
+            float4 colorAndRoughness = float4(colorTexture.read(gid));
+            float4 specularMetallicSubsurfaceClearcoat = float4(materialTexture1.read(gid));
+            float4 anisotropicSpecularTintSheenSheenTint = float4(materialTexture2.read(gid));
+            float4 clearcoatGlossSpecTransIor = float4(materialTexture3.read(gid));
+            
+            Material mat;
+            
+            mat.albedo = colorAndRoughness.xyz;
+            mat.specular = specularMetallicSubsurfaceClearcoat.x;
+            mat.anisotropic = anisotropicSpecularTintSheenSheenTint.x;
+            mat.metallic = specularMetallicSubsurfaceClearcoat.y;
+            mat.roughness = max(colorAndRoughness.w, 0.001);
+            mat.subsurface = specularMetallicSubsurfaceClearcoat.z;
+            mat.specularTint = anisotropicSpecularTintSheenSheenTint.y;
+            mat.sheen = anisotropicSpecularTintSheenSheenTint.z;
+            mat.sheenTint = anisotropicSpecularTintSheenSheenTint.w;
+            mat.clearcoat = specularMetallicSubsurfaceClearcoat.w;
+            mat.clearcoatGloss = clearcoatGlossSpecTransIor.x;
+            mat.specTrans = clearcoatGlossSpecTransIor.y;
+            mat.ior = clearcoatGlossSpecTransIor.z;
+            mat.emission = emissionId.xyz;
+            mat.atDistance = 1.0;
+            
+            Material material;
+            computeModelerMaterial(uv, mData, 1.0, material);
+            
+            Material outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));
+            
+            colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);
+            materialTexture1.write(half4(float4(outMaterial.specular, outMaterial.metallic, outMaterial.subsurface, outMaterial.clearcoat)), gid);
+            materialTexture2.write(half4(float4(outMaterial.anisotropic, outMaterial.specularTint, outMaterial.sheen, outMaterial.sheenTint)), gid);
+            materialTexture3.write(half4(float4(outMaterial.clearcoatGloss, outMaterial.specTrans, outMaterial.ior, 0)), gid);
+            materialTexture4.write(half4(float4(outMaterial.emission, mData.id)), gid);
+        }
     }
     
     modelTexture.write(half4(newDist), gid);

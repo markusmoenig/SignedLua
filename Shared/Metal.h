@@ -274,10 +274,12 @@ typedef struct {
     
     simd_float3         normal;
     float               surfaceDistance;
-    
+        
     Material            material;
     Material            mixMaterial;
     MaterialMixer       mixer;
+
+    float               materialOnlyMixerValue;
 
     // If we are using a brush, the brush hit is used to render a preview
     simd_float3         brushHit;

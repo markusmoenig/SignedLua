@@ -73,13 +73,21 @@ struct StackView: View {
                         })
                         {
                             if cmd.role == .GeometryAndMaterial {
+                                Image(systemName: "cube.fill")
+                                    .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
+                            } else {
                                 Image(systemName: "cube")
                                     .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
                             }
-                            Image(systemName: "paintpalette")
+                            Image(systemName: "paintpalette.fill")
                                 .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
-                            Text(String(index) + ". " + cmd.name)
-                                .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
+                            if cmd.role == .GeometryAndMaterial {
+                                Text(String(cmd.geometryId) + ". " + cmd.name)
+                                    .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
+                            } else {
+                                Text(cmd.name)
+                                    .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
+                            }
 
                             //Label(cmd.name, systemImage: "circle")
                                 //.frame(maxWidth: .infinity, alignment: .leading)

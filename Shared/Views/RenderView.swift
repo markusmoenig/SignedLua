@@ -65,7 +65,7 @@ public class STKView        : MTKView
     /// Perform the preview of an editing command, we handle only brushes here
     func editHover()
     {
-        let size = float2(Float(frame.width), Float(frame.height))
+        //let size = float2(Float(frame.width), Float(frame.height))
         /*
         if model.editingBrushMode == .Brush {
             if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
@@ -125,6 +125,10 @@ public class STKView        : MTKView
                                 } else {
                                     cmd.action = .Add
                                 }
+                                
+                                if let selectedShape = model.selectedShape {
+                                    cmd.name = selectedShape.name
+                                }
                         
                                 object.commands.append(cmd)
                                 model.modeler?.executeCommand(cmd)
@@ -142,14 +146,17 @@ public class STKView        : MTKView
         } else
         if model.editingBrushMode == .MaterialOnly {
             
-            //if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
-                //model.editingHit = hit.0
+            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+                model.editingHit = hit.0
                 
                 model.editingCmd.action = .None
                 model.editingCmd.role = .MaterialOnly
-                model.writeAction = 1
+                model.editingCmd.geometryId = Int(hit.2)
+
                 renderer?.restart()
-            //}
+                
+                print(hit.2)
+            }
         }
     }
     

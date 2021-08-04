@@ -1190,7 +1190,17 @@ fragment float4 render(RasterizerData in [[stage_in]],
         }
         
         if (t == INFINITY) {
-            radiance += renderData.backgroundColor.xyz * throughput;
+            if (true)
+                radiance += renderData.backgroundColor.xyz * throughput;
+            else {
+                float cSize = 2;
+                
+                if ( fmod( floor( uv.x * 100 / cSize ), 2.0 ) == 0.0 ) {
+                    if ( fmod( floor( uv.y * 100 / cSize ), 2.0 ) != 0.0 ) radiance += float3(0) * throughput;
+                } else {
+                    if ( fmod( floor( uv.y * 100 / cSize ), 2.0 ) == 0.0 ) radiance += float3(1) * throughput;
+                }
+            }
             return float4(radiance, 1.0);
         }
         
@@ -1205,7 +1215,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
         float4 specularMetallicSubsurfaceClearcoat = getMaterialData(state.fhp, materialTexture1, scale);
         float4 anisotropicSpecularTintSheenSheenTint = getMaterialData(state.fhp, materialTexture2, scale);
         float4 clearcoatGlossSpecTransIor = getMaterialData(state.fhp, materialTexture3, scale);
-        float3 emission = getMaterialData(state.fhp, materialTexture4, scale).xyz;
+        float4 emissionId = getMaterialData(state.fhp, materialTexture4, scale);
         
         state.mat.albedo = colorAndRoughness.xyz;
         state.mat.specular = specularMetallicSubsurfaceClearcoat.x;
@@ -1219,15 +1229,24 @@ fragment float4 render(RasterizerData in [[stage_in]],
         state.mat.clearcoat = specularMetallicSubsurfaceClearcoat.w;
         state.mat.clearcoatGloss = clearcoatGlossSpecTransIor.x;
         state.mat.specTrans = clearcoatGlossSpecTransIor.y;
-        state.mat.ior = clearcoatGlossSpecTransIor.w;
-        state.mat.emission = emission;
+        state.mat.ior = clearcoatGlossSpecTransIor.z;
+        state.mat.emission = emissionId.xyz;
+        int id = int(emissionId.w);
         state.mat.atDistance = 1.0;
         
-        //if (mData.roleType == Modeler_Geometry) {
+        Material material;
+        computeModelerMaterial(state.fhp, mData, scale, material);
+        
+        if (mData.roleType == Modeler_GeometryAndMaterial) {
             // Geometry preview material blending
-            Material material;
-            computeModelerMaterial(state.fhp, mData, scale, material);
             state.mat = mixMaterials(state.mat, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
+        } else
+        if (mData.roleType == Modeler_MaterialOnly) {
+            // Material only layer
+            if (id == mData.id) {
+                state.mat = mixMaterials(state.mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));
+            }
+        }
         /*} else {
             // Brush based Material painting
             
@@ -1303,7 +1322,8 @@ fragment float4 render(RasterizerData in [[stage_in]],
 // MARK: Hit Scene Entry Point
 kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffer(0) ]],
                             texture3d<float>                     modelTexture [[ texture(1) ]],
-                            device float4 *out                   [[ buffer(2) ]],
+                            texture3d<float, access::read_write> materialTexture4 [[ texture(2) ]],
+                            device float4 *out                   [[ buffer(3) ]],
                             uint gid                             [[thread_position_in_grid]])
 {
     float3 ro = mData.cameraOrigin;
@@ -1351,6 +1371,9 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
             float3 p = ro + rd * t;
             result1.yzw = getNormal(p, modelTexture, scale);
             result2.xyz = p;
+            
+            float4 emissionId = getMaterialData(p, materialTexture4, scale);
+            result2.w = emissionId.w;
         }
     }
     

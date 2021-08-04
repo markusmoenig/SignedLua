@@ -206,9 +206,9 @@ class ModelerPipeline
         modelerUniform.actionType = cmd.action.rawValue
         modelerUniform.primitiveType = cmd.primitive.rawValue
         
-        modelerUniform.brushHit = model.editingHit
-        modelerUniform.writeBrush = model.writeAction
-        modelerUniform.brushSize = model.brushSize
+        //modelerUniform.brushHit = model.editingHit
+        //modelerUniform.writeBrush = model.writeAction
+        modelerUniform.materialOnlyMixerValue = model.materialOnlyMixer
         
         if let transformData = cmd.dataGroups.getGroup("Transform") {
             modelerUniform.position = transformData.getFloat3("Position")
@@ -235,7 +235,12 @@ class ModelerPipeline
         modelerUniform.mixMaterial = cmd.material.toMixMaterialStruct()
         modelerUniform.mixer = cmd.material.toMaterialMixerStruct()
         
-        modelerUniform.id = Int32(model.getEditingId())
+        if cmd.role == .GeometryAndMaterial {
+            cmd.geometryId = model.getNextGeometryId()
+            modelerUniform.id = Int32(cmd.geometryId)
+        } else {
+            modelerUniform.id = Int32(cmd.geometryId)
+        }
 
         return modelerUniform
     }
@@ -268,8 +273,8 @@ class ModelerPipeline
     }
     
     /// Returns the hit position and normal for a given screen position
-    func getSceneHit(_ uv: float2, _ size: float2) -> (float3, float3)? {
-        var rc : (float3, float3)? = nil
+    func getSceneHit(_ uv: float2, _ size: float2) -> (float3, float3, Float)? {
+        var rc : (float3, float3, Float)? = nil
         
         if let kit = mainKit {
             
@@ -296,7 +301,8 @@ class ModelerPipeline
                     
                     computeEncoder.setBytes(&modelerHitUniform, length: MemoryLayout<ModelerHitUniform>.stride, index: 0)
                     computeEncoder.setTexture(kit.modelTexture, index: 1 )
-                    computeEncoder.setBuffer(outBuffer, offset: 0, index: 2)
+                    computeEncoder.setTexture(kit.materialTexture4, index: 2 )
+                    computeEncoder.setBuffer(outBuffer, offset: 0, index: 3)
 
                     let numThreadgroups = MTLSize(width: 1, height: 1, depth: 1)
                     let threadsPerThreadgroup = MTLSize(width: 1, height: 1, depth: 1)
@@ -314,7 +320,7 @@ class ModelerPipeline
             let hitPoint = result[1]
             
             if distAndNormal.x > 0 {
-                rc = (float3(hitPoint.x, hitPoint.y, hitPoint.z), float3(distAndNormal.y, distAndNormal.z, distAndNormal.w))
+                rc = (float3(hitPoint.x, hitPoint.y, hitPoint.z), float3(distAndNormal.y, distAndNormal.z, distAndNormal.w), hitPoint.w)
             }
         }
         return rc

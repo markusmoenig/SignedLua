@@ -88,11 +88,11 @@ class Model: NSObject, ObservableObject {
     /// Set to the current hit position of the mouse cursor
     var editingHit                          = float3()
     
-    /// The current modeling action is a write
+    /// The current modeling action is a write (currenrtly unused as no brush painting is allowed)
     var writeAction                         : Int32 = 0
     
-    /// The current brush size
-    var brushSize                           : Float = 0.05
+    /// The current materialOnlyMixer
+    var materialOnlyMixer                   : Float = 0.5
 
     override init() {
         project = SignedProject()
@@ -155,8 +155,8 @@ class Model: NSObject, ObservableObject {
         renderer?.restart()
     }
     
-    /// Returns the current editing id
-    func getEditingId() -> Int {
+    /// Returns the next available geometry id
+    func getNextGeometryId() -> Int {
         var id : Int = 0
         if let object = selectedObject {
             for c in object.commands {
@@ -165,6 +165,6 @@ class Model: NSObject, ObservableObject {
                 }
             }
         }
-        return id
+        return id - 1
     }
 }

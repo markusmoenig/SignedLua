@@ -29,9 +29,9 @@ struct BrowserView: View {
 
     @State private var editingBrushMode     : Model.EditingBrushMode? = .GeometryAndMaterial
     
-    @State private var brushSize            : Float = 0.05
-    @State private var brushName            : String = "0.05"
-    @State private var brushRange           = float2(0, 0.5)
+    @State private var materialOnlyMixer    : Float = 0.5
+    @State private var materialOnlyText     : String = "0.5"
+    @State private var materialOnlyRange    = float2(0, 1)
 
     var body: some View {
                 
@@ -92,34 +92,34 @@ struct BrowserView: View {
                 
                 Divider()
                     .frame(maxHeight: 16)
+                                    
+                Button(action: {
+                    editingMode = .single
+                    model.editingMode = .single
+                })
+                {
+                    Image(systemName: editingMode == .single ? "circlebadge.fill" : "circlebadge")
+                        .imageScale(.large)
+                }
+                .buttonStyle(.borderless)
+                .padding(.bottom, 4)
+                          
+                //Divider()
+
+                Button(action: {
+                    editingMode = .multiple
+                    model.editingMode = .multiple
+                })
+                {
+                    Image(systemName: editingMode == .multiple ? "circlebadge.2.fill" : "circlebadge.2")
+                        .imageScale(.large)
+                }
+                .buttonStyle(.borderless)
+                
+                Divider()
+                    .frame(maxHeight: 16)
                 
                 if editingBrushMode == .GeometryAndMaterial {
-                    
-                    Button(action: {
-                        editingMode = .single
-                        model.editingMode = .single
-                    })
-                    {
-                        Image(systemName: editingMode == .single ? "circlebadge.fill" : "circlebadge")
-                            .imageScale(.large)
-                    }
-                    .buttonStyle(.borderless)
-                    .padding(.bottom, 4)
-                              
-                    //Divider()
-
-                    Button(action: {
-                        editingMode = .multiple
-                        model.editingMode = .multiple
-                    })
-                    {
-                        Image(systemName: editingMode == .multiple ? "circlebadge.2.fill" : "circlebadge.2")
-                            .imageScale(.large)
-                    }
-                    .buttonStyle(.borderless)
-                    
-                    Divider()
-                        .frame(maxHeight: 16)
                     
                     Button(action: {
                         editingBooleanMode = .plus
@@ -145,38 +145,50 @@ struct BrowserView: View {
                     .buttonStyle(.borderless)
                     
                     Spacer()
-                    
-                    Button(action: {
-                        if let object = model.selectedObject {
-                            if let cmd = model.editingCmd.copy() {
-                                object.commands.append(cmd)
-                                model.modeler?.executeCommand(cmd)
-                                model.renderer?.restart()
-                                
-                                model.selectedCommand = cmd
-                                model.commandSelected.send(cmd)
-                                
-                                model.editingCmd.action = .None
-                            }
-                        }
-                    })
-                    {
-                        Text("Accept")
-                    }
-                    .buttonStyle(.borderless)
-                    .padding(.trailing, 10)
-                    //.disabled(true)
-                    
-                    //Spacer()
                 }
                 else
                 if editingBrushMode == .MaterialOnly {
-                    Image(systemName: "scribble.variable")
+                    Image(systemName: "chart.bar")
                         .foregroundColor(.gray)
                         .imageScale(.large)
-                    DataFloatSliderView(model, "Brush", $brushSize, $brushName, $brushRange, .accentColor, 2)
+                    DataFloatSliderView(model, "Brush", $materialOnlyMixer, $materialOnlyText, $materialOnlyRange, .accentColor, 2)
                         .frame(maxHeight: 19)
                 }
+                
+                Button(action: {
+                    if let object = model.selectedObject {
+                        if let cmd = model.editingCmd.copy() {
+                            
+                            if cmd.role == .GeometryAndMaterial {
+                                if let selectedShape = model.selectedShape {
+                                    cmd.name = selectedShape.name
+                                }
+                            } else
+                            if cmd.role == .MaterialOnly {
+                                if let name = cmd.material.data.getText("Name") {
+                                    cmd.name = "\(name) applied on \(cmd.geometryId)"
+                                }
+                            }
+                            
+                            object.commands.append(cmd)
+                            model.modeler?.executeCommand(cmd)
+                            model.renderer?.restart()
+                            
+                            model.selectedCommand = cmd
+                            model.commandSelected.send(cmd)
+                            
+                            model.editingCmd.action = .None
+                        }
+                    }
+                })
+                {
+                    Text("Accept")
+                }
+                .buttonStyle(.borderless)
+                .padding(.trailing, 10)
+                //.disabled(true)
+                
+                //Spacer()
             }
             
             Divider()
@@ -267,8 +279,8 @@ struct BrowserView: View {
 
         }
         
-        .onChange(of: brushSize) { value in
-            model.brushSize = value
+        .onChange(of: materialOnlyMixer) { value in
+            model.materialOnlyMixer = value
         }
     }
 }
