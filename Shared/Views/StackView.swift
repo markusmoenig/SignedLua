@@ -53,11 +53,30 @@ struct StackView: View {
                         Button(action: {
                             model.selectedCommand = cmd
                             model.commandSelected.send(cmd)
-                            model.modeler?.buildIndex = nil
-                            model.modeler?.buildTo = cmd
+                            
+                            // Copy geometry and material
+                            
+                            if cmd.role == .GeometryAndMaterial {
+                                model.editingCmd.copyGeometry(from: cmd)
+                                model.shapeSelected.send(cmd)
+                            }
+                            model.editingCmd.copyMaterial(from: cmd.material)
+                            if cmd.role == .MaterialOnly {
+                                model.materialSelected.send(cmd)
+                            }
+
+                            model.editingCmdChanged.send(model.editingCmd)
+                            
+                            // Render to cmd ? Disabled for now
+                            //model.modeler?.buildIndex = nil
+                            //model.modeler?.buildTo = cmd
                         })
                         {
-                            Image(systemName: "cube")
+                            if cmd.role == .GeometryAndMaterial {
+                                Image(systemName: "cube")
+                                    .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
+                            }
+                            Image(systemName: "paintpalette")
                                 .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
                             Text(String(index) + ". " + cmd.name)
                                 .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)

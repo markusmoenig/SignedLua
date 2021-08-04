@@ -179,17 +179,17 @@ typedef struct {
     
 } ModelerHitUniform;
 
-#define Modeler_Global_Scale    10.0
+#define Modeler_Global_Scale                10.0
 
-#define Modeler_Geometry        0
-#define Modeler_Brush           1
+#define Modeler_GeometryAndMaterial         0
+#define Modeler_MaterialOnly                1
 
-#define Modeler_None            0
-#define Modeler_Add             1
-#define Modeler_Subtract        2
+#define Modeler_None                        0
+#define Modeler_Add                         1
+#define Modeler_Subtract                    2
 
-#define Modeler_Sphere          0
-#define Modeler_Box             1
+#define Modeler_Sphere                      0
+#define Modeler_Box                         1
 
 typedef struct
 {

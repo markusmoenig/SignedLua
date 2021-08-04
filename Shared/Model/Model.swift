@@ -145,10 +145,6 @@ class Model: NSObject, ObservableObject {
 
             let cmd = SignedCommand(object.name!, role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])], material: material!)
             
-            if selectedMaterial == nil {
-                selectedMaterial = cmd
-            }
-            
             materials[object.id!] = cmd
             self.renderer?.iconQueue += [cmd]
         }

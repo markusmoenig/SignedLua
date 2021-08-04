@@ -102,9 +102,9 @@ struct MaterialView: View {
     
         .onReceive(model.iconFinished) { cmd in
             let buffer = selected
-            selected = nil
+            selected = cmd
             selected = buffer
-            print("finished", cmd.name)
+            //print("finished", cmd.name)
         }
     }
 }

@@ -141,15 +141,15 @@ public class STKView        : MTKView
             }
         } else
         if model.editingBrushMode == .MaterialOnly {
-            /*
-            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
-                model.editingHit = hit.0
+            
+            //if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
+                //model.editingHit = hit.0
                 
                 model.editingCmd.action = .None
-                model.editingCmd.role = .Brush
+                model.editingCmd.role = .MaterialOnly
                 model.writeAction = 1
                 renderer?.restart()
-            }*/
+            //}
         }
     }
     
