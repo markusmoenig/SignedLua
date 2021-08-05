@@ -865,7 +865,7 @@ float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, th
 }
 
 float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float scal, thread float &materialMixValue);
-void computeModelerMaterial(float3 uv, constant ModelerUniform &mData, float scale, thread Material &material);
+void computeModelerMaterial(float3 uv, constant ModelerUniform &mData, float scale, thread Material &material, float globalMaterialScale);
 Material mixMaterials(Material materialA, Material materialB, float k);
 
 /// Gets the distance at the given point
@@ -1235,16 +1235,17 @@ fragment float4 render(RasterizerData in [[stage_in]],
         state.mat.atDistance = 1.0;
         
         Material material = state.mat;
-        computeModelerMaterial(state.fhp, mData, scale, material);
         
         if (mData.roleType == Modeler_GeometryAndMaterial) {
             // Geometry preview material blending
+            computeModelerMaterial(state.fhp, mData, scale, material, 1.0);
             state.mat = mixMaterials(state.mat, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
         } else
         if (mData.roleType == Modeler_MaterialOnly) {
             // Material only layer
             if (id == mData.id) {
-                state.mat = mixMaterials(state.mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));
+                computeModelerMaterial(state.fhp, mData, scale, material, mData.materialOnlyMixerValue);
+                state.mat = material;//mixMaterials(state.mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));
             }
         }
         /*} else {

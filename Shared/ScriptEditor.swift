@@ -62,7 +62,7 @@ class ScriptEditor
             """
             var \(component.scriptContext) = ace.createEditSession(`\(component.code)`)
             editor.setSession(\(component.scriptContext))
-            editor.session.setMode("ace/mode/c_cpp");
+            editor.session.setMode("ace/mode/javascript");
             """, completionHandler: { (value, error ) in
                 if let cb = cb {
                     cb()
@@ -111,6 +111,15 @@ class ScriptEditor
         })
     }
     
+    func setCommandCode(_ cmd: SignedCommand)
+    {
+        let cmd = """
+        \(cmd.scriptContext).setValue(`\(cmd.code)`)
+        """
+        webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
+        })
+    }
+    
     func setAssetLine(_ asset: Asset, line: String)
     {
         let cmd = """
@@ -123,7 +132,7 @@ class ScriptEditor
         })
     }
     
-    func setComponentSession(_ component: SignedCommand)
+    func setCommandSession(_ component: SignedCommand)
     {
         func setSession()
         {

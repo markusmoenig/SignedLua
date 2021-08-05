@@ -9,8 +9,10 @@ import SwiftUI
 
 struct SideView: View {
     
+    @Environment(\.colorScheme) var deviceColorScheme   : ColorScheme
+
     enum Mode {
-        case shape, material, camera, settings
+        case shape, material, camera, javascript, settings
     }
     
     let model                               : Model
@@ -42,6 +44,16 @@ struct SideView: View {
                 .buttonStyle(.borderless)
 
                 Button(action: {
+                    mode = .javascript
+                    model.scriptEditor?.setCommandSession(model.editingCmd)
+                })
+                {
+                    Image(systemName: mode == .javascript ? "j.square.fill" : "j.square")
+                        .imageScale(.large)
+                }
+                .buttonStyle(.borderless)
+                
+                Button(action: {
                     mode = .camera
                 })
                 {
@@ -71,6 +83,11 @@ struct SideView: View {
             if mode == .material {
                 DataView(model: model, data: model.editingCmd.material.data)
             } else
+            if mode == .javascript {
+                WebView(model, deviceColorScheme)
+                    .onChange(of: deviceColorScheme) { newValue in
+                        model.scriptEditor?.setTheme(newValue)
+                    }            }
             if mode == .camera {
                 DataView(model: model, data: model.project.camera.data)
             } else
@@ -90,11 +107,13 @@ struct SideView: View {
         .onReceive(model.shapeSelected) { shape in
             mode = .camera
             mode = .shape
+            model.scriptEditor?.setCommandCode(model.editingCmd)
         }
         
         .onReceive(model.materialSelected) { shape in
             mode = .camera
             mode = .material
+            model.scriptEditor?.setCommandCode(model.editingCmd)
         }
     }
     
