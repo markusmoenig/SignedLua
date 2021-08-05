@@ -295,7 +295,7 @@ class ModelerPipeline
                     
                     modelerHitUniform.uv = uv
                     modelerHitUniform.size = size
-                    modelerHitUniform.scale = model.project.scale
+                    modelerHitUniform.scale = model.project.getWorldScale()
                     modelerHitUniform.cameraOrigin = model.project.camera.getPosition()
                     modelerHitUniform.cameraLookAt = model.project.camera.getLookAt()
                     

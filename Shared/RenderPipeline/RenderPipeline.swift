@@ -231,9 +231,13 @@ class RenderPipeline
         if icon == false {
             renderUniform.cameraOrigin = model.project.camera.getPosition()
             renderUniform.cameraLookAt = model.project.camera.getLookAt()
-            renderUniform.scale = model.project.scale
+            renderUniform.cameraFov = model.project.camera.getFov()
+            renderUniform.scale = model.project.getWorldScale()
             
             renderUniform.maxDepth = 6;
+            if let rendererData = model.project.dataGroups.getGroup("Renderer") {
+                renderUniform.maxDepth = Int32(rendererData.getInt("Reflections", 6))
+            }
 
             renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
             
@@ -274,14 +278,15 @@ class RenderPipeline
             renderUniform.lights.0.params.z = 2
         } else {
             renderUniform.cameraOrigin = float3(0, -0.08, -0.5)
-            renderUniform.cameraLookAt = float3(0, -0.08, 0);
+            renderUniform.cameraLookAt = float3(0, -0.08, 0)
+            renderUniform.cameraFov = 80
             renderUniform.scale = 7//model.project.scale
             
             renderUniform.maxDepth = 2;
 
             renderUniform.noShadows = 1;
 
-            renderUniform.backgroundColor = float4(0.1, 0.1, 0.1, 1);
+            renderUniform.backgroundColor = float4(0.1, 0.1, 0.1, 1)
             
             renderUniform.numOfLights = 1
 

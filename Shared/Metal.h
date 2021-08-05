@@ -138,6 +138,7 @@ typedef struct {
 
     simd_float3         cameraOrigin;
     simd_float3         cameraLookAt;
+    float               cameraFov;
     
     int                 numOfLights;
     Light               lights[4];

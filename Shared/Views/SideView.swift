@@ -75,7 +75,7 @@ struct SideView: View {
                 DataView(model: model, data: model.project.camera.data)
             } else
             if mode == .settings {
-                SettingsView(model: model)
+                DataViews(model: model, data: getProjectSettingGroups())
             }
             
             Spacer()
@@ -113,6 +113,19 @@ struct SideView: View {
         }
         if let booleanData = model.editingCmd.dataGroups.getGroup("Boolean") {
             views.append(booleanData)
+        }
+        return views
+    }
+    
+    /// Returns the project settings groups
+    func getProjectSettingGroups() -> [SignedData] {
+        var views : [SignedData] = []
+
+        if let worldData = model.project.dataGroups.getGroup("World") {
+            views.append(worldData)
+        }
+        if let rendererdData = model.project.dataGroups.getGroup("Renderer") {
+            views.append(rendererdData)
         }
         return views
     }

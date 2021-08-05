@@ -231,12 +231,20 @@ struct DataEntityView: View {
         self.entity = entity
         self.groupName = name
         
-        _xValue = State(initialValue: entity.value.x)
+        if entity.type == .Int {
+            _xValue = State(initialValue: Float(Int(entity.value.x)))
+        } else {
+            _xValue = State(initialValue: entity.value.x)
+        }
         _yValue = State(initialValue: entity.value.y)
         _zValue = State(initialValue: entity.value.z)
         _valueRange = State(initialValue: entity.range)
         
-        _xText = State(initialValue: String(format: "%.02f", entity.value.x))
+        if entity.type == .Int {
+            _xText = State(initialValue: String(Int(entity.value.x)))
+        } else {
+            _xText = State(initialValue: String(format: "%.02f", entity.value.x))
+        }
         _yText = State(initialValue: String(format: "%.02f", entity.value.y))
         _zText = State(initialValue: String(format: "%.02f", entity.value.z))
         

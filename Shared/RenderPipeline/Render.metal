@@ -1065,7 +1065,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
     dataIn.randomVector = renderData.randomVector;
     dataIn.numOfLights = renderData.numOfLights;
 
-    rd = getCamerayRay(uv, ro, rd, 80, in.viewportSize, dataIn);
+    rd = getCamerayRay(uv, ro, rd, renderData.cameraFov, in.viewportSize, dataIn);
         
     float3 radiance = float3(0.0);
     float3 throughput = float3(1.0);

@@ -138,6 +138,10 @@ class SignedPinholeCamera : Codable, Hashable {
         return data.getFloat3("Look At")
     }
     
+    func getFov() -> Float {
+        return data.getFloat("Fov", 80)
+    }
+    
     func calculateDirXY() -> (float3, float3)
     {
         let c_eye = lookAt - position

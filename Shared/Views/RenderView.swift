@@ -93,7 +93,7 @@ public class STKView        : MTKView
 
                 let cmd = model.editingCmd
                 if let transformData = cmd.dataGroups.getGroup("Transform") {
-                    transformData.set("Position", hit.0 / model.project.scale)
+                    transformData.set("Position", hit.0 / model.project.getWorldScale())
                 }
                 cmd.normal = hit.1
                 cmd.role = .GeometryAndMaterial
