@@ -1234,7 +1234,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
         int id = int(emissionId.w);
         state.mat.atDistance = 1.0;
         
-        Material material;
+        Material material = state.mat;
         computeModelerMaterial(state.fhp, mData, scale, material);
         
         if (mData.roleType == Modeler_GeometryAndMaterial) {
@@ -1334,7 +1334,7 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
     dataIn.seed = mData.uv;
     dataIn.randomVector = mData.randomVector;
     
-    rd = getCamerayRay(mData.uv, ro, rd, 80, mData.size, dataIn);
+    rd = getCamerayRay(mData.uv, ro, rd, mData.cameraFov, mData.size, dataIn);
     
     float scale = mData.scale;
 

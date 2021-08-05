@@ -256,89 +256,102 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
 /// Computes the given distance for the given modeler cmd
 void computeModelerMaterial(float3 uv, constant ModelerUniform &mData, float scale, thread Material &material)
 {
-    material = mData.material;
-    if (mData.mixer.albedoMixer != 0) {
-        if (mData.mixer.albedoMixer == 1) {
-            material.albedo = mix(material.albedo, mData.mixMaterial.albedo, valueNoiseFBM(uv * 100.0 * mData.mixer.albedoMixerScale / scale, mData.mixer.albedoMixerSmoothing));
-        }
+    if (mData.mixer.albedoMixer == 0) {
+        material.albedo = mData.material.albedo;
+    } else
+    if (mData.mixer.albedoMixer == 1) {
+        material.albedo = mix(material.albedo, mData.material.albedo, valueNoiseFBM(uv * 100.0 * mData.mixer.albedoMixerScale / scale, mData.mixer.albedoMixerSmoothing));
     }
     
-    if (mData.mixer.specularMixer != 0) {
-        if (mData.mixer.specularMixer == 1) {
-            material.specular = mix(material.specular, mData.mixMaterial.specular, valueNoiseFBM(uv * 100.0 * mData.mixer.specularMixerScale / scale, mData.mixer.specularMixerSmoothing));
-        }
+    if (mData.mixer.specularMixer == 0) {
+        material.specular = mData.material.specular;
+    }
+    if (mData.mixer.specularMixer == 1) {
+        material.specular = mix(material.specular, mData.material.specular, valueNoiseFBM(uv * 100.0 * mData.mixer.specularMixerScale / scale, mData.mixer.specularMixerSmoothing));
     }
     
-    if (mData.mixer.specularTintMixer != 0) {
-        if (mData.mixer.specularTintMixer == 1) {
-            material.specularTint = mix(material.specularTint, mData.mixMaterial.specularTint, valueNoiseFBM(uv * 100.0 * mData.mixer.specularTintMixerScale / scale, mData.mixer.specularTintMixerSmoothing));
-        }
+    if (mData.mixer.specularTintMixer == 0) {
+        material.specularTint = mData.material.specularTint;
+    } else
+    if (mData.mixer.specularTintMixer == 1) {
+        material.specularTint = mix(material.specularTint, mData.material.specularTint, valueNoiseFBM(uv * 100.0 * mData.mixer.specularTintMixerScale / scale, mData.mixer.specularTintMixerSmoothing));
     }
     
-    if (mData.mixer.anisotropicMixer != 0) {
-        if (mData.mixer.anisotropicMixer == 1) {
-            material.anisotropic = mix(material.anisotropic, mData.mixMaterial.anisotropic, valueNoiseFBM(uv * 100.0 * mData.mixer.anisotropicMixerScale / scale, mData.mixer.anisotropicMixerSmoothing));
-        }
+    if (mData.mixer.anisotropicMixer == 0) {
+        material.anisotropic = mData.material.anisotropic;
+    } else
+    if (mData.mixer.anisotropicMixer == 1) {
+        material.anisotropic = mix(material.anisotropic, mData.material.anisotropic, valueNoiseFBM(uv * 100.0 * mData.mixer.anisotropicMixerScale / scale, mData.mixer.anisotropicMixerSmoothing));
     }
     
-    if (mData.mixer.metallicMixer != 0) {
-        if (mData.mixer.metallicMixer == 1) {
-            material.metallic = mix(material.metallic, mData.mixMaterial.metallic, valueNoiseFBM(uv * 100.0 * mData.mixer.metallicMixerScale / scale, mData.mixer.metallicMixerSmoothing));
-        }
+    if (mData.mixer.metallicMixer == 0) {
+        material.metallic = mData.material.metallic;
+    } else
+    if (mData.mixer.metallicMixer == 1) {
+        material.metallic = mix(material.metallic, mData.material.metallic, valueNoiseFBM(uv * 100.0 * mData.mixer.metallicMixerScale / scale, mData.mixer.metallicMixerSmoothing));
     }
     
-    if (mData.mixer.roughnessMixer != 0) {
-        if (mData.mixer.roughnessMixer == 1) {
-            material.roughness = mix(material.roughness, mData.mixMaterial.roughness, valueNoiseFBM(uv * 100.0 * mData.mixer.roughnessMixerScale / scale, mData.mixer.roughnessMixerSmoothing));
-        }
+    if (mData.mixer.roughnessMixer == 0) {
+        material.roughness = mData.material.roughness;
+    } else
+    if (mData.mixer.roughnessMixer == 1) {
+        material.roughness = mix(material.roughness, mData.material.roughness, valueNoiseFBM(uv * 100.0 * mData.mixer.roughnessMixerScale / scale, mData.mixer.roughnessMixerSmoothing));
     }
     
-    if (mData.mixer.subsurfaceMixer != 0) {
-        if (mData.mixer.subsurfaceMixer == 1) {
-            material.subsurface = mix(material.subsurface, mData.mixMaterial.subsurface, valueNoiseFBM(uv * 100.0 * mData.mixer.subsurfaceMixerScale / scale, mData.mixer.subsurfaceMixerSmoothing));
-        }
+    if (mData.mixer.subsurfaceMixer == 0) {
+        material.subsurface = mData.material.subsurface;
+    } else
+    if (mData.mixer.subsurfaceMixer == 1) {
+        material.subsurface = mix(material.subsurface, mData.material.subsurface, valueNoiseFBM(uv * 100.0 * mData.mixer.subsurfaceMixerScale / scale, mData.mixer.subsurfaceMixerSmoothing));
     }
  
-    if (mData.mixer.sheenMixer != 0) {
-        if (mData.mixer.sheenMixer == 1) {
-            material.sheen = mix(material.sheen, mData.mixMaterial.sheen, valueNoiseFBM(uv * 100.0 * mData.mixer.sheenMixerScale / scale, mData.mixer.sheenMixerSmoothing));
-        }
+    if (mData.mixer.sheenMixer == 0) {
+        material.sheen = mData.material.sheen;
+    } else
+    if (mData.mixer.sheenMixer == 1) {
+        material.sheen = mix(material.sheen, mData.material.sheen, valueNoiseFBM(uv * 100.0 * mData.mixer.sheenMixerScale / scale, mData.mixer.sheenMixerSmoothing));
     }
     
-    if (mData.mixer.sheenTintMixer != 0) {
-        if (mData.mixer.sheenTintMixer == 1) {
-            material.sheenTint = mix(material.sheenTint, mData.mixMaterial.sheenTint, valueNoiseFBM(uv * 100.0 * mData.mixer.sheenTintMixerScale / scale, mData.mixer.sheenTintMixerSmoothing));
-        }
+    if (mData.mixer.sheenTintMixer == 0) {
+        material.sheenTint = mData.material.sheenTint;
+    } else
+    if (mData.mixer.sheenTintMixer == 1) {
+        material.sheenTint = mix(material.sheenTint, mData.material.sheenTint, valueNoiseFBM(uv * 100.0 * mData.mixer.sheenTintMixerScale / scale, mData.mixer.sheenTintMixerSmoothing));
     }
     
-    if (mData.mixer.clearcoatMixer != 0) {
-        if (mData.mixer.clearcoatMixer == 1) {
-            material.clearcoat = mix(material.clearcoat, mData.mixMaterial.clearcoat, valueNoiseFBM(uv * 100.0 * mData.mixer.clearcoatMixerScale / scale, mData.mixer.clearcoatMixerSmoothing));
-        }
+    if (mData.mixer.clearcoatMixer == 0) {
+        material.clearcoat = mData.material.clearcoat;
+    } else
+    if (mData.mixer.clearcoatMixer == 1) {
+        material.clearcoat = mix(material.clearcoat, mData.material.clearcoat, valueNoiseFBM(uv * 100.0 * mData.mixer.clearcoatMixerScale / scale, mData.mixer.clearcoatMixerSmoothing));
     }
     
-    if (mData.mixer.clearcoatGlossMixer != 0) {
-        if (mData.mixer.clearcoatGlossMixer == 1) {
-            material.clearcoatGloss = mix(material.clearcoatGloss, mData.mixMaterial.clearcoatGloss, valueNoiseFBM(uv * 100.0 * mData.mixer.clearcoatGlossMixerScale / scale, mData.mixer.clearcoatGlossMixerSmoothing));
-        }
+    if (mData.mixer.clearcoatGlossMixer == 0) {
+        material.clearcoatGloss = mData.material.clearcoatGloss;
+    } else
+    if (mData.mixer.clearcoatGlossMixer == 1) {
+        material.clearcoatGloss = mix(material.clearcoatGloss, mData.material.clearcoatGloss, valueNoiseFBM(uv * 100.0 * mData.mixer.clearcoatGlossMixerScale / scale, mData.mixer.clearcoatGlossMixerSmoothing));
     }
     
-    if (mData.mixer.specTransMixer != 0) {
-        if (mData.mixer.specTransMixer == 1) {
-            material.specTrans = mix(material.specTrans, mData.mixMaterial.specTrans, valueNoiseFBM(uv * 100.0 * mData.mixer.specTransMixerScale / scale, mData.mixer.specTransMixerSmoothing));
-        }
+    if (mData.mixer.specTransMixer == 0) {
+        material.specTrans = mData.material.specTrans;
+    } else
+    if (mData.mixer.specTransMixer == 1) {
+        material.specTrans = mix(material.specTrans, mData.material.specTrans, valueNoiseFBM(uv * 100.0 * mData.mixer.specTransMixerScale / scale, mData.mixer.specTransMixerSmoothing));
     }
     
-    if (mData.mixer.iorMixer != 0) {
-        if (mData.mixer.iorMixer == 1) {
-            material.ior = mix(material.ior, mData.mixMaterial.ior, valueNoiseFBM(uv * 100.0 * mData.mixer.iorMixerScale / scale, mData.mixer.iorMixerSmoothing));
-        }
+    if (mData.mixer.iorMixer == 0) {
+        material.ior = mData.material.ior;
+    } else
+    if (mData.mixer.iorMixer == 1) {
+        material.ior = mix(material.ior, mData.material.ior, valueNoiseFBM(uv * 100.0 * mData.mixer.iorMixerScale / scale, mData.mixer.iorMixerSmoothing));
     }
     
-    if (mData.mixer.emissionMixer != 0) {
-        if (mData.mixer.emissionMixer == 1) {
-            material.emission = mix(material.emission, mData.mixMaterial.emission, valueNoiseFBM(uv * 100.0 * mData.mixer.emissionMixerScale / scale, mData.mixer.emissionMixerSmoothing));
-        }
+    if (mData.mixer.emissionMixer == 0) {
+        material.emission = mData.material.emission;
+    } else
+    if (mData.mixer.emissionMixer == 1) {
+        material.emission = mix(material.emission, mData.material.emission, valueNoiseFBM(uv * 100.0 * mData.mixer.emissionMixerScale / scale, mData.mixer.emissionMixerSmoothing));
     }
 }
 
@@ -389,7 +402,7 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
             mat.emission = emission;
             mat.atDistance = 1.0;
             
-            Material material;
+            Material material = mat;
             computeModelerMaterial(uv, mData, 1.0, material);
             
             Material outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
@@ -430,7 +443,7 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
             mat.emission = emissionId.xyz;
             mat.atDistance = 1.0;
             
-            Material material;
+            Material material = mat;
             computeModelerMaterial(uv, mData, 1.0, material);
             
             Material outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));

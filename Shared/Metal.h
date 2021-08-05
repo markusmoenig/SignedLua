@@ -177,6 +177,7 @@ typedef struct {
     
     simd_float3         cameraOrigin;
     simd_float3         cameraLookAt;
+    float               cameraFov;
     
 } ModelerHitUniform;
 
@@ -277,7 +278,6 @@ typedef struct {
     float               surfaceDistance;
         
     Material            material;
-    Material            mixMaterial;
     MaterialMixer       mixer;
 
     float               materialOnlyMixerValue;

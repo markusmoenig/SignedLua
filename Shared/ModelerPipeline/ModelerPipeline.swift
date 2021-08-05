@@ -232,7 +232,6 @@ class ModelerPipeline
         
         modelerUniform.normal = cmd.normal                
         modelerUniform.material = cmd.material.toMaterialStruct()
-        modelerUniform.mixMaterial = cmd.material.toMixMaterialStruct()
         modelerUniform.mixer = cmd.material.toMaterialMixerStruct()
         
         if cmd.role == .GeometryAndMaterial {
@@ -298,7 +297,8 @@ class ModelerPipeline
                     modelerHitUniform.scale = model.project.getWorldScale()
                     modelerHitUniform.cameraOrigin = model.project.camera.getPosition()
                     modelerHitUniform.cameraLookAt = model.project.camera.getLookAt()
-                    
+                    modelerHitUniform.cameraFov = model.project.camera.getFov()
+
                     computeEncoder.setBytes(&modelerHitUniform, length: MemoryLayout<ModelerHitUniform>.stride, index: 0)
                     computeEncoder.setTexture(kit.modelTexture, index: 1 )
                     computeEncoder.setTexture(kit.materialTexture4, index: 2 )

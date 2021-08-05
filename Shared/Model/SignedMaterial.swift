@@ -28,7 +28,6 @@ class SignedMaterial: Codable {
             if let e = data.getEntity(key) {
                 e.subData = SignedData([])
                 e.subData!.set("MixerType", Int(0))
-                e.subData!.set(key, float3(0,0,0), float2(0,1), .Color)
                 e.subData!.set("Scale", Float(1), float2(0.001, 5))
                 e.subData!.set("Smoothing", Int(1), float2(1, 8), .Slider)
             }
@@ -39,7 +38,6 @@ class SignedMaterial: Codable {
             if let e = data.getEntity(key) {
                 e.subData = SignedData([])
                 e.subData!.set("MixerType", Int(0))
-                e.subData!.set(key, float3(0,0,0), float2(0,1), .Numeric)
                 e.subData!.set("Scale", Float(1), float2(0.001, 5))
                 e.subData!.set("Smoothing", Int(1), float2(1, 8), .Slider)
             }
@@ -52,7 +50,6 @@ class SignedMaterial: Codable {
                 e.subData!.set("MixerType", Int(0))
                 e.subData!.set("Scale", Float(1), float2(0.001, 5))
                 e.subData!.set("Smoothing", Int(1), float2(1, 8), .Slider)
-                e.subData!.set(key, value, r)
             }
         }
         

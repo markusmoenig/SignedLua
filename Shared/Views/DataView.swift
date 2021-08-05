@@ -500,13 +500,6 @@ struct DataEntityView: View {
                     Text(proceduralName)
                 }
                 Divider()
-                if let subEntity = entity.subData!.getEntity(entity.key) {
-                    DataEntityView(model, entity.key, subEntity)
-                        .padding(2)
-                        .padding(.leading, 6)
-                        .padding(.trailing, 6)
-                        .disabled(getProceduralMixerType() == 0)
-                }
                 if let subEntity = entity.subData!.getEntity("Scale") {
                     DataEntityView(model, "Scale", subEntity)
                         .padding(2)
