@@ -45,7 +45,6 @@ struct SideView: View {
 
                 Button(action: {
                     mode = .javascript
-                    model.scriptEditor?.setCommandSession(model.editingCmd)
                 })
                 {
                     Image(systemName: mode == .javascript ? "j.square.fill" : "j.square")
@@ -107,13 +106,11 @@ struct SideView: View {
         .onReceive(model.shapeSelected) { shape in
             mode = .camera
             mode = .shape
-            model.scriptEditor?.setCommandCode(model.editingCmd)
         }
         
         .onReceive(model.materialSelected) { shape in
             mode = .camera
             mode = .material
-            model.scriptEditor?.setCommandCode(model.editingCmd)
         }
     }
     

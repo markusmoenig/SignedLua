@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B003D5E26BCD8B900BBD28C /* ScriptHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B003D5D26BCD8B900BBD28C /* ScriptHandler.swift */; };
+		2B003D5F26BCD8B900BBD28C /* ScriptHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B003D5D26BCD8B900BBD28C /* ScriptHandler.swift */; };
 		2B0F923225B9775B00677A38 /* GPUMaterials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F923125B9775B00677A38 /* GPUMaterials.swift */; };
 		2B0F923325B9775B00677A38 /* GPUMaterials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0F923125B9775B00677A38 /* GPUMaterials.swift */; };
 		2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1EAD1425A6FAD500E59CFB /* Tool.swift */; };
@@ -178,6 +180,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2B003D5D26BCD8B900BBD28C /* ScriptHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptHandler.swift; sourceTree = "<group>"; };
 		2B0F923125B9775B00677A38 /* GPUMaterials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUMaterials.swift; sourceTree = "<group>"; };
 		2B1EAD1425A6FAD500E59CFB /* Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
 		2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptProcessor.swift; sourceTree = "<group>"; };
@@ -293,6 +296,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2B003D5C26BCCBE900BBD28C /* JavaScript */ = {
+			isa = PBXGroup;
+			children = (
+				2B224F6B25844C1800F32354 /* ScriptEditor.swift */,
+				2B003D5D26BCD8B900BBD28C /* ScriptHandler.swift */,
+			);
+			path = JavaScript;
+			sourceTree = "<group>";
+		};
 		2B224F272584485100F32354 = {
 			isa = PBXGroup;
 			children = (
@@ -315,6 +327,7 @@
 				2B7CFA2C2686F5F800221917 /* RenderPipeline */,
 				2B407E7726895F51004E6F4C /* ModelerPipeline */,
 				2B407E6F26894E52004E6F4C /* Drawables */,
+				2B003D5C26BCCBE900BBD28C /* JavaScript */,
 				2B224F6125844C1800F32354 /* Metal.h */,
 				2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */,
 				2B224F6525844C1800F32354 /* Asset.swift */,
@@ -323,7 +336,6 @@
 				2B6FF69525D25E470053CEF8 /* NodesWidget.swift */,
 				2B224F6425844C1800F32354 /* MathLibrary.swift */,
 				2B224F6625844C1800F32354 /* MetalView.swift */,
-				2B224F6B25844C1800F32354 /* ScriptEditor.swift */,
 				2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */,
 				2B224F6225844C1800F32354 /* Utils.swift */,
 				2B8A692A25A4486A006B1B5C /* CameraHelper.swift */,
@@ -690,6 +702,7 @@
 				2BC9944E2685A5AC00F75A54 /* Model.swift in Sources */,
 				2B888B5725B15E7600956C64 /* SignedLightNodes.swift in Sources */,
 				2B224FEC2588A6BD00F32354 /* Nodes.swift in Sources */,
+				2B003D5E26BCD8B900BBD28C /* ScriptHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -777,6 +790,7 @@
 				2BC9944F2685A5AC00F75A54 /* Model.swift in Sources */,
 				2B888B5825B15E7600956C64 /* SignedLightNodes.swift in Sources */,
 				2B224FED2588A6BD00F32354 /* Nodes.swift in Sources */,
+				2B003D5F26BCD8B900BBD28C /* ScriptHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

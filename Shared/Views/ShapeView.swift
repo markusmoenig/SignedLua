@@ -35,6 +35,10 @@ struct ShapeView: View {
                                     model.selectedShape = shape
                                     model.editingCmd.copyGeometry(from: shape)
                                     model.shapeSelected.send(shape)
+                                    
+                                    model.editingCmd.code = shape.code
+                                    model.scriptEditor?.setValue(model.editingCmd)
+                                    
                                     model.editingCmdChanged.send(model.editingCmd)
                                     model.renderer?.restart()
                                 })
@@ -47,6 +51,10 @@ struct ShapeView: View {
                                     model.selectedShape = shape
                                     model.editingCmd.copyGeometry(from: shape)
                                     model.shapeSelected.send(shape)
+                                    
+                                    model.editingCmd.code = shape.code
+                                    model.scriptEditor?.setValue(model.editingCmd)
+                                    
                                     model.editingCmdChanged.send(model.editingCmd)
                                     model.renderer?.restart()
                                 })

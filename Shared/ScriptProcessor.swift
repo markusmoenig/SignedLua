@@ -36,7 +36,7 @@ class ScriptProcessor
                     let end = String.Index(utf16Offset: option.endIndex, in: line)
                     line.replaceSubrange(start..<end, with: "\(useRaw ? option.raw : option.variable.toString())")
             
-                    core.scriptEditor.setAssetLine(asset, line: line)
+                    //core.scriptEditor.setAssetLine(asset, line: line)
                 }
             }
         } else {
@@ -75,10 +75,10 @@ class ScriptProcessor
                             let end = String.Index(utf16Offset: endIndex, in: line)
                             line.replaceSubrange(range.lowerBound..<end, with: "\(option.name): \(useRaw ? option.raw : option.variable.toString())")
                         }
-                        core.scriptEditor.setAssetLine(asset, line: line)
+                        //core.scriptEditor.setAssetLine(asset, line: line)
                     } else {
                         line.append("<\(option.name): \(useRaw ? option.raw : option.variable.toString())>")
-                        core.scriptEditor.setAssetLine(asset, line: line)
+                        //core.scriptEditor.setAssetLine(asset, line: line)
                     }
                 }
             }
@@ -123,7 +123,7 @@ class ScriptProcessor
                 guard let asset = core.assetFolder.getAsset("main", .Source) else {
                     return
                 }
-                core.scriptEditor.setAssetLine(asset, line: line)
+                //core.scriptEditor.setAssetLine(asset, line: line)
             }
         }
     }
@@ -167,7 +167,7 @@ class ScriptProcessor
                     return
                 }
                 if withUndo == true {
-                    core.scriptEditor.setAssetLine(asset, line: line)
+                    //core.scriptEditor.setAssetLine(asset, line: line)
                 } else {
                     setLine(node.lineNr, line)
                 }
@@ -432,7 +432,7 @@ class ScriptProcessor
         }
         
         asset.value = output
-        core.scriptEditor.setAssetValue(asset, value: asset.value)
+        //core.scriptEditor.setValue(asset, value: asset.value)
     }
     
     /// Splits the option string into a possible command and its <> enclosed options

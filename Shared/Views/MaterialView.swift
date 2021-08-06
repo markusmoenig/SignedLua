@@ -49,6 +49,10 @@ struct MaterialView: View {
                                         model.selectedMaterial = material
                                         model.editingCmd.copyMaterial(from: material.material)
                                         model.materialSelected.send(material)
+                                        
+                                        model.editingCmd.code = material.code
+                                        model.scriptEditor?.setValue(model.editingCmd)
+                                        
                                         model.editingCmdChanged.send(model.editingCmd)
                                         model.renderer?.restart()
                                     })
@@ -63,6 +67,10 @@ struct MaterialView: View {
                                         model.selectedMaterial = material
                                         model.editingCmd.copyMaterial(from: material.material)
                                         model.materialSelected.send(material)
+                                        
+                                        model.editingCmd.code = material.code
+                                        model.scriptEditor?.setValue(model.editingCmd)
+                                        
                                         model.editingCmdChanged.send(model.editingCmd)
                                         model.renderer?.restart()
                                     })

@@ -64,6 +64,9 @@ struct StackView: View {
                             if cmd.role == .MaterialOnly {
                                 model.materialSelected.send(cmd)
                             }
+                            
+                            model.editingCmd.code = cmd.code
+                            model.scriptEditor?.setValue(model.editingCmd)
 
                             model.editingCmdChanged.send(model.editingCmd)
                             

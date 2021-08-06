@@ -5,8 +5,6 @@
 //  Created by Markus Moenig on 25/8/20.
 //
 
-#if !os(tvOS)
-
 import SwiftUI
 import WebKit
 import Combine
@@ -28,12 +26,7 @@ class ScriptEditor
         self.model = model
         self.colorScheme = colorScheme
         
-        /*
-        if let asset = core.assetFolder.getAsset("main", .Source) {
-            core.assetFolder.select(asset.id)
-            createSession(asset)
-            setTheme(colorScheme)
-        }*/
+        setValue(model.editingCmd)
     }
     
     func setTheme(_ colorScheme: ColorScheme)
@@ -42,31 +35,12 @@ class ScriptEditor
         if colorScheme == .light {
             theme = "tomorrow"
         } else {
-            theme = "tomorrow_night"
+            theme = "tomorrow_night_bright"
         }
         webView.evaluateJavaScript(
             """
             editor.setTheme("ace/theme/\(theme)");
             """, completionHandler: { (value, error ) in
-         })
-    }
-    
-    func createSession(_ component: SignedCommand,_ cb: (()->())? = nil)
-    {
-        if component.scriptContext.isEmpty {
-            component.scriptContext = "session" + String(sessions)
-            sessions += 1
-        }
-
-        webView.evaluateJavaScript(
-            """
-            var \(component.scriptContext) = ace.createEditSession(`\(component.code)`)
-            editor.setSession(\(component.scriptContext))
-            editor.session.setMode("ace/mode/javascript");
-            """, completionHandler: { (value, error ) in
-                if let cb = cb {
-                    cb()
-                }
          })
     }
     
@@ -90,11 +64,11 @@ class ScriptEditor
          })
     }
     
-    func getComponentValue(_ component: SignedCommand,_ cb: @escaping (String)->() )
+    func getValue(_ component: SignedCommand,_ cb: @escaping (String)->() )
     {
         webView.evaluateJavaScript(
             """
-            \(component.scriptContext).getValue()
+            editor.getValue()
             """, completionHandler: { (value, error) in
                 if let value = value as? String {
                     cb(value)
@@ -102,120 +76,14 @@ class ScriptEditor
          })
     }
     
-    func setAssetValue(_ asset: Asset, value: String)
+    func setValue(_ cmd: SignedCommand)
     {
         let cmd = """
-        \(asset.scriptName).setValue(`\(value)`)
+        editor.$worker.send("changeOptions", [{asi: true}]);
+        editor.setValue(`\(cmd.code)`)
         """
         webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
         })
-    }
-    
-    func setCommandCode(_ cmd: SignedCommand)
-    {
-        let cmd = """
-        \(cmd.scriptContext).setValue(`\(cmd.code)`)
-        """
-        webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
-        })
-    }
-    
-    func setAssetLine(_ asset: Asset, line: String)
-    {
-        let cmd = """
-        {var Range = require("ace/range").Range
-        var currentPosition = editor.selection.getCursor();
-        editor.session.replace(new Range(editor.selection.lead.row, 0, editor.selection.lead.row, Number.MAX_VALUE), `\(line)`);
-        editor.gotoLine(currentPosition.row+1, currentPosition.column);}
-        """
-        webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
-        })
-    }
-    
-    func setCommandSession(_ component: SignedCommand)
-    {
-        func setSession()
-        {
-            let cmd = """
-            editor.setSession(\(component.scriptContext))
-            """
-            webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
-            })
-        }
-        
-        if component.scriptContext.isEmpty == true {
-            createSession(component, { () in
-                setSession()
-            })
-        } else {
-            setSession()
-        }
-
-        parser = nil
-        parser = ComponentParser(component)
-    }
-    
-    func setError(_ error: SignedCompileError, scrollToError: Bool = false)
-    {
-        webView.evaluateJavaScript(
-            """
-            editor.getSession().setAnnotations([{
-            row: \(error.line!-1),
-            column: \(error.column!),
-            text: "\(error.error!)",
-            type: "error" // also warning and information
-            }]);
-
-            \(scrollToError == true ? "editor.scrollToLine(\(error.line!-1), true, true, function () {});" : "")
-
-            """, completionHandler: { (value, error ) in
-         })
-    }
-    
-    func setErrors(_ errors: [SignedCompileError])
-    {
-        var str = "["
-        for error in errors {
-            str +=
-            """
-            {
-                row: \(error.line!),
-                column: \(error.column!),
-                text: \"\(error.error!)\",
-                type: \"\(error.type)\"
-            },
-            """
-        }
-        str += "]"
-        
-        webView.evaluateJavaScript(
-            """
-            editor.getSession().setAnnotations(\(str));
-            """, completionHandler: { (value, error ) in
-         })
-    }
-    
-    func setFailures(_ lines: [Int32])
-    {
-        var str = "["
-        for line in lines {
-            str +=
-            """
-            {
-                row: \(line),
-                column: 0,
-                text: "Failed",
-                type: "error"
-            },
-            """
-        }
-        str += "]"
-        
-        webView.evaluateJavaScript(
-            """
-            editor.getSession().setAnnotations(\(str));
-            """, completionHandler: { (value, error ) in
-         })
     }
     
     func gotoLine(_ line: Int32,_ column: Int32 = 0)
@@ -292,33 +160,9 @@ class ScriptEditor
     /// The code was updated in the editor, set the value to the current component
     func updated()
     {
-        if let component = model.selectedCommand {
-            getComponentValue(component, { (value) in
-                component.code = value
-                if let device = self.model.renderer?.device {
-                    self.parser?.verify(device, { errors in
-
-                        DispatchQueue.main.async {
-                            if errors.isEmpty {
-                                self.clearAnnotations()
-                                //self.model.componentPreviewNeedsUpdate.send()
-                            } else {
-                                self.setErrors(errors)
-                            }
-                        }
-                    })
-                }
-            })
-        }
-        /*
-        if let asset = core.assetFolder.current {
-            getAssetValue(asset, { (value) in
-                self.core.assetFolder.assetUpdated(id: asset.id, value: value)
-                //self.getChangeDelta({ (from, to) in
-                //    self.game.assetFolder.assetUpdated(id: asset.id, value: value, deltaStart: from, deltaEnd: to)
-                //})
-            })
-        }*/
+        getValue(model.editingCmd, { (value) in
+            self.model.editingCmd.code = value
+        })
     }
 }
 
@@ -471,32 +315,3 @@ struct WebView  : View {
         SwiftUIWebView(model: model, colorScheme: colorScheme)
     }
 }
-
-#else
-
-class ScriptEditor
-{
-    var mapHelpText     : String = "## Available:\n\n"
-    var behaviorHelpText: String = "## Available:\n\n"
-    
-    func createSession(_ asset: Asset,_ cb: (()->())? = nil) {}
-    
-    func setAssetValue(_ asset: Asset, value: String) {}
-    func setAssetSession(_ asset: Asset) {}
-    
-    func setError(_ error: CompileError, scrollToError: Bool = false) {}
-    func setErrors(_ errors: [CompileError]) {}
-    func clearAnnotations() {}
-    
-    func getSessionCursor(_ cb: @escaping (Int32)->() ) {}
-    
-    func setReadOnly(_ readOnly: Bool = false) {}
-    func setDebugText(text: String) {}
-    
-    func setFailures(_ lines: [Int32]) {}
-    
-    func getBehaviorHelpForKey(_ key: String) -> String? { return nil }
-    func getMapHelpForKey(_ key: String) -> String? { return nil }
-}
-
-#endif
