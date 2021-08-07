@@ -67,9 +67,6 @@ class Model: NSObject, ObservableObject {
     
     /// Reference to the underlying script editor
     var scriptEditor                        : ScriptEditor? = nil
-    
-    /// The script handler
-    var scriptHandler                       : ScriptHandler!
 
     /// Reference to the renderer
     var renderer                            : RenderPipeline? = nil
@@ -101,8 +98,6 @@ class Model: NSObject, ObservableObject {
         project = SignedProject()
         super.init()
         
-        scriptHandler = ScriptHandler(self)
-
         selectedObject = project.objects.first
         
         editingCmd.action = .None

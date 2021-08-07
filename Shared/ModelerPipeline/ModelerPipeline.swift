@@ -50,6 +50,9 @@ class ModelerPipeline
     /// The kit used to render previews
     var iconKit         : ModelerKit!
     
+    /// The script handler
+    var scriptHandler   : ScriptHandler!
+    
     static var IconSize : Int = 80
     static var IconSamples : Int = 40
     
@@ -76,6 +79,8 @@ class ModelerPipeline
         if let object = model.project.objects.first {
             executeObject(object)
         }
+        
+        scriptHandler = ScriptHandler(self)
     }
     
     ///

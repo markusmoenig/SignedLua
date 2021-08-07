@@ -77,10 +77,10 @@ struct SideView: View {
             Divider()            
             
             if mode == .shape {
-                DataViews(model: model, data: getShapeGroups())
+                DataViews(model: model, data: getShapeGroups(), bottomPadding: 12)
             } else
             if mode == .material {
-                DataView(model: model, data: model.editingCmd.material.data)
+                DataViews(model: model, data: [model.editingCmd.material.data, model.editingCmd.material.libraryData], bottomPadding: 0)
             } else
             if mode == .javascript {
                 WebView(model, deviceColorScheme)
@@ -91,7 +91,7 @@ struct SideView: View {
                 DataView(model: model, data: model.project.camera.data)
             } else
             if mode == .settings {
-                DataViews(model: model, data: getProjectSettingGroups())
+                DataViews(model: model, data: getProjectSettingGroups(), bottomPadding: 12)
             }
             
             Spacer()
@@ -129,6 +129,9 @@ struct SideView: View {
         }
         if let booleanData = model.editingCmd.dataGroups.getGroup("Boolean") {
             views.append(booleanData)
+        }
+        if let libraryData = model.editingCmd.dataGroups.getGroup("Library") {
+            views.append(libraryData)
         }
         return views
     }

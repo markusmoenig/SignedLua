@@ -19,7 +19,7 @@ class SignedDataEntity: Codable, Hashable {
     }
     
     enum Feature: String, Codable {
-        case None, Texture, ProceduralMixer, MaterialLibrary
+        case None, Texture, ProceduralMixer, MaterialLibrary, GeometryLibrary
     }
     
     var id          = UUID()

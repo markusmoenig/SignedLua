@@ -130,6 +130,10 @@ class SignedCommand : Codable, Hashable {
         addDataGroup(name: "Boolean", entities: [
             SignedDataEntity("Smoothing", Float(0.0), float2(0, 1))
         ])
+        
+        addDataGroup(name: "Library", entities: [
+            SignedDataEntity("Name", "Object", .TextField, .GeometryLibrary)
+        ])
     }
     
     /// Creates or adds the given entities to the new or existing group. This way we can dynamically add new options to existing projects.

@@ -634,6 +634,8 @@ struct DataViews: View {
     let model                               : Model
     let data                                : [SignedData]
     
+    let bottomPadding                       : CGFloat
+    
     @State var updateView                   : Bool = false
     
     var body: some View {
@@ -645,7 +647,7 @@ struct DataViews: View {
                         Divider()
                     }
                     EmbeddedDataView(model: model, data: data)
-                        .padding(.bottom, 12)
+                        .padding(.bottom, bottomPadding)
                 }
             }
         }

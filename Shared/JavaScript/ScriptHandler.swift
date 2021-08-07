@@ -9,7 +9,7 @@ import Foundation
 
 class ScriptHandler {
     
-    init(_ model: Model) {
+    init(_ modeler: ModelerPipeline) {
         
     }
 }
