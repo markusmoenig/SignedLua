@@ -51,7 +51,7 @@ class ModelerPipeline
     var iconKit         : ModelerKit!
     
     /// The script handler
-    var scriptHandler   : ScriptHandler!
+    var scriptHandler   : ScriptHandler? = nil
     
     static var IconSize : Int = 80
     static var IconSamples : Int = 40
@@ -148,33 +148,42 @@ class ModelerPipeline
         
         if let kit = kitToUse, kit.isValid() {
             startCompute()
-
-            if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
-                if let state = modelingStates.getComputeState(stateName: "modelerCmd") {
-                
-                    computeEncoder.setComputePipelineState( state )
-                    
-                    var modelerUniform = createModelerUniform(cmd)
-                    computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
-                    
-                    computeEncoder.setTexture(kit.modelTexture!, index: 1 )
-                    computeEncoder.setTexture(kit.colorTexture, index: 2 )
-                    computeEncoder.setTexture(kit.materialTexture1!, index: 3 )
-                    computeEncoder.setTexture(kit.materialTexture2!, index: 4 )
-                    computeEncoder.setTexture(kit.materialTexture3!, index: 5 )
-                    computeEncoder.setTexture(kit.materialTexture4!, index: 6 )
-
-                    calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
-                }
-                computeEncoder.endEncoding()
-            }
             
-            commandBuffer?.addCompletedHandler { cb in
-                print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
-                self.buildIndexFinished = true
+            let jsSupport = scriptHandler?.setup(cmd)
+
+            if jsSupport?.0 == true {
+                // Script handles geometry creation
+            } else {
+                // No script, execute the geometry command
+                if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+                    if let state = modelingStates.getComputeState(stateName: "modelerCmd") {
+                    
+                        computeEncoder.setComputePipelineState( state )
+                        
+                        var modelerUniform = createModelerUniform(cmd)
+                        computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
+                        
+                        computeEncoder.setTexture(kit.modelTexture!, index: 1 )
+                        computeEncoder.setTexture(kit.colorTexture, index: 2 )
+                        computeEncoder.setTexture(kit.materialTexture1!, index: 3 )
+                        computeEncoder.setTexture(kit.materialTexture2!, index: 4 )
+                        computeEncoder.setTexture(kit.materialTexture3!, index: 5 )
+                        computeEncoder.setTexture(kit.materialTexture4!, index: 6 )
+
+                        calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
+                    }
+                    computeEncoder.endEncoding()
+                }
+                
+                commandBuffer?.addCompletedHandler { cb in
+                    print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+                    self.buildIndexFinished = true
+                }
             }
             
             stopCompute(waitUntilCompleted: false)
+            
+            scriptHandler?.close()
         }
     }
     

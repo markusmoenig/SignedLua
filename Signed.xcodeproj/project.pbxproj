@@ -175,6 +175,10 @@
 		2BC9944F2685A5AC00F75A54 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9944D2685A5AC00F75A54 /* Model.swift */; };
 		2BC994512685AB5400F75A54 /* SignedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC994502685AB5400F75A54 /* SignedObject.swift */; };
 		2BC994522685AB5400F75A54 /* SignedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC994502685AB5400F75A54 /* SignedObject.swift */; };
+		2BCF02B426BF6A30007E3F0A /* SignedJSShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */; };
+		2BCF02B526BF6A30007E3F0A /* SignedJSShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */; };
+		2BCF02B726BF6AF0007E3F0A /* SignedJSBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCF02B626BF6AF0007E3F0A /* SignedJSBase.swift */; };
+		2BCF02B826BF6AF0007E3F0A /* SignedJSBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCF02B626BF6AF0007E3F0A /* SignedJSBase.swift */; };
 		2BF3FBC325EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 		2BF3FBC425EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 /* End PBXBuildFile section */
@@ -271,6 +275,8 @@
 		2BC838F426919A070087249A /* MaterialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialView.swift; sourceTree = "<group>"; };
 		2BC9944D2685A5AC00F75A54 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		2BC994502685AB5400F75A54 /* SignedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedObject.swift; sourceTree = "<group>"; };
+		2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedJSShape.swift; sourceTree = "<group>"; };
+		2BCF02B626BF6AF0007E3F0A /* SignedJSBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedJSBase.swift; sourceTree = "<group>"; };
 		2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentNodes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -301,6 +307,8 @@
 			children = (
 				2B224F6B25844C1800F32354 /* ScriptEditor.swift */,
 				2B003D5D26BCD8B900BBD28C /* ScriptHandler.swift */,
+				2BCF02B626BF6AF0007E3F0A /* SignedJSBase.swift */,
+				2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */,
 			);
 			path = JavaScript;
 			sourceTree = "<group>";
@@ -653,6 +661,7 @@
 				2B52C5F9268805A700CAB2F2 /* SignedProject.swift in Sources */,
 				2B7CFA312686FC0500221917 /* RenderView.swift in Sources */,
 				2B224F8B25844C3100F32354 /* Classes.swift in Sources */,
+				2BCF02B726BF6AF0007E3F0A /* SignedJSBase.swift in Sources */,
 				2BC042ED267ED31000DD85E2 /* ProjectView.swift in Sources */,
 				2B888B6225B42C2B00956C64 /* BestCandidate.swift in Sources */,
 				2B7CFA37268708D000221917 /* BaseShader.swift in Sources */,
@@ -680,6 +689,7 @@
 				2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
+				2BCF02B426BF6A30007E3F0A /* SignedJSShape.swift in Sources */,
 				2B52C5F6268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2B405EF7268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC042F9267ED54500DD85E2 /* ToolViews.swift in Sources */,
@@ -741,6 +751,7 @@
 				2B52C5FA268805A700CAB2F2 /* SignedProject.swift in Sources */,
 				2B7CFA322686FC0500221917 /* RenderView.swift in Sources */,
 				2B224F8C25844C3100F32354 /* Classes.swift in Sources */,
+				2BCF02B826BF6AF0007E3F0A /* SignedJSBase.swift in Sources */,
 				2BC042EE267ED31000DD85E2 /* ProjectView.swift in Sources */,
 				2B888B6325B42C2C00956C64 /* BestCandidate.swift in Sources */,
 				2B7CFA38268708D000221917 /* BaseShader.swift in Sources */,
@@ -768,6 +779,7 @@
 				2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
+				2BCF02B526BF6A30007E3F0A /* SignedJSShape.swift in Sources */,
 				2B52C5F7268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2B405EF8268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC042FA267ED54500DD85E2 /* ToolViews.swift in Sources */,
