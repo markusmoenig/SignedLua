@@ -391,6 +391,14 @@ class SignedDataGroups: Codable {
         try container.encode(groups, forKey: .groups)
     }
     
+    func flat() -> [SignedData] {
+        var rc : [SignedData] = []
+        for (_, v) in groups {
+            rc.append(v)
+        }
+        return rc
+    }
+    
     /// Returns the group of the given name
     func getGroup(_ name: String) -> SignedData? {
         return groups[name]

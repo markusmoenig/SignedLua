@@ -25,7 +25,7 @@ class ScriptEditor
         self.webView = view
         self.model = model
         self.colorScheme = colorScheme
-        
+
         setValue(model.editingCmd)
     }
     
@@ -79,7 +79,6 @@ class ScriptEditor
     func setValue(_ cmd: SignedCommand)
     {
         let cmd = """
-        editor.$worker.send("changeOptions", [{asi: true}]);
         editor.setValue(`\(cmd.code)`)
         """
         webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in

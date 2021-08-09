@@ -80,7 +80,7 @@ struct SideView: View {
                 DataViews(model: model, data: getShapeGroups(), bottomPadding: 12)
             } else
             if mode == .material {
-                DataViews(model: model, data: [model.editingCmd.material.data, model.editingCmd.material.libraryData], bottomPadding: 0)
+                DataViews(model: model, data: [model.editingCmd.material.libraryData, model.editingCmd.material.data], bottomPadding: 0)
             } else
             if mode == .javascript {
                 WebView(model, deviceColorScheme)

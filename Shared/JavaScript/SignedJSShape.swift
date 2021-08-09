@@ -19,6 +19,9 @@ class SignedJSShape: SignedJSBase, SignedJSShapeJSExports {
     
     func getVector3(_ name: String) -> Any {
         if let handler = getHandler() {
+            if let cmd = handler.cmd {
+                return getVec3(name: name, groups: cmd.dataGroups.flat())
+            }
         }
         
         return ""

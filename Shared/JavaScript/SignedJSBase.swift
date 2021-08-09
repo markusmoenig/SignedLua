@@ -21,4 +21,20 @@ class SignedJSBase: NSObject {
         }
         return nil
     }
+    
+    func getVec3(name: String, groups: [SignedData]) -> Any {
+        
+        for data in groups {
+            for entity in data.data {
+                if entity.key == name && entity.type == .Float3 {
+                    let p = entity.value
+                    if let object = JSContext.current().evaluateScript("new SI.Math.Vector3(\(p.x), \(p.y), \(p.z))") {
+                        return object
+                    }
+                }
+            }
+        }
+        
+        return JSContext.current().evaluateScript("new SI.Math.Vector3(0, 0, 0)")!
+    }
 }
