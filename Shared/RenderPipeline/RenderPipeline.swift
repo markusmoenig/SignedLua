@@ -15,9 +15,6 @@ class RenderPipeline
     var commandQueue    : MTLCommandQueue!
     var commandBuffer   : MTLCommandBuffer!
     
-    var quadVertexBuffer: MTLBuffer? = nil
-    var quadViewport    : MTLViewport? = nil
-    
     var model           : Model
     
     var renderSize      = SIMD2<Int>()
@@ -63,15 +60,15 @@ class RenderPipeline
         if let mainKit = model.modeler?.mainKit {
 
             if started == false {
-                startRendering()
+                startCompute()
             }
             
-            if clear {
-                clearTexture(mainKit.outputTexture!)
-            }
+            //if clear {
+            //    clearTexture(mainKit.outputTexture!)
+            //}
             
             if started == false {
-                commitAndStopRendering()
+                stopCompute()
             }
         
             mainKit.samples = 0
@@ -86,7 +83,7 @@ class RenderPipeline
             return
         }
         
-        startRendering()
+        startCompute()
 
         if checkMainKitTextures() {
             performRestart(true, clear: true)
@@ -109,11 +106,12 @@ class RenderPipeline
             //}
         }
         
-        commitAndStopRendering()//(waitUntilCompleted: true)
+        stopCompute()//(waitUntilCompleted: true)
         
         // Render an icon sample ?
         if let icon = iconQueue.first {
-            startRendering(SIMD2<Int>(ModelerPipeline.IconSize, ModelerPipeline.IconSize))
+            //startRendering(SIMD2<Int>(ModelerPipeline.IconSize, ModelerPipeline.IconSize))
+            startCompute()
                     
             if let iconKit = model.modeler?.iconKit, iconKit.isValid() {
                 
@@ -138,7 +136,7 @@ class RenderPipeline
                 }
             }
             
-            commitAndStopRendering()
+            stopCompute()
         }
     }
     
@@ -157,67 +155,57 @@ class RenderPipeline
         }
     }
     
-    func startRendering(_ customSize: SIMD2<Int>? = nil)
+    /// Starts compute operation
+    func startCompute()
     {
         if commandQueue == nil {
             commandQueue = device.makeCommandQueue()
         }
         commandBuffer = commandQueue.makeCommandBuffer()
-        if customSize == nil {
-            quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(renderSize.x), Float(renderSize.y)))
-            quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(renderSize.x), height: Double(renderSize.y), znear: 0.0, zfar: 1.0)
-        } else {
-            quadVertexBuffer = getQuadVertexBuffer(MMRect(0, 0, Float(customSize!.x), Float(customSize!.y)))
-            quadViewport = MTLViewport( originX: 0.0, originY: 0.0, width: Double(customSize!.x), height: Double(customSize!.y), znear: 0.0, zfar: 1.0)
-        }
     }
     
-    func commitAndStopRendering(waitUntilCompleted: Bool = false)
+    /// Stops compute operation
+    func stopCompute(syncTexture: MTLTexture? = nil, waitUntilCompleted: Bool = false)
     {
-        commandBuffer.commit()
-        
+        #if os(OSX)
+        if let texture = syncTexture {
+            let blitEncoder = commandBuffer!.makeBlitCommandEncoder()!
+            blitEncoder.synchronize(texture: texture, slice: 0, level: 0)
+            blitEncoder.endEncoding()
+        }
+        #endif
+        commandBuffer?.commit()
         if waitUntilCompleted {
             commandBuffer?.waitUntilCompleted()
         }
-        
         commandBuffer = nil
-        quadVertexBuffer = nil
-        quadViewport = nil
     }
     
     func runRender(_ kit: ModelerKit) {
-        if let renderState = renderStates.getState(stateName: "render") {
-            let renderPassDescriptor = MTLRenderPassDescriptor()
-            renderPassDescriptor.colorAttachments[0].texture = kit.sampleTexture!
-            renderPassDescriptor.colorAttachments[0].loadAction = .load
-            
-            let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-            renderEncoder.setRenderPipelineState(renderState)
-            
-            // ---
-            renderEncoder.setViewport(quadViewport!)
-            renderEncoder.setVertexBuffer(quadVertexBuffer, offset: 0, index: 0)
-            
-            var viewportSize : vector_uint2 = vector_uint2( UInt32( kit.outputTexture!.width ), UInt32( kit.outputTexture!.height ) )
-            renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_uint2>.stride, index: 1)
-            
-            var renderUniforms = createRenderUniform(model.modeler?.mainKit !== kit)
-            renderEncoder.setFragmentBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
-            
-            var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd)
-            renderEncoder.setFragmentBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
-            
-            renderEncoder.setFragmentTexture(kit.modelTexture, index: 2)
-            renderEncoder.setFragmentTexture(kit.colorTexture, index: 3)
-            renderEncoder.setFragmentTexture(kit.materialTexture1, index: 4)
-            renderEncoder.setFragmentTexture(kit.materialTexture2, index: 5)
-            renderEncoder.setFragmentTexture(kit.materialTexture3, index: 6)
-            renderEncoder.setFragmentTexture(kit.materialTexture4, index: 7)
+        if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+            if let state = renderStates.getComputeState(stateName: "render") {
+                
+                computeEncoder.setComputePipelineState( state )
+                
+                var renderUniforms = createRenderUniform(model.modeler?.mainKit !== kit)
+                computeEncoder.setBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
+                
+                var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd)
+                computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
+                
+                computeEncoder.setTexture(kit.modelTexture, index: 2)
+                computeEncoder.setTexture(kit.colorTexture, index: 3)
+                computeEncoder.setTexture(kit.materialTexture1, index: 4)
+                computeEncoder.setTexture(kit.materialTexture2, index: 5)
+                computeEncoder.setTexture(kit.materialTexture3, index: 6)
+                computeEncoder.setTexture(kit.materialTexture4, index: 7)
+                computeEncoder.setTexture(kit.sampleTexture, index: 8)
 
-            // ---
-            
-            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
-            renderEncoder.endEncoding()
+                // ---
+                
+                calculateThreadGroups(state, computeEncoder, kit.sampleTexture!)
+            }
+            computeEncoder.endEncoding()
         }
     }
     
@@ -414,25 +402,17 @@ class RenderPipeline
         renderEncoder.endEncoding()
     }
     
-    /// Creates a vertex buffer for a quad shader
-    func getQuadVertexBuffer(_ rect: MMRect ) -> MTLBuffer?
+    /// Compute the threads and thread groups for the given state and texture
+    func calculateThreadGroups(_ state: MTLComputePipelineState, _ encoder: MTLComputeCommandEncoder,_ texture: MTLTexture)
     {
-        let left = -rect.width / 2 + rect.x
-        let right = left + rect.width//self.width / 2 - x
         
-        let top = rect.height / 2 - rect.y
-        let bottom = top - rect.height
+        let w = state.threadExecutionWidth//limitThreads ? 1 : state.threadExecutionWidth
+        let h = state.maxTotalThreadsPerThreadgroup / w//limitThreads ? 1 : state.maxTotalThreadsPerThreadgroup / w
+        let d = 1//
+        let threadsPerThreadgroup = MTLSizeMake(w, h, d)
         
-        let quadVertices: [Float] = [
-            right, bottom, 1.0, 0.0,
-            left, bottom, 0.0, 0.0,
-            left, top, 0.0, 1.0,
-            
-            right, bottom, 1.0, 0.0,
-            left, top, 0.0, 1.0,
-            right, top, 1.0, 1.0,
-            ]
+        let threadgroupsPerGrid = MTLSize(width: (texture.width + w - 1) / w, height: (texture.height + h - 1) / h, depth: (texture.depth + d - 1) / d)
         
-        return device.makeBuffer(bytes: quadVertices, length: quadVertices.count * MemoryLayout<Float>.stride, options: [])!
+        encoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
     }
 }

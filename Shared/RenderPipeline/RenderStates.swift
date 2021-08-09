@@ -14,7 +14,8 @@ class RenderStates {
     let pipelineStateDescriptor : MTLRenderPipelineDescriptor
     
     var states                  : [String: MTLRenderPipelineState] = [:]
-    
+    var computeStates           : [String: MTLComputePipelineState] = [:]
+
     let device                  : MTLDevice
     
     init(_ device: MTLDevice)
@@ -40,7 +41,8 @@ class RenderStates {
             pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
             pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
             
-            states["render"] = createQuadState(name: "render")
+            computeStates["render"] = createComputeState(name: "render")
+            //states["render"] = createQuadState(name: "render")
         }
     }
     
@@ -69,8 +71,40 @@ class RenderStates {
         return renderPipelineState
     }
     
+    /// Creates a compute state from an optional library and the function name
+    func createComputeState( library: MTLLibrary? = nil, name: String ) -> MTLComputePipelineState?
+    {
+        let function : MTLFunction?
+            
+        if library != nil {
+            function = library!.makeFunction( name: name )
+        } else {
+            function = defaultLibrary!.makeFunction( name: name )
+        }
+        
+        var computePipelineState : MTLComputePipelineState?
+        
+        if function == nil {
+            return nil
+        }
+        
+        do {
+            computePipelineState = try device.makeComputePipelineState( function: function! )
+        } catch {
+            print( "computePipelineState failed" )
+            return nil
+        }
+
+        return computePipelineState
+    }
+    
     func getState(stateName: String) -> MTLRenderPipelineState?
     {
         return states[stateName]
+    }
+    
+    func getComputeState(stateName: String) -> MTLComputePipelineState?
+    {
+        return computeStates[stateName]
     }
 }

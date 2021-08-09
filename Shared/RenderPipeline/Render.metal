@@ -10,33 +10,6 @@ using namespace metal;
 
 #import "../Metal.h"
 
-typedef struct
-{
-    float4 clipSpacePosition [[position]];
-    float2 textureCoordinate;
-    float2 viewportSize;
-} RasterizerData;
-
-// Quad Vertex Function
-vertex RasterizerData
-renderQuadVertexShader(uint vertexID [[ vertex_id ]],
-             constant VertexUniform *vertexArray [[ buffer(0) ]],
-             constant vector_uint2 *viewportSizePointer  [[ buffer(1) ]])
-{
-    RasterizerData out;
-    
-    float2 pixelSpacePosition = vertexArray[vertexID].position.xy;
-    float2 viewportSize = float2(*viewportSizePointer);
-    
-    out.clipSpacePosition.xy = pixelSpacePosition / (viewportSize / 2.0);
-    out.clipSpacePosition.z = 0.0;
-    out.clipSpacePosition.w = 1.0;
-    
-    out.textureCoordinate = vertexArray[vertexID].textureCoordinate;
-    out.viewportSize = viewportSize;
-    return out;
-}
-
 // For the visual bounding box of the 3D texture
 // Box Frame - exact   (https://www.shadertoy.com/view/3ljcRh)
 
@@ -1043,18 +1016,22 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
 }
 
 // MARK: Render Entry Point
-fragment float4 render(RasterizerData in [[stage_in]],
-                               constant RenderUniform &renderData [[ buffer(0) ]],
-                               constant ModelerUniform &mData [[ buffer(1) ]],
-                               texture3d<float> modelTexture [[ texture(2) ]],
+kernel void render(            constant RenderUniform               &renderData [[ buffer(0) ]],
+                               constant ModelerUniform              &mData [[ buffer(1) ]],
+                               texture3d<float>                     modelTexture [[ texture(2) ]],
                                texture3d<float, access::read_write> colorTexture [[ texture(3) ]],
                                texture3d<float, access::read_write> materialTexture1 [[ texture(4) ]],
                                texture3d<float, access::read_write> materialTexture2 [[ texture(5) ]],
                                texture3d<float, access::read_write> materialTexture3 [[ texture(6) ]],
-                               texture3d<float, access::read_write> materialTexture4 [[ texture(7) ]])
+                               texture3d<float, access::read_write> materialTexture4 [[ texture(7) ]],
+                               texture2d<float, access::write>      sampleTexture [[ texture(8) ]],
+                               uint2 gid                            [[thread_position_in_grid]])
+
 {
-    float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
-    
+    //float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
+    float2 size = float2(sampleTexture.get_width(), sampleTexture.get_height());
+    float2 uv = float2(gid) / size;// - float3(0.5);
+
     float3 ro = renderData.cameraOrigin;
     float3 rd = renderData.cameraLookAt;
     float scale = renderData.scale;
@@ -1065,7 +1042,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
     dataIn.randomVector = renderData.randomVector;
     dataIn.numOfLights = renderData.numOfLights;
 
-    rd = getCamerayRay(uv, ro, rd, renderData.cameraFov, in.viewportSize, dataIn);
+    rd = getCamerayRay(uv, ro, rd, renderData.cameraFov, size, dataIn);
         
     float3 radiance = float3(0.0);
     float3 throughput = float3(1.0);
@@ -1201,7 +1178,8 @@ fragment float4 render(RasterizerData in [[stage_in]],
                     if ( fmod( floor( uv.y * 100 / cSize ), 2.0 ) == 0.0 ) radiance += float3(1) * throughput;
                 }
             }
-            return float4(radiance, 1.0);
+            sampleTexture.write(float4(radiance, 1.0), gid);
+            return;
         }
         
         //if (didHitBBox) {
@@ -1317,7 +1295,7 @@ fragment float4 render(RasterizerData in [[stage_in]],
         ray.origin = state.fhp + ray.direction * EPS;
     }
 
-    return float4(radiance, 1.0);
+    sampleTexture.write(float4(radiance, 1.0), gid);
 }
 
 // MARK: Hit Scene Entry Point
