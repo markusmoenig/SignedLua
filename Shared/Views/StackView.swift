@@ -147,7 +147,9 @@ struct StackView: View {
                 }
             }*/
         }
+        #if os(OSX)
         .listStyle(InsetListStyle(alternatesRowBackgrounds: true))
+        #endif
 
         .onAppear(perform: {
             selectedObject = nil
