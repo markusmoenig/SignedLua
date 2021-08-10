@@ -728,64 +728,19 @@ void Onb(float3 N, thread float3 &T, thread float3 &B)
 
 // MARK: Disney End
 
-float2 hitBBox( float3 rO, float3 rD, float3 min, float3 max )
+// https://www.iquilezles.org/www/articles/intersectors/intersectors.htm
+float2 boxIntersection(float3 ro, float3 rd, float3 boxSize, thread float3 &outNormal )
 {
-    // --- aabb check
-
-    float lo = -10000000000.0;
-    float hi = +10000000000.0;
-
-    float dimLoX=(min.x - rO.x ) / rD.x;
-    float dimHiX=(max.x - rO.x ) / rD.x;
-
-    if ( dimLoX > dimHiX )  {
-        float tmp = dimLoX;
-        dimLoX = dimHiX;
-        dimHiX = tmp;
-    }
-
-    if (dimHiX < lo || dimLoX > hi ) return float2(-1);
-
-    if (dimLoX > lo) lo = dimLoX;
-    if (dimHiX < hi) hi = dimHiX;
-
-    // ---
-
-    float dimLoY=(min.y - rO.y ) / rD.y;
-    float dimHiY=(max.y - rO.y ) / rD.y;
-
-    if ( dimLoY > dimHiY )  {
-        float tmp = dimLoY;
-        dimLoY = dimHiY;
-        dimHiY = tmp;
-    }
-
-    if (dimHiY < lo || dimLoY > hi ) return float2(-1);
-
-    if (dimLoY > lo) lo = dimLoY;
-    if (dimHiY < hi) hi = dimHiY;
-
-    // ---
-
-    float dimLoZ=(min.z - rO.z ) / rD.z;
-    float dimHiZ=(max.z - rO.z ) / rD.z;
-
-    if ( dimLoZ > dimHiZ )  {
-        float tmp = dimLoZ;
-        dimLoZ = dimHiZ;
-        dimHiZ = tmp;
-    }
-
-    if (dimHiZ < lo || dimLoZ > hi ) return float2(-1);
-
-    if (dimLoZ > lo) lo = dimLoZ;
-    if (dimHiZ < hi) hi = dimHiZ;
-
-    // ---
-
-    if ( lo > hi ) return float2(-1);
-
-    return float2(lo, hi);
+    float3 m = 1.0/rd; // can precompute if traversing a set of aligned boxes
+    float3 n = m*ro;   // can precompute if traversing a set of aligned boxes
+    float3 k = abs(m)*boxSize;
+    float3 t1 = -n - k;
+    float3 t2 = -n + k;
+    float tN = max( max( t1.x, t1.y ), t1.z );
+    float tF = min( min( t2.x, t2.y ), t2.z );
+    if( tN>tF || tF<0.0) return float2(-1.0); // no intersection
+    outNormal = -sign(rd)*step(t1.yzx,t1.xyz)*step(t1.zxy,t1.xyz);
+    return float2( tN, tF );
 }
 
 float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, thread DataIn &dataIn) {
@@ -1066,8 +1021,8 @@ kernel void render(            constant RenderUniform               &renderData 
     {
         state.depth = depth;
      
-        float r = 0.5 * scale;
-        float2 bbox = hitBBox(ray.origin, ray.direction, float3(-r, -r, -r), float3(r, r, r));
+        float r = 0.5 * scale; float3 rectNormal;
+        float2 bbox = boxIntersection(ray.origin, ray.direction, float3(r, r, r), rectNormal);
 
         float t = INFINITY;
         
@@ -1078,6 +1033,7 @@ kernel void render(            constant RenderUniform               &renderData 
             else t = 0;
             
             bool hit = false;
+            bool needsNormal = true;
             //float bd = INFINITY;
             
             // Check for border hit
@@ -1085,6 +1041,8 @@ kernel void render(            constant RenderUniform               &renderData 
             float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);
             if (d < 0.) {
                 hit = true;
+                state.normal = rectNormal;
+                needsNormal = false;
             } else {
                 for(int i = 0; i < 260; ++i)
                 {
@@ -1113,20 +1071,18 @@ kernel void render(            constant RenderUniform               &renderData 
             
             if (hit == true) {
                 float3 position = ray.origin + ray.direction * t;
-                float3 normal = getNormal(position, modelTexture, mData, scale);
-                
+                if (needsNormal) {
+                    float3 normal = getNormal(position, modelTexture, mData, scale);
+                    state.normal = normal;
+                }
                 state.fhp = position;
-                state.normal = normal;
-                state.ffnormal = dot(normal, ray.direction) <= 0.0 ? normal : normal * -1.0;
-                                
+                state.ffnormal = dot(state.normal, ray.direction) <= 0.0 ? state.normal : state.normal * -1.0;
             } else {
                 t = INFINITY;
             }
         }
         
         // Lights
-        
-        
         for (int i = 0; i < renderData.numOfLights; i++)
         {
             Light light = renderData.lights[i];
@@ -1324,8 +1280,8 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
     
     float scale = mData.scale;
 
-    float r = 0.5 * scale;
-    float2 bbox = hitBBox(ro, rd, float3(-r, -r, -r), float3(r, r, r));
+    float r = 0.5 * scale; float3 rectNormal;
+    float2 bbox = boxIntersection(ro, rd, float3(r, r, r), rectNormal);
     
     float4 result1 = float4(-1);
     float4 result2 = float4(-1);
