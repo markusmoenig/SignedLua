@@ -55,7 +55,7 @@ class SignedProject: Codable {
     func initDataGroups(fromConstructor: Bool = false) {
             
         addDataGroup(name: "World", entities: [
-            SignedDataEntity("Scale", Int(3), float2(1, 10), .Slider),
+            SignedDataEntity("Scale", Int(1), float2(1, 10), .Slider),
         ])
         
         addDataGroup(name: "Renderer", entities: [

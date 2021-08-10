@@ -15,10 +15,15 @@ import JavaScriptCore
 class ScriptHandler: NSObject, ScriptHandlerJSExports {
     
     var jsContext               : JSContext? = nil
+    
+    var modeler                 : ModelerPipeline
+    var model                   : Model
+    
     weak var cmd                : SignedCommand? = nil
     
     init(_ modeler: ModelerPipeline) {
-        
+        self.modeler = modeler
+        self.model = modeler.model
     }
     
     /// Load and execute the given module

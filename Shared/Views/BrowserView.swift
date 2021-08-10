@@ -170,6 +170,8 @@ struct BrowserView: View {
                                 }
                             }
                             
+                            print(cmd.role)
+                            
                             object.commands.append(cmd)
                             model.modeler?.executeCommand(cmd)
                             model.renderer?.restart()

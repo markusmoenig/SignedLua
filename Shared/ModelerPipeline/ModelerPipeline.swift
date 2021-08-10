@@ -244,6 +244,12 @@ class ModelerPipeline
             modelerUniform.smoothing = booleanData.getFloat("Smoothing", 0.1)
         }
         
+        if let repetitionData = cmd.dataGroups.getGroup("Repetition") {
+            modelerUniform.repDistance = repetitionData.getFloat("Distance", 0)
+            modelerUniform.repLowerLimit = repetitionData.getFloat3("Lower Limit", float3(0,0,0))
+            modelerUniform.repUpperLimit = repetitionData.getFloat3("Upper Limit", float3(0,0,0))
+        }
+        
         modelerUniform.normal = cmd.normal                
         modelerUniform.material = cmd.material.toMaterialStruct()
         modelerUniform.mixer = cmd.material.toMaterialMixerStruct()

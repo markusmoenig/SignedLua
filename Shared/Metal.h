@@ -281,6 +281,10 @@ typedef struct {
     MaterialMixer       mixer;
 
     float               materialOnlyMixerValue;
+    
+    float               repDistance;
+    simd_float3         repLowerLimit;
+    simd_float3         repUpperLimit;
 
     // If we are using a brush, the brush hit is used to render a preview
     simd_float3         brushHit;

@@ -130,6 +130,9 @@ struct SideView: View {
         if let booleanData = model.editingCmd.dataGroups.getGroup("Boolean") {
             views.append(booleanData)
         }
+        if let repetitionData = model.editingCmd.dataGroups.getGroup("Repetition") {
+            views.append(repetitionData)
+        }
         if let libraryData = model.editingCmd.dataGroups.getGroup("Library") {
             views.append(libraryData)
         }

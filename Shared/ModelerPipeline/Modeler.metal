@@ -111,6 +111,12 @@ float2 rotatePivot(float2 pos, float angle, float2 pivot)
     return pivot + (pos-pivot) * float2x2(ca, sa, -sa, ca);
 }
 
+// https://www.shadertoy.com/view/3syGzz
+float3 opRepLim(float3 p, float s, float3 lima, float3 limb )
+{
+    return p-s*clamp(round(p/s),lima,limb);
+}
+
 // generates a random radious at (integer) position p
 float rad(float3 p)
 {
@@ -193,6 +199,8 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     p.xz = rotate(p.xz, radians(mData.rotation.y));
     p.xy = rotate(p.xy, radians(mData.rotation.z));
     
+    p = opRepLim(p, mData.repDistance, mData.repLowerLimit, mData.repUpperLimit * float3(1, valueNoiseFBM(p, 2), 1));
+
     if (mData.primitiveType == Modeler_Sphere) {
         newDist = sdSphere(p, mData.radius * scale / Modeler_Global_Scale);
     } else
