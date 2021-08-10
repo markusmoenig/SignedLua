@@ -827,14 +827,14 @@ float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 /// Reads material data
 float4 getMaterialData(float3 p, texture3d<float, access::read_write> materialTexture, float scale = 1.0)
 {
-    float4 color = materialTexture.read(ushort3(clamp(p / scale + float3(0.5), 0., 1.) * float3(1)));
+    float4 color = materialTexture.read(ushort3(clamp(p / scale + float3(0.5), 0., 1.) * float3(511)));
     return color;
 }
 
 /// Writes material data
 void setMaterialData(float3 p, float4 value, texture3d<float, access::read_write> materialTexture, float scale = 1.0)
 {
-    materialTexture.write(value, ushort3((p / scale + float3(0.5)) * float3(1)));
+    materialTexture.write(value, ushort3((p / scale + float3(0.5)) * float3(511)));
 }
 
 /// Calculates the normal at the given point
@@ -1028,9 +1028,14 @@ kernel void render(            constant RenderUniform               &renderData 
         
         if (bbox.y > 0.0) {
                     
+            float outside = 1.0;
+
             if (depth == 0)
                 t = bbox.x;
-            else t = 0;
+            else {
+                t = 0;
+                outside = dot(state.normal, state.ffnormal) > 0.0 ? 1.0 : -1.0;
+            }
             
             bool hit = false;
             bool needsNormal = true;
@@ -1062,7 +1067,7 @@ kernel void render(            constant RenderUniform               &renderData 
                         break;
                     }
                     
-                    t += d;
+                    t += d * outside;
 
                     if (t >= bbox.y)
                         break;
