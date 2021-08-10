@@ -865,14 +865,14 @@ float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     
-    float d = modelTexture.sample(textureSampler, (p / scale + float3(0.5))).x;
+    float d = modelTexture.sample(textureSampler, clamp((p / scale + float3(0.5)), 0., 1.)).x;
     return d * scale;
 }
 
 /// Reads material data
 float4 getMaterialData(float3 p, texture3d<float, access::read_write> materialTexture, float scale = 1.0)
 {
-    float4 color = materialTexture.read(ushort3((p / scale + float3(0.5)) * float3(512)));
+    float4 color = materialTexture.read(ushort3(clamp(p / scale + float3(0.5), 0., 1.) * float3(512)));
     return color;
 }
 
@@ -1080,28 +1080,35 @@ kernel void render(            constant RenderUniform               &renderData 
             bool hit = false;
             //float bd = INFINITY;
             
-            for(int i = 0; i < 260; ++i)
-            {
-                float3 p = ray.origin + ray.direction * t;
-                float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);
-                
-                // --- Visual Bounding Box, only test on the first pass
-                //if (i == 0) {
-                //    bd = sdBoxFrame(p, float(r), 0.004);
-                //    d = min(d, bd);
-                //}
-                // ---
+            // Check for border hit
+            float3 p = ray.origin + ray.direction * t;
+            float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);
+            if (d < 0.) {
+                hit = true;
+            } else {
+                for(int i = 0; i < 260; ++i)
+                {
+                    float3 p = ray.origin + ray.direction * t;
+                    float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);
+                    
+                    // --- Visual Bounding Box, only test on the first pass
+                    //if (i == 0) {
+                    //    bd = sdBoxFrame(p, float(r), 0.004);
+                    //    d = min(d, bd);
+                    //}
+                    // ---
 
-                if (abs(d) < (0.0001*t)) {
-                    hit = true;
-                    //if (i == 0 && d == bd) didHitBBox = true;
-                    break;
+                    if (abs(d) < (0.0001*t)) {
+                        hit = true;
+                        //if (i == 0 && d == bd) didHitBBox = true;
+                        break;
+                    }
+                    
+                    t += d;
+
+                    if (t >= bbox.y)
+                        break;
                 }
-                
-                t += d;
-
-                if (t >= bbox.y)
-                    break;
             }
             
             if (hit == true) {
