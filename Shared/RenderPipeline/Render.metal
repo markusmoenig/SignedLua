@@ -844,11 +844,11 @@ Material mixMaterials(Material materialA, Material materialB, float k);
 /// Gets the distance at the given point
 float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUniform &mData, thread bool &editHit, thread float &materialMixValue, float scale = 1.0)
 {
-    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
+    constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
     
     editHit = false;
     
-    float d = modelTexture.sample(textureSampler, (p / scale + float3(0.5))).x * scale;
+    float d = modelTexture.sample(textureSampler, clamp((p / scale + float3(0.5)), 0., 1.)).x * scale;
     float editingDist = applyModelerData(p, d, mData, scale, materialMixValue);
     
     if (d != editingDist) {

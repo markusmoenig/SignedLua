@@ -50,6 +50,7 @@ struct StackView: View {
 
                     //ForEach(Array(zip(1..., selected.commands)), id: \.1.id) { number, cmd in
                         //Text("\(number). \(person.name)")
+                    HStack {
                         Button(action: {
                             model.selectedCommand = cmd
                             model.commandSelected.send(cmd)
@@ -91,22 +92,37 @@ struct StackView: View {
                                 Text(cmd.name)
                                     .foregroundColor(model.selectedCommand === cmd ? .accentColor : .gray)
                             }
-
-                            //Label(cmd.name, systemImage: "circle")
-                                //.frame(maxWidth: .infinity, alignment: .leading)
-                                //.contentShape(Rectangle())
-                                //.padding(.leading, 4)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        /*
-                        .listRowBackground(Group {
-                            if model.selectedCommand === cmd  {
-                                Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
-                            } else { Color.gray.mask(RoundedRectangle(cornerRadius: 4).opacity(0.1)) }
-                        })*/
+                    
+                        if index > 0 {
+                            Spacer()
+                            Button(action: {
+                                if let selectedObject = selectedObject {
+                                    if let index = selectedObject.commands.firstIndex(of: cmd) {
+                                        selectedObject.commands.remove(at: index)
+                                        self.selectedObject = nil
+                                        updateView.toggle()
+                                        self.selectedObject = model.selectedObject
+                                        
+                                        // Rerender all
+                                        if selectedObject.commands.isEmpty == false {
+                                            model.modeler?.buildIndex = nil
+                                            model.modeler?.buildTo = selectedObject.commands.last
+                                        } else {
+                                            model.modeler?.clear()
+                                            model.renderer?.restart()
+                                        }
+                                    }
+                                }
+                            })
+                            {
+                                Image(systemName: "x.circle")
+                            }
+                            .buttonStyle(.borderless)
+                        }
                     }
-
-                //}
+                }
             }
 
             /*

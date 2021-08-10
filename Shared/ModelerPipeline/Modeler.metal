@@ -199,7 +199,9 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     p.xz = rotate(p.xz, radians(mData.rotation.y));
     p.xy = rotate(p.xy, radians(mData.rotation.z));
     
-    p = opRepLim(p, mData.repDistance, mData.repLowerLimit, mData.repUpperLimit * float3(1, valueNoiseFBM(p, 2), 1));
+    //p = opRepLim(p, mData.repDistance * scale / Modeler_Global_Scale, mData.repLowerLimit, mData.repUpperLimit * float3(valueNoiseFBM(p * mData.repNoise.x / scale, 5), valueNoiseFBM(p * mData.repNoise.y / scale, 5), valueNoiseFBM(p * mData.repNoise.z / scale, 5)));
+    
+    p = opRepLim(p, mData.repDistance * scale / Modeler_Global_Scale, mData.repLowerLimit, mData.repUpperLimit);
 
     if (mData.primitiveType == Modeler_Sphere) {
         newDist = sdSphere(p, mData.radius * scale / Modeler_Global_Scale);

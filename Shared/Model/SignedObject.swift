@@ -43,7 +43,7 @@ class SignedObject : Codable, Hashable, Identifiable {
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         children = try container.decode([SignedObject]?.self, forKey: .children)
-        commands = try container.decode([SignedCommand].self, forKey: .commands)
+        commands = try container.decode([SignedCommand].self, forKey: .commands)        
     }
     
     func encode(to encoder: Encoder) throws

@@ -110,6 +110,19 @@ class Model: NSObject, ObservableObject {
         }
     }
     
+    func setProject(_ project: SignedProject) {
+        self.project = project
+        
+        selectedObject = project.objects.first
+        selectedCommand = selectedObject?.commands.first
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            if let selectedCommand = self.selectedCommand {
+                self.commandSelected.send(selectedCommand)
+            }
+        }
+    }
+    
     /// Sets the renderer
     func setRenderer(_ renderer: RenderPipeline?)
     {

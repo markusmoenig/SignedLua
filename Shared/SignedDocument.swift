@@ -35,7 +35,7 @@ struct SignedDocument: FileDocument {
             throw CocoaError(.fileReadCorruptFile)
         }
         if data.isEmpty == false {
-            model.project = project
+            model.setProject(project)
         }
     }
     

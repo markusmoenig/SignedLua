@@ -132,9 +132,9 @@ class SignedCommand : Codable, Hashable {
         ])
         
         addDataGroup(name: "Repetition", entities: [
-            SignedDataEntity("Distance", Float(0), float2(0, 1)),
+            SignedDataEntity("Distance", Float(0.1), float2(0, 5)),
             SignedDataEntity("Upper Limit", float3(0,0,0), float2(-1000, 1000)),
-            SignedDataEntity("Lower Limit", float3(0,0,0), float2(-1000, 10000)),
+            SignedDataEntity("Lower Limit", float3(0,0,0), float2(-1000, 1000)),
         ])
         
         addDataGroup(name: "Library", entities: [
