@@ -943,12 +943,12 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
                     float3 p = surfacePos + lightSampleRec.direction * t;
                     float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);//map(p, dataIn);
 
-                    if (abs(d) < (0.0001*t)) {
+                    if (abs(d) < (0.0001*t*scale)) {
                         inShadow = true;
                         break;
                     }
                     
-                    t += d;
+                    t += abs(d);
                 }
             }
 
@@ -1061,7 +1061,7 @@ kernel void render(            constant RenderUniform               &renderData 
                     //}
                     // ---
 
-                    if (abs(d) < (0.0001*t)) {
+                    if (abs(d) < (0.0001*t*scale)) {
                         hit = true;
                         //if (i == 0 && d == bd) didHitBBox = true;
                         break;
@@ -1260,7 +1260,7 @@ kernel void render(            constant RenderUniform               &renderData 
 #endif
 
         ray.direction = bsdfSampleRec.L;
-        ray.origin = state.fhp + ray.direction * (EPS + 0.1);
+        ray.origin = state.fhp + ray.direction * (EPS + 0.033 * scale);
     }
 
     sampleTexture.write(float4(radiance, 1.0), gid);
