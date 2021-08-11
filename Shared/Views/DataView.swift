@@ -400,7 +400,7 @@ struct DataEntityView: View {
                     ColorPicker("", selection: $colorValue, supportsOpacity: false)
                     Spacer()
                         .onChange(of: colorValue) { newValue in
-                            if let cgColor = newValue.cgColor {
+                            if let cgColor = newValue.cgColor?.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil) {
 
                                 entity.value.x = Float(cgColor.components![0])
                                 entity.value.y = Float(cgColor.components![1])
