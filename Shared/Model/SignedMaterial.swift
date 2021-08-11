@@ -116,29 +116,6 @@ class SignedMaterial: Codable {
         return material
     }
     
-    func toMixMaterialStruct() -> Material {
-        var material = Material()
-        
-        material.albedo = data.getEntity("Color")!.subData!.getFloat3("Color")
-        material.specular = data.getEntity("Specular")!.subData!.getFloat("Specular")
-        material.anisotropic = data.getEntity("Anisotropic")!.subData!.getFloat("Anisotropic")
-        material.metallic = data.getEntity("Metallic")!.subData!.getFloat("Metallic")
-        material.roughness = data.getEntity("Roughness")!.subData!.getFloat("Roughness")
-        material.subsurface = data.getEntity("Subsurface")!.subData!.getFloat("Subsurface")
-        material.specularTint = data.getEntity("Specular Tint")!.subData!.getFloat("Specular Tint")
-        material.sheen = data.getEntity("Sheen")!.subData!.getFloat("Sheen")
-        material.sheenTint = data.getEntity("Sheen Tint")!.subData!.getFloat("Sheen Tint")
-        material.clearcoat = data.getEntity("Clearcoat")!.subData!.getFloat("Clearcoat")
-        material.clearcoatGloss = data.getEntity("Clearcoat Gloss")!.subData!.getFloat("Clearcoat Gloss")
-        material.specTrans = data.getEntity("Transmission")!.subData!.getFloat("Transmission")
-        material.ior = data.getEntity("IOR")!.subData!.getFloat("IOR")
-        material.emission = data.getEntity("Emission")!.subData!.getFloat3("Emission")
-
-        material.atDistance = 1.0
-
-        return material
-    }
-    
     func toMaterialMixerStruct() -> MaterialMixer {
         var materialMixer = MaterialMixer()
         

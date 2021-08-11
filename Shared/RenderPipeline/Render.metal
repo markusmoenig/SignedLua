@@ -1033,7 +1033,7 @@ kernel void render(            constant RenderUniform               &renderData 
             if (depth == 0)
                 t = bbox.x;
             else {
-                t = 0;
+                t = 0.001;
                 outside = dot(state.normal, state.ffnormal) > 0.0 ? 1.0 : -1.0;
             }
             
@@ -1136,7 +1136,7 @@ kernel void render(            constant RenderUniform               &renderData 
         
         if (t == INFINITY) {
             if (true)
-                radiance += renderData.backgroundColor.xyz * throughput;
+                radiance += pow(renderData.backgroundColor.xyz, 2.2) * throughput;
             else {
                 float cSize = 2;
                 
@@ -1146,7 +1146,7 @@ kernel void render(            constant RenderUniform               &renderData 
                     if ( fmod( floor( uv.y * 100 / cSize ), 2.0 ) == 0.0 ) radiance += float3(1) * throughput;
                 }
             }
-            sampleTexture.write(float4(radiance, 1.0), gid);
+            sampleTexture.write(float4(radiance, renderData.backgroundColor.w), gid);
             return;
         }
         
@@ -1338,7 +1338,7 @@ kernel void modelerAccum(constant AccumUniform                      &uniform [[ 
     float4 final = finalTexture.read(gid);
 
     sample.xyz = pow(sample.xyz, 1.0 / 2.2);
-    //sample = clamp(sample, 0, 1);
+    sample = clamp(sample, 0, 5);
 
     float k = float(uniform.samples + 1);
     final = final * (1.0 - 1.0/k) + sample * (1.0/k);

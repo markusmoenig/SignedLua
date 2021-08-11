@@ -242,14 +242,14 @@ class SignedData: Codable, Hashable {
     }
     
     /// Get an Float4 key
-    func getFloat4(_ key: String,_ time: Double? = nil) -> float4? {
+    func getFloat4(_ key: String,_ defaultValue: float4 = float4(0,0,0,0),_ time: Double? = nil) -> float4 {
         for e in data {
             if e.key == key && e.type == .Float4 && e.time == time {
                 return e.value
             }
         }
         // TODO: Interpolate between existing values
-        return nil
+        return defaultValue
     }
     
     /// Checks if a given key exists

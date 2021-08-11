@@ -223,11 +223,12 @@ class RenderPipeline
             renderUniform.scale = model.project.getWorldScale()
             
             renderUniform.maxDepth = 6;
+            renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
+
             if let rendererData = model.project.dataGroups.getGroup("Renderer") {
+                renderUniform.backgroundColor = rendererData.getFloat4("Background")
                 renderUniform.maxDepth = Int32(rendererData.getInt("Reflections", 6))
             }
-
-            renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
             
             renderUniform.numOfLights = 1
             renderUniform.noShadows = 0;
@@ -273,8 +274,7 @@ class RenderPipeline
             renderUniform.maxDepth = 2;
 
             renderUniform.noShadows = 1;
-
-            renderUniform.backgroundColor = float4(0.1, 0.1, 0.1, 1)
+            renderUniform.backgroundColor = float4(0.35, 0.35, 0.35, 1)
             
             renderUniform.numOfLights = 1
 
