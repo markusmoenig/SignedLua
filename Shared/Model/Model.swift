@@ -103,7 +103,7 @@ class Model: NSObject, ObservableObject {
         
         parser = SignedParser(self)
 
-        selectedObject = project.objects.first
+        //selectedObject = project.objects.first
         
         editingCmd.action = .None
         iconCmd.action = .None
@@ -118,7 +118,7 @@ class Model: NSObject, ObservableObject {
     func setProject(_ project: SignedProject) {
         self.project = project
         
-        selectedObject = project.objects.first
+        //selectedObject = project.objects.first
         selectedCommand = selectedObject?.commands.first
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

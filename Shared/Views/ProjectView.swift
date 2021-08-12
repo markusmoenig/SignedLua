@@ -40,6 +40,10 @@ struct ProjectView: View {
     
     var body: some View {
         
+        VStack {
+            
+        }
+        /*
         ZStack(alignment: .center) {
             
             ForEach(model.project.objects, id: \.self) { object in
@@ -70,11 +74,11 @@ struct ProjectView: View {
                     Text("hallo")
                 }
             }
-        }
+        }*/
         
-        .onReceive(model.objectSelected) { object in
-            selection = object
-        }
+        //.onReceive(model.objectSelected) { object in
+        //    selection = object
+        //}
         
         /*
 

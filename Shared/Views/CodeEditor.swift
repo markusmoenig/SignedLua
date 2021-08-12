@@ -156,11 +156,35 @@ class CodeEditor
          })
     }
     
+    func setErrors(_ errors: [CodeError])
+    {
+        var str = "["
+        for error in errors {
+            str +=
+            """
+            {
+                row: \(error.line!),
+                column: \(error.column!),
+                text: \"\(error.error!)\",
+                type: \"\(error.type)\"
+            },
+            """
+        }
+        str += "]"
+        
+        webView.evaluateJavaScript(
+            """
+            editor.getSession().setAnnotations(\(str));
+            """, completionHandler: { (value, error ) in
+         })
+    }
+    
     /// The code was updated in the editor, set the value to the current component
     func updated()
     {
         getValue(model.editingCmd, { (value) in
             self.model.project.code = value
+            self.model.parser.parse()
         })
     }
 }

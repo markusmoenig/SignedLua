@@ -76,9 +76,7 @@ class ModelerPipeline
         iconKit.sampleTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
         iconKit.outputTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
 
-        if let object = model.project.objects.first {
-            executeObject(object)
-        }
+        clear()
         
         scriptHandler = ScriptHandler(self)
     }

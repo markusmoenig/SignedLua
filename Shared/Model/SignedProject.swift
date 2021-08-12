@@ -11,14 +11,14 @@ import CoreGraphics
 class SignedProject: Codable {
 
     private enum CodingKeys: String, CodingKey {
-        case objects
+        //case objects
         case code
         case camera
         case dataGroups
     }
     
     /// The objects in the project
-    var objects                             : [SignedObject] = []
+    //var objects                             : [SignedObject] = []
     
     /// The code
     var code                                : String = ""
@@ -30,8 +30,8 @@ class SignedProject: Codable {
     var dataGroups                          : SignedDataGroups
     
     init() {
-        let object = SignedObject("Unnamed")
-        objects.append(object)
+        //let object = SignedObject("Unnamed")
+        //objects.append(object)
         
         camera = SignedPinholeCamera()
         dataGroups = SignedDataGroups()
@@ -42,7 +42,7 @@ class SignedProject: Codable {
     required init(from decoder: Decoder) throws
     {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        objects = try container.decode([SignedObject].self, forKey: .objects)
+        //objects = try container.decode([SignedObject].self, forKey: .objects)
         code = try container.decode(String.self, forKey: .code)
         camera = try container.decode(SignedPinholeCamera.self, forKey: .camera)
         dataGroups = try container.decode(SignedDataGroups.self, forKey: .dataGroups)
@@ -51,7 +51,7 @@ class SignedProject: Codable {
     func encode(to encoder: Encoder) throws
     {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(objects, forKey: .objects)
+        //try container.encode(objects, forKey: .objects)
         try container.encode(code, forKey: .code)
         try container.encode(camera, forKey: .camera)
         try container.encode(dataGroups, forKey: .dataGroups)
