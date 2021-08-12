@@ -65,6 +65,12 @@ struct ContentView: View {
             HStack(spacing: 2) {
                     
                 VStack {
+                    EditorView(document.model)
+                    BrowserView(model: document.model)
+                        .frame(minHeight: 80, maxHeight: 100)
+                }
+                
+                VStack {
                      
                     ZStack(alignment: .bottomLeading) {
                         // Show tools
@@ -196,17 +202,13 @@ struct ContentView: View {
                                 })
                         )
                     }
-                    
-                    BrowserView(model: document.model)
-                        .frame(minHeight: 120, maxHeight: 140)
-
                 }
 
                 
-                Divider()
+                //Divider()
                     
-                SideView(model: document.model)
-                    .frame(width: geometry.size.width / 2.5)
+                //SideView(model: document.model)
+                //    .frame(width: geometry.size.width / 2.5)
             }
         }
         
@@ -330,6 +332,13 @@ struct ContentView: View {
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
                           
+                Button(action: {
+                    document.model.parser.build()
+                }) {
+                    Text("Build")
+                }
+                .keyboardShortcut("b")
+                
                 toolPreviewMenu
             }
         }

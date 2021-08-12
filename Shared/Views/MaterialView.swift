@@ -51,11 +51,19 @@ struct MaterialView: View {
                                         model.materialSelected.send(material)
                                         
                                         model.editingCmd.code = material.code
-                                        model.scriptEditor?.setValue(model.editingCmd)
+                                        //model.codeEditor?.setValue(model.editingCmd)
                                         
                                         model.editingCmdChanged.send(model.editingCmd)
                                         model.renderer?.restart()
                                     })
+                                    .contextMenu {
+                                        Button("Delete") {
+                                            managedObjectContext.delete(object)
+                                            do {
+                                                try managedObjectContext.save()
+                                            } catch {}
+                                        }
+                                    }
                             } else {
                                 Rectangle()
                                     .fill(Color.secondary)
@@ -69,7 +77,7 @@ struct MaterialView: View {
                                         model.materialSelected.send(material)
                                         
                                         model.editingCmd.code = material.code
-                                        model.scriptEditor?.setValue(model.editingCmd)
+                                        //model.codeEditor?.setValue(model.editingCmd)
                                         
                                         model.editingCmdChanged.send(model.editingCmd)
                                         model.renderer?.restart()

@@ -1,5 +1,5 @@
 //
-//  WebEditor.swift
+//  CodeEditor.swift
 //  Signed
 //
 //  Created by Markus Moenig on 25/8/20.
@@ -9,7 +9,7 @@ import SwiftUI
 import WebKit
 import Combine
 
-class ScriptEditor
+class CodeEditor
 {
     var webView         : WKWebView
     var model           : Model
@@ -26,7 +26,7 @@ class ScriptEditor
         self.model = model
         self.colorScheme = colorScheme
 
-        setValue(model.editingCmd)
+        setValue(model.project.code)
     }
     
     func setTheme(_ colorScheme: ColorScheme)
@@ -76,10 +76,10 @@ class ScriptEditor
          })
     }
     
-    func setValue(_ cmd: SignedCommand)
+    func setValue(_ string: String)
     {
         let cmd = """
-        editor.setValue(`\(cmd.code)`)
+        editor.setValue(`\(string)`)
         """
         webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
         })
@@ -160,7 +160,7 @@ class ScriptEditor
     func updated()
     {
         getValue(model.editingCmd, { (value) in
-            self.model.editingCmd.code = value
+            self.model.project.code = value
         })
     }
 }
@@ -212,8 +212,8 @@ struct SwiftUIWebView: NSViewRepresentable {
         
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "jsHandler" {
-                if let scriptEditor = model.scriptEditor {
-                    scriptEditor.updated()
+                if let codeEditor = model.codeEditor {
+                    codeEditor.updated()
                 }
             }
         }
@@ -224,7 +224,7 @@ struct SwiftUIWebView: NSViewRepresentable {
 
         //After the webpage is loaded, assign the data in WebViewModel class
         public func webView(_ web: WKWebView, didFinish: WKNavigation!) {
-            model.scriptEditor = ScriptEditor(web, model, colorScheme)
+            model.codeEditor = CodeEditor(web, model, colorScheme)
             web.isHidden = false
         }
 

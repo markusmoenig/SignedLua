@@ -61,7 +61,8 @@ struct BrowserView: View {
         VStack(alignment: .leading, spacing: 1) {
 
             HStack(alignment: .top) {
-                                
+                               
+                /*
                 Button(action: {
                     editingBrushMode = .GeometryAndMaterial
                     model.editingBrushMode = .GeometryAndMaterial
@@ -191,8 +192,8 @@ struct BrowserView: View {
                 //.disabled(true)
                 
                 //Spacer()
+                 */
             }
-            
             Divider()
             
             HStack {

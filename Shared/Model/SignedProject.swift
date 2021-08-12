@@ -12,12 +12,16 @@ class SignedProject: Codable {
 
     private enum CodingKeys: String, CodingKey {
         case objects
+        case code
         case camera
         case dataGroups
     }
     
     /// The objects in the project
     var objects                             : [SignedObject] = []
+    
+    /// The code
+    var code                                : String = ""
     
     /// Camera
     var camera                              : SignedPinholeCamera
@@ -39,6 +43,7 @@ class SignedProject: Codable {
     {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         objects = try container.decode([SignedObject].self, forKey: .objects)
+        code = try container.decode(String.self, forKey: .code)
         camera = try container.decode(SignedPinholeCamera.self, forKey: .camera)
         dataGroups = try container.decode(SignedDataGroups.self, forKey: .dataGroups)
     }
@@ -47,6 +52,7 @@ class SignedProject: Codable {
     {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(objects, forKey: .objects)
+        try container.encode(code, forKey: .code)
         try container.encode(camera, forKey: .camera)
         try container.encode(dataGroups, forKey: .dataGroups)
     }

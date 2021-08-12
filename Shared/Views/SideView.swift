@@ -85,7 +85,7 @@ struct SideView: View {
             if mode == .javascript {
                 WebView(model, deviceColorScheme)
                     .onChange(of: deviceColorScheme) { newValue in
-                        model.scriptEditor?.setTheme(newValue)
+                        model.codeEditor?.setTheme(newValue)
                     }            }
             if mode == .camera {
                 DataView(model: model, data: model.project.camera.data)

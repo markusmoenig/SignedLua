@@ -39,7 +39,7 @@ public class Core       : ObservableObject
     var gameCmdBuffer   : MTLCommandBuffer? = nil
     var gameScissorRect : MTLScissorRect? = nil
     
-    var scriptEditor    : ScriptEditor!
+    var scriptEditor    : CodeEditor!
     var scriptProcessor : ScriptProcessor!
 
     var toolContext     : GraphToolContext!

@@ -67,7 +67,7 @@ struct StackView: View {
                             }
                             
                             model.editingCmd.code = cmd.code
-                            model.scriptEditor?.setValue(model.editingCmd)
+                            //model.codeEditor?.setValue(model.editingCmd)
 
                             model.editingCmdChanged.send(model.editingCmd)
                             

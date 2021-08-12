@@ -32,6 +32,9 @@ class Model: NSObject, ObservableObject {
     /// The project itself
     var project                             : SignedProject
     
+    // The parser
+    var parser                              : SignedParser!
+    
     var selectedObject                      : SignedObject? = nil
     var selectedCommand                     : SignedCommand? = nil
 
@@ -65,8 +68,8 @@ class Model: NSObject, ObservableObject {
     /// Update UIs
     let updateUI                            = PassthroughSubject<Void, Never>()
     
-    /// Reference to the underlying script editor
-    var scriptEditor                        : ScriptEditor? = nil
+    /// Reference to the underlying code editor
+    var codeEditor                          : CodeEditor? = nil
 
     /// Reference to the renderer
     var renderer                            : RenderPipeline? = nil
@@ -98,6 +101,8 @@ class Model: NSObject, ObservableObject {
         project = SignedProject()
         super.init()
         
+        parser = SignedParser(self)
+
         selectedObject = project.objects.first
         
         editingCmd.action = .None

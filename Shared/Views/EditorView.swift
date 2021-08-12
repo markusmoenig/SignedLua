@@ -94,7 +94,7 @@ struct EditorView: View {
                         .frame(height: geometry.size.height)
                         .tag(1)
                         .onChange(of: deviceColorScheme) { newValue in
-                            model.scriptEditor?.setTheme(newValue)
+                            model.codeEditor?.setTheme(newValue)
                         }
                      
                 //}

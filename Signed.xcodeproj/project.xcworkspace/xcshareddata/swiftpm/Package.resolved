@@ -9,6 +9,24 @@
           "revision": "d9beca13ca85baa50ee29832d0db5129fba69630",
           "version": "5.0.1"
         }
+      },
+      {
+        "package": "Syntax",
+        "repositoryURL": "https://github.com/nerdsupremacist/Syntax.git",
+        "state": {
+          "branch": null,
+          "revision": "86b8a0890c6179afd6300c47851c7ac0f8101ccf",
+          "version": "1.0.3"
+        }
+      },
+      {
+        "package": "SyntaxTree",
+        "repositoryURL": "https://github.com/nerdsupremacist/SyntaxTree.git",
+        "state": {
+          "branch": null,
+          "revision": "e05df57b9482e8122b99c59d6285c3e14ccb5b2b",
+          "version": "0.1.0"
+        }
       }
     ]
   },
