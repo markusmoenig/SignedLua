@@ -78,8 +78,9 @@ class RenderPipeline
     /// Render a single sample
     func renderSample()
     {
-        if model.modeler?.buildTo != nil {
+        if model.modeler?.pipeline.isEmpty == false {
             model.modeler?.executeNext()
+            restart()
             return
         }
         

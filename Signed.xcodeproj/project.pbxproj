@@ -180,6 +180,14 @@
 		2BC9944F2685A5AC00F75A54 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9944D2685A5AC00F75A54 /* Model.swift */; };
 		2BC994512685AB5400F75A54 /* SignedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC994502685AB5400F75A54 /* SignedObject.swift */; };
 		2BC994522685AB5400F75A54 /* SignedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC994502685AB5400F75A54 /* SignedObject.swift */; };
+		2BCBE4DD26C52EF1008FB150 /* SignedBuildingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4DC26C52EF1008FB150 /* SignedBuildingNode.swift */; };
+		2BCBE4DE26C52EF1008FB150 /* SignedBuildingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4DC26C52EF1008FB150 /* SignedBuildingNode.swift */; };
+		2BCBE4E026C5349C008FB150 /* SignedObjectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4DF26C5349C008FB150 /* SignedObjectNode.swift */; };
+		2BCBE4E126C5349C008FB150 /* SignedObjectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4DF26C5349C008FB150 /* SignedObjectNode.swift */; };
+		2BCBE4E326C534E1008FB150 /* SignedAreaNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E226C534E1008FB150 /* SignedAreaNode.swift */; };
+		2BCBE4E426C534E1008FB150 /* SignedAreaNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E226C534E1008FB150 /* SignedAreaNode.swift */; };
+		2BCBE4E626C5351E008FB150 /* SignedMaterialNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E526C5351E008FB150 /* SignedMaterialNode.swift */; };
+		2BCBE4E726C5351E008FB150 /* SignedMaterialNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E526C5351E008FB150 /* SignedMaterialNode.swift */; };
 		2BCF02B426BF6A30007E3F0A /* SignedJSShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */; };
 		2BCF02B526BF6A30007E3F0A /* SignedJSShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */; };
 		2BCF02B726BF6AF0007E3F0A /* SignedJSBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCF02B626BF6AF0007E3F0A /* SignedJSBase.swift */; };
@@ -282,6 +290,10 @@
 		2BC838F426919A070087249A /* MaterialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialView.swift; sourceTree = "<group>"; };
 		2BC9944D2685A5AC00F75A54 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		2BC994502685AB5400F75A54 /* SignedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedObject.swift; sourceTree = "<group>"; };
+		2BCBE4DC26C52EF1008FB150 /* SignedBuildingNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedBuildingNode.swift; sourceTree = "<group>"; };
+		2BCBE4DF26C5349C008FB150 /* SignedObjectNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedObjectNode.swift; sourceTree = "<group>"; };
+		2BCBE4E226C534E1008FB150 /* SignedAreaNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedAreaNode.swift; sourceTree = "<group>"; };
+		2BCBE4E526C5351E008FB150 /* SignedMaterialNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedMaterialNode.swift; sourceTree = "<group>"; };
 		2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedJSShape.swift; sourceTree = "<group>"; };
 		2BCF02B626BF6AF0007E3F0A /* SignedJSBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedJSBase.swift; sourceTree = "<group>"; };
 		2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentNodes.swift; sourceTree = "<group>"; };
@@ -449,6 +461,10 @@
 			children = (
 				2B6AAACE26C4AF5C00AD7D55 /* SignedParser.swift */,
 				2B604E4626C501E70034B661 /* SignedNode.swift */,
+				2BCBE4DC26C52EF1008FB150 /* SignedBuildingNode.swift */,
+				2BCBE4DF26C5349C008FB150 /* SignedObjectNode.swift */,
+				2BCBE4E226C534E1008FB150 /* SignedAreaNode.swift */,
+				2BCBE4E526C5351E008FB150 /* SignedMaterialNode.swift */,
 			);
 			path = Parser;
 			sourceTree = "<group>";
@@ -689,6 +705,7 @@
 				2B407E7126894FF8004E6F4C /* Render.metal in Sources */,
 				2BC042F6267ED4A500DD85E2 /* EditorView.swift in Sources */,
 				2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */,
+				2BCBE4DD26C52EF1008FB150 /* SignedBuildingNode.swift in Sources */,
 				2B62AD6E268D6FEA000504C0 /* StackView.swift in Sources */,
 				2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */,
 				2BC042F0267ED39200DD85E2 /* SettingsView.swift in Sources */,
@@ -711,6 +728,7 @@
 				2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
 				2BCF02B426BF6A30007E3F0A /* SignedJSShape.swift in Sources */,
+				2BCBE4E626C5351E008FB150 /* SignedMaterialNode.swift in Sources */,
 				2B52C5F6268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2B405EF7268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC042F9267ED54500DD85E2 /* ToolViews.swift in Sources */,
@@ -723,11 +741,13 @@
 				2B76D82B25AC46F000AF6FF2 /* SignedCamera.swift in Sources */,
 				2B224F7B25844C1900F32354 /* File.swift in Sources */,
 				2B400E9D25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
+				2BCBE4E026C5349C008FB150 /* SignedObjectNode.swift in Sources */,
 				2B6AAACF26C4AF5C00AD7D55 /* SignedParser.swift in Sources */,
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B0F923225B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B8F43602686AF9D00AFDA4D /* SignedCommand.swift in Sources */,
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
+				2BCBE4E326C534E1008FB150 /* SignedAreaNode.swift in Sources */,
 				2B37E6C0268850CE000439EF /* BrowserView.swift in Sources */,
 				2B651A412682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2BC994512685AB5400F75A54 /* SignedObject.swift in Sources */,
@@ -781,6 +801,7 @@
 				2B407E7226894FF8004E6F4C /* Render.metal in Sources */,
 				2BC042F7267ED4A500DD85E2 /* EditorView.swift in Sources */,
 				2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */,
+				2BCBE4DE26C52EF1008FB150 /* SignedBuildingNode.swift in Sources */,
 				2B62AD6F268D6FEA000504C0 /* StackView.swift in Sources */,
 				2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */,
 				2BC042F1267ED39200DD85E2 /* SettingsView.swift in Sources */,
@@ -803,6 +824,7 @@
 				2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
 				2BCF02B526BF6A30007E3F0A /* SignedJSShape.swift in Sources */,
+				2BCBE4E726C5351E008FB150 /* SignedMaterialNode.swift in Sources */,
 				2B52C5F7268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2B405EF8268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC042FA267ED54500DD85E2 /* ToolViews.swift in Sources */,
@@ -815,11 +837,13 @@
 				2B76D82C25AC46F000AF6FF2 /* SignedCamera.swift in Sources */,
 				2B224F7C25844C1900F32354 /* File.swift in Sources */,
 				2B400E9E25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
+				2BCBE4E126C5349C008FB150 /* SignedObjectNode.swift in Sources */,
 				2B6AAAD026C4AF5C00AD7D55 /* SignedParser.swift in Sources */,
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,
 				2B0F923325B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B8F43612686AF9D00AFDA4D /* SignedCommand.swift in Sources */,
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
+				2BCBE4E426C534E1008FB150 /* SignedAreaNode.swift in Sources */,
 				2B37E6C1268850CE000439EF /* BrowserView.swift in Sources */,
 				2B651A422682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2BC994522685AB5400F75A54 /* SignedObject.swift in Sources */,

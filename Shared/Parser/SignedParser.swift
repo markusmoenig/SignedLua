@@ -33,9 +33,10 @@ class SignedParser {
     
     var nodeRefs                : [SignedNodeRef] =
     [
-        SignedNodeRef("Building", { () -> SignedNode in return SignedNode(role: .Building) }),
-        SignedNodeRef("Object", { () -> SignedNode in return SignedNode(role: .Object) }),
-        SignedNodeRef("Area", { () -> SignedNode in return SignedNode(role: .Area) }),
+        SignedNodeRef("Building", { () -> SignedNode in return SignedBuildingNode() }),
+        SignedNodeRef("Object", { () -> SignedNode in return SignedObjectNode() }),
+        SignedNodeRef("Area", { () -> SignedNode in return SignedAreaNode() }),
+        SignedNodeRef("Material", { () -> SignedNode in return SignedMaterialNode() }),
     ]
     
     var rootNode                : SignedNode? = nil
@@ -169,12 +170,18 @@ class SignedParser {
             return
         }
         
+        modeler.clear()
+        model.renderer?.restart()
+        
+        /*
         let cmd = SignedCommand("Ground", role: .GeometryAndMaterial, action: .Add, primitive: .Box,
                                        data: ["Transform" : SignedData([SignedDataEntity("Position", float3(0,-0.9,0)) ]),
                                               "Geometry": SignedData([SignedDataEntity("Size", float3(0.6,0.4,0.6) * Float(Modeler_Global_Scale))])
                                              ], material: SignedMaterial(albedo: float3(0.5,0.5,0.5), metallic: 1, roughness: 0.3))
-        modeler.executeCommand(cmd)
-        model.renderer?.restart()
+        */
+        
+        let context = SignedContext(model: model)
+        rootNode.execute(context: context)
     }
 }
 

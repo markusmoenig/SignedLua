@@ -7,6 +7,19 @@
 
 import Foundation
 
+class SignedContext {
+    let model           : Model
+    
+    init(model: Model) {
+        self.model = model
+    }
+    
+    /// Adds the given cmd to the modeler pipeline
+    func addToPipeline(cmd: SignedCommand) {
+        model.modeler?.pipeline.append(cmd)
+    }
+}
+
 class SignedNode {
     
     enum Role {
@@ -23,5 +36,11 @@ class SignedNode {
     
     init(role: Role) {
         self.role = role
+    }
+    
+    func execute(context: SignedContext) {
+        for c in children {
+            c.execute(context: context)
+        }
     }
 }

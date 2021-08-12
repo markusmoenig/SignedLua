@@ -107,8 +107,8 @@ struct StackView: View {
                                         
                                         // Rerender all
                                         if selectedObject.commands.isEmpty == false {
-                                            model.modeler?.buildIndex = nil
-                                            model.modeler?.buildTo = selectedObject.commands.last
+                                            //model.modeler?.buildIndex = nil
+                                            //model.modeler?.buildTo = selectedObject.commands.last
                                         } else {
                                             model.modeler?.clear()
                                             model.renderer?.restart()

@@ -56,9 +56,7 @@ class ModelerPipeline
     static var IconSize : Int = 80
     static var IconSamples : Int = 40
     
-    var buildIndex      : Int? = nil
-    var buildTo         : SignedCommand? = nil
-    var buildIndexFinished : Bool = true
+    var pipeline        : [SignedCommand] = []
 
     init(_ view: MTKView,_ model: Model)
     {
@@ -81,46 +79,12 @@ class ModelerPipeline
         scriptHandler = ScriptHandler(self)
     }
     
-    ///
+    /// Executes the next command in the pipeline
     func executeNext()
     {
-        if buildIndexFinished == false {
-            // Still rendering
-            return
-        }
+        if pipeline.isEmpty { return }
         
-        guard let object = model.selectedObject else {
-            buildTo = nil
-            buildIndex = nil
-            model.renderer?.restart()
-            return
-        }
-        
-        buildIndexFinished = false
-            
-        if buildIndex == nil {
-            if let first = object.commands.first {
-                executeCommand(first, clearFirst: true)
-                if buildTo === object.commands.first {
-                    buildTo = nil
-                    buildIndex = nil
-                    model.renderer?.restart()
-                } else
-                if object.commands.count > 1 {
-                    buildIndex = 1
-                }
-            }
-        } else {
-            let cmd = object.commands[buildIndex!]
-            executeCommand(cmd)
-            if cmd === buildTo || buildIndex == object.commands.count - 1 {
-                buildTo = nil
-                buildIndex = nil
-                model.renderer?.restart()
-            } else {
-                buildIndex! += 1
-            }
-        }
+        executeCommand(pipeline.removeFirst())
     }
     
     /// Executes all commands of the object
@@ -175,7 +139,6 @@ class ModelerPipeline
                 
                 commandBuffer?.addCompletedHandler { cb in
                     print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
-                    self.buildIndexFinished = true
                 }
             }
             
