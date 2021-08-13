@@ -9,6 +9,9 @@ import Foundation
 
 class SignedContext {
     let model           : Model
+
+    /// One meter is 0.1 inside the texture by default
+    let meterScale      : Float = 10
     
     init(model: Model) {
         self.model = model
@@ -18,12 +21,22 @@ class SignedContext {
     func addToPipeline(cmd: SignedCommand) {
         model.modeler?.pipeline.append(cmd)
     }
+    
+    /// Converts meter to the internal texture representation
+    func convertMeter(_ m: Float) -> Float {
+        return m / meterScale
+    }
+    
+    /// Converts meter to the internal texture representation
+    func convertMeter(_ m: float3) -> float3 {
+        return m / meterScale
+    }
 }
 
 class SignedNode {
     
     enum Role {
-        case Building, Object, Area, Floor, Material
+        case Building, Object, Wall, Floor, Material
     }
     
     var name            : String = ""

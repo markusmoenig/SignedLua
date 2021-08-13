@@ -827,14 +827,14 @@ float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 /// Reads material data
 float4 getMaterialData(float3 p, texture3d<float, access::read_write> materialTexture, float scale = 1.0)
 {
-    float4 color = materialTexture.read(ushort3(clamp(p / scale + float3(0.5), 0., 1.) * float3(511)));
+    float4 color = materialTexture.read(ushort3(clamp(p / scale + float3(0.5), 0., 1.) * float3(255)));
     return color;
 }
 
 /// Writes material data
 void setMaterialData(float3 p, float4 value, texture3d<float, access::read_write> materialTexture, float scale = 1.0)
 {
-    materialTexture.write(value, ushort3((p / scale + float3(0.5)) * float3(511)));
+    materialTexture.write(value, ushort3((p / scale + float3(0.5)) * float3(255)));
 }
 
 /// Calculates the normal at the given point

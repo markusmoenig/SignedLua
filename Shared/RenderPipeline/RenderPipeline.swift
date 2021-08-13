@@ -81,7 +81,7 @@ class RenderPipeline
         if model.modeler?.pipeline.isEmpty == false {
             model.modeler?.executeNext()
             restart()
-            return
+            //return
         }
         
         startCompute()

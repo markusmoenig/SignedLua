@@ -118,7 +118,6 @@
 		2B651A422682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2B651A3F2682C5FC002DF988 /* DataModel.xcdatamodeld */; };
 		2B651A442682C8BC002DF988 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B651A432682C8BC002DF988 /* PersistenceController.swift */; };
 		2B651A452682C8BC002DF988 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B651A432682C8BC002DF988 /* PersistenceController.swift */; };
-		2B6AAACC26C4A6A100AD7D55 /* Syntax in Frameworks */ = {isa = PBXBuildFile; productRef = 2B6AAACB26C4A6A100AD7D55 /* Syntax */; };
 		2B6AAACF26C4AF5C00AD7D55 /* SignedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6AAACE26C4AF5C00AD7D55 /* SignedParser.swift */; };
 		2B6AAAD026C4AF5C00AD7D55 /* SignedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6AAACE26C4AF5C00AD7D55 /* SignedParser.swift */; };
 		2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */; };
@@ -184,8 +183,8 @@
 		2BCBE4DE26C52EF1008FB150 /* SignedBuildingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4DC26C52EF1008FB150 /* SignedBuildingNode.swift */; };
 		2BCBE4E026C5349C008FB150 /* SignedObjectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4DF26C5349C008FB150 /* SignedObjectNode.swift */; };
 		2BCBE4E126C5349C008FB150 /* SignedObjectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4DF26C5349C008FB150 /* SignedObjectNode.swift */; };
-		2BCBE4E326C534E1008FB150 /* SignedAreaNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E226C534E1008FB150 /* SignedAreaNode.swift */; };
-		2BCBE4E426C534E1008FB150 /* SignedAreaNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E226C534E1008FB150 /* SignedAreaNode.swift */; };
+		2BCBE4E326C534E1008FB150 /* SignedWallNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E226C534E1008FB150 /* SignedWallNode.swift */; };
+		2BCBE4E426C534E1008FB150 /* SignedWallNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E226C534E1008FB150 /* SignedWallNode.swift */; };
 		2BCBE4E626C5351E008FB150 /* SignedMaterialNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E526C5351E008FB150 /* SignedMaterialNode.swift */; };
 		2BCBE4E726C5351E008FB150 /* SignedMaterialNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCBE4E526C5351E008FB150 /* SignedMaterialNode.swift */; };
 		2BCF02B426BF6A30007E3F0A /* SignedJSShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */; };
@@ -292,7 +291,7 @@
 		2BC994502685AB5400F75A54 /* SignedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedObject.swift; sourceTree = "<group>"; };
 		2BCBE4DC26C52EF1008FB150 /* SignedBuildingNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedBuildingNode.swift; sourceTree = "<group>"; };
 		2BCBE4DF26C5349C008FB150 /* SignedObjectNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedObjectNode.swift; sourceTree = "<group>"; };
-		2BCBE4E226C534E1008FB150 /* SignedAreaNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedAreaNode.swift; sourceTree = "<group>"; };
+		2BCBE4E226C534E1008FB150 /* SignedWallNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedWallNode.swift; sourceTree = "<group>"; };
 		2BCBE4E526C5351E008FB150 /* SignedMaterialNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedMaterialNode.swift; sourceTree = "<group>"; };
 		2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedJSShape.swift; sourceTree = "<group>"; };
 		2BCF02B626BF6AF0007E3F0A /* SignedJSBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedJSBase.swift; sourceTree = "<group>"; };
@@ -313,7 +312,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B6FF6B625D2772B0053CEF8 /* DynamicColor in Frameworks */,
-				2B6AAACC26C4A6A100AD7D55 /* Syntax in Frameworks */,
 				2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */,
 				2B224FA025844D6000F32354 /* CloudKit.framework in Frameworks */,
 			);
@@ -463,7 +461,7 @@
 				2B604E4626C501E70034B661 /* SignedNode.swift */,
 				2BCBE4DC26C52EF1008FB150 /* SignedBuildingNode.swift */,
 				2BCBE4DF26C5349C008FB150 /* SignedObjectNode.swift */,
-				2BCBE4E226C534E1008FB150 /* SignedAreaNode.swift */,
+				2BCBE4E226C534E1008FB150 /* SignedWallNode.swift */,
 				2BCBE4E526C5351E008FB150 /* SignedMaterialNode.swift */,
 			);
 			path = Parser;
@@ -594,7 +592,6 @@
 			name = "Signed (macOS)";
 			packageProductDependencies = (
 				2B6FF6B525D2772B0053CEF8 /* DynamicColor */,
-				2B6AAACB26C4A6A100AD7D55 /* Syntax */,
 			);
 			productName = "Signed (macOS)";
 			productReference = 2B224F3D2584485300F32354 /* Signed.app */;
@@ -628,7 +625,6 @@
 			mainGroup = 2B224F272584485100F32354;
 			packageReferences = (
 				2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */,
-				2B6AAACA26C4A6A100AD7D55 /* XCRemoteSwiftPackageReference "Syntax" */,
 			);
 			productRefGroup = 2B224F362584485300F32354 /* Products */;
 			projectDirPath = "";
@@ -747,7 +743,7 @@
 				2B0F923225B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B8F43602686AF9D00AFDA4D /* SignedCommand.swift in Sources */,
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
-				2BCBE4E326C534E1008FB150 /* SignedAreaNode.swift in Sources */,
+				2BCBE4E326C534E1008FB150 /* SignedWallNode.swift in Sources */,
 				2B37E6C0268850CE000439EF /* BrowserView.swift in Sources */,
 				2B651A412682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2BC994512685AB5400F75A54 /* SignedObject.swift in Sources */,
@@ -843,7 +839,7 @@
 				2B0F923325B9775B00677A38 /* GPUMaterials.swift in Sources */,
 				2B8F43612686AF9D00AFDA4D /* SignedCommand.swift in Sources */,
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
-				2BCBE4E426C534E1008FB150 /* SignedAreaNode.swift in Sources */,
+				2BCBE4E426C534E1008FB150 /* SignedWallNode.swift in Sources */,
 				2B37E6C1268850CE000439EF /* BrowserView.swift in Sources */,
 				2B651A422682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2BC994522685AB5400F75A54 /* SignedObject.swift in Sources */,
@@ -1108,14 +1104,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		2B6AAACA26C4A6A100AD7D55 /* XCRemoteSwiftPackageReference "Syntax" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/nerdsupremacist/Syntax.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/yannickl/DynamicColor.git";
@@ -1127,11 +1115,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2B6AAACB26C4A6A100AD7D55 /* Syntax */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2B6AAACA26C4A6A100AD7D55 /* XCRemoteSwiftPackageReference "Syntax" */;
-			productName = Syntax;
-		};
 		2B6FF6B125D2771F0053CEF8 /* DynamicColor */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2B6FF6B025D2771F0053CEF8 /* XCRemoteSwiftPackageReference "DynamicColor" */;

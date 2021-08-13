@@ -68,7 +68,7 @@ class ModelerPipeline
         
         modelingStates = ModelerStates(device)
         
-        mainKit = allocateKit(512)
+        mainKit = allocateKit(256)//512)
         iconKit = allocateKit(ModelerPipeline.IconSize)
         
         iconKit.sampleTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)

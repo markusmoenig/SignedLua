@@ -1,5 +1,5 @@
 //
-//  SignedProcessor.swift
+//  SignedParser.swift
 //  SignedParser
 //
 //  Created by Markus Moenig on 12/8/21.
@@ -31,11 +31,19 @@ class SignedParser {
     
     let model                   : Model
     
-    var nodeRefs                : [SignedNodeRef] =
+    var classNodeRefs           : [SignedNodeRef] =
     [
         SignedNodeRef("Building", { () -> SignedNode in return SignedBuildingNode() }),
         SignedNodeRef("Object", { () -> SignedNode in return SignedObjectNode() }),
-        SignedNodeRef("Area", { () -> SignedNode in return SignedAreaNode() }),
+        SignedNodeRef("Wall", { () -> SignedNode in return SignedWallNode() }),
+        SignedNodeRef("Material", { () -> SignedNode in return SignedMaterialNode() }),
+    ]
+    
+    var actionNodeRefs           : [SignedNodeRef] =
+    [
+        SignedNodeRef("Building", { () -> SignedNode in return SignedBuildingNode() }),
+        SignedNodeRef("Object", { () -> SignedNode in return SignedObjectNode() }),
+        SignedNodeRef("Wall", { () -> SignedNode in return SignedWallNode() }),
         SignedNodeRef("Material", { () -> SignedNode in return SignedMaterialNode() }),
     ]
     
@@ -63,7 +71,7 @@ class SignedParser {
         
         /// Adds a node to the hierarchy
         func tryToAddNode(name: String) -> Bool {
-            for r in nodeRefs {
+            for r in classNodeRefs {
                 if r.name == name {
                     let node = r.createNode()
                     
