@@ -33,27 +33,66 @@ class SignedContext {
     }
 }
 
-class SignedNode {
+class SignedNode : Hashable, Identifiable {
     
     enum Role {
-        case Building, Object, Wall, Floor, Material
+        case Building, Object, Wall, Floor, Build, Material
     }
     
-    var name            : String = ""
+    var name            : String = "Unnamed"
+    var id              = UUID()
     var role            : Role = .Building
     
-    var parameters      : [String: Any] = [:]
+    var line            : Int32 = 0
+    var endLine         : Int32 = 0
+
+    var argumentsText   = ""
+    var arguments       : [SignedProperty] = []
+    var properties      : [String: SignedProperty] = [:]
     
     var parent          : SignedNode? = nil
-    var children        : [SignedNode] = []
+    var children        : [SignedNode]? = []
     
     init(role: Role) {
         self.role = role
     }
     
+    static func ==(lhs: SignedNode, rhs: SignedNode) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    func verifyArguments(str: String, arguments: [SignedProperty], error: CodeError) {
+        argumentsText = str
+        self.arguments = arguments
+        if let first = arguments.first, first.role == .Text {
+            name = first.text
+        }
+    }
+    
     func execute(context: SignedContext) {
-        for c in children {
+        for c in children! {
             c.execute(context: context)
         }
+    }
+}
+
+class SignedProperty {
+    
+    enum Role {
+        case Unknown, Text, Directive, Value1D, Value2D, Value3D
+    }
+    
+    var name            : String = "Unnamed"
+    var role            : Role = .Unknown
+    
+    var data            = float4()
+    var text            = ""
+    
+    init(role: Role = .Unknown) {
+        self.role = role
     }
 }

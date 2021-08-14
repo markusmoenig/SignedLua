@@ -9,8 +9,8 @@ import Foundation
 
 struct CodeError
 {
-    var line            : Int32? = nil
-    var column          : Int32? = 0
+    var line            : Int32 = 0
+    var column          : Int32 = 0
     var error           : String? = nil
     var type            : String = "error"
 }
@@ -31,23 +31,17 @@ class SignedParser {
     
     let model                   : Model
     
-    var classNodeRefs           : [SignedNodeRef] =
+    var nodeRefs                : [SignedNodeRef] =
     [
         SignedNodeRef("Building", { () -> SignedNode in return SignedBuildingNode() }),
         SignedNodeRef("Object", { () -> SignedNode in return SignedObjectNode() }),
         SignedNodeRef("Wall", { () -> SignedNode in return SignedWallNode() }),
         SignedNodeRef("Material", { () -> SignedNode in return SignedMaterialNode() }),
+        
+        SignedNodeRef("build", { () -> SignedNode in return SignedBuildNode() }),
     ]
     
-    var actionNodeRefs           : [SignedNodeRef] =
-    [
-        SignedNodeRef("Building", { () -> SignedNode in return SignedBuildingNode() }),
-        SignedNodeRef("Object", { () -> SignedNode in return SignedObjectNode() }),
-        SignedNodeRef("Wall", { () -> SignedNode in return SignedWallNode() }),
-        SignedNodeRef("Material", { () -> SignedNode in return SignedMaterialNode() }),
-    ]
-    
-    var rootNode                : SignedNode? = nil
+    var topLevelNodes           : [SignedNode] = []
     
     init(_ model: Model) {
         self.model = model
@@ -57,7 +51,7 @@ class SignedParser {
     func parse() {
      
         var error = CodeError()
-        rootNode = nil
+        topLevelNodes = []
         
         let ns = model.project.code as NSString
         var lineNumber  : Int32 = 0
@@ -67,25 +61,33 @@ class SignedParser {
         //var lastLevel       : Int = -1
         
         var hierarchy         : [SignedNode] = []
+        
         var unresolved        = ""
+        var unresolvedLine    : Int32 = 0
         
         /// Adds a node to the hierarchy
-        func tryToAddNode(name: String) -> Bool {
-            for r in classNodeRefs {
+        func tryToAddNode(name: String, argumentsString: String) -> Bool {
+            for r in nodeRefs {
                 if r.name == name {
                     let node = r.createNode()
                     
-                    if rootNode == nil {
-                        rootNode = node
+                    let args = extractArguments(node: node, argumentsString: argumentsString, error: &error)
+                    if error.error == nil {
+                        node.verifyArguments(str: argumentsString, arguments: args, error: error)
+                        
+                        if error.error == nil {
+                            
+                            if let last = hierarchy.last {
+                                last.children!.append(node)
+                                node.parent = last
+                            } else {
+                                topLevelNodes.append(node)
+                            }
+                            
+                            hierarchy.append(node)
+                            return true
+                        }
                     }
-                    
-                    if let last = hierarchy.last {
-                        last.children.append(node)
-                        node.parent = last
-                    }
-                    
-                    hierarchy.append(node)
-                    return true
                 }
             }
             return false
@@ -127,37 +129,56 @@ class SignedParser {
                 
                 if values.count == 2 {
                     variableName = String(values[0]).trimmingCharacters(in: .whitespaces)
-                    leftOfComment = String(values[1])
+                    leftOfComment = String(values[1]).trimmingCharacters(in: .whitespaces)
                     
                     if let variableName = variableName {
                         if let last = hierarchy.last {
-                            print("adding", variableName, "=", leftOfComment, last)
-
-                            last.parameters[variableName] = leftOfComment
+                            if let property = self.extractProperty(str: leftOfComment, error: &error) {
+                                last.properties[variableName] = property
+                            }
                         }
                     }
                 }
             } else {                
                 if leftOfComment.contains("{") {
                     
-                    var nodeName = ""
+                    var cmdLine = ""
+                    
+                    var startLine : Int32 = 0
                     
                     let arr = leftOfComment.components(separatedBy: "{")
                     let leftOfBracket = arr[0].trimmingCharacters(in: .whitespaces)
                     if leftOfBracket.count > 0 {
-                        nodeName = leftOfBracket
+                        cmdLine = leftOfBracket
+                        startLine = error.line + 1
                     } else {
-                        nodeName = unresolved
+                        cmdLine = unresolved
+                        startLine = unresolvedLine + 1
                     }
                     
-                    if tryToAddNode(name: nodeName) == false {
+                    let cmds = cmdLine.components(separatedBy: " ")
+                    let nodeName = cmds[0]
+                    var args = ""
+                    for i in 1..<cmds.count {
+                        args += cmds[i]
+                        args += " "
+                    }
+                    args = args.trimmingCharacters(in: .whitespaces)
+                    
+                    //print("node name", nodeName, "args", args)
+                    
+                    if tryToAddNode(name: nodeName, argumentsString: args) == false {
                         error.error = "Could not find Module '\(nodeName)'"
+                    } else {
+                        hierarchy.last!.line = startLine
                     }
                 } else
                 if leftOfComment.contains("}") && hierarchy.count > 0 {
+                    hierarchy.last!.endLine = error.line + 1
                     hierarchy.removeLast()
                 } else {
                     unresolved = leftOfComment
+                    unresolvedLine = error.line
                 }
             }
             
@@ -169,12 +190,117 @@ class SignedParser {
         } else {
             model.codeEditor?.clearAnnotations()
         }
+        
+        model.modelChanged.send()
+    }
+    
+    /**
+     Splits a "," separated list of parameters while keeping track of the <> hierarchy.
+     - Parameter parameters: The list of parameters
+     - Returns: The separated list
+     */
+    func splitParameters(_ parameters: String) -> [String] {
+        var arguments : [String] = []
+        
+        var hierarchy : Int = 0
+        var offset    : Int = 0
+        
+        var arg       = ""
+        
+        while offset < parameters.count {
+            if parameters[offset] == " " {
+                if hierarchy == 0 {
+                    if arg.count > 0 {
+                        arguments.append(arg.trimmingCharacters(in: .whitespaces))
+                    }
+                    arg = ""
+                } else {
+                    arg.append(parameters[offset])
+                }
+            } else
+            if parameters[offset] == "\"" {
+                if hierarchy == 0 {
+                    hierarchy = 1
+                } else {
+                    hierarchy = 0
+                }
+                arg.append(parameters[offset])
+            } else {
+                arg.append(parameters[offset])
+            }
+            offset += 1
+        }
+        
+        if arg.isEmpty == false {
+            arguments.append(arg.trimmingCharacters(in: .whitespaces))
+        }
+                
+        return arguments
+    }
+    
+    /// Extracts the node arguments
+    func extractArguments(node: SignedNode, argumentsString: String, error: inout CodeError) -> [SignedProperty] {
+        var rc : [SignedProperty] = []
+        
+        let args = splitParameters(argumentsString)
+        
+        for a in args {
+            if let property = extractProperty(str: a, error: &error) {
+                rc.append(property)
+            }
+        }
+        
+        return rc
+    }
+    
+    /// Extract property
+    func extractProperty(str: String, error: inout CodeError) -> SignedProperty? {
+        print("extractProperty", str)
+        
+        var property : SignedProperty? = nil
+        
+        if str.starts(with: "\"") {
+            property = SignedProperty(role: .Text)
+            property!.text = str.replacingOccurrences(of: "\"", with: "")
+        } else
+        if let number = Float(str) {
+            property = SignedProperty(role: .Value1D)
+            property!.data.x = number
+        } else
+        if str.contains(",") {
+            let arr = str.components(separatedBy: ",")
+            if arr.count == 2 {
+                if let v1 = Float(arr[0].trimmingCharacters(in: .whitespaces)), let v2 = Float(arr[1].trimmingCharacters(in: .whitespaces)) {
+                    property = SignedProperty(role: .Value2D)
+                    property!.data.x = v1
+                    property!.data.y = v2
+                } else {
+                    error.error = "Syntax Error"
+                }
+            } else
+            if arr.count == 3 {
+                if let v1 = Float(arr[0].trimmingCharacters(in: .whitespaces)), let v2 = Float(arr[1].trimmingCharacters(in: .whitespaces)), let v3 = Float(arr[2].trimmingCharacters(in: .whitespaces)) {
+                    property = SignedProperty(role: .Value3D)
+                    property!.data.x = v1
+                    property!.data.y = v2
+                    property!.data.z = v3
+                } else {
+                   error.error = "Syntax Error"
+               }
+            }
+        }
+        
+        return property
+    }
+    
+    func gotoNode(node: SignedNode) {
+        model.codeEditor?.gotoLine(node.line)
     }
     
     /// Build 3D
     func build() {
         
-        guard let modeler = model.modeler, let rootNode = rootNode else {
+        guard let modeler = model.modeler else {
             return
         }
         
@@ -189,7 +315,10 @@ class SignedParser {
         */
         
         let context = SignedContext(model: model)
-        rootNode.execute(context: context)
+        
+        for node in topLevelNodes {
+            node.execute(context: context)
+        }
     }
 }
 

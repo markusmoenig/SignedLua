@@ -163,8 +163,8 @@ class CodeEditor
             str +=
             """
             {
-                row: \(error.line!),
-                column: \(error.column!),
+                row: \(error.line),
+                column: \(error.column),
                 text: \"\(error.error!)\",
                 type: \"\(error.type)\"
             },

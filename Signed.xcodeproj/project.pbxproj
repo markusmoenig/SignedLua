@@ -64,6 +64,8 @@
 		2B224FED2588A6BD00F32354 /* Nodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FEB2588A6BD00F32354 /* Nodes.swift */; };
 		2B224FF72589B52B00F32354 /* AnalyticalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */; };
 		2B224FF82589B52B00F32354 /* AnalyticalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */; };
+		2B2536F026C75307000BE62B /* SignedBuildNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2536EF26C75307000BE62B /* SignedBuildNode.swift */; };
+		2B2536F126C75307000BE62B /* SignedBuildNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2536EF26C75307000BE62B /* SignedBuildNode.swift */; };
 		2B2D71C025EA2D2F00180AC3 /* ConditionalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2D71BF25EA2D2F00180AC3 /* ConditionalNodes.swift */; };
 		2B2D71C125EA2D2F00180AC3 /* ConditionalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2D71BF25EA2D2F00180AC3 /* ConditionalNodes.swift */; };
 		2B2D71C525EC7ACE00180AC3 /* OperatorNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2D71C425EC7ACE00180AC3 /* OperatorNodes.swift */; };
@@ -231,6 +233,7 @@
 		2B224FCA2586F90C00F32354 /* BoolNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolNodes.swift; sourceTree = "<group>"; };
 		2B224FEB2588A6BD00F32354 /* Nodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nodes.swift; sourceTree = "<group>"; };
 		2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticalNodes.swift; sourceTree = "<group>"; };
+		2B2536EF26C75307000BE62B /* SignedBuildNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedBuildNode.swift; sourceTree = "<group>"; };
 		2B2D71BF25EA2D2F00180AC3 /* ConditionalNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalNodes.swift; sourceTree = "<group>"; };
 		2B2D71C425EC7ACE00180AC3 /* OperatorNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperatorNodes.swift; sourceTree = "<group>"; };
 		2B2E02C8258C3F600073DAE9 /* Expression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expression.swift; sourceTree = "<group>"; };
@@ -462,6 +465,7 @@
 				2BCBE4DC26C52EF1008FB150 /* SignedBuildingNode.swift */,
 				2BCBE4DF26C5349C008FB150 /* SignedObjectNode.swift */,
 				2BCBE4E226C534E1008FB150 /* SignedWallNode.swift */,
+				2B2536EF26C75307000BE62B /* SignedBuildNode.swift */,
 				2BCBE4E526C5351E008FB150 /* SignedMaterialNode.swift */,
 			);
 			path = Parser;
@@ -715,6 +719,7 @@
 				2B224F412584485300F32354 /* SignedApp.swift in Sources */,
 				2B2E02D9258C53F40073DAE9 /* AtomNodes.swift in Sources */,
 				2B400EC425AD45F0006493A0 /* BaseBuilder.swift in Sources */,
+				2B2536F026C75307000BE62B /* SignedBuildNode.swift in Sources */,
 				2B7CFA2E2686F61D00221917 /* RenderPipeline.swift in Sources */,
 				2B407E752689544D004E6F4C /* RenderStates.swift in Sources */,
 				2B224FB62586105200F32354 /* BranchNodes.swift in Sources */,
@@ -811,6 +816,7 @@
 				2B224F422584485300F32354 /* SignedApp.swift in Sources */,
 				2B2E02DA258C53F40073DAE9 /* AtomNodes.swift in Sources */,
 				2B400EC525AD45F0006493A0 /* BaseBuilder.swift in Sources */,
+				2B2536F126C75307000BE62B /* SignedBuildNode.swift in Sources */,
 				2B7CFA2F2686F61D00221917 /* RenderPipeline.swift in Sources */,
 				2B407E762689544D004E6F4C /* RenderStates.swift in Sources */,
 				2B224FB72586105200F32354 /* BranchNodes.swift in Sources */,

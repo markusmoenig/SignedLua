@@ -62,6 +62,9 @@ class Model: NSObject, ObservableObject {
     /// Editing cmd changed, update the UI
     let editingCmdChanged                   = PassthroughSubject<SignedCommand, Never>()
     
+    /// Editing cmd changed, update the UI
+    let modelChanged                        = PassthroughSubject<Void, Never>()
+    
     /// UIs of the DataViews needs to be updated
     let updateDataViews                     = PassthroughSubject<Void, Never>()
     
