@@ -65,9 +65,10 @@ class SignedNode : Hashable, Identifiable {
         hasher.combine(id)
     }
     
-    func verifyArguments(str: String, arguments: [SignedProperty], error: CodeError) {
+    func verifyArguments(parser: SignedParser, str: String, error: inout CodeError) {
         argumentsText = str
-        self.arguments = arguments
+        arguments = parser.extractArguments(argumentsString: str, error: &error)
+
         if let first = arguments.first, first.role == .Text {
             name = first.text
         }

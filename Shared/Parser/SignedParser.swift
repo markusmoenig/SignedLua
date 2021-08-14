@@ -71,9 +71,8 @@ class SignedParser {
                 if r.name == name {
                     let node = r.createNode()
                     
-                    let args = extractArguments(node: node, argumentsString: argumentsString, error: &error)
                     if error.error == nil {
-                        node.verifyArguments(str: argumentsString, arguments: args, error: error)
+                        node.verifyArguments(parser: self, str: argumentsString, error: &error)
                         
                         if error.error == nil {
                             
@@ -156,19 +155,16 @@ class SignedParser {
                         startLine = unresolvedLine + 1
                     }
                     
-                    let cmds = cmdLine.components(separatedBy: " ")
-                    let nodeName = cmds[0]
-                    var args = ""
-                    for i in 1..<cmds.count {
-                        args += cmds[i]
-                        args += " "
-                    }
-                    args = args.trimmingCharacters(in: .whitespaces)
+                    let expr = SignedExpression(cmdLine)
+                    let nodeName = expr.extractUpToToken([" ", "("])
+                    let args = (expr.token + expr.remaining()).trimmingCharacters(in: .whitespaces)
                     
-                    //print("node name", nodeName, "args", args)
+                    print("node name", nodeName, "args", args)
                     
                     if tryToAddNode(name: nodeName, argumentsString: args) == false {
-                        error.error = "Could not find Module '\(nodeName)'"
+                        if error.error == nil {
+                            error.error = "Could not find Module '\(nodeName)'"
+                        }
                     } else {
                         hierarchy.last!.line = startLine
                     }
@@ -239,7 +235,7 @@ class SignedParser {
     }
     
     /// Extracts the node arguments
-    func extractArguments(node: SignedNode, argumentsString: String, error: inout CodeError) -> [SignedProperty] {
+    func extractArguments(argumentsString: String, error: inout CodeError) -> [SignedProperty] {
         var rc : [SignedProperty] = []
         
         let args = splitParameters(argumentsString)

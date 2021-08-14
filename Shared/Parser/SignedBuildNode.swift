@@ -13,6 +13,10 @@ class SignedBuildNode : SignedNode {
         super.init(role: .Build)
     }
     
+    override func verifyArguments(parser: SignedParser, str: String, error: inout CodeError) {
+        name = "build"
+    }
+    
     override func execute(context: SignedContext) {
         super.execute(context: context)
                 
