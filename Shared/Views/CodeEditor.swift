@@ -180,12 +180,11 @@ class CodeEditor
          })
     }
     
-    /// The code was updated in the editor, set the value to the current component
+    /// The code was updated in the editor
     func updated()
     {
         getValue(model.editingCmd, { (value) in
             self.model.project.code = value
-            self.model.parser.parse()
         })
     }
 }

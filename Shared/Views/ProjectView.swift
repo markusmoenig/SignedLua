@@ -13,13 +13,13 @@ struct ProjectView: View {
 
     let model                               : Model
     
-    @State var selectedTopLevel             : SignedNode? = nil
-    @State var selectedNode                 : SignedNode? = nil
+//    @State var selectedTopLevel             : SignedNode? = nil
+//    @State var selectedNode                 : SignedNode? = nil
     //@State var scale                        : CGFloat = 1.0
 
     @State var updateView                   : Bool = false
     
-    @State var topLevelNodes                : [SignedNode] = []
+//    @State var topLevelNodes                : [SignedNode] = []
 
     //var libraryItems                      : [LibraryItem] = []
     /*
@@ -46,6 +46,7 @@ struct ProjectView: View {
     var body: some View {
         
         VStack {
+            /*
             List(topLevelNodes, children: \.children) { node in
                 
                 
@@ -62,15 +63,15 @@ struct ProjectView: View {
                         .foregroundColor(selectedNode === node || selectedTopLevel === node ? .accentColor : .primary)
                 }
                 .buttonStyle(PlainButtonStyle())
-            }
+            }*/
         }
-        
+        /*
         .onReceive(model.modelChanged) { _ in
             if let parser = model.parser {
                 topLevelNodes = parser.topLevelNodes
                 updateView.toggle()
             }
-        }
+        }*/
         /*
         ZStack(alignment: .center) {
             
@@ -269,17 +270,6 @@ struct ProjectView: View {
         }
          
          */
-    }
-    
-    /// Returns the system icon name for the given node role
-    func getNodeIconName(_ node: SignedNode) -> String {
-        var name = "cube"
-        
-        if node.role == .Material {
-            name = "paintpalette"
-        }
-        
-        return name
     }
     
     // Adds a definition node to the library

@@ -32,8 +32,8 @@ class Model: NSObject, ObservableObject {
     /// The project itself
     var project                             : SignedProject
     
-    // The parser
-    var parser                              : SignedParser!
+    // The builder class
+    var builder                             : SignedBuilder!
     
     var selectedObject                      : SignedObject? = nil
     var selectedCommand                     : SignedCommand? = nil
@@ -104,7 +104,7 @@ class Model: NSObject, ObservableObject {
         project = SignedProject()
         super.init()
         
-        parser = SignedParser(self)
+        builder = SignedBuilder(self)
 
         //selectedObject = project.objects.first
         
@@ -152,7 +152,7 @@ class Model: NSObject, ObservableObject {
         ]
         selectedShape = shapes.first
     }
-    
+        
     /// Initialises the inbuilt materials
     func createMaterials() {        
         let request = MaterialEntity.fetchRequest()
@@ -169,6 +169,17 @@ class Model: NSObject, ObservableObject {
             materials[object.id!] = cmd
             self.renderer?.iconQueue += [cmd]
         }
+    }
+    
+    /// Returns the shape of the given name
+    func getShape(_ name: String) -> SignedCommand?
+    {
+        for s in shapes {
+            if s.name == name {
+                return s
+            }
+        }
+        return nil
     }
     
     // A SignedData entity of the given group name has been changed. Reset the pathtracer.
