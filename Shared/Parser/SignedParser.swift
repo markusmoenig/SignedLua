@@ -302,7 +302,64 @@ class SignedParser {
         
         modeler.clear()
         model.renderer?.restart()
+                
+        let vm = VirtualMachine()
         
+        class LuaShape : CustomTypeInstance {
+            var name = ""
+            static func luaTypeName() -> String {
+                return "Shape"
+            }
+        }
+            
+        let shapeLib:CustomType<LuaShape> = vm.createCustomType {
+            type in
+            type["setName"] = type.createMethod([String.arg]) {
+                note, args in
+                note.name = args.string
+                return .nothing
+            }
+            type["getName"] = type.createMethod([]) {
+                note, args in
+                return .value(note.name)
+            }
+        }
+        
+        shapeLib["new"] = vm.createFunction([String.arg]) {
+            args in
+            let note = LuaShape()
+            note.name = args.string
+            let data = vm.createUserdata(note)
+            return .value(data)
+        }
+        
+        vm.globals["Shape"] = shapeLib
+
+        vm.globals["print"] = vm.createFunction([String.arg]) { args in
+            print(args)
+            if args.values.isEmpty == false {
+                print(args.string)
+            }
+                //let (subject) = (args.string)
+                //print(subject)
+            /*
+            let fragments = subject.components(separatedBy: separator)
+            
+            let results = vm.createTable()
+            for (i, fragment) in fragments.enumerated() {
+                results[i+1] = fragment
+            }
+            return .value(results)*/
+            return .nothing
+        }
+
+        switch vm.eval(model.project.code, args: []) {
+        case let .values(values):
+            print(values, values.count)
+        case let .error(e):
+            print(e)
+        }
+
         /*
         let cmd = SignedCommand("Ground", role: .GeometryAndMaterial, action: .Add, primitive: .Box,
                                        data: ["Transform" : SignedData([SignedDataEntity("Position", float3(0,-0.9,0)) ]),
@@ -310,11 +367,12 @@ class SignedParser {
                                              ], material: SignedMaterial(albedo: float3(0.5,0.5,0.5), metallic: 1, roughness: 0.3))
         */
         
+        /*
         let context = SignedContext(model: model)
         
         for node in topLevelNodes {
             node.execute(context: context)
-        }
+        }*/
     }
 }
 

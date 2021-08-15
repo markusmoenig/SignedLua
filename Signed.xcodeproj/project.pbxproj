@@ -177,6 +177,96 @@
 		2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */; };
 		2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */; };
+		2BC7337F26C8EDE300BCE667 /* ldump.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334226C8EDE000BCE667 /* ldump.c */; };
+		2BC7338026C8EDE400BCE667 /* ldump.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334226C8EDE000BCE667 /* ldump.c */; };
+		2BC7338126C8EDE400BCE667 /* lbitlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334326C8EDE000BCE667 /* lbitlib.c */; };
+		2BC7338226C8EDE400BCE667 /* lbitlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334326C8EDE000BCE667 /* lbitlib.c */; };
+		2BC7338326C8EDE400BCE667 /* lmem.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334526C8EDE000BCE667 /* lmem.c */; };
+		2BC7338426C8EDE400BCE667 /* lmem.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334526C8EDE000BCE667 /* lmem.c */; };
+		2BC7338526C8EDE400BCE667 /* lcorolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334626C8EDE000BCE667 /* lcorolib.c */; };
+		2BC7338626C8EDE400BCE667 /* lcorolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334626C8EDE000BCE667 /* lcorolib.c */; };
+		2BC7338726C8EDE400BCE667 /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334726C8EDE000BCE667 /* lobject.c */; };
+		2BC7338826C8EDE400BCE667 /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334726C8EDE000BCE667 /* lobject.c */; };
+		2BC7338926C8EDE400BCE667 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334A26C8EDE100BCE667 /* ltablib.c */; };
+		2BC7338A26C8EDE400BCE667 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334A26C8EDE100BCE667 /* ltablib.c */; };
+		2BC7338B26C8EDE400BCE667 /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334B26C8EDE100BCE667 /* loslib.c */; };
+		2BC7338C26C8EDE400BCE667 /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334B26C8EDE100BCE667 /* loslib.c */; };
+		2BC7338D26C8EDE400BCE667 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334D26C8EDE100BCE667 /* lauxlib.c */; };
+		2BC7338E26C8EDE400BCE667 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334D26C8EDE100BCE667 /* lauxlib.c */; };
+		2BC7338F26C8EDE400BCE667 /* lopcodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334F26C8EDE100BCE667 /* lopcodes.c */; };
+		2BC7339026C8EDE400BCE667 /* lopcodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7334F26C8EDE100BCE667 /* lopcodes.c */; };
+		2BC7339126C8EDE400BCE667 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335026C8EDE100BCE667 /* lvm.c */; };
+		2BC7339226C8EDE400BCE667 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335026C8EDE100BCE667 /* lvm.c */; };
+		2BC7339326C8EDE400BCE667 /* ldblib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335126C8EDE100BCE667 /* ldblib.c */; };
+		2BC7339426C8EDE400BCE667 /* ldblib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335126C8EDE100BCE667 /* ldblib.c */; };
+		2BC7339526C8EDE400BCE667 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335226C8EDE100BCE667 /* lapi.c */; };
+		2BC7339626C8EDE400BCE667 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335226C8EDE100BCE667 /* lapi.c */; };
+		2BC7339926C8EDE400BCE667 /* lstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335526C8EDE100BCE667 /* lstring.c */; };
+		2BC7339A26C8EDE400BCE667 /* lstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335526C8EDE100BCE667 /* lstring.c */; };
+		2BC7339B26C8EDE400BCE667 /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335826C8EDE100BCE667 /* linit.c */; };
+		2BC7339C26C8EDE400BCE667 /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335826C8EDE100BCE667 /* linit.c */; };
+		2BC7339D26C8EDE400BCE667 /* lgc.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335C26C8EDE100BCE667 /* lgc.c */; };
+		2BC7339E26C8EDE400BCE667 /* lgc.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335C26C8EDE100BCE667 /* lgc.c */; };
+		2BC7339F26C8EDE400BCE667 /* loadlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335E26C8EDE200BCE667 /* loadlib.c */; };
+		2BC733A026C8EDE400BCE667 /* loadlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335E26C8EDE200BCE667 /* loadlib.c */; };
+		2BC733A126C8EDE400BCE667 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335F26C8EDE200BCE667 /* lbaselib.c */; };
+		2BC733A226C8EDE400BCE667 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7335F26C8EDE200BCE667 /* lbaselib.c */; };
+		2BC733A326C8EDE400BCE667 /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336226C8EDE200BCE667 /* ldo.c */; };
+		2BC733A426C8EDE400BCE667 /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336226C8EDE200BCE667 /* ldo.c */; };
+		2BC733A526C8EDE400BCE667 /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336326C8EDE200BCE667 /* lparser.c */; };
+		2BC733A626C8EDE400BCE667 /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336326C8EDE200BCE667 /* lparser.c */; };
+		2BC733A726C8EDE400BCE667 /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336426C8EDE200BCE667 /* lfunc.c */; };
+		2BC733A826C8EDE400BCE667 /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336426C8EDE200BCE667 /* lfunc.c */; };
+		2BC733A926C8EDE400BCE667 /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336526C8EDE200BCE667 /* lmathlib.c */; };
+		2BC733AA26C8EDE400BCE667 /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336526C8EDE200BCE667 /* lmathlib.c */; };
+		2BC733AB26C8EDE400BCE667 /* lctype.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336626C8EDE200BCE667 /* lctype.c */; };
+		2BC733AC26C8EDE400BCE667 /* lctype.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336626C8EDE200BCE667 /* lctype.c */; };
+		2BC733AD26C8EDE400BCE667 /* liolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336726C8EDE200BCE667 /* liolib.c */; };
+		2BC733AE26C8EDE400BCE667 /* liolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336726C8EDE200BCE667 /* liolib.c */; };
+		2BC733AF26C8EDE400BCE667 /* lutf8lib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336C26C8EDE200BCE667 /* lutf8lib.c */; };
+		2BC733B026C8EDE400BCE667 /* lutf8lib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336C26C8EDE200BCE667 /* lutf8lib.c */; };
+		2BC733B126C8EDE400BCE667 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336D26C8EDE300BCE667 /* llex.c */; };
+		2BC733B226C8EDE400BCE667 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7336D26C8EDE300BCE667 /* llex.c */; };
+		2BC733B326C8EDE400BCE667 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337126C8EDE300BCE667 /* ltm.c */; };
+		2BC733B426C8EDE400BCE667 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337126C8EDE300BCE667 /* ltm.c */; };
+		2BC733B526C8EDE400BCE667 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337326C8EDE300BCE667 /* lzio.c */; };
+		2BC733B626C8EDE400BCE667 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337326C8EDE300BCE667 /* lzio.c */; };
+		2BC733B726C8EDE400BCE667 /* ltable.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337426C8EDE300BCE667 /* ltable.c */; };
+		2BC733B826C8EDE400BCE667 /* ltable.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337426C8EDE300BCE667 /* ltable.c */; };
+		2BC733B926C8EDE400BCE667 /* lcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337726C8EDE300BCE667 /* lcode.c */; };
+		2BC733BA26C8EDE400BCE667 /* lcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337726C8EDE300BCE667 /* lcode.c */; };
+		2BC733BB26C8EDE400BCE667 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337926C8EDE300BCE667 /* lundump.c */; };
+		2BC733BC26C8EDE400BCE667 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337926C8EDE300BCE667 /* lundump.c */; };
+		2BC733BD26C8EDE400BCE667 /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337B26C8EDE300BCE667 /* lstrlib.c */; };
+		2BC733BE26C8EDE400BCE667 /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337B26C8EDE300BCE667 /* lstrlib.c */; };
+		2BC733BF26C8EDE400BCE667 /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337C26C8EDE300BCE667 /* lstate.c */; };
+		2BC733C026C8EDE400BCE667 /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337C26C8EDE300BCE667 /* lstate.c */; };
+		2BC733C126C8EDE400BCE667 /* ldebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337D26C8EDE300BCE667 /* ldebug.c */; };
+		2BC733C226C8EDE400BCE667 /* ldebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337D26C8EDE300BCE667 /* ldebug.c */; };
+		2BC733C326C8EDE400BCE667 /* LuaSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337E26C8EDE300BCE667 /* LuaSource.m */; };
+		2BC733C426C8EDE400BCE667 /* LuaSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC7337E26C8EDE300BCE667 /* LuaSource.m */; };
+		2BC733D126C8EE7E00BCE667 /* Number.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733C626C8EE7D00BCE667 /* Number.swift */; };
+		2BC733D226C8EE7E00BCE667 /* Number.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733C626C8EE7D00BCE667 /* Number.swift */; };
+		2BC733D326C8EE7E00BCE667 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733C726C8EE7D00BCE667 /* Thread.swift */; };
+		2BC733D426C8EE7E00BCE667 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733C726C8EE7D00BCE667 /* Thread.swift */; };
+		2BC733D526C8EE7E00BCE667 /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733C826C8EE7D00BCE667 /* Table.swift */; };
+		2BC733D626C8EE7E00BCE667 /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733C826C8EE7D00BCE667 /* Table.swift */; };
+		2BC733D726C8EE7E00BCE667 /* Nil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733C926C8EE7D00BCE667 /* Nil.swift */; };
+		2BC733D826C8EE7E00BCE667 /* Nil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733C926C8EE7D00BCE667 /* Nil.swift */; };
+		2BC733D926C8EE7E00BCE667 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CA26C8EE7D00BCE667 /* VirtualMachine.swift */; };
+		2BC733DA26C8EE7E00BCE667 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CA26C8EE7D00BCE667 /* VirtualMachine.swift */; };
+		2BC733DB26C8EE7E00BCE667 /* Boolean.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CB26C8EE7D00BCE667 /* Boolean.swift */; };
+		2BC733DC26C8EE7E00BCE667 /* Boolean.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CB26C8EE7D00BCE667 /* Boolean.swift */; };
+		2BC733DD26C8EE7E00BCE667 /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CC26C8EE7D00BCE667 /* Function.swift */; };
+		2BC733DE26C8EE7E00BCE667 /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CC26C8EE7D00BCE667 /* Function.swift */; };
+		2BC733DF26C8EE7E00BCE667 /* ExtraTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CD26C8EE7D00BCE667 /* ExtraTypes.swift */; };
+		2BC733E026C8EE7E00BCE667 /* ExtraTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CD26C8EE7D00BCE667 /* ExtraTypes.swift */; };
+		2BC733E126C8EE7E00BCE667 /* Userdata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CE26C8EE7D00BCE667 /* Userdata.swift */; };
+		2BC733E226C8EE7E00BCE667 /* Userdata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CE26C8EE7D00BCE667 /* Userdata.swift */; };
+		2BC733E326C8EE7E00BCE667 /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CF26C8EE7E00BCE667 /* Value.swift */; };
+		2BC733E426C8EE7E00BCE667 /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733CF26C8EE7E00BCE667 /* Value.swift */; };
+		2BC733E526C8EE7E00BCE667 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733D026C8EE7E00BCE667 /* String.swift */; };
+		2BC733E626C8EE7E00BCE667 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC733D026C8EE7E00BCE667 /* String.swift */; };
 		2BC838F526919A070087249A /* MaterialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC838F426919A070087249A /* MaterialView.swift */; };
 		2BC838F626919A070087249A /* MaterialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC838F426919A070087249A /* MaterialView.swift */; };
 		2BC9944E2685A5AC00F75A54 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9944D2685A5AC00F75A54 /* Model.swift */; };
@@ -292,6 +382,78 @@
 		2BC042F8267ED54500DD85E2 /* ToolViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolViews.swift; sourceTree = "<group>"; };
 		2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		2BC6FB3F259EAF87007CEC7A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		2BC7334226C8EDE000BCE667 /* ldump.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldump.c; sourceTree = "<group>"; };
+		2BC7334326C8EDE000BCE667 /* lbitlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lbitlib.c; sourceTree = "<group>"; };
+		2BC7334426C8EDE000BCE667 /* lparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lparser.h; sourceTree = "<group>"; };
+		2BC7334526C8EDE000BCE667 /* lmem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lmem.c; sourceTree = "<group>"; };
+		2BC7334626C8EDE000BCE667 /* lcorolib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lcorolib.c; sourceTree = "<group>"; };
+		2BC7334726C8EDE000BCE667 /* lobject.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lobject.c; sourceTree = "<group>"; };
+		2BC7334826C8EDE000BCE667 /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lapi.h; sourceTree = "<group>"; };
+		2BC7334926C8EDE000BCE667 /* lctype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lctype.h; sourceTree = "<group>"; };
+		2BC7334A26C8EDE100BCE667 /* ltablib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltablib.c; sourceTree = "<group>"; };
+		2BC7334B26C8EDE100BCE667 /* loslib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loslib.c; sourceTree = "<group>"; };
+		2BC7334C26C8EDE100BCE667 /* ldebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ldebug.h; sourceTree = "<group>"; };
+		2BC7334D26C8EDE100BCE667 /* lauxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lauxlib.c; sourceTree = "<group>"; };
+		2BC7334E26C8EDE100BCE667 /* lmem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lmem.h; sourceTree = "<group>"; };
+		2BC7334F26C8EDE100BCE667 /* lopcodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lopcodes.c; sourceTree = "<group>"; };
+		2BC7335026C8EDE100BCE667 /* lvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lvm.c; sourceTree = "<group>"; };
+		2BC7335126C8EDE100BCE667 /* ldblib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldblib.c; sourceTree = "<group>"; };
+		2BC7335226C8EDE100BCE667 /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
+		2BC7335326C8EDE100BCE667 /* lprefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lprefix.h; sourceTree = "<group>"; };
+		2BC7335526C8EDE100BCE667 /* lstring.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lstring.c; sourceTree = "<group>"; };
+		2BC7335626C8EDE100BCE667 /* llex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = llex.h; sourceTree = "<group>"; };
+		2BC7335726C8EDE100BCE667 /* lobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lobject.h; sourceTree = "<group>"; };
+		2BC7335826C8EDE100BCE667 /* linit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = linit.c; sourceTree = "<group>"; };
+		2BC7335926C8EDE100BCE667 /* lstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lstring.h; sourceTree = "<group>"; };
+		2BC7335A26C8EDE100BCE667 /* lundump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lundump.h; sourceTree = "<group>"; };
+		2BC7335B26C8EDE100BCE667 /* ldo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ldo.h; sourceTree = "<group>"; };
+		2BC7335C26C8EDE100BCE667 /* lgc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lgc.c; sourceTree = "<group>"; };
+		2BC7335D26C8EDE200BCE667 /* lgc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lgc.h; sourceTree = "<group>"; };
+		2BC7335E26C8EDE200BCE667 /* loadlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loadlib.c; sourceTree = "<group>"; };
+		2BC7335F26C8EDE200BCE667 /* lbaselib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lbaselib.c; sourceTree = "<group>"; };
+		2BC7336026C8EDE200BCE667 /* lopcodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lopcodes.h; sourceTree = "<group>"; };
+		2BC7336126C8EDE200BCE667 /* lauxlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lauxlib.h; sourceTree = "<group>"; };
+		2BC7336226C8EDE200BCE667 /* ldo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldo.c; sourceTree = "<group>"; };
+		2BC7336326C8EDE200BCE667 /* lparser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lparser.c; sourceTree = "<group>"; };
+		2BC7336426C8EDE200BCE667 /* lfunc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lfunc.c; sourceTree = "<group>"; };
+		2BC7336526C8EDE200BCE667 /* lmathlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lmathlib.c; sourceTree = "<group>"; };
+		2BC7336626C8EDE200BCE667 /* lctype.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lctype.c; sourceTree = "<group>"; };
+		2BC7336726C8EDE200BCE667 /* liolib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = liolib.c; sourceTree = "<group>"; };
+		2BC7336826C8EDE200BCE667 /* lualib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lualib.h; sourceTree = "<group>"; };
+		2BC7336926C8EDE200BCE667 /* LuaSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaSource.h; sourceTree = "<group>"; };
+		2BC7336A26C8EDE200BCE667 /* llimits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = llimits.h; sourceTree = "<group>"; };
+		2BC7336B26C8EDE200BCE667 /* lstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lstate.h; sourceTree = "<group>"; };
+		2BC7336C26C8EDE200BCE667 /* lutf8lib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lutf8lib.c; sourceTree = "<group>"; };
+		2BC7336D26C8EDE300BCE667 /* llex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = llex.c; sourceTree = "<group>"; };
+		2BC7336E26C8EDE300BCE667 /* lcode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lcode.h; sourceTree = "<group>"; };
+		2BC7336F26C8EDE300BCE667 /* lfunc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lfunc.h; sourceTree = "<group>"; };
+		2BC7337026C8EDE300BCE667 /* ltable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ltable.h; sourceTree = "<group>"; };
+		2BC7337126C8EDE300BCE667 /* ltm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltm.c; sourceTree = "<group>"; };
+		2BC7337226C8EDE300BCE667 /* ltm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ltm.h; sourceTree = "<group>"; };
+		2BC7337326C8EDE300BCE667 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
+		2BC7337426C8EDE300BCE667 /* ltable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltable.c; sourceTree = "<group>"; };
+		2BC7337526C8EDE300BCE667 /* lua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lua.h; sourceTree = "<group>"; };
+		2BC7337626C8EDE300BCE667 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
+		2BC7337726C8EDE300BCE667 /* lcode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lcode.c; sourceTree = "<group>"; };
+		2BC7337826C8EDE300BCE667 /* lvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lvm.h; sourceTree = "<group>"; };
+		2BC7337926C8EDE300BCE667 /* lundump.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lundump.c; sourceTree = "<group>"; };
+		2BC7337A26C8EDE300BCE667 /* luaconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = luaconf.h; sourceTree = "<group>"; };
+		2BC7337B26C8EDE300BCE667 /* lstrlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lstrlib.c; sourceTree = "<group>"; };
+		2BC7337C26C8EDE300BCE667 /* lstate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lstate.c; sourceTree = "<group>"; };
+		2BC7337D26C8EDE300BCE667 /* ldebug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldebug.c; sourceTree = "<group>"; };
+		2BC7337E26C8EDE300BCE667 /* LuaSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LuaSource.m; sourceTree = "<group>"; };
+		2BC733C526C8EE1000BCE667 /* Bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bridge.h; sourceTree = "<group>"; };
+		2BC733C626C8EE7D00BCE667 /* Number.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Number.swift; sourceTree = "<group>"; };
+		2BC733C726C8EE7D00BCE667 /* Thread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thread.swift; sourceTree = "<group>"; };
+		2BC733C826C8EE7D00BCE667 /* Table.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Table.swift; sourceTree = "<group>"; };
+		2BC733C926C8EE7D00BCE667 /* Nil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Nil.swift; sourceTree = "<group>"; };
+		2BC733CA26C8EE7D00BCE667 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachine.swift; sourceTree = "<group>"; };
+		2BC733CB26C8EE7D00BCE667 /* Boolean.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boolean.swift; sourceTree = "<group>"; };
+		2BC733CC26C8EE7D00BCE667 /* Function.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Function.swift; sourceTree = "<group>"; };
+		2BC733CD26C8EE7D00BCE667 /* ExtraTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtraTypes.swift; sourceTree = "<group>"; };
+		2BC733CE26C8EE7D00BCE667 /* Userdata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Userdata.swift; sourceTree = "<group>"; };
+		2BC733CF26C8EE7E00BCE667 /* Value.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
+		2BC733D026C8EE7E00BCE667 /* String.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		2BC838F426919A070087249A /* MaterialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialView.swift; sourceTree = "<group>"; };
 		2BC9944D2685A5AC00F75A54 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		2BC994502685AB5400F75A54 /* SignedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedObject.swift; sourceTree = "<group>"; };
@@ -360,6 +522,7 @@
 				2B407E6F26894E52004E6F4C /* Drawables */,
 				2B003D5C26BCCBE900BBD28C /* JavaScript */,
 				2B6AAACD26C4AF3700AD7D55 /* Parser */,
+				2BC733C526C8EE1000BCE667 /* Bridge.h */,
 				2B224F6125844C1800F32354 /* Metal.h */,
 				2BC6FB38259EAF0E007CEC7A /* StoreManager.swift */,
 				2B224F6525844C1800F32354 /* Asset.swift */,
@@ -375,6 +538,8 @@
 				2B2E02C7258C3F390073DAE9 /* Expression */,
 				2BB4E0AB25B7AAFF0028C76A /* GPURenderPipeline */,
 				2B224F8525844C2500F32354 /* Classes */,
+				2BC7334126C8EDC700BCE667 /* Lua */,
+				2BC7334026C8EDBF00BCE667 /* LuaSource */,
 				2B224F9925844D0E00F32354 /* Files */,
 				2B224F302584485300F32354 /* Assets.xcassets */,
 				2B651A432682C8BC002DF988 /* PersistenceController.swift */,
@@ -521,6 +686,91 @@
 				2B224F6B25844C1800F32354 /* CodeEditor.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		2BC7334026C8EDBF00BCE667 /* LuaSource */ = {
+			isa = PBXGroup;
+			children = (
+				2BC7335226C8EDE100BCE667 /* lapi.c */,
+				2BC7334826C8EDE000BCE667 /* lapi.h */,
+				2BC7334D26C8EDE100BCE667 /* lauxlib.c */,
+				2BC7336126C8EDE200BCE667 /* lauxlib.h */,
+				2BC7335F26C8EDE200BCE667 /* lbaselib.c */,
+				2BC7334326C8EDE000BCE667 /* lbitlib.c */,
+				2BC7337726C8EDE300BCE667 /* lcode.c */,
+				2BC7336E26C8EDE300BCE667 /* lcode.h */,
+				2BC7334626C8EDE000BCE667 /* lcorolib.c */,
+				2BC7336626C8EDE200BCE667 /* lctype.c */,
+				2BC7334926C8EDE000BCE667 /* lctype.h */,
+				2BC7335126C8EDE100BCE667 /* ldblib.c */,
+				2BC7337D26C8EDE300BCE667 /* ldebug.c */,
+				2BC7334C26C8EDE100BCE667 /* ldebug.h */,
+				2BC7336226C8EDE200BCE667 /* ldo.c */,
+				2BC7335B26C8EDE100BCE667 /* ldo.h */,
+				2BC7334226C8EDE000BCE667 /* ldump.c */,
+				2BC7336426C8EDE200BCE667 /* lfunc.c */,
+				2BC7336F26C8EDE300BCE667 /* lfunc.h */,
+				2BC7335C26C8EDE100BCE667 /* lgc.c */,
+				2BC7335D26C8EDE200BCE667 /* lgc.h */,
+				2BC7335826C8EDE100BCE667 /* linit.c */,
+				2BC7336726C8EDE200BCE667 /* liolib.c */,
+				2BC7336D26C8EDE300BCE667 /* llex.c */,
+				2BC7335626C8EDE100BCE667 /* llex.h */,
+				2BC7336A26C8EDE200BCE667 /* llimits.h */,
+				2BC7336526C8EDE200BCE667 /* lmathlib.c */,
+				2BC7334526C8EDE000BCE667 /* lmem.c */,
+				2BC7334E26C8EDE100BCE667 /* lmem.h */,
+				2BC7335E26C8EDE200BCE667 /* loadlib.c */,
+				2BC7334726C8EDE000BCE667 /* lobject.c */,
+				2BC7335726C8EDE100BCE667 /* lobject.h */,
+				2BC7334F26C8EDE100BCE667 /* lopcodes.c */,
+				2BC7336026C8EDE200BCE667 /* lopcodes.h */,
+				2BC7334B26C8EDE100BCE667 /* loslib.c */,
+				2BC7336326C8EDE200BCE667 /* lparser.c */,
+				2BC7334426C8EDE000BCE667 /* lparser.h */,
+				2BC7335326C8EDE100BCE667 /* lprefix.h */,
+				2BC7337C26C8EDE300BCE667 /* lstate.c */,
+				2BC7336B26C8EDE200BCE667 /* lstate.h */,
+				2BC7335526C8EDE100BCE667 /* lstring.c */,
+				2BC7335926C8EDE100BCE667 /* lstring.h */,
+				2BC7337B26C8EDE300BCE667 /* lstrlib.c */,
+				2BC7337426C8EDE300BCE667 /* ltable.c */,
+				2BC7337026C8EDE300BCE667 /* ltable.h */,
+				2BC7334A26C8EDE100BCE667 /* ltablib.c */,
+				2BC7337126C8EDE300BCE667 /* ltm.c */,
+				2BC7337226C8EDE300BCE667 /* ltm.h */,
+				2BC7337526C8EDE300BCE667 /* lua.h */,
+				2BC7337A26C8EDE300BCE667 /* luaconf.h */,
+				2BC7336826C8EDE200BCE667 /* lualib.h */,
+				2BC7336926C8EDE200BCE667 /* LuaSource.h */,
+				2BC7337E26C8EDE300BCE667 /* LuaSource.m */,
+				2BC7337926C8EDE300BCE667 /* lundump.c */,
+				2BC7335A26C8EDE100BCE667 /* lundump.h */,
+				2BC7336C26C8EDE200BCE667 /* lutf8lib.c */,
+				2BC7335026C8EDE100BCE667 /* lvm.c */,
+				2BC7337826C8EDE300BCE667 /* lvm.h */,
+				2BC7337326C8EDE300BCE667 /* lzio.c */,
+				2BC7337626C8EDE300BCE667 /* lzio.h */,
+			);
+			path = LuaSource;
+			sourceTree = "<group>";
+		};
+		2BC7334126C8EDC700BCE667 /* Lua */ = {
+			isa = PBXGroup;
+			children = (
+				2BC733CB26C8EE7D00BCE667 /* Boolean.swift */,
+				2BC733CD26C8EE7D00BCE667 /* ExtraTypes.swift */,
+				2BC733CC26C8EE7D00BCE667 /* Function.swift */,
+				2BC733C926C8EE7D00BCE667 /* Nil.swift */,
+				2BC733C626C8EE7D00BCE667 /* Number.swift */,
+				2BC733D026C8EE7E00BCE667 /* String.swift */,
+				2BC733C826C8EE7D00BCE667 /* Table.swift */,
+				2BC733C726C8EE7D00BCE667 /* Thread.swift */,
+				2BC733CE26C8EE7D00BCE667 /* Userdata.swift */,
+				2BC733CF26C8EE7E00BCE667 /* Value.swift */,
+				2BC733CA26C8EE7D00BCE667 /* VirtualMachine.swift */,
+			);
+			path = Lua;
 			sourceTree = "<group>";
 		};
 		2BC9944C2685A59500F75A54 /* Model */ = {
@@ -670,24 +920,40 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BC7339126C8EDE400BCE667 /* lvm.c in Sources */,
+				2BC733A326C8EDE400BCE667 /* ldo.c in Sources */,
+				2BC733B726C8EDE400BCE667 /* ltable.c in Sources */,
+				2BC7339F26C8EDE400BCE667 /* loadlib.c in Sources */,
 				2B224F7525844C1900F32354 /* MetalView.swift in Sources */,
 				2B58F31E268FE95200DE1121 /* SignedMaterial.swift in Sources */,
+				2BC7339B26C8EDE400BCE667 /* linit.c in Sources */,
+				2BC733A726C8EDE400BCE667 /* lfunc.c in Sources */,
+				2BC7339D26C8EDE400BCE667 /* lgc.c in Sources */,
 				2B224FA82585EB7F00F32354 /* SignedBuilder.swift in Sources */,
 				2B62AD68268D60B1000504C0 /* ShapeView.swift in Sources */,
+				2BC733D926C8EE7E00BCE667 /* VirtualMachine.swift in Sources */,
+				2BC7338B26C8EDE400BCE667 /* loslib.c in Sources */,
 				2BC042F3267ED3FB00DD85E2 /* ParameterView.swift in Sources */,
+				2BC733E526C8EE7E00BCE667 /* String.swift in Sources */,
 				2B224FF72589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
 				2B651A442682C8BC002DF988 /* PersistenceController.swift in Sources */,
 				2BC838F526919A070087249A /* MaterialView.swift in Sources */,
+				2BC733D726C8EE7E00BCE667 /* Nil.swift in Sources */,
 				2B604E4726C501E70034B661 /* SignedNode.swift in Sources */,
 				2B6312D925BAC308002C1FDD /* GPUMisc.swift in Sources */,
 				2B224F432584485300F32354 /* SignedDocument.swift in Sources */,
 				2B7CFA342686FD2000221917 /* Drawables.swift in Sources */,
+				2BC733A126C8EDE400BCE667 /* lbaselib.c in Sources */,
 				2B224FC62586EA1800F32354 /* SDFNodes.swift in Sources */,
+				2BC733AB26C8EDE400BCE667 /* lctype.c in Sources */,
 				2B224D9825A40C3D006C5C2F /* ScriptProcessor.swift in Sources */,
+				2BC7337F26C8EDE300BCE667 /* ldump.c in Sources */,
 				2B224F8925844C3100F32354 /* Font.swift in Sources */,
 				2B2D71C025EA2D2F00180AC3 /* ConditionalNodes.swift in Sources */,
 				2B224F7325844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCB2586F90C00F32354 /* BoolNodes.swift in Sources */,
+				2BC733AF26C8EDE400BCE667 /* lutf8lib.c in Sources */,
+				2BC733E326C8EE7E00BCE667 /* Value.swift in Sources */,
 				2B407E7C268960B8004E6F4C /* Modeler.metal in Sources */,
 				2B407E7F268962E3004E6F4C /* ModelerStates.swift in Sources */,
 				2B7CFA3A26870D5400221917 /* MiscShader.swift in Sources */,
@@ -697,11 +963,17 @@
 				2B224F6F25844C1900F32354 /* Core.swift in Sources */,
 				2BF3FBC325EDCD31002E7161 /* EnvironmentNodes.swift in Sources */,
 				2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */,
+				2BC733B926C8EDE400BCE667 /* lcode.c in Sources */,
 				2B6FF6AA25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C725B929DC0028C76A /* GPUAnalytical.swift in Sources */,
 				2B52C5F9268805A700CAB2F2 /* SignedProject.swift in Sources */,
+				2BC7338F26C8EDE400BCE667 /* lopcodes.c in Sources */,
+				2BC733A926C8EDE400BCE667 /* lmathlib.c in Sources */,
 				2B7CFA312686FC0500221917 /* RenderView.swift in Sources */,
 				2B224F8B25844C3100F32354 /* Classes.swift in Sources */,
+				2BC7339326C8EDE400BCE667 /* ldblib.c in Sources */,
+				2BC733E126C8EE7E00BCE667 /* Userdata.swift in Sources */,
+				2BC733BB26C8EDE400BCE667 /* lundump.c in Sources */,
 				2BCF02B726BF6AF0007E3F0A /* SignedJSBase.swift in Sources */,
 				2BC042ED267ED31000DD85E2 /* ProjectView.swift in Sources */,
 				2B888B6225B42C2B00956C64 /* BestCandidate.swift in Sources */,
@@ -709,33 +981,51 @@
 				2B407E7126894FF8004E6F4C /* Render.metal in Sources */,
 				2BC042F6267ED4A500DD85E2 /* EditorView.swift in Sources */,
 				2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */,
+				2BC733A526C8EDE400BCE667 /* lparser.c in Sources */,
+				2BC733C326C8EDE400BCE667 /* LuaSource.m in Sources */,
 				2BCBE4DD26C52EF1008FB150 /* SignedBuildingNode.swift in Sources */,
 				2B62AD6E268D6FEA000504C0 /* StackView.swift in Sources */,
 				2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */,
 				2BC042F0267ED39200DD85E2 /* SettingsView.swift in Sources */,
 				2B3CD1FF268A9D46007FCADF /* SideView.swift in Sources */,
+				2BC733B526C8EDE400BCE667 /* lzio.c in Sources */,
 				2B407E792689602A004E6F4C /* ModelerPipeline.swift in Sources */,
+				2BC733B126C8EDE400BCE667 /* llex.c in Sources */,
+				2BC733BF26C8EDE400BCE667 /* lstate.c in Sources */,
 				2B71C50C2682CF4500DC7F17 /* LibraryView.swift in Sources */,
+				2BC7338126C8EDE400BCE667 /* lbitlib.c in Sources */,
 				2B224F8125844C1900F32354 /* Drawables.metal in Sources */,
 				2B35C8DD268AE082001A601F /* SignedCameras.swift in Sources */,
 				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1525A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F412584485300F32354 /* SignedApp.swift in Sources */,
+				2BC733AD26C8EDE400BCE667 /* liolib.c in Sources */,
 				2B2E02D9258C53F40073DAE9 /* AtomNodes.swift in Sources */,
 				2B400EC425AD45F0006493A0 /* BaseBuilder.swift in Sources */,
+				2BC733C126C8EDE400BCE667 /* ldebug.c in Sources */,
+				2BC733D526C8EE7E00BCE667 /* Table.swift in Sources */,
 				2B2536F026C75307000BE62B /* SignedBuildNode.swift in Sources */,
+				2BC733DB26C8EE7E00BCE667 /* Boolean.swift in Sources */,
 				2B7CFA2E2686F61D00221917 /* RenderPipeline.swift in Sources */,
+				2BC7339526C8EDE400BCE667 /* lapi.c in Sources */,
 				2B407E752689544D004E6F4C /* RenderStates.swift in Sources */,
 				2B224FB62586105200F32354 /* BranchNodes.swift in Sources */,
+				2BC733DD26C8EE7E00BCE667 /* Function.swift in Sources */,
 				2B224F452584485300F32354 /* ContentView.swift in Sources */,
 				2B6FF69625D25E470053CEF8 /* NodesWidget.swift in Sources */,
+				2BC7338726C8EDE400BCE667 /* lobject.c in Sources */,
 				2B8A692B25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFB259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2BB4E0AF25B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
+				2BC733DF26C8EE7E00BCE667 /* ExtraTypes.swift in Sources */,
 				2BCF02B426BF6A30007E3F0A /* SignedJSShape.swift in Sources */,
 				2BCBE4E626C5351E008FB150 /* SignedMaterialNode.swift in Sources */,
+				2BC7338926C8EDE400BCE667 /* ltablib.c in Sources */,
+				2BC733D126C8EE7E00BCE667 /* Number.swift in Sources */,
 				2B52C5F6268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2B405EF7268C44F300F37BCA /* SignedData.swift in Sources */,
+				2BC733B326C8EDE400BCE667 /* ltm.c in Sources */,
+				2BC7338326C8EDE400BCE667 /* lmem.c in Sources */,
 				2BC042F9267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C525EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,
 				2B62AD71268D7FF4000504C0 /* DataView.swift in Sources */,
@@ -745,8 +1035,12 @@
 				2BB4E0C225B90DAD0028C76A /* GPUSDF.swift in Sources */,
 				2B224F7F25844C1900F32354 /* CodeEditor.swift in Sources */,
 				2B76D82B25AC46F000AF6FF2 /* SignedCamera.swift in Sources */,
+				2BC733BD26C8EDE400BCE667 /* lstrlib.c in Sources */,
+				2BC733D326C8EE7E00BCE667 /* Thread.swift in Sources */,
+				2BC7339926C8EDE400BCE667 /* lstring.c in Sources */,
 				2B224F7B25844C1900F32354 /* File.swift in Sources */,
 				2B400E9D25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
+				2BC7338D26C8EDE400BCE667 /* lauxlib.c in Sources */,
 				2BCBE4E026C5349C008FB150 /* SignedObjectNode.swift in Sources */,
 				2B6AAACF26C4AF5C00AD7D55 /* SignedParser.swift in Sources */,
 				2B224F7125844C1900F32354 /* MathLibrary.swift in Sources */,
@@ -755,6 +1049,7 @@
 				2B224FBD258619E800F32354 /* Utilities.swift in Sources */,
 				2BCBE4E326C534E1008FB150 /* SignedWallNode.swift in Sources */,
 				2B37E6C0268850CE000439EF /* BrowserView.swift in Sources */,
+				2BC7338526C8EDE400BCE667 /* lcorolib.c in Sources */,
 				2B651A412682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2BC994512685AB5400F75A54 /* SignedObject.swift in Sources */,
 				2BC9944E2685A5AC00F75A54 /* Model.swift in Sources */,
@@ -768,24 +1063,40 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BC7339226C8EDE400BCE667 /* lvm.c in Sources */,
+				2BC733A426C8EDE400BCE667 /* ldo.c in Sources */,
+				2BC733B826C8EDE400BCE667 /* ltable.c in Sources */,
+				2BC733A026C8EDE400BCE667 /* loadlib.c in Sources */,
 				2B224F7625844C1900F32354 /* MetalView.swift in Sources */,
 				2B58F31F268FE95200DE1121 /* SignedMaterial.swift in Sources */,
+				2BC7339C26C8EDE400BCE667 /* linit.c in Sources */,
+				2BC733A826C8EDE400BCE667 /* lfunc.c in Sources */,
+				2BC7339E26C8EDE400BCE667 /* lgc.c in Sources */,
 				2B224FA92585EB7F00F32354 /* SignedBuilder.swift in Sources */,
 				2B62AD69268D60B1000504C0 /* ShapeView.swift in Sources */,
+				2BC733DA26C8EE7E00BCE667 /* VirtualMachine.swift in Sources */,
+				2BC7338C26C8EDE400BCE667 /* loslib.c in Sources */,
 				2BC042F4267ED3FB00DD85E2 /* ParameterView.swift in Sources */,
+				2BC733E626C8EE7E00BCE667 /* String.swift in Sources */,
 				2B224FF82589B52B00F32354 /* AnalyticalNodes.swift in Sources */,
 				2B651A452682C8BC002DF988 /* PersistenceController.swift in Sources */,
 				2BC838F626919A070087249A /* MaterialView.swift in Sources */,
+				2BC733D826C8EE7E00BCE667 /* Nil.swift in Sources */,
 				2B604E4826C501E70034B661 /* SignedNode.swift in Sources */,
 				2B6312DA25BAC308002C1FDD /* GPUMisc.swift in Sources */,
 				2B224F442584485300F32354 /* SignedDocument.swift in Sources */,
 				2B7CFA352686FD2000221917 /* Drawables.swift in Sources */,
+				2BC733A226C8EDE400BCE667 /* lbaselib.c in Sources */,
 				2B224FC72586EA1800F32354 /* SDFNodes.swift in Sources */,
+				2BC733AC26C8EDE400BCE667 /* lctype.c in Sources */,
 				2B224D9925A40C3D006C5C2F /* ScriptProcessor.swift in Sources */,
+				2BC7338026C8EDE400BCE667 /* ldump.c in Sources */,
 				2B224F8A25844C3100F32354 /* Font.swift in Sources */,
 				2B2D71C125EA2D2F00180AC3 /* ConditionalNodes.swift in Sources */,
 				2B224F7425844C1900F32354 /* Asset.swift in Sources */,
 				2B224FCC2586F90C00F32354 /* BoolNodes.swift in Sources */,
+				2BC733B026C8EDE400BCE667 /* lutf8lib.c in Sources */,
+				2BC733E426C8EE7E00BCE667 /* Value.swift in Sources */,
 				2B407E7D268960B8004E6F4C /* Modeler.metal in Sources */,
 				2B407E80268962E3004E6F4C /* ModelerStates.swift in Sources */,
 				2B7CFA3B26870D5400221917 /* MiscShader.swift in Sources */,
@@ -795,11 +1106,17 @@
 				2B224F7025844C1900F32354 /* Core.swift in Sources */,
 				2BF3FBC425EDCD31002E7161 /* EnvironmentNodes.swift in Sources */,
 				2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */,
+				2BC733BA26C8EDE400BCE667 /* lcode.c in Sources */,
 				2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2BB4E0C825B929DC0028C76A /* GPUAnalytical.swift in Sources */,
 				2B52C5FA268805A700CAB2F2 /* SignedProject.swift in Sources */,
+				2BC7339026C8EDE400BCE667 /* lopcodes.c in Sources */,
+				2BC733AA26C8EDE400BCE667 /* lmathlib.c in Sources */,
 				2B7CFA322686FC0500221917 /* RenderView.swift in Sources */,
 				2B224F8C25844C3100F32354 /* Classes.swift in Sources */,
+				2BC7339426C8EDE400BCE667 /* ldblib.c in Sources */,
+				2BC733E226C8EE7E00BCE667 /* Userdata.swift in Sources */,
+				2BC733BC26C8EDE400BCE667 /* lundump.c in Sources */,
 				2BCF02B826BF6AF0007E3F0A /* SignedJSBase.swift in Sources */,
 				2BC042EE267ED31000DD85E2 /* ProjectView.swift in Sources */,
 				2B888B6325B42C2C00956C64 /* BestCandidate.swift in Sources */,
@@ -807,33 +1124,51 @@
 				2B407E7226894FF8004E6F4C /* Render.metal in Sources */,
 				2BC042F7267ED4A500DD85E2 /* EditorView.swift in Sources */,
 				2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */,
+				2BC733A626C8EDE400BCE667 /* lparser.c in Sources */,
+				2BC733C426C8EDE400BCE667 /* LuaSource.m in Sources */,
 				2BCBE4DE26C52EF1008FB150 /* SignedBuildingNode.swift in Sources */,
 				2B62AD6F268D6FEA000504C0 /* StackView.swift in Sources */,
 				2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */,
 				2BC042F1267ED39200DD85E2 /* SettingsView.swift in Sources */,
 				2B3CD200268A9D46007FCADF /* SideView.swift in Sources */,
+				2BC733B626C8EDE400BCE667 /* lzio.c in Sources */,
 				2B407E7A2689602A004E6F4C /* ModelerPipeline.swift in Sources */,
+				2BC733B226C8EDE400BCE667 /* llex.c in Sources */,
+				2BC733C026C8EDE400BCE667 /* lstate.c in Sources */,
 				2B71C50D2682CF4500DC7F17 /* LibraryView.swift in Sources */,
+				2BC7338226C8EDE400BCE667 /* lbitlib.c in Sources */,
 				2B224F8225844C1900F32354 /* Drawables.metal in Sources */,
 				2B35C8DE268AE082001A601F /* SignedCameras.swift in Sources */,
 				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,
 				2B1EAD1625A6FAD500E59CFB /* Tool.swift in Sources */,
 				2B224F422584485300F32354 /* SignedApp.swift in Sources */,
+				2BC733AE26C8EDE400BCE667 /* liolib.c in Sources */,
 				2B2E02DA258C53F40073DAE9 /* AtomNodes.swift in Sources */,
 				2B400EC525AD45F0006493A0 /* BaseBuilder.swift in Sources */,
+				2BC733C226C8EDE400BCE667 /* ldebug.c in Sources */,
+				2BC733D626C8EE7E00BCE667 /* Table.swift in Sources */,
 				2B2536F126C75307000BE62B /* SignedBuildNode.swift in Sources */,
+				2BC733DC26C8EE7E00BCE667 /* Boolean.swift in Sources */,
 				2B7CFA2F2686F61D00221917 /* RenderPipeline.swift in Sources */,
+				2BC7339626C8EDE400BCE667 /* lapi.c in Sources */,
 				2B407E762689544D004E6F4C /* RenderStates.swift in Sources */,
 				2B224FB72586105200F32354 /* BranchNodes.swift in Sources */,
+				2BC733DE26C8EE7E00BCE667 /* Function.swift in Sources */,
 				2B224F462584485300F32354 /* ContentView.swift in Sources */,
 				2B6FF69725D25E480053CEF8 /* NodesWidget.swift in Sources */,
+				2BC7338826C8EDE400BCE667 /* lobject.c in Sources */,
 				2B8A692C25A4486A006B1B5C /* CameraHelper.swift in Sources */,
 				2B6D5CFC259C094E003F7DD8 /* FunctionNodes.swift in Sources */,
 				2BB4E0B025B7BBCA0028C76A /* GPURenderPipeline.swift in Sources */,
+				2BC733E026C8EE7E00BCE667 /* ExtraTypes.swift in Sources */,
 				2BCF02B526BF6A30007E3F0A /* SignedJSShape.swift in Sources */,
 				2BCBE4E726C5351E008FB150 /* SignedMaterialNode.swift in Sources */,
+				2BC7338A26C8EDE400BCE667 /* ltablib.c in Sources */,
+				2BC733D226C8EE7E00BCE667 /* Number.swift in Sources */,
 				2B52C5F7268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2B405EF8268C44F300F37BCA /* SignedData.swift in Sources */,
+				2BC733B426C8EDE400BCE667 /* ltm.c in Sources */,
+				2BC7338426C8EDE400BCE667 /* lmem.c in Sources */,
 				2BC042FA267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C625EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,
 				2B62AD72268D7FF4000504C0 /* DataView.swift in Sources */,
@@ -843,8 +1178,12 @@
 				2BB4E0C325B90DAD0028C76A /* GPUSDF.swift in Sources */,
 				2B224F8025844C1900F32354 /* CodeEditor.swift in Sources */,
 				2B76D82C25AC46F000AF6FF2 /* SignedCamera.swift in Sources */,
+				2BC733BE26C8EDE400BCE667 /* lstrlib.c in Sources */,
+				2BC733D426C8EE7E00BCE667 /* Thread.swift in Sources */,
+				2BC7339A26C8EDE400BCE667 /* lstring.c in Sources */,
 				2B224F7C25844C1900F32354 /* File.swift in Sources */,
 				2B400E9E25AD3F56006493A0 /* BranchNodes2D.swift in Sources */,
+				2BC7338E26C8EDE400BCE667 /* lauxlib.c in Sources */,
 				2BCBE4E126C5349C008FB150 /* SignedObjectNode.swift in Sources */,
 				2B6AAAD026C4AF5C00AD7D55 /* SignedParser.swift in Sources */,
 				2B224F7225844C1900F32354 /* MathLibrary.swift in Sources */,
@@ -853,6 +1192,7 @@
 				2B224FBE258619E800F32354 /* Utilities.swift in Sources */,
 				2BCBE4E426C534E1008FB150 /* SignedWallNode.swift in Sources */,
 				2B37E6C1268850CE000439EF /* BrowserView.swift in Sources */,
+				2BC7338626C8EDE400BCE667 /* lcorolib.c in Sources */,
 				2B651A422682C5FC002DF988 /* DataModel.xcdatamodeld in Sources */,
 				2BC994522685AB5400F75A54 /* SignedObject.swift in Sources */,
 				2BC9944F2685A5AC00F75A54 /* Model.swift in Sources */,
@@ -997,7 +1337,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.Signed;
 				PRODUCT_NAME = Signed;
 				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = Shared/Metal.h;
+				SWIFT_OBJC_BRIDGING_HEADER = Shared/Bridge.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1020,7 +1360,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.Signed;
 				PRODUCT_NAME = Signed;
 				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = Shared/Metal.h;
+				SWIFT_OBJC_BRIDGING_HEADER = Shared/Bridge.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -1050,7 +1390,7 @@
 				SDKROOT = macosx;
 				SWIFT_DISABLE_SAFETY_CHECKS = NO;
 				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = on;
-				SWIFT_OBJC_BRIDGING_HEADER = Shared/Metal.h;
+				SWIFT_OBJC_BRIDGING_HEADER = Shared/Bridge.h;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -1078,7 +1418,7 @@
 				SDKROOT = macosx;
 				SWIFT_DISABLE_SAFETY_CHECKS = NO;
 				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = on;
-				SWIFT_OBJC_BRIDGING_HEADER = Shared/Metal.h;
+				SWIFT_OBJC_BRIDGING_HEADER = Shared/Bridge.h;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

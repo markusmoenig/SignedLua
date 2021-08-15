@@ -300,7 +300,7 @@ struct SwiftUIWebView: UIViewRepresentable {
         
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "jsHandler" {
-                if let scriptEditor = model.scriptEditor {
+                if let scriptEditor = model.codeEditor {
                     scriptEditor.updated()
                 }
             }
@@ -312,7 +312,7 @@ struct SwiftUIWebView: UIViewRepresentable {
 
         //After the webpage is loaded, assign the data in WebViewModel class
         public func webView(_ web: WKWebView, didFinish: WKNavigation!) {
-            model.scriptEditor = ScriptEditor(web, model, colorScheme)
+            model.codeEditor = CodeEditor(web, model, colorScheme)
         }
 
         public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) { }
