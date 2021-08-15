@@ -68,7 +68,7 @@ class CodeEditor
     {
         webView.evaluateJavaScript(
             """
-            editor.getValue()
+            editor.getValue();
             """, completionHandler: { (value, error) in
                 if let value = value as? String {
                     cb(value)
@@ -79,7 +79,8 @@ class CodeEditor
     func setValue(_ string: String)
     {
         let cmd = """
-        editor.setValue(`\(string)`)
+        editor.setValue(`\(string)`);
+        editor.clearSelection();
         """
         webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
         })
