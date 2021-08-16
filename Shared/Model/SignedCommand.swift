@@ -191,5 +191,13 @@ class SignedCommand : Codable, Hashable {
             }
         }
     }
+    
+    /// Returns all data groups
+    func allDataGroups() -> [SignedData]
+    {
+        var groups = dataGroups.flat()
+        groups.append(material.data)
+        return groups
+    }
 }
 

@@ -20,17 +20,41 @@ class SignedBuilder {
     let model                   : Model
     
     var vm                      : VirtualMachine!
+    var context                 : SignedContext!
     
     init(_ model: Model) {
         self.model = model
     }
     
-    /// Sets a named Float in the given data groups
-    func setFloat(name: String, value: Number, groups: [SignedData]) {
-        
+    /// Get a named Float in the given data groups
+    func getFloat(name: String, groups: [SignedData]) -> Float? {
+        for data in groups {
+            for entity in data.data {
+                if entity.key == name && entity.type == .Float {
+                    return entity.value.x
+                }
+            }
+        }
+        return nil
+    }
+    
+    /// Get a named Float in the given data groups
+    func getFloat3(name: String, groups: [SignedData]) -> float3? {
         for data in groups {
             for entity in data.data {
                 if entity.key == name && entity.type == .Float3 {
+                    return float3(entity.value.x, entity.value.y, entity.value.z)
+                }
+            }
+        }
+        return nil
+    }
+    
+    /// Sets a named Float in the given data groups
+    func setFloat(name: String, value: Number, groups: [SignedData]) {
+        for data in groups {
+            for entity in data.data {
+                if entity.key == name && entity.type == .Float {
                     entity.value.x = Float(value.toDouble())
                 }
             }
@@ -59,47 +83,98 @@ class SignedBuilder {
     }
     
     /// Sets up the LuaShape ecosystem
-    func setupLuaShape() {
-        class LuaShape : CustomTypeInstance {
+    func setupLuaCommand() {
+            
+        class LuaCommand : CustomTypeInstance {
             
             var name        = ""
             var cmd         : SignedCommand? = nil
             
             static func luaTypeName() -> String {
-                return "Shape"
-            }
-        }
-            
-        let shapeLib:CustomType<LuaShape> = vm.createCustomType { type in
-            type["setFloat"] = type.createMethod([String.arg, Number.arg]) { shape, args in
-                if args.values.count == 2 {
-                    let (paramName, value) = (args.string, args.number)
-                    if let cmd = shape.cmd {
-                        self.setFloat(name: paramName, value: value, groups: cmd.dataGroups.flat())
-                    }
-                }
-                return .nothing
-            }
-            type["setVec3"] = type.createMethod([String.arg, Table.arg]) { shape, args in
-                if args.values.count == 2 {
-                    let (paramName, table) = (args.string, args.table)
-                    if let cmd = shape.cmd {
-                        self.setVec3(name: paramName, value: table, groups: cmd.dataGroups.flat())
-                    }
-                }
-                return .nothing
-            }
-            type["getName"] = type.createMethod([]) {
-                note, args in
-                return .value(note.name)
+                return "Command"
             }
         }
         
-        shapeLib["new"] = vm.createFunction([String.arg]) { args in
+        let commandLib:CustomType<LuaCommand> = vm.createCustomType { type in
+            
+            // Get named float for the cmd
+            type["getNumber"] = type.createMethod([]) { cmd, args in
+                if args.values.count == 2 {
+                    let (paramName) = (args.string)
+                    if let cmd = cmd.cmd {
+                        if let v = self.getFloat(name: paramName, groups: cmd.allDataGroups()) {
+                            return .value(Double(v))
+                        }
+                    }
+                }
+                return .nothing
+            }
+            
+            // Get named float3 for the cmd
+            type["getVec3"] = type.createMethod([]) { cmd, args in
+                if args.values.count == 2 {
+                    let (paramName) = (args.string)
+                    if let cmd = cmd.cmd {
+                        if let v = self.getFloat3(name: paramName, groups: cmd.allDataGroups()) {
+                            switch self.vm.eval("return vec3(\(v.x), \(v.y), \(v.z))") {
+                            case let .values(values):
+                                if values.isEmpty == false {
+                                    return .value(values.first)
+                                }
+                            case let .error(e):
+                                print(e)
+                            }
+                        }
+                    }
+                }
+                return .nothing
+            }
+            
+            // Set named number data
+            type["setNumber"] = type.createMethod([String.arg, Number.arg]) { cmd, args in
+                if args.values.count == 2 {
+                    let (paramName, value) = (args.string, args.number)
+                    if let cmd = cmd.cmd {
+                        self.setFloat(name: paramName, value: value, groups: cmd.allDataGroups())
+                    }
+                }
+                return .nothing
+            }
+            
+            // Set named vec3 data
+            type["setVec3"] = type.createMethod([String.arg, Table.arg]) { cmd, args in
+                if args.values.count == 2 {
+                    let (paramName, table) = (args.string, args.table)
+                    if let cmd = cmd.cmd {
+                        self.setVec3(name: paramName, value: table, groups: cmd.allDataGroups())
+                    }
+                }
+                return .nothing
+            }
+            
+            // Get name of cmd
+            type["getName"] = type.createMethod([]) { cmd, args in
+                return .value(cmd.name)
+            }
+            
+            // Create shape
+            type["execute"] = type.createMethod([]) { cmd, args in
+                if let cmd = cmd.cmd {
+                    self.context.addToPipeline(cmd: cmd)
+                }
+                return .nothing
+            }
+        }
+        
+        commandLib["newFromShape"] = vm.createFunction([String.arg]) { args in
             if args.values.isEmpty == false {
-                let shape = LuaShape()
+                let shape = LuaCommand()
                 shape.name = args.string
-                shape.cmd = self.model.getShape(shape.name)
+                
+                // Get the shape and copy it
+                if let cmd = self.model.getShape(shape.name) {
+                    shape.cmd = cmd.copy()
+                }
                 
                 let data = self.vm.createUserdata(shape)
                 return .value(data)
@@ -108,7 +183,7 @@ class SignedBuilder {
             }
         }
         
-        vm.globals["Shape"] = shapeLib
+        vm.globals["Command"] = commandLib
     }
     
     /// Load and execute the given module
@@ -141,6 +216,7 @@ class SignedBuilder {
         model.renderer?.restart()
                 
         vm = VirtualMachine()
+        context = SignedContext(model: model)
 
         // print
         vm.globals["print"] = vm.createFunction([String.arg]) { args in
@@ -150,8 +226,27 @@ class SignedBuilder {
             return .nothing
         }
         
+        /*
+        // Creates a shape
+        vm.globals["create"] = vm.createFunction([]) { args in
+            
+            print(args.values[0])
+            if let userData = args.values[0].customType {
+                print(userData.custom)
+            }
+
+            //print(shape.values[0])
+            //print(shape.toCustomType())// as? LuaShape)
+            //print(shape.cmd)
+            //let userData = shape.values[0] as! CustomType<LuaShape>
+            //print(shape.customType())
+            //print(userData.userdataPointer())//.toCustomType())
+            //}
+            return .nothing
+        }*/
+        
         require("vec3")
-        setupLuaShape()
+        setupLuaCommand()
 
         switch vm.eval(model.project.code, args: []) {
         case let .values(values):

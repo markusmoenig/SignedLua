@@ -148,7 +148,7 @@ class Model: NSObject, ObservableObject {
     func createShapes() {
         shapes = [
             SignedCommand("Sphere", role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4), float2(0, 5))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
-            SignedCommand("Box", role: .GeometryAndMaterial, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,10), .Slider), SignedDataEntity("Rounding", Float(0.01), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
+            SignedCommand("Box", role: .GeometryAndMaterial, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,10), .Slider), SignedDataEntity("Rounding", Float(0.0), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]
         selectedShape = shapes.first
     }
