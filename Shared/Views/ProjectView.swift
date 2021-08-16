@@ -273,6 +273,7 @@ struct ProjectView: View {
     }
     
     // Adds a definition node to the library
+    /*
     func addDefinitionToLibrary(_ node: GraphNode, type: String) {
         let object = Component(context: managedObjectContext)
         object.name = node.givenName
@@ -280,5 +281,5 @@ struct ProjectView: View {
         object.type = type
         
         try! managedObjectContext.save()
-    }
+    }*/
 }

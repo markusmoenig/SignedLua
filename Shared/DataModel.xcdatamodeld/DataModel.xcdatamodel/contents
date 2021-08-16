@@ -1,21 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19186" systemVersion="21A5294g" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="Component" representedClassName="Component" syncable="YES" codeGenerationType="class">
-        <attribute name="about" optional="YES" attributeType="String"/>
-        <attribute name="creator" optional="YES" attributeType="String"/>
-        <attribute name="data" optional="YES" attributeType="String"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="type" optional="YES" attributeType="String"/>
-    </entity>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19141.11" systemVersion="21A5304g" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="MaterialEntity" representedClassName="MaterialEntity" syncable="YES" codeGenerationType="class">
         <attribute name="about" optional="YES" attributeType="String"/>
         <attribute name="code" optional="YES" attributeType="Binary"/>
         <attribute name="data" optional="YES" attributeType="Binary"/>
+        <attribute name="icon" optional="YES" attributeType="Binary"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="render" optional="YES" attributeType="Binary"/>
+    </entity>
+    <entity name="ModuleEntity" representedClassName="ModuleEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="about" optional="YES" attributeType="String"/>
+        <attribute name="builtIn" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="code" optional="YES" attributeType="Binary"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
     </entity>
+    <entity name="ObjectEntity" representedClassName="ObjectEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="about" optional="YES" attributeType="String"/>
+        <attribute name="code" optional="YES" attributeType="Binary"/>
+        <attribute name="icon" optional="YES" attributeType="Binary"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="render" optional="YES" attributeType="Binary"/>
+    </entity>
+    <entity name="ProjectEntity" representedClassName="ProjectEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="about" optional="YES" attributeType="String"/>
+        <attribute name="code" optional="YES" attributeType="Binary"/>
+        <attribute name="icon" optional="YES" attributeType="Binary"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="render" optional="YES" attributeType="Binary"/>
+    </entity>
     <elements>
-        <element name="Component" positionX="-63" positionY="-18" width="128" height="104"/>
-        <element name="MaterialEntity" positionX="-63" positionY="18" width="128" height="104"/>
+        <element name="MaterialEntity" positionX="-63" positionY="18" width="128" height="134"/>
+        <element name="ModuleEntity" positionX="-63" positionY="36" width="128" height="104"/>
+        <element name="ObjectEntity" positionX="-54" positionY="63" width="128" height="119"/>
+        <element name="ProjectEntity" positionX="-36" positionY="99" width="128" height="119"/>
     </elements>
 </model>

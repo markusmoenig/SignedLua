@@ -13,20 +13,20 @@ import SwiftUI
 struct LibraryView: View {
     
     @Environment(\.managedObjectContext) var managedObjectContext
-
+/*
     @FetchRequest(
       entity: Component.entity(),
       sortDescriptors: [
         NSSortDescriptor(keyPath: \Component.name, ascending: true)
       ]
     ) var components: FetchedResults<Component>
-    
-    @State private var selection            : Component? = nil
+    */
+    //@State private var selection            : Component? = nil
 
     var body: some View {
         
         VStack {
-                     
+               /*
             List {
                 ForEach(components, id: \.self) { component in
                     //object.name.map(Text.init)
@@ -62,7 +62,7 @@ struct LibraryView: View {
                 }
                 //.onDelete(perform: deleteObject)
 
-            }
+            }*/
         }
     }
 }

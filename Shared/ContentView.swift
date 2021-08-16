@@ -205,7 +205,7 @@ struct ContentView: View {
                     }
                     
                     BrowserView(model: document.model)
-                        .frame(minHeight: 80, maxHeight: 100)
+                        .frame(minHeight: 100, maxHeight: 120)
                 }
 
                 //Divider()

@@ -440,6 +440,7 @@ class GraphBuilder
                                 }
                             }
                             
+                            /*
                             if processed == false {
                                 // Check Library
                                 let request = Component.fetchRequest()
@@ -457,7 +458,7 @@ class GraphBuilder
                                         }
                                     }
                                 }
-                            }
+                            }*/
                         }
                     } else
                     if var variableName = variableName {
@@ -541,6 +542,7 @@ class GraphBuilder
         return res
     }
     
+    /*
     func parseComponent(_ component: Component) -> GraphContext? {
         let asset = Asset(type: .Source, name: "Main", value: component.data!)
         
@@ -553,5 +555,5 @@ class GraphBuilder
             }
         }
         return nil
-    }
+    }*/
 }

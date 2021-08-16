@@ -16,8 +16,9 @@ struct BrowserView: View {
     
     enum NavigationItem {
         case shapes
+        case objects
         case materials
-        case scripts
+        case modules
     }
     
     let model                               : Model
@@ -219,6 +220,26 @@ struct BrowserView: View {
                     })
                     
                     Button(action: {
+                        selection = .objects
+                        //if let selectedMaterial = model.selectedMaterial {
+                        //    self.model.materialSelected.send(selectedMaterial)
+                        //}
+                    })
+                    {
+                        Label("Objects", systemImage: "house")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                            .padding(.leading, 6)
+                            .foregroundColor(.white)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .listRowBackground(Group {
+                        if selection == .objects {
+                            Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
+                        } else { Color.clear }
+                    })
+                    
+                    Button(action: {
                         selection = .materials
                         if let selectedMaterial = model.selectedMaterial {
                             self.model.materialSelected.send(selectedMaterial)
@@ -239,10 +260,10 @@ struct BrowserView: View {
                     })
                     
                     Button(action: {
-                        selection =  .scripts
+                        selection =  .modules
                     })
                     {
-                        Label("Scripts", systemImage: "j.square")
+                        Label("Modules", systemImage: "l.square")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
                             .padding(.leading, 6)
@@ -250,7 +271,7 @@ struct BrowserView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                     .listRowBackground(Group {
-                        if selection == .scripts {
+                        if selection == .modules {
                             Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
                         } else { Color.clear }
                     })
