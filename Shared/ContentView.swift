@@ -63,9 +63,9 @@ struct ContentView: View {
         GeometryReader { geometry in
 
             
-            //NavigationView {
+            NavigationView {
                 
-                //ProjectView(document.model)
+                ProjectView(document.model)
                 
                 VStack(spacing: 0) {
                     
@@ -213,7 +213,7 @@ struct ContentView: View {
                 //SideView(model: document.model)
                 //    .frame(width: geometry.size.width / 2.5)
             }
-        //}
+        }
         
         .onReceive(document.model.objectSelected) { object in
             selection = object

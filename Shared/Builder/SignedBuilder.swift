@@ -164,6 +164,22 @@ class SignedBuilder {
                 }
                 return .nothing
             }
+            
+            // Create shape
+            type["test"] = type.createMethod([]) { cmd, args in
+                
+                print(args.values)
+                if args.values.isEmpty == false {
+                    if let f = args.values.first as? Function {
+                        print("tort", f)
+                        f.call(["mankind"])
+                    }
+                }
+                
+                if let cmd = cmd.cmd {
+                }
+                return .nothing
+            }
         }
         
         commandLib["newFromShape"] = vm.createFunction([String.arg]) { args in
