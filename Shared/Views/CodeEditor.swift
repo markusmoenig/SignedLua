@@ -16,9 +16,7 @@ class CodeEditor
     var sessions        : Int = 0
     var colorScheme     : ColorScheme
     
-    var helpText        : String = ""
-    
-    var parser          : ComponentParser? = nil
+    var currentSession  : String
     
     init(_ view: WKWebView, _ model: Model,_ colorScheme: ColorScheme)
     {
@@ -26,16 +24,34 @@ class CodeEditor
         self.model = model
         self.colorScheme = colorScheme
 
-        setValue(model.project.code)
+        currentSession = "__project"
+        createSession(value: model.project.code)
+        setTheme(colorScheme)
     }
     
+    /// Create a new editor session
+    func createSession(value: String, session: String = "__project", cb: (()->())? = nil)
+    {
+        webView.evaluateJavaScript(
+            """
+            var \(session) = ace.createEditSession(`\(value)`)
+            editor.setSession(\(session))
+            editor.session.setMode("ace/mode/lua");
+            """, completionHandler: { (value, error ) in
+                if let cb = cb {
+                    cb()
+                }
+         })
+    }
+    
+    /// Set the theme
     func setTheme(_ colorScheme: ColorScheme)
     {
         let theme: String
         if colorScheme == .light {
             theme = "tomorrow"
         } else {
-            theme = "tomorrow_night_bright"
+            theme = "tomorrow_night"//_bright"
         }
         webView.evaluateJavaScript(
             """
@@ -44,6 +60,7 @@ class CodeEditor
          })
     }
     
+    /// Make editor read only
     func setReadOnly(_ readOnly: Bool = false)
     {
         webView.evaluateJavaScript(
@@ -53,6 +70,7 @@ class CodeEditor
          })
     }
     
+    /// Silent mode
     func setSilentMode(_ silent: Bool = false)
     {
         webView.evaluateJavaScript(
@@ -64,11 +82,12 @@ class CodeEditor
          })
     }
     
-    func getValue(_ component: SignedCommand,_ cb: @escaping (String)->() )
+    /// Get the current value from the session
+    func getValue(session: String = "__project", cb: @escaping (String)->() )
     {
         webView.evaluateJavaScript(
             """
-            editor.getValue();
+            \(session).getValue();
             """, completionHandler: { (value, error) in
                 if let value = value as? String {
                     cb(value)
@@ -76,16 +95,18 @@ class CodeEditor
          })
     }
     
-    func setValue(_ string: String)
+    /// Set the value for the given session context
+    func setValue(_ string: String, session: String = "__project")
     {
         let cmd = """
-        editor.setValue(`\(string)`);
+        \(session).setValue(`\(string)`);
         editor.clearSelection();
         """
         webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
         })
     }
     
+    /// Goto a given line and column
     func gotoLine(_ line: Int32,_ column: Int32 = 0)
     {
         webView.evaluateJavaScript(
@@ -97,17 +118,13 @@ class CodeEditor
          })
     }
     
+    /// Get the current cursor position
     func getSessionCursor(_ cb: @escaping (Int32, Int32)->() )
     {
         webView.evaluateJavaScript(
             """
             editor.getCursorPosition()
             """, completionHandler: { (value, error ) in
-                //if let v = value as? Int32 {
-                //    cb(v)
-                //}
-                
-                //print(value)
                 if let map = value as? [String:Any] {
                     var row      : Int32 = -1
                     var column   : Int32 = -1
@@ -123,13 +140,13 @@ class CodeEditor
          })
     }
     
+    /// Get the current change delta
     func getChangeDelta(_ cb: @escaping (Int32, Int32)->() )
     {
         webView.evaluateJavaScript(
             """
             delta
             """, completionHandler: { (value, error ) in
-                //print(value)
                 if let map = value as? [String:Any] {
                     var from : Int32 = -1
                     var to   : Int32 = -1
@@ -148,6 +165,7 @@ class CodeEditor
          })
     }
     
+    /// Clear annotations
     func clearAnnotations()
     {
         webView.evaluateJavaScript(
@@ -157,6 +175,7 @@ class CodeEditor
          })
     }
     
+    /// Set errors and warnings
     func setErrors(_ errors: [CodeError])
     {
         var str = "["
@@ -183,7 +202,7 @@ class CodeEditor
     /// The code was updated in the editor
     func updated()
     {
-        getValue(model.editingCmd, { (value) in
+        getValue(session: currentSession, cb: { (value) in
             self.model.project.code = value
         })
     }
