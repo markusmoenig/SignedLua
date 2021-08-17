@@ -15,7 +15,7 @@ struct PersistenceController {
 
     let container: NSPersistentContainer
 
-    init(inMemory: Bool = false) {
+    init(inMemory: Bool = true) {
         
         container = NSPersistentCloudKitContainer(name: "DataModel")
 
@@ -23,8 +23,10 @@ struct PersistenceController {
             fatalError("Error")
         }
         
+        //description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: "iCloud.com.moenig.signed")
+
         description.cloudKitContainerOptions?.databaseScope = .public
-        
+
         description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
         description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
         

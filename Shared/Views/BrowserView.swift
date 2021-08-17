@@ -36,6 +36,9 @@ struct BrowserView: View {
     @State private var materialOnlyText     : String = "0.5"
     @State private var materialOnlyRange    = float2(0, 1)
 
+    @State private var showDatabasePopover  : Bool = false
+    @State private var databaseName         : String = ""
+
     var body: some View {
                 
         /*
@@ -309,15 +312,9 @@ struct BrowserView: View {
                     }
                     .contextMenu {
                         Button("Add") {
-                            let module = ModuleEntity(context: managedObjectContext)
-                            
-                            module.id = UUID()
-                            module.name = "vec3"
-                            module.code = "dsd".data(using: .utf8)
-                            
-                            do {
-                                try managedObjectContext.save()
-                            } catch {}
+
+                            databaseName = ""
+                            showDatabasePopover = true
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -326,6 +323,33 @@ struct BrowserView: View {
                             Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
                         } else { Color.clear }
                     })
+                }
+                
+                // Create DB Object
+                .popover(isPresented: $showDatabasePopover,
+                         arrowEdge: .top
+                ) {
+                    VStack(alignment: .leading) {
+                        Text("Database Name")
+                            .foregroundColor(Color.secondary)
+                        TextField("Name", text: $databaseName, onEditingChanged: { (changed) in
+                        })
+                        .frame(minWidth: 300)
+                        Button("Create") {
+                            if selection == .modules, databaseName.isEmpty == false {
+                                let module = ModuleEntity(context: managedObjectContext)
+                                
+                                module.id = UUID()
+                                module.name = databaseName
+                                module.code = "-- New Module".data(using: .utf8)
+                                
+                                do {
+                                    try managedObjectContext.save()
+                                } catch {}
+                            }
+                        }
+                        
+                    }.padding()
                 }
                 #if os(OSX)
                 .frame(maxWidth: 130)
