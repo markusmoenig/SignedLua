@@ -13,8 +13,9 @@ class CodeEditor
 {
     var webView         : WKWebView
     var model           : Model
-    var sessions        : Int = 0
     var colorScheme     : ColorScheme
+    
+    var sessions        : [String] = []
     
     var currentSession  : String
     
@@ -32,6 +33,9 @@ class CodeEditor
     /// Create a new editor session
     func createSession(value: String, session: String = "__project", cb: (()->())? = nil)
     {
+        sessions.append(session)
+        currentSession = session
+
         webView.evaluateJavaScript(
             """
             var \(session) = ace.createEditSession(`\(value)`)
@@ -96,13 +100,19 @@ class CodeEditor
     }
     
     /// Set the value for the given session context
-    func setValue(_ string: String, session: String = "__project")
+    func setSession(value: String, session: String = "__project")
     {
+        if sessions.contains(session) == false {
+            createSession(value: value, session: session)
+            return
+        }
+        
         let cmd = """
-        \(session).setValue(`\(string)`);
+        editor.setSession(\(session))
         editor.clearSelection();
         """
         webView.evaluateJavaScript(cmd, completionHandler: { (value, error ) in
+            self.currentSession = session
         })
     }
     
@@ -202,8 +212,24 @@ class CodeEditor
     /// The code was updated in the editor
     func updated()
     {
+        print("yy", currentSession)
         getValue(session: currentSession, cb: { (value) in
-            self.model.project.code = value
+            if self.currentSession == "__project" {
+                self.model.project.code = value
+            } else {
+                let managedObjectContext = PersistenceController.shared.container.viewContext
+
+                if self.model.codeEditorMode == .module {
+                    if let module = self.model.codeEditorModuleEntity {
+                        print("updating", value)
+                        module.code = value.data(using: .utf8)
+                    }
+                }
+                
+                do {
+                    try managedObjectContext.save()
+                } catch {}
+            }
         })
     }
 }

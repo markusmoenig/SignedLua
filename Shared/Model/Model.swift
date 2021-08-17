@@ -7,8 +7,16 @@
 
 import Foundation
 import Combine
+import AVFoundation
 
 class Model: NSObject, ObservableObject {
+    
+    enum CodeEditorMode {
+        case project
+        case object
+        case material
+        case module
+    }
     
     enum EditingMode {
         case single
@@ -25,6 +33,10 @@ class Model: NSObject, ObservableObject {
         case MaterialOnly
     }
     
+    var codeEditorMode                      : CodeEditorMode = .project
+    
+    var codeEditorModuleEntity              : ModuleEntity? = nil
+    
     var editingMode                         : EditingMode? = .single
     var editingBrushMode                    : EditingBrushMode? = .GeometryAndMaterial
     var editingBooleanMode                  : EditingBooleanMode? = .plus
@@ -38,6 +50,9 @@ class Model: NSObject, ObservableObject {
     var selectedObject                      : SignedObject? = nil
     var selectedCommand                     : SignedCommand? = nil
 
+    /// The project code has been selected, deselect selected objects, materials, modules
+    let projectCodeSelected                 = PassthroughSubject<Void, Never>()
+    
     /// Currently selected shape in the browser
     var selectedShape                       : SignedCommand? = nil
 

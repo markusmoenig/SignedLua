@@ -91,7 +91,7 @@ class SignedBuilder {
             var cmd         : SignedCommand? = nil
             
             static func luaTypeName() -> String {
-                return "Command"
+                return "command"
             }
         }
         
@@ -164,22 +164,21 @@ class SignedBuilder {
                 }
                 return .nothing
             }
-            
+
+            /*
             // Create shape
             type["test"] = type.createMethod([]) { cmd, args in
                 
-                print(args.values)
                 if args.values.isEmpty == false {
                     if let f = args.values.first as? Function {
-                        print("tort", f)
-                        f.call(["mankind"])
+                        //f.call(["mankind"])
                     }
                 }
                 
                 if let cmd = cmd.cmd {
                 }
                 return .nothing
-            }
+            }*/
         }
         
         commandLib["newFromShape"] = vm.createFunction([String.arg]) { args in
@@ -199,24 +198,34 @@ class SignedBuilder {
             }
         }
         
-        vm.globals["Command"] = commandLib
+        vm.globals["command"] = commandLib
     }
     
-    /// Load and execute the given module
-    func require(_ input: String) {
-        guard let path = Bundle.main.path(forResource: input, ofType: "lua", inDirectory: "Files/lua") else {
-            return
-        }
+    /// Load and execute the givenessential  modules
+    func requireEssentialModules(_ inputs: [String]) {
+        
+        let request = ModuleEntity.fetchRequest()
+
+        let managedObjectContext = PersistenceController.shared.container.viewContext
+        let modules = try! managedObjectContext.fetch(request)
+
+        modules.forEach { module in
             
-        if let value = try? String(contentsOfFile: path, encoding: String.Encoding.utf8) {
-            switch vm.eval(value, args: []) {
-            case let .values(values):
-                //print(values, values.count)
-                if values.isEmpty == false {
-                    vm.globals[input] = values[0]
+            if let name = module.name {
+                if inputs.contains(name) {
+                    if let data = module.code {
+                        if let code = String(data: data, encoding: .utf8) {
+                            switch vm.eval(code, args: []) {
+                            case let .values(values):
+                                if values.isEmpty == false {
+                                    vm.globals[name] = values[0]
+                                }
+                            case let .error(e):
+                                print(e)
+                            }
+                        }
+                    }
                 }
-            case let .error(e):
-                print(e)
             }
         }
     }
@@ -242,26 +251,7 @@ class SignedBuilder {
             return .nothing
         }
         
-        /*
-        // Creates a shape
-        vm.globals["create"] = vm.createFunction([]) { args in
-            
-            print(args.values[0])
-            if let userData = args.values[0].customType {
-                print(userData.custom)
-            }
-
-            //print(shape.values[0])
-            //print(shape.toCustomType())// as? LuaShape)
-            //print(shape.cmd)
-            //let userData = shape.values[0] as! CustomType<LuaShape>
-            //print(shape.customType())
-            //print(userData.userdataPointer())//.toCustomType())
-            //}
-            return .nothing
-        }*/
-        
-        require("vec3")
+        requireEssentialModules(["vec3"])
         setupLuaCommand()
 
         switch vm.eval(model.project.code, args: []) {

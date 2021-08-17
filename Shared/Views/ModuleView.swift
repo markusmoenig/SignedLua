@@ -42,11 +42,20 @@ struct ModuleView: View {
                         Image(systemName: "cylinder")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: IconSize * 0.8, height: IconSize * 0.8)
-                            .padding(.bottom, 15)
+                            .frame(width: IconSize * 0.6, height: IconSize * 0.6)
+                            .padding(.bottom, 18)
                             .onTapGesture(perform: {
                                 
                                 selected = object.id!
+                                
+                                if let data = object.code {
+                                    if let value = String(data: data, encoding: .utf8) {
+                                        model.codeEditor?.setSession(value: value, session: "__" + object.name!)
+                                        
+                                        model.codeEditorMode = .module
+                                        model.codeEditorModuleEntity = object
+                                    }
+                                }
                                 /*
                                 model.selectedMaterial = material
                                 model.editingCmd.copyMaterial(from: material.material)
@@ -93,6 +102,9 @@ struct ModuleView: View {
             .padding()
         }
     
+        .onReceive(model.projectCodeSelected) { _ in
+            selected = nil            
+        }
         /*
         .onReceive(model.iconFinished) { cmd in
             let buffer = selected
