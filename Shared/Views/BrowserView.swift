@@ -234,6 +234,29 @@ struct BrowserView: View {
                             .padding(.leading, 6)
                             .foregroundColor(.white)
                     }
+                    .contextMenu {
+                        Button("Add") {
+                            let module = ObjectEntity(context: managedObjectContext)
+                            
+                            module.id = UUID()
+                            module.name = "Object"
+                            module.code = "test".data(using: .utf8)
+                            
+                            do {
+                                try managedObjectContext.save()
+                            } catch {}
+                            
+                            let project = ProjectEntity(context: managedObjectContext)
+                            
+                            project.id = UUID()
+                            project.name = "Object"
+                            project.code = "test".data(using: .utf8)
+                            
+                            do {
+                                try managedObjectContext.save()
+                            } catch {}
+                        }
+                    }
                     .buttonStyle(PlainButtonStyle())
                     .listRowBackground(Group {
                         if selection == .objects {
@@ -253,6 +276,19 @@ struct BrowserView: View {
                             .contentShape(Rectangle())
                             .padding(.leading, 6)
                             .foregroundColor(.white)
+                    }
+                    .contextMenu {
+                        Button("Add") {
+                            let module = MaterialEntity(context: managedObjectContext)
+                            
+                            module.id = UUID()
+                            module.name = "Object"
+                            module.code = "test".data(using: .utf8)
+                            
+                            do {
+                                try managedObjectContext.save()
+                            } catch {}
+                        }
                     }
                     .buttonStyle(PlainButtonStyle())
                     .listRowBackground(Group {
@@ -302,6 +338,9 @@ struct BrowserView: View {
                 
                 if selection == .shapes {
                     ShapeView(model: model)
+                } else
+                if selection == .objects {
+                    ObjectView(model: model)
                 } else
                 if selection == .materials {
                     MaterialView(model: model)

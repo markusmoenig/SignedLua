@@ -15,10 +15,24 @@ struct PersistenceController {
 
     let container: NSPersistentContainer
 
-    init(inMemory: Bool = true) {
+    init(inMemory: Bool = false) {
         
         container = NSPersistentCloudKitContainer(name: "DataModel")
 
+        /*
+         let datamodelName = "DataModel"
+         let storeType = "sqlite"
+        
+         let url: URL = {
+            let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("\(datamodelName).\(storeType)")
+
+            //assert(FileManager.default.fileExists(atPath: url.path))
+
+            return url
+        }()
+        
+        try! container.persistentStoreCoordinator.destroyPersistentStore(at: url, ofType: storeType, options: nil)
+        */
 
         guard let description = container.persistentStoreDescriptions.first else {
             fatalError("Error")
@@ -26,8 +40,8 @@ struct PersistenceController {
         
         description.cloudKitContainerOptions?.databaseScope = .public
         
-        description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-        description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+        //description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+        //description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
         
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
