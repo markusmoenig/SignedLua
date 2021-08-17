@@ -130,6 +130,8 @@
 		2B6FF6B625D2772B0053CEF8 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 2B6FF6B525D2772B0053CEF8 /* DynamicColor */; };
 		2B71C50C2682CF4500DC7F17 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B71C50B2682CF4500DC7F17 /* LibraryView.swift */; };
 		2B71C50D2682CF4500DC7F17 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B71C50B2682CF4500DC7F17 /* LibraryView.swift */; };
+		2B7242DD26CB398300F265F1 /* ModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7242DC26CB398300F265F1 /* ModuleView.swift */; };
+		2B7242DE26CB398300F265F1 /* ModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7242DC26CB398300F265F1 /* ModuleView.swift */; };
 		2B76D82B25AC46F000AF6FF2 /* SignedCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */; };
 		2B76D82C25AC46F000AF6FF2 /* SignedCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */; };
 		2B7CFA2E2686F61D00221917 /* RenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CFA2D2686F61D00221917 /* RenderPipeline.swift */; };
@@ -345,6 +347,7 @@
 		2B6FF69525D25E470053CEF8 /* NodesWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodesWidget.swift; sourceTree = "<group>"; };
 		2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorRing.swift; sourceTree = "<group>"; };
 		2B71C50B2682CF4500DC7F17 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		2B7242DC26CB398300F265F1 /* ModuleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleView.swift; sourceTree = "<group>"; };
 		2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedCamera.swift; sourceTree = "<group>"; };
 		2B7CFA2D2686F61D00221917 /* RenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderPipeline.swift; sourceTree = "<group>"; };
 		2B7CFA302686FC0500221917 /* RenderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderView.swift; sourceTree = "<group>"; };
@@ -648,10 +651,11 @@
 			children = (
 				2BC042EC267ED31000DD85E2 /* ProjectView.swift */,
 				2B62AD67268D60B1000504C0 /* ShapeView.swift */,
-				2BC838F426919A070087249A /* MaterialView.swift */,
 				2B3CD1FE268A9D46007FCADF /* SideView.swift */,
 				2B62AD70268D7FF4000504C0 /* DataView.swift */,
 				2B37E6BF268850CE000439EF /* BrowserView.swift */,
+				2BC838F426919A070087249A /* MaterialView.swift */,
+				2B7242DC26CB398300F265F1 /* ModuleView.swift */,
 				2BC042EF267ED39200DD85E2 /* SettingsView.swift */,
 				2B62AD6D268D6FEA000504C0 /* StackView.swift */,
 				2BC042F2267ED3FB00DD85E2 /* ParameterView.swift */,
@@ -998,6 +1002,7 @@
 				2B405EF7268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC733B326C8EDE400BCE667 /* ltm.c in Sources */,
 				2BC7338326C8EDE400BCE667 /* lmem.c in Sources */,
+				2B7242DD26CB398300F265F1 /* ModuleView.swift in Sources */,
 				2BC042F9267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C525EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,
 				2B62AD71268D7FF4000504C0 /* DataView.swift in Sources */,
@@ -1135,6 +1140,7 @@
 				2B405EF8268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC733B426C8EDE400BCE667 /* ltm.c in Sources */,
 				2BC7338426C8EDE400BCE667 /* lmem.c in Sources */,
+				2B7242DE26CB398300F265F1 /* ModuleView.swift in Sources */,
 				2BC042FA267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C625EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,
 				2B62AD72268D7FF4000504C0 /* DataView.swift in Sources */,

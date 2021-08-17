@@ -9,6 +9,8 @@ import SwiftUI
 
 struct BrowserView: View {
         
+    @Environment(\.managedObjectContext) var managedObjectContext
+
     enum BrushMode {
         case Geometry
         case Paint
@@ -269,6 +271,19 @@ struct BrowserView: View {
                             .padding(.leading, 6)
                             .foregroundColor(.white)
                     }
+                    .contextMenu {
+                        Button("Add") {
+                            let module = ModuleEntity(context: managedObjectContext)
+                            
+                            module.id = UUID()
+                            module.name = "vec3"
+                            module.code = "dsd".data(using: .utf8)
+                            
+                            do {
+                                try managedObjectContext.save()
+                            } catch {}
+                        }
+                    }
                     .buttonStyle(PlainButtonStyle())
                     .listRowBackground(Group {
                         if selection == .modules {
@@ -290,6 +305,9 @@ struct BrowserView: View {
                 } else
                 if selection == .materials {
                     MaterialView(model: model)
+                } else
+                if selection == .modules {
+                    ModuleView(model: model)
                 }
                 Spacer()
             }

@@ -125,9 +125,39 @@ class Model: NSObject, ObservableObject {
         selectedCommand = selectedObject?.commands.first
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            if let selectedCommand = self.selectedCommand {
-                self.commandSelected.send(selectedCommand)
-            }
+            //if let selectedCommand = self.selectedCommand {
+            //    self.commandSelected.send(selectedCommand)
+                /*
+                let managedObjectContext = PersistenceController.shared.container.viewContext
+                
+                let object = ObjectEntity(context: managedObjectContext)
+                
+                object.id = UUID()
+                object.name = "test"
+                
+                let project = ProjectEntity(context: managedObjectContext)
+                
+                project.id = UUID()
+                project.name = "testdd"
+                
+                let module = ModuleEntity(context: managedObjectContext)
+                
+                module.id = UUID()
+                module.name = "testdd"
+            
+            let material = MaterialEntity(context: managedObjectContext)
+            
+            material.id = UUID()
+            material.name = "testdd"
+                
+                print("jere")
+                
+                do {
+                    try managedObjectContext.save()
+                    print("jere 2")
+                } catch {}
+                 */
+            //}
         }
     }
     
@@ -162,9 +192,9 @@ class Model: NSObject, ObservableObject {
 
         objects.forEach { object in
             
-            let material = try? JSONDecoder().decode(SignedMaterial.self, from: object.data!)
+            //let material = try? JSONDecoder().decode(SignedMaterial.self, from: object.data!)
 
-            let cmd = SignedCommand(object.name!, role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])], material: material!)
+            let cmd = SignedCommand(object.name!, role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])])
             
             materials[object.id!] = cmd
             self.renderer?.iconQueue += [cmd]

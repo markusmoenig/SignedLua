@@ -13,6 +13,8 @@ import MobileCoreServices
 
 struct ContentView: View {
     
+    @Environment(\.managedObjectContext) var managedObjectContext
+
     enum ScreenState {
         case Mixed, RenderOnly
     }
