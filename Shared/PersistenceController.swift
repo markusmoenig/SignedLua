@@ -18,7 +18,6 @@ struct PersistenceController {
     init(inMemory: Bool = false) {
         
         container = NSPersistentCloudKitContainer(name: "DataModel")
-        container.viewContext.automaticallyMergesChangesFromParent = true
 
         guard let description = container.persistentStoreDescriptions.first else {
             fatalError("Error")
@@ -38,6 +37,8 @@ struct PersistenceController {
                 fatalError("Error: \(error.localizedDescription)")
             }
         }
+        
+        container.viewContext.automaticallyMergesChangesFromParent = true
     }
     
     /// Save the context if it has changes
