@@ -11,7 +11,7 @@ struct DetailView: View {
 
     let model                               : Model
     
-    @State var maximized                    : Bool = true
+    @State var maximized                    : Bool = false
     
     @State var variableNames                : String = ""
 
@@ -19,8 +19,13 @@ struct DetailView: View {
         VStack(spacing: 1) {
             
             HStack(alignment: .center, spacing: 4) {
-                TextField("Variable names", text: $variableNames, onEditingChanged: { (changed) in
-                })
+                TextField("Global variable names", text: $variableNames, onEditingChanged: { (changed) in
+                },
+                          
+                onCommit: {
+                    model.builder?.extractVariables(variables: variableNames)
+                    maximized = true
+                } )
                 
                 Divider()
                     .frame(maxHeight: 16)

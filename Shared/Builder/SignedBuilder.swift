@@ -82,6 +82,16 @@ class SignedBuilder {
         }
     }
     
+    /// extract variables from VM
+    func extractVariables(variables: String)
+    {
+        if let vm = vm {
+            if let v = vm.globals[variables] as? Table {
+                //print("test", v["id"])
+            }
+        }
+    }
+    
     /// Sets up the LuaShape ecosystem
     func setupLuaCommand() {
             
