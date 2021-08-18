@@ -347,7 +347,11 @@ class RenderPipeline
                     //}
                     resChanged = true
                     let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
-                    if texture == nil { print("error allocating texture") }
+                    if let texture = texture {
+                        clearTexture(texture)
+                    } else {
+                        print("error allocating texture")
+                    }
                     return texture
                 } else {
                     return texture

@@ -64,6 +64,8 @@
 		2B224FED2588A6BD00F32354 /* Nodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FEB2588A6BD00F32354 /* Nodes.swift */; };
 		2B224FF72589B52B00F32354 /* AnalyticalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */; };
 		2B224FF82589B52B00F32354 /* AnalyticalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */; };
+		2B260E1826CC8E6E00EDEBC2 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B260E1726CC8E6E00EDEBC2 /* DetailView.swift */; };
+		2B260E1926CC8E6E00EDEBC2 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B260E1726CC8E6E00EDEBC2 /* DetailView.swift */; };
 		2B2B3C9B26CB56BB00FFA287 /* ObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B3C9A26CB56BB00FFA287 /* ObjectView.swift */; };
 		2B2B3C9C26CB56BB00FFA287 /* ObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B3C9A26CB56BB00FFA287 /* ObjectView.swift */; };
 		2B2D71C025EA2D2F00180AC3 /* ConditionalNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2D71BF25EA2D2F00180AC3 /* ConditionalNodes.swift */; };
@@ -317,6 +319,7 @@
 		2B224FCA2586F90C00F32354 /* BoolNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolNodes.swift; sourceTree = "<group>"; };
 		2B224FEB2588A6BD00F32354 /* Nodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nodes.swift; sourceTree = "<group>"; };
 		2B224FF62589B52B00F32354 /* AnalyticalNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticalNodes.swift; sourceTree = "<group>"; };
+		2B260E1726CC8E6E00EDEBC2 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
 		2B2B3C9A26CB56BB00FFA287 /* ObjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectView.swift; sourceTree = "<group>"; };
 		2B2D71BF25EA2D2F00180AC3 /* ConditionalNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalNodes.swift; sourceTree = "<group>"; };
 		2B2D71C425EC7ACE00180AC3 /* OperatorNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperatorNodes.swift; sourceTree = "<group>"; };
@@ -656,6 +659,7 @@
 				2B62AD67268D60B1000504C0 /* ShapeView.swift */,
 				2B3CD1FE268A9D46007FCADF /* SideView.swift */,
 				2B62AD70268D7FF4000504C0 /* DataView.swift */,
+				2B260E1726CC8E6E00EDEBC2 /* DetailView.swift */,
 				2B37E6BF268850CE000439EF /* BrowserView.swift */,
 				2B2B3C9A26CB56BB00FFA287 /* ObjectView.swift */,
 				2BC838F426919A070087249A /* MaterialView.swift */,
@@ -977,6 +981,7 @@
 				2BC733BF26C8EDE400BCE667 /* lstate.c in Sources */,
 				2B71C50C2682CF4500DC7F17 /* LibraryView.swift in Sources */,
 				2BC7338126C8EDE400BCE667 /* lbitlib.c in Sources */,
+				2B260E1826CC8E6E00EDEBC2 /* DetailView.swift in Sources */,
 				2B224F8125844C1900F32354 /* Drawables.metal in Sources */,
 				2B35C8DD268AE082001A601F /* SignedCameras.swift in Sources */,
 				2B2E02C9258C3F600073DAE9 /* Expression.swift in Sources */,
@@ -1116,6 +1121,7 @@
 				2BC733C026C8EDE400BCE667 /* lstate.c in Sources */,
 				2B71C50D2682CF4500DC7F17 /* LibraryView.swift in Sources */,
 				2BC7338226C8EDE400BCE667 /* lbitlib.c in Sources */,
+				2B260E1926CC8E6E00EDEBC2 /* DetailView.swift in Sources */,
 				2B224F8225844C1900F32354 /* Drawables.metal in Sources */,
 				2B35C8DE268AE082001A601F /* SignedCameras.swift in Sources */,
 				2B2E02CE258C3F620073DAE9 /* Expression.swift in Sources */,

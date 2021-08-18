@@ -212,7 +212,6 @@ class CodeEditor
     /// The code was updated in the editor
     func updated()
     {
-        print("yy", currentSession)
         getValue(session: currentSession, cb: { (value) in
             if self.currentSession == "__project" {
                 self.model.project.code = value
@@ -221,7 +220,6 @@ class CodeEditor
 
                 if self.model.codeEditorMode == .module {
                     if let module = self.model.codeEditorModuleEntity {
-                        print("updating", value)
                         module.code = value.data(using: .utf8)
                     }
                 }

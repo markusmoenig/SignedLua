@@ -202,7 +202,7 @@ class SignedBuilder {
     }
     
     /// Load and execute the givenessential  modules
-    func requireEssentialModules(_ inputs: [String]) {
+    func requireModules(_ inputs: [String]) {
         
         let request = ModuleEntity.fetchRequest()
 
@@ -221,7 +221,7 @@ class SignedBuilder {
                                     vm.globals[name] = values[0]
                                 }
                             case let .error(e):
-                                print(e)
+                                print("error in module \(name)", e)
                             }
                         }
                     }
@@ -250,8 +250,17 @@ class SignedBuilder {
             }
             return .nothing
         }
+        // require
+        vm.globals["require"] = vm.createFunction([String.arg]) { args in
+            if args.values.isEmpty == false {
+                let string = args.string
+                print("require", string)
+                self.requireModules([string])
+            }
+            return .nothing
+        }
         
-        requireEssentialModules(["vec3"])
+        requireModules(["vec3", "vec2"])
         setupLuaCommand()
 
         switch vm.eval(model.project.code, args: []) {
@@ -263,12 +272,13 @@ class SignedBuilder {
             print(e)
         }
 
-        /*
+        
         let cmd = SignedCommand("Ground", role: .GeometryAndMaterial, action: .Add, primitive: .Box,
                                        data: ["Transform" : SignedData([SignedDataEntity("Position", float3(0,-0.9,0)) ]),
                                               "Geometry": SignedData([SignedDataEntity("Size", float3(0.6,0.4,0.6) * Float(Modeler_Global_Scale))])
                                              ], material: SignedMaterial(albedo: float3(0.5,0.5,0.5), metallic: 1, roughness: 0.3))
-        */
+        
+        context.addToPipeline(cmd: cmd)
         
         /*
         let context = SignedContext(model: model)

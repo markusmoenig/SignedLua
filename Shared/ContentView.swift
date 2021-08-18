@@ -74,135 +74,139 @@ struct ContentView: View {
                     HStack(spacing: 2) {
                         EditorView(document.model)
 
-                        ZStack(alignment: .bottomLeading) {
-                            // Show tools
-                            
-                            RenderView(model: document.model)
-                                .zIndex(0)
-                                .animation(.default)
-                                .allowsHitTesting(true)
-                            //ToolsView(document.core)
-                            //    .zIndex(1)
-                             
-                            Button(action: {
+                        VStack(spacing: 2) {
+                            ZStack(alignment: .bottomLeading) {
+                                // Show tools
                                 
-                            })
-                            {
-                                ZStack(alignment: .center) {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.gray, lineWidth: 0)
-                                    Text("Orbit")
+                                RenderView(model: document.model)
+                                    .zIndex(0)
+                                    .animation(.default)
+                                    .allowsHitTesting(true)
+                                //ToolsView(document.core)
+                                //    .zIndex(1)
+                                 
+                                Button(action: {
+                                    
+                                })
+                                {
+                                    ZStack(alignment: .center) {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.gray, lineWidth: 0)
+                                        Text("Orbit")
+                                    }
                                 }
-                            }
-                            .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
-                            .font(.system(size: 16))
-                            .background(isOrbiting ? Color.accentColor : Color.clear)
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray, lineWidth: 1)
-                            )
-                            .padding(.leading, 10)
-                            .padding(.bottom, 70)
-                            .buttonStyle(.plain)
-                            
-                            .simultaneousGesture(
-                                DragGesture(minimumDistance: 4)
-                                
-                                    .onChanged({ info in
-
-                                        isOrbiting = true
-                                        let delta = float2(Float(info.location.x - info.startLocation.x), 0)//Float(info.location.y - info.startLocation.y))
-                                        
-                                        document.model.project.camera.rotateDelta(delta * 0.01)
-                                        document.model.renderer?.restart()
-                                        document.model.updateDataViews.send()
-                                    })
-                                    .onEnded({ info in
-                                        isOrbiting = false
-                                        document.model.project.camera.lastDelta = float2(0,0)
-                                    })
-                            )
-                            
-                            Button(action: {
-                                
-                            })
-                            {
-                                ZStack(alignment: .center) {
+                                .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
+                                .font(.system(size: 16))
+                                .background(isOrbiting ? Color.accentColor : Color.clear)
+                                .cornerRadius(10)
+                                .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.gray, lineWidth: 0)
-                                    Text("Move")
-                                }
-                            }
-                            .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
-                            .font(.system(size: 16))
-                            .background(isMoving ? Color.accentColor : Color.clear)
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray, lineWidth: 1)
-                            )
-                            .padding(.leading, 10)
-                            .padding(.bottom, 40)
-                            .buttonStyle(.plain)
-                            
-                            .simultaneousGesture(
-                                DragGesture(minimumDistance: 4)
+                                        .stroke(Color.gray, lineWidth: 1)
+                                )
+                                .padding(.leading, 10)
+                                .padding(.bottom, 70)
+                                .buttonStyle(.plain)
                                 
-                                    .onChanged({ info in
+                                .simultaneousGesture(
+                                    DragGesture(minimumDistance: 4)
+                                    
+                                        .onChanged({ info in
 
-                                        isMoving = true
-                                        let delta = float2(/*Float(info.location.x - info.startLocation.x)*/0, Float(info.location.y - info.startLocation.y))
-                                        
-                                        document.model.project.camera.moveDelta(delta * 0.003, aspect: getAspectRatio())
-                                        document.model.renderer?.restart()
-                                        document.model.updateDataViews.send()
-                                    })
-                                    .onEnded({ info in
-                                        isMoving = false
-                                        document.model.project.camera.lastDelta = float2(0,0)
-                                    })
-                            )
-                            
-                            Button(action: {
+                                            isOrbiting = true
+                                            let delta = float2(Float(info.location.x - info.startLocation.x), 0)//Float(info.location.y - info.startLocation.y))
+                                            
+                                            document.model.project.camera.rotateDelta(delta * 0.01)
+                                            document.model.renderer?.restart()
+                                            document.model.updateDataViews.send()
+                                        })
+                                        .onEnded({ info in
+                                            isOrbiting = false
+                                            document.model.project.camera.lastDelta = float2(0,0)
+                                        })
+                                )
                                 
-                            })
-                            {
-                                ZStack(alignment: .center) {
+                                Button(action: {
+                                    
+                                })
+                                {
+                                    ZStack(alignment: .center) {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.gray, lineWidth: 0)
+                                        Text("Move")
+                                    }
+                                }
+                                .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
+                                .font(.system(size: 16))
+                                .background(isMoving ? Color.accentColor : Color.clear)
+                                .cornerRadius(10)
+                                .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.gray, lineWidth: 0)
-                                    Text("Zoom")
-                                }
-                            }
-                            .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
-                            .font(.system(size: 16))
-                            .background(isZooming ? Color.accentColor : Color.clear)
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray, lineWidth: 1)
-                            )
-                            .padding(.leading, 10)
-                            .padding(.bottom, 10)
-                            .buttonStyle(.plain)
-                            
-                            .simultaneousGesture(
-                                DragGesture(minimumDistance: 4)
+                                        .stroke(Color.gray, lineWidth: 1)
+                                )
+                                .padding(.leading, 10)
+                                .padding(.bottom, 40)
+                                .buttonStyle(.plain)
                                 
-                                    .onChanged({ info in
+                                .simultaneousGesture(
+                                    DragGesture(minimumDistance: 4)
+                                    
+                                        .onChanged({ info in
 
-                                        isZooming = true
-                                        let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
-                                        
-                                        document.model.project.camera.zoomDelta(delta.x * 0.04)
-                                        document.model.renderer?.restart()
-                                        document.model.updateDataViews.send()
-                                    })
-                                    .onEnded({ info in
-                                        isZooming = false
-                                        document.model.project.camera.lastZoomDelta = 0
-                                    })
-                            )
+                                            isMoving = true
+                                            let delta = float2(/*Float(info.location.x - info.startLocation.x)*/0, Float(info.location.y - info.startLocation.y))
+                                            
+                                            document.model.project.camera.moveDelta(delta * 0.003, aspect: getAspectRatio())
+                                            document.model.renderer?.restart()
+                                            document.model.updateDataViews.send()
+                                        })
+                                        .onEnded({ info in
+                                            isMoving = false
+                                            document.model.project.camera.lastDelta = float2(0,0)
+                                        })
+                                )
+                                
+                                Button(action: {
+                                    
+                                })
+                                {
+                                    ZStack(alignment: .center) {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.gray, lineWidth: 0)
+                                        Text("Zoom")
+                                    }
+                                }
+                                .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
+                                .font(.system(size: 16))
+                                .background(isZooming ? Color.accentColor : Color.clear)
+                                .cornerRadius(10)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.gray, lineWidth: 1)
+                                )
+                                .padding(.leading, 10)
+                                .padding(.bottom, 10)
+                                .buttonStyle(.plain)
+                                
+                                .simultaneousGesture(
+                                    DragGesture(minimumDistance: 4)
+                                    
+                                        .onChanged({ info in
+
+                                            isZooming = true
+                                            let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
+                                            
+                                            document.model.project.camera.zoomDelta(delta.x * 0.04)
+                                            document.model.renderer?.restart()
+                                            document.model.updateDataViews.send()
+                                        })
+                                        .onEnded({ info in
+                                            isZooming = false
+                                            document.model.project.camera.lastZoomDelta = 0
+                                        })
+                                )
+                            }
+                            
+                            DetailView(model: document.model)
                         }
                     }
                     
