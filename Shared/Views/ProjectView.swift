@@ -52,8 +52,9 @@ struct ProjectView: View {
                         Button(action: {
                             if let code = object.code {
                                 if let value = String(data: code, encoding: .utf8) {
-                                    model.codeEditor?.setSession(value: value)
                                     selected = object.id
+                                    model.codeEditorMode = .project
+                                    model.codeEditor?.setSession(value: value)
                                     if model.codeEditorMode != .project {
                                         model.codeEditorMode = .project
                                         model.selectionChanged.send()
@@ -75,6 +76,8 @@ struct ProjectView: View {
                     ForEach(modules, id: \.self) { module in
                         Button(action: {
                             selected = module.id!
+                            model.codeEditorMode = .module
+                            model.codeEditorModuleEntity = module
                             if let data = module.code {
                                 if let value = String(data: data, encoding: .utf8) {
                                     model.codeEditor?.setSession(value: value, session: "__" + module.name!)

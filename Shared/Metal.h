@@ -181,8 +181,6 @@ typedef struct {
     
 } ModelerHitUniform;
 
-#define Modeler_Global_Scale                10.0
-
 #define Modeler_GeometryAndMaterial         0
 #define Modeler_MaterialOnly                1
 

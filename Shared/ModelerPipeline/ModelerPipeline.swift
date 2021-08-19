@@ -184,9 +184,9 @@ class ModelerPipeline
         }
         
         if let geometryData = cmd.dataGroups.getGroup("Geometry") {
-            modelerUniform.size = geometryData.getFloat3("Size", float3(4,4,4))
-            modelerUniform.radius = geometryData.getFloat("Radius", 1)
-            modelerUniform.rounding = geometryData.getFloat("Rounding", 0)            
+            modelerUniform.size = geometryData.getFloat3("Size", float3(4,4,4)) / model.modelingScale
+            modelerUniform.radius = geometryData.getFloat("Radius", 1) / model.modelingScale
+            modelerUniform.rounding = geometryData.getFloat("Rounding", 0)
         }
         
         if let booleanData = cmd.dataGroups.getGroup("Boolean") {

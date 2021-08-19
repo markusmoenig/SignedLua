@@ -77,7 +77,6 @@ class SignedBuilder {
                     if let z = value["z"] as? Number {
                         entity.value.z = Float(z.toDouble())
                     }
-                    print(name, entity.value)
                 }
             }
         }
@@ -307,7 +306,8 @@ class SignedBuilder {
                 print(values.first!)
             }
         case let .error(e):
-            print(e)
+            self.model.infoText += e + "\n"
+            self.model.infoChanged.send()
         }
 
         /*

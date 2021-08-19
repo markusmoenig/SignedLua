@@ -201,13 +201,13 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     
     //p = opRepLim(p, mData.repDistance * scale / Modeler_Global_Scale, mData.repLowerLimit, mData.repUpperLimit * float3(valueNoiseFBM(p * mData.repNoise.x / scale, 5), valueNoiseFBM(p * mData.repNoise.y / scale, 5), valueNoiseFBM(p * mData.repNoise.z / scale, 5)));
     
-    p = opRepLim(p, mData.repDistance * scale / Modeler_Global_Scale, mData.repLowerLimit, mData.repUpperLimit);
+    p = opRepLim(p, mData.repDistance * scale, mData.repLowerLimit, mData.repUpperLimit);
 
     if (mData.primitiveType == Modeler_Sphere) {
-        newDist = sdSphere(p, mData.radius * scale / Modeler_Global_Scale);
+        newDist = sdSphere(p, mData.radius * scale);
     } else
     if (mData.primitiveType == Modeler_Box) {
-        newDist = sdRoundBox(p, mData.size * scale / Modeler_Global_Scale, mData.rounding);
+        newDist = sdRoundBox(p, mData.size * scale, mData.rounding);
     }
     
     // Noise
