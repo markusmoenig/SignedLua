@@ -54,6 +54,7 @@ struct ModuleView: View {
                                         
                                         model.codeEditorMode = .module
                                         model.codeEditorModuleEntity = object
+                                        model.selectionChanged.send()
                                     }
                                 }
                                 /*
@@ -102,8 +103,10 @@ struct ModuleView: View {
             .padding()
         }
     
-        .onReceive(model.projectCodeSelected) { _ in
-            selected = nil            
+        .onReceive(model.selectionChanged) { _ in
+            if model.codeEditorMode != .module {
+                selected = nil
+            }
         }
         /*
         .onReceive(model.iconFinished) { cmd in

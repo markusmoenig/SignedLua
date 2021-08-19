@@ -211,7 +211,7 @@ struct ContentView: View {
                     }
                     
                     BrowserView(model: document.model)
-                        .frame(minHeight: 100, maxHeight: 120)
+                        .frame(minHeight: 80, maxHeight: 100)
                 }
 
                 //Divider()
@@ -342,11 +342,6 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .automatic) {
                           
                 Button(action: {
-                    if document.model.codeEditorMode != .project {
-                        document.model.codeEditor?.setSession(value: document.model.project.code)
-                        document.model.codeEditorMode = .project
-                        document.model.projectCodeSelected.send()
-                    }
                     document.model.builder.build()
                 }) {
                     Text("Build")

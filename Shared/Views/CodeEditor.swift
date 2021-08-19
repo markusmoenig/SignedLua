@@ -26,7 +26,13 @@ class CodeEditor
         self.colorScheme = colorScheme
 
         currentSession = "__project"
-        createSession(value: model.project.code)
+        if let object = model.getObject() {
+            if let code = object.code {
+                if let value = String(data: code, encoding: .utf8) {
+                    createSession(value: value)
+                }
+            }
+        }
         setTheme(colorScheme)
     }
     
@@ -214,7 +220,11 @@ class CodeEditor
     {
         getValue(session: currentSession, cb: { (value) in
             if self.currentSession == "__project" {
-                self.model.project.code = value
+                if let object = self.model.getObject() {
+                    if let data = value.data(using: .utf8) {
+                        object.code = data
+                    }
+                }
             } else {
                 let managedObjectContext = PersistenceController.shared.container.viewContext
 

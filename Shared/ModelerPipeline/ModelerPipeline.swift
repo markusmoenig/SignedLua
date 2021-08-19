@@ -87,18 +87,6 @@ class ModelerPipeline
         executeCommand(pipeline.removeFirst())
     }
     
-    /// Executes all commands of the object
-    func executeObject(_ object: SignedObject, until: SignedCommand? = nil)
-    {
-        clear()
-        for cmd in object.commands {
-            executeCommand(cmd)
-            if cmd === until {
-                break
-            }
-        }
-    }
-    
     /// Executes a single command
     func executeCommand(_ cmd: SignedCommand,_ modelerKit: ModelerKit? = nil, clearFirst: Bool = false)
     {
@@ -216,7 +204,7 @@ class ModelerPipeline
         modelerUniform.mixer = cmd.material.toMaterialMixerStruct()
         
         if cmd.role == .GeometryAndMaterial {
-            cmd.geometryId = model.getNextGeometryId()
+            cmd.geometryId = 0
             modelerUniform.id = Int32(cmd.geometryId)
         } else {
             modelerUniform.id = Int32(cmd.geometryId)

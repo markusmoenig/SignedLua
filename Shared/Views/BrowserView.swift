@@ -20,7 +20,6 @@ struct BrowserView: View {
         case shapes
         case objects
         case materials
-        case modules
     }
     
     let model                               : Model
@@ -142,58 +141,8 @@ struct BrowserView: View {
                             Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
                         } else { Color.clear }
                     })
-                    
-                    Button(action: {
-                        selection =  .modules
-                    })
-                    {
-                        Label("Modules", systemImage: "l.square")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .contentShape(Rectangle())
-                            .padding(.leading, 6)
-                            .foregroundColor(.white)
-                    }
-                    .contextMenu {
-                        Button("Add") {
+                }
 
-                            databaseName = ""
-                            showDatabasePopover = true
-                        }
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .listRowBackground(Group {
-                        if selection == .modules {
-                            Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
-                        } else { Color.clear }
-                    })
-                }
-                
-                // Create DB Object
-                .popover(isPresented: $showDatabasePopover,
-                         arrowEdge: .top
-                ) {
-                    VStack(alignment: .leading) {
-                        Text("Database Name")
-                            .foregroundColor(Color.secondary)
-                        TextField("Name", text: $databaseName, onEditingChanged: { (changed) in
-                        })
-                        .frame(minWidth: 300)
-                        Button("Create") {
-                            if selection == .modules, databaseName.isEmpty == false {
-                                let module = ModuleEntity(context: managedObjectContext)
-                                
-                                module.id = UUID()
-                                module.name = databaseName
-                                module.code = "-- New Module".data(using: .utf8)
-                                
-                                do {
-                                    try managedObjectContext.save()
-                                } catch {}
-                            }
-                        }
-                        
-                    }.padding()
-                }
                 #if os(OSX)
                 .frame(maxWidth: 130)
                 #elseif os(iOS)
@@ -211,11 +160,7 @@ struct BrowserView: View {
                 } else
                 if selection == .materials {
                     MaterialView(model: model)
-                } else
-                if selection == .modules {
-                    ModuleView(model: model)
                 }
-                //Spacer()
                 
                 Divider()
 
@@ -224,13 +169,6 @@ struct BrowserView: View {
                     .foregroundColor(.gray)
             }
             .padding(.top, 0)
-        }
-        
-        //.onReceive(model.componentPreviewNeedsUpdate) { _ in
-        //}
-        
-        .onReceive(model.objectSelected) { object in
-
         }
         
         .onChange(of: materialOnlyMixer) { value in

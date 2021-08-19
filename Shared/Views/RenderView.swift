@@ -62,6 +62,7 @@ public class STKView        : MTKView
         //}
     }
     
+    /*
     /// Perform the preview of an editing command, we handle only brushes here
     func editHover()
     {
@@ -158,7 +159,7 @@ public class STKView        : MTKView
                 print(hit.2)
             }
         }
-    }
+    }*/
     
     #if os(OSX)
 
@@ -213,28 +214,21 @@ public class STKView        : MTKView
                 self.hasDoubleTap = false
             }
         }
-        
-        editCommand(editingState: .Starting)
     }
     
     override public func mouseDragged(with event: NSEvent) {
         setMousePos(event)
-        editCommand(editingState: .InProgress)
     }
     
     override public func mouseMoved(with event: NSEvent) {
         setMousePos(event)
-        
-        editHover()
-        
+                
         //let size = float2(Float(frame.width), Float(frame.height))
         //model.modeler?.getSceneHit(mousePos / size, size)
     }
     
     override public func mouseUp(with event: NSEvent) {
         
-        editCommand(editingState: .Ending)
-
         mouseIsDown = false
         hasTap = false
         hasDoubleTap = false

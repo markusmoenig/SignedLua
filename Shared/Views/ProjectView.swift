@@ -12,26 +12,21 @@ struct ProjectView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
 
     let model                               : Model
-    
-//    @State var selectedTopLevel             : SignedNode? = nil
-//    @State var selectedNode                 : SignedNode? = nil
-    //@State var scale                        : CGFloat = 1.0
+
+    @State private var showDatabasePopover  : Bool = false
+    @State private var databaseName         : String = ""
+
+    @State private var selected             : UUID? = nil
 
     @State var updateView                   : Bool = false
     
-//    @State var topLevelNodes                : [SignedNode] = []
-
-    //var libraryItems                      : [LibraryItem] = []
-    /*
-    @State var asset                        : Asset? = nil
+    @FetchRequest(
+      entity: ModuleEntity.entity(),
+      sortDescriptors: [
+        NSSortDescriptor(keyPath: \ModuleEntity.name, ascending: true)
+      ]
+    ) var modules: FetchedResults<ModuleEntity>
     
-    @State var updateView                   : Bool = false
-    
-    @State private var selection            : UUID? = nil
-        
-    @State private var showMaterials        : Bool = false
-    @State private var showObjects          : Bool = false
-     */
     #if os(macOS)
     let TopRowPadding                       : CGFloat = 2
     #else
@@ -41,11 +36,111 @@ struct ProjectView: View {
     init(_ model: Model)
     {
         self.model = model
+        if let object = model.getObject() {
+            _selected = State(initialValue: object.id)
+        }
     }
     
     var body: some View {
         
-        VStack {
+        ZStack(alignment: .bottomLeading) {
+
+            List {
+                Section(header: Text("Project")) {
+                //DisclosureGroup("Primitives", isExpanded: $showMaterials) {
+                    ForEach(model.project.objects, id: \.id) { object in
+                        Button(action: {
+                            if let code = object.code {
+                                if let value = String(data: code, encoding: .utf8) {
+                                    model.codeEditor?.setSession(value: value)
+                                    selected = object.id
+                                    if model.codeEditorMode != .project {
+                                        model.codeEditorMode = .project
+                                        model.selectionChanged.send()
+                                    }
+                                }
+                            }
+                        })
+                        {
+                            Label("main", systemImage: "s.square")
+                                .foregroundColor(selected == object.id ? .accentColor : .primary)
+                        }
+                        .contextMenu {
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+                
+                Section(header: Text("Modules")) {
+                    ForEach(modules, id: \.self) { module in
+                        Button(action: {
+                            selected = module.id!
+                            if let data = module.code {
+                                if let value = String(data: data, encoding: .utf8) {
+                                    model.codeEditor?.setSession(value: value, session: "__" + module.name!)
+                                }
+                            }
+                        })
+                        {
+                            Label(module.name!, systemImage: "cloud")
+                                .foregroundColor(selected == module.id ? .accentColor : .primary)
+                        }
+                        .contextMenu {
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+            }
+            
+            HStack {
+                Menu {
+                    
+                    Button("Module", action: {
+                        showDatabasePopover = true
+                    })
+                }
+                label: {
+                    Label("Add", systemImage: "plus")
+                }
+                .menuStyle(BorderlessButtonMenuStyle())
+                .padding(.leading, 10)
+                .padding(.bottom, 6)
+                Spacer()
+            }
+            
+            // Create DB Object
+            .popover(isPresented: $showDatabasePopover,
+                     arrowEdge: .top
+            ) {
+                VStack(alignment: .leading) {
+                    Text("Database Name")
+                        .foregroundColor(Color.secondary)
+                    TextField("Name", text: $databaseName, onEditingChanged: { (changed) in
+                    })
+                    .frame(minWidth: 300)
+                    Button("Create") {
+                        if databaseName.isEmpty == false {
+                            let module = ModuleEntity(context: managedObjectContext)
+                            
+                            module.id = UUID()
+                            module.name = databaseName
+                            module.code = "-- New Module".data(using: .utf8)
+                            
+                            do {
+                                try managedObjectContext.save()
+                            } catch {}
+                        }
+                    }
+                    
+                }.padding()
+            }
+            
+            .onReceive(model.selectionChanged) { _ in
+                if model.codeEditorMode != .project {
+                    selected = nil
+                }
+            }
+            
             /*
             List(topLevelNodes, children: \.children) { node in
                 

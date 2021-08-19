@@ -97,10 +97,6 @@ struct SideView: View {
             Spacer()
             
             Divider()
-            
-            StackView(model: model)
-                .frame(maxHeight: 100)
-                .padding(0)
         }
         
         .onReceive(model.shapeSelected) { shape in

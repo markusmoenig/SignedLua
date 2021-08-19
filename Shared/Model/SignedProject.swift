@@ -15,13 +15,11 @@ class SignedProject: Codable {
         case code
         case camera
         case dataGroups
+        case objects
     }
     
     /// The objects in the project
-    //var objects                             : [SignedObject] = []
-    
-    /// The code
-    var code                                : String = ""
+    var objects                             : [SignedObject] = []
     
     /// Camera
     var camera                              : SignedPinholeCamera
@@ -30,8 +28,8 @@ class SignedProject: Codable {
     var dataGroups                          : SignedDataGroups
     
     init() {
-        //let object = SignedObject("Unnamed")
-        //objects.append(object)
+        let object = SignedObject("main")
+        objects.append(object)
         
         camera = SignedPinholeCamera()
         dataGroups = SignedDataGroups()
@@ -42,8 +40,7 @@ class SignedProject: Codable {
     required init(from decoder: Decoder) throws
     {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        //objects = try container.decode([SignedObject].self, forKey: .objects)
-        code = try container.decode(String.self, forKey: .code)
+        objects = try container.decode([SignedObject].self, forKey: .objects)
         camera = try container.decode(SignedPinholeCamera.self, forKey: .camera)
         dataGroups = try container.decode(SignedDataGroups.self, forKey: .dataGroups)
     }
@@ -51,8 +48,7 @@ class SignedProject: Codable {
     func encode(to encoder: Encoder) throws
     {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        //try container.encode(objects, forKey: .objects)
-        try container.encode(code, forKey: .code)
+        try container.encode(objects, forKey: .objects)
         try container.encode(camera, forKey: .camera)
         try container.encode(dataGroups, forKey: .dataGroups)
     }

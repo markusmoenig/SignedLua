@@ -301,7 +301,7 @@ class SignedBuilder {
         
         setupLuaCommand()
 
-        switch vm.eval(model.project.code, args: []) {
+        switch vm.eval(model.getObjectCode(), args: []) {
         case let .values(values):
             if values.isEmpty == false {
                 print(values.first!)

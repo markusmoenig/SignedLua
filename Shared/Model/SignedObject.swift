@@ -8,22 +8,21 @@
 import Foundation
 import CoreGraphics
 
-/// This object is the base for everything, if its an geometry object or a material
+/// A name with a piece of code
 class SignedObject : Codable, Hashable, Identifiable {
     
     var id              = UUID()
     var name            : String
     
     var children        : [SignedObject]? = nil
-    
-    /// The commands stack
-    var commands        : [SignedCommand] = []
+
+    var code            : Data? = "-- Lua code\n".data(using: .utf8)
     
     private enum CodingKeys: String, CodingKey {
         case id
         case name
+        case code
         case children
-        case commands
     }
     
     init(_ name: String = "Unnamed")
@@ -45,7 +44,7 @@ class SignedObject : Codable, Hashable, Identifiable {
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         children = try container.decode([SignedObject]?.self, forKey: .children)
-        commands = try container.decode([SignedCommand].self, forKey: .commands)        
+        code = try container.decode(Data?.self, forKey: .code)
     }
     
     func encode(to encoder: Encoder) throws
@@ -54,7 +53,7 @@ class SignedObject : Codable, Hashable, Identifiable {
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(children, forKey: .children)
-        try container.encode(commands, forKey: .commands)
+        try container.encode(code, forKey: .code)
     }
     
     static func ==(lhs: SignedObject, rhs: SignedObject) -> Bool {

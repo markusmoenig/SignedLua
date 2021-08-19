@@ -50,8 +50,8 @@ class Model: NSObject, ObservableObject {
     var selectedObject                      : SignedObject? = nil
     var selectedCommand                     : SignedCommand? = nil
 
-    /// The project code has been selected, deselect selected objects, materials, modules
-    let projectCodeSelected                 = PassthroughSubject<Void, Never>()
+    /// The selection has changed
+    let selectionChanged                    = PassthroughSubject<Void, Never>()
     
     /// Currently selected shape in the browser
     var selectedShape                       : SignedCommand? = nil
@@ -143,7 +143,6 @@ class Model: NSObject, ObservableObject {
         self.project = project
         
         //selectedObject = project.objects.first
-        selectedCommand = selectedObject?.commands.first
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             //if let selectedCommand = self.selectedCommand {
@@ -233,21 +232,32 @@ class Model: NSObject, ObservableObject {
         return nil
     }
     
-    // A SignedData entity of the given group name has been changed. Reset the pathtracer.
+    /// A SignedData entity of the given group name has been changed. Reset the pathtracer.
     func updateSelectedGroup(groupName: String) {
         renderer?.restart()
     }
     
-    /// Returns the next available geometry id
-    func getNextGeometryId() -> Int {
-        var id : Int = 0
-        if let object = selectedObject {
-            for c in object.commands {
-                if c.role == .GeometryAndMaterial {
-                    id += 1
+    /// Get the object of the given name
+    func getObject(name: String = "main") -> SignedObject? {
+        for o in project.objects {
+            if o.name == name {
+                return o
+            }
+        }
+        return nil
+    }
+    
+    /// Get the code string  of the given object
+    func getObjectCode(name: String = "main") -> String {
+        for o in project.objects {
+            if o.name == name {
+                if let code = o.code {
+                    if let value = String(data: code, encoding: .utf8) {
+                        return value
+                    }
                 }
             }
         }
-        return id - 1
+        return ""
     }
 }

@@ -112,8 +112,6 @@
 		2B58F31F268FE95200DE1121 /* SignedMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58F31D268FE95200DE1121 /* SignedMaterial.swift */; };
 		2B62AD68268D60B1000504C0 /* ShapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD67268D60B1000504C0 /* ShapeView.swift */; };
 		2B62AD69268D60B1000504C0 /* ShapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD67268D60B1000504C0 /* ShapeView.swift */; };
-		2B62AD6E268D6FEA000504C0 /* StackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD6D268D6FEA000504C0 /* StackView.swift */; };
-		2B62AD6F268D6FEA000504C0 /* StackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD6D268D6FEA000504C0 /* StackView.swift */; };
 		2B62AD71268D7FF4000504C0 /* DataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD70268D7FF4000504C0 /* DataView.swift */; };
 		2B62AD72268D7FF4000504C0 /* DataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD70268D7FF4000504C0 /* DataView.swift */; };
 		2B6312D925BAC308002C1FDD /* GPUMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6312D825BAC308002C1FDD /* GPUMisc.swift */; };
@@ -345,7 +343,6 @@
 		2B52C5F8268805A700CAB2F2 /* SignedProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedProject.swift; sourceTree = "<group>"; };
 		2B58F31D268FE95200DE1121 /* SignedMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedMaterial.swift; sourceTree = "<group>"; };
 		2B62AD67268D60B1000504C0 /* ShapeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeView.swift; sourceTree = "<group>"; };
-		2B62AD6D268D6FEA000504C0 /* StackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackView.swift; sourceTree = "<group>"; };
 		2B62AD70268D7FF4000504C0 /* DataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataView.swift; sourceTree = "<group>"; };
 		2B6312D825BAC308002C1FDD /* GPUMisc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUMisc.swift; sourceTree = "<group>"; };
 		2B651A402682C5FC002DF988 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
@@ -669,7 +666,6 @@
 				2BC838F426919A070087249A /* MaterialView.swift */,
 				2B7242DC26CB398300F265F1 /* ModuleView.swift */,
 				2BC042EF267ED39200DD85E2 /* SettingsView.swift */,
-				2B62AD6D268D6FEA000504C0 /* StackView.swift */,
 				2BC042F2267ED3FB00DD85E2 /* ParameterView.swift */,
 				2BC042F5267ED4A500DD85E2 /* EditorView.swift */,
 				2BC042F8267ED54500DD85E2 /* ToolViews.swift */,
@@ -975,7 +971,6 @@
 				2BB4E0B625B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BC733A526C8EDE400BCE667 /* lparser.c in Sources */,
 				2BC733C326C8EDE400BCE667 /* LuaSource.m in Sources */,
-				2B62AD6E268D6FEA000504C0 /* StackView.swift in Sources */,
 				2BB4E0BB25B811360028C76A /* GPUCamera.swift in Sources */,
 				2BC042F0267ED39200DD85E2 /* SettingsView.swift in Sources */,
 				2B3CD1FF268A9D46007FCADF /* SideView.swift in Sources */,
@@ -1116,7 +1111,6 @@
 				2BB4E0B725B80C330028C76A /* GPUBaseShader.swift in Sources */,
 				2BC733A626C8EDE400BCE667 /* lparser.c in Sources */,
 				2BC733C426C8EDE400BCE667 /* LuaSource.m in Sources */,
-				2B62AD6F268D6FEA000504C0 /* StackView.swift in Sources */,
 				2BB4E0BC25B811360028C76A /* GPUCamera.swift in Sources */,
 				2BC042F1267ED39200DD85E2 /* SettingsView.swift in Sources */,
 				2B3CD200268A9D46007FCADF /* SideView.swift in Sources */,
