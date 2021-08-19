@@ -804,6 +804,7 @@ float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUnifo
     editHit = false;
     
     float d = modelTexture.sample(textureSampler, clamp((p / scale + float3(0.5)), 0., 1.)).x * scale;
+    
     float editingDist = applyModelerData(p, d, mData, scale, materialMixValue);
     
     if (d != editingDist) {

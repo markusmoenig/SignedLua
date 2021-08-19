@@ -86,6 +86,9 @@ class Model: NSObject, ObservableObject {
     /// Update UIs
     let updateUI                            = PassthroughSubject<Void, Never>()
     
+    /// Send when the info changed and the UI has to be updated
+    let infoChanged                        = PassthroughSubject<Void, Never>()
+    
     /// Reference to the underlying code editor
     var codeEditor                          : CodeEditor? = nil
 
@@ -114,6 +117,9 @@ class Model: NSObject, ObservableObject {
     
     /// The current materialOnlyMixer
     var materialOnlyMixer                   : Float = 0.5
+
+    /// Info text
+    var infoText                            : String = ""
 
     override init() {
         project = SignedProject()

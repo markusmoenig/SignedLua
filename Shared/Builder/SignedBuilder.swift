@@ -21,6 +21,7 @@ class SignedBuilder {
     
     var vm                      : VirtualMachine!
     var context                 : SignedContext!
+    var alreadyRequired         : [String] = []
     
     init(_ model: Model) {
         self.model = model
@@ -201,6 +202,9 @@ class SignedBuilder {
                     shape.cmd = cmd.copy()
                 }
                 
+                shape.cmd?.role = .GeometryAndMaterial
+                shape.cmd?.action = .Add
+                
                 let data = self.vm.createUserdata(shape)
                 return .value(data)
             } else {
@@ -223,17 +227,20 @@ class SignedBuilder {
             
             if let name = module.name {
                 if inputs.contains(name) {
-                    if let data = module.code {
-                        if let code = String(data: data, encoding: .utf8) {
-                            switch vm.eval(code, args: []) {
-                            case let .values(values):
-                                if values.isEmpty == false {
-                                    vm.globals[name] = values[0]
+                    if alreadyRequired.contains(name) == false {
+                        if let data = module.code {
+                            if let code = String(data: data, encoding: .utf8) {
+                                switch vm.eval(code, args: []) {
+                                case let .values(values):
+                                    if values.isEmpty == false {
+                                        vm.globals[name] = values[0]
+                                    }
+                                case let .error(e):
+                                    print("error in module \(name)", e)
                                 }
-                            case let .error(e):
-                                print("error in module \(name)", e)
                             }
                         }
+                        alreadyRequired.append(name)
                     }
                 }
             }
@@ -249,28 +256,49 @@ class SignedBuilder {
         
         modeler.clear()
         model.renderer?.restart()
+        model.infoText = ""
+        model.infoChanged.send()
                 
         vm = VirtualMachine()
         context = SignedContext(model: model)
 
         // print
-        vm.globals["print"] = vm.createFunction([String.arg]) { args in
+        vm.globals["_print"] = vm.createFunction([String.arg]) { args in
             if args.values.isEmpty == false {
-                print(args.string)
+                self.model.infoText += args.string + "\n"
+                self.model.infoChanged.send()
             }
             return .nothing
         }
+        
+        _ = vm.eval("""
+        
+        print = function(...)
+            local args = {...}
+            local printResult = ""
+            for i,v in ipairs(args) do
+                if i > 1 then
+                    printResult = printResult .. ", "
+                end
+                printResult = printResult .. tostring(v)
+            end
+            _print(printResult)
+        end
+        
+        """, args: [])
         // require
         vm.globals["require"] = vm.createFunction([String.arg]) { args in
             if args.values.isEmpty == false {
                 let string = args.string
-                print("require", string)
                 self.requireModules([string])
             }
             return .nothing
         }
         
+        // Auto require the basic modules
+        alreadyRequired = []
         requireModules(["vec3", "vec2"])
+        
         setupLuaCommand()
 
         switch vm.eval(model.project.code, args: []) {
@@ -282,13 +310,14 @@ class SignedBuilder {
             print(e)
         }
 
-        
+        /*
         let cmd = SignedCommand("Ground", role: .GeometryAndMaterial, action: .Add, primitive: .Box,
                                        data: ["Transform" : SignedData([SignedDataEntity("Position", float3(0,-0.9,0)) ]),
                                               "Geometry": SignedData([SignedDataEntity("Size", float3(0.6,0.4,0.6) * Float(Modeler_Global_Scale))])
                                              ], material: SignedMaterial(albedo: float3(0.5,0.5,0.5), metallic: 1, roughness: 0.3))
         
         context.addToPipeline(cmd: cmd)
+         */
         
         /*
         let context = SignedContext(model: model)

@@ -281,6 +281,8 @@
 		2BCF02B826BF6AF0007E3F0A /* SignedJSBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCF02B626BF6AF0007E3F0A /* SignedJSBase.swift */; };
 		2BF3FBC325EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
 		2BF3FBC425EDCD31002E7161 /* EnvironmentNodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */; };
+		2BF8593E26CE004100AC127A /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF8593D26CE004100AC127A /* InfoView.swift */; };
+		2BF8593F26CE004100AC127A /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF8593D26CE004100AC127A /* InfoView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -455,6 +457,7 @@
 		2BCF02B326BF6A30007E3F0A /* SignedJSShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedJSShape.swift; sourceTree = "<group>"; };
 		2BCF02B626BF6AF0007E3F0A /* SignedJSBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedJSBase.swift; sourceTree = "<group>"; };
 		2BF3FBC225EDCD31002E7161 /* EnvironmentNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentNodes.swift; sourceTree = "<group>"; };
+		2BF8593D26CE004100AC127A /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -660,6 +663,7 @@
 				2B3CD1FE268A9D46007FCADF /* SideView.swift */,
 				2B62AD70268D7FF4000504C0 /* DataView.swift */,
 				2B260E1726CC8E6E00EDEBC2 /* DetailView.swift */,
+				2BF8593D26CE004100AC127A /* InfoView.swift */,
 				2B37E6BF268850CE000439EF /* BrowserView.swift */,
 				2B2B3C9A26CB56BB00FFA287 /* ObjectView.swift */,
 				2BC838F426919A070087249A /* MaterialView.swift */,
@@ -1012,6 +1016,7 @@
 				2B405EF7268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC733B326C8EDE400BCE667 /* ltm.c in Sources */,
 				2BC7338326C8EDE400BCE667 /* lmem.c in Sources */,
+				2BF8593E26CE004100AC127A /* InfoView.swift in Sources */,
 				2B7242DD26CB398300F265F1 /* ModuleView.swift in Sources */,
 				2BC042F9267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C525EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,
@@ -1152,6 +1157,7 @@
 				2B405EF8268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC733B426C8EDE400BCE667 /* ltm.c in Sources */,
 				2BC7338426C8EDE400BCE667 /* lmem.c in Sources */,
+				2BF8593F26CE004100AC127A /* InfoView.swift in Sources */,
 				2B7242DE26CB398300F265F1 /* ModuleView.swift in Sources */,
 				2BC042FA267ED54500DD85E2 /* ToolViews.swift in Sources */,
 				2B2D71C625EC7ACE00180AC3 /* OperatorNodes.swift in Sources */,

@@ -191,8 +191,14 @@ class RenderPipeline
                 var renderUniforms = createRenderUniform(model.modeler?.mainKit !== kit)
                 computeEncoder.setBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
                 
-                var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd)
-                computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
+                if model.modeler?.mainKit === kit {
+                    var modelerUniform = ModelerUniform()
+                    modelerUniform.actionType = 0
+                    computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
+                } else {
+                    var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd)
+                    computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
+                }
                 
                 computeEncoder.setTexture(kit.modelTexture, index: 2)
                 computeEncoder.setTexture(kit.colorTexture, index: 3)

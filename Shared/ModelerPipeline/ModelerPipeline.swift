@@ -180,7 +180,7 @@ class ModelerPipeline
         modelerUniform.roleType = cmd.role.rawValue
         modelerUniform.actionType = cmd.action.rawValue
         modelerUniform.primitiveType = cmd.primitive.rawValue
-        
+                
         //modelerUniform.brushHit = model.editingHit
         //modelerUniform.writeBrush = model.writeAction
         modelerUniform.materialOnlyMixerValue = model.materialOnlyMixer
@@ -191,14 +191,14 @@ class ModelerPipeline
         }
         
         if let modifierData = cmd.dataGroups.getGroup("Modifier") {
-            modelerUniform.noise = modifierData.getFloat("Noise")
+            modelerUniform.noise = modifierData.getFloat("Noise", 0.3)
             modelerUniform.surfaceDistance = modifierData.getFloat("Surface Distance", 0)
         }
         
         if let geometryData = cmd.dataGroups.getGroup("Geometry") {
-            modelerUniform.size = geometryData.getFloat3("Size", float3(1,1,1))
+            modelerUniform.size = geometryData.getFloat3("Size", float3(4,4,4))
             modelerUniform.radius = geometryData.getFloat("Radius", 1)
-            modelerUniform.rounding = geometryData.getFloat("Rounding", 0)
+            modelerUniform.rounding = geometryData.getFloat("Rounding", 0)            
         }
         
         if let booleanData = cmd.dataGroups.getGroup("Boolean") {
