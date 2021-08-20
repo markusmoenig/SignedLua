@@ -48,6 +48,8 @@ struct ContentView: View {
     @State private var isMoving                         : Bool = false
     @State private var isZooming                        : Bool = false
 
+    @State private var modulesArrived                   : Bool = false
+
     #if os(macOS)
     let leftPanelWidth                      : CGFloat = 180
     #else
@@ -347,6 +349,7 @@ struct ContentView: View {
                     Text("Build")
                 }
                 .keyboardShortcut("b")
+                .disabled(modulesArrived == false)
                 
                 toolPreviewMenu
             }
@@ -429,6 +432,10 @@ struct ContentView: View {
         
         .onReceive(self.document.model.updateUI) { _ in
             updateView.toggle()
+        }
+        
+        .onReceive(self.document.model.modulesArrived) { _ in
+            modulesArrived = true
         }
         
         // Custom Resolution Popover

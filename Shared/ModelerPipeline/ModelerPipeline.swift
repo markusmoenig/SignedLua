@@ -57,6 +57,8 @@ class ModelerPipeline
     static var IconSamples : Int = 40
     
     var pipeline        : [SignedCommand] = []
+    
+    var isWorking       : Bool = false
 
     init(_ view: MTKView,_ model: Model)
     {
@@ -68,7 +70,7 @@ class ModelerPipeline
         
         modelingStates = ModelerStates(device)
         
-        mainKit = allocateKit(256)//512)
+        mainKit = allocateKit(512)
         iconKit = allocateKit(ModelerPipeline.IconSize)
         
         iconKit.sampleTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
@@ -122,10 +124,12 @@ class ModelerPipeline
 
                         calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
                     }
+                    isWorking = true
                     computeEncoder.endEncoding()
                 }
                 
                 commandBuffer?.addCompletedHandler { cb in
+                    self.isWorking = false
                     print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
                 }
             }
@@ -174,7 +178,7 @@ class ModelerPipeline
         modelerUniform.materialOnlyMixerValue = model.materialOnlyMixer
         
         if let transformData = cmd.dataGroups.getGroup("Transform") {
-            modelerUniform.position = transformData.getFloat3("Position")
+            modelerUniform.position = transformData.getFloat3("Position") / model.modelingScale
             modelerUniform.rotation = transformData.getFloat3("Rotation")
         }
         

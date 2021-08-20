@@ -89,6 +89,9 @@ class Model: NSObject, ObservableObject {
     /// Send when the info changed and the UI has to be updated
     let infoChanged                        = PassthroughSubject<Void, Never>()
     
+    /// Send when the modules were downloaded successfully
+    let modulesArrived                      = PassthroughSubject<Void, Never>()
+    
     /// Reference to the underlying code editor
     var codeEditor                          : CodeEditor? = nil
 
@@ -139,7 +142,11 @@ class Model: NSObject, ObservableObject {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.shapeSelected.send(self.selectedShape!)
+            self.infoText = "Waiting for modules ...\n"
+            self.infoChanged.send()
         }
+        
+        checkForModules()
     }
     
     func setProject(_ project: SignedProject) {
@@ -207,7 +214,9 @@ class Model: NSObject, ObservableObject {
     }
         
     /// Initialises the inbuilt materials
-    func createMaterials() {        
+    func createMaterials() {
+        
+        /*
         let request = MaterialEntity.fetchRequest()
         
         let managedObjectContext = PersistenceController.shared.container.viewContext
@@ -221,6 +230,24 @@ class Model: NSObject, ObservableObject {
             
             materials[object.id!] = cmd
             self.renderer?.iconQueue += [cmd]
+        }*/
+    }
+    
+    func checkForModules() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let request = ModuleEntity.fetchRequest()
+            
+            let managedObjectContext = PersistenceController.shared.container.viewContext
+            let objects = try! managedObjectContext.fetch(request)
+            
+            if objects.count == 0 {
+                self.checkForModules()
+                return
+            }
+            
+            self.modulesArrived.send()
+            self.infoText += "Modules arrived! Ready to build.\n"
+            self.infoChanged.send()
         }
     }
     

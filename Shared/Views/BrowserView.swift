@@ -44,7 +44,7 @@ struct BrowserView: View {
 
             Divider()
             
-            HStack {
+            HStack(spacing: 1) {
                 List {
                     Button(action: {
                         selection =  .shapes

@@ -19,6 +19,7 @@ struct InfoView: View {
                 HStack {
                     Text(info)
                         .lineLimit(nil)
+                        .font(.system(size: 11))
                     Spacer()
                 }
                 .padding(.leading, 4)

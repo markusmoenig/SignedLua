@@ -79,8 +79,10 @@ class RenderPipeline
     func renderSample()
     {
         if model.modeler?.pipeline.isEmpty == false {
-            model.modeler?.executeNext()
-            restart()
+            if model.modeler?.isWorking == false {
+                model.modeler?.executeNext()
+                restart()
+            }
             //return
         }
         
