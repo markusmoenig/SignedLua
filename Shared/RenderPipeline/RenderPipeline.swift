@@ -46,10 +46,17 @@ class RenderPipeline
         model.modeler = ModelerPipeline(view, model)
     }
     
-    /// Restarts the renderer
+    /// Restarts the path tracer
     func restart()
     {
         needsRestart = true
+        view.isPaused = false
+    }
+    
+    /// Resumes the renderer
+    func resume()
+    {
+        view.isPaused = false
     }
     
     /// Restarts the renderer
@@ -96,12 +103,19 @@ class RenderPipeline
             performRestart(true, clear: false)
             needsRestart = false
         }
-                
+                        
         if let mainKit = model.modeler?.mainKit {
-            runRender(mainKit)
             
-            model.modeler?.accumulate(texture: mainKit.sampleTexture!, targetTexture: mainKit.outputTexture!, samples: mainKit.samples)
-            mainKit.samples += 1
+            if mainKit.samples < 200 {
+                runRender(mainKit)
+                
+                model.modeler?.accumulate(texture: mainKit.sampleTexture!, targetTexture: mainKit.outputTexture!, samples: mainKit.samples)
+                mainKit.samples += 1
+            } else {
+                if model.modeler!.pipeline.isEmpty && iconQueue.isEmpty {
+                    view.isPaused = true
+                }
+            }
 
             //commandBuffer?.addCompletedHandler { cb in
                 //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
