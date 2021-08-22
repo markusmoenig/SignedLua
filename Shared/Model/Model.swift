@@ -92,6 +92,9 @@ class Model: NSObject, ObservableObject {
     /// Send when the modules were downloaded successfully
     let modulesArrived                      = PassthroughSubject<Void, Never>()
     
+    /// Send when showing modeling progress
+    let modelingProgressChanged             = PassthroughSubject<String, Never>()
+    
     /// Reference to the underlying code editor
     var codeEditor                          : CodeEditor? = nil
 
@@ -126,7 +129,16 @@ class Model: NSObject, ObservableObject {
     
     /// Info text
     var infoText                            : String = ""
+    
+    /// The progress text to show in the info view
+    //var infoProgressText                    : String = ""
 
+    /// The modeling progress
+    var infoProgressValue                   : Double = 0
+    
+    var infoProgressProcessedCmds           : Int32 = 0
+    var infoProgressTotalCmds               : Int32 = 0
+    
     override init() {
         project = SignedProject()
         super.init()
@@ -142,8 +154,7 @@ class Model: NSObject, ObservableObject {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.shapeSelected.send(self.selectedShape!)
-            self.infoText = "Waiting for modules ...\n"
-            self.infoChanged.send()
+            self.modelingProgressChanged.send("Waiting for modules...")
         }
         
         checkForModules()
@@ -246,7 +257,7 @@ class Model: NSObject, ObservableObject {
             }
             
             self.modulesArrived.send()
-            self.infoText += "Modules arrived! Ready to build.\n"
+            self.modelingProgressChanged.send("Ready")
             self.infoChanged.send()
         }
     }

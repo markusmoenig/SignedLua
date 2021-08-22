@@ -19,6 +19,21 @@ class SignedContext {
     /// Adds the given cmd to the modeler pipeline
     func addToPipeline(cmd: SignedCommand) {
         model.modeler?.pipeline.append(cmd)
+        model.infoProgressTotalCmds += 1
+        
+        createProgressValues()
+    }
+    
+    func createProgressValues() {
+        var string = ""
+        if model.infoProgressProcessedCmds < model.infoProgressTotalCmds {
+            string = "\(model.infoProgressProcessedCmds) / \(model.infoProgressTotalCmds)"
+        } else {
+            string = "Idle"
+        }
+        DispatchQueue.main.async {
+            self.model.modelingProgressChanged.send(string)
+        }
     }
     
     /// Converts meter to the internal texture representation

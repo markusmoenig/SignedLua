@@ -208,7 +208,7 @@ struct ContentView: View {
                                 )
                             }
                             
-                            DetailView(model: document.model)
+                            //DetailView(model: document.model)
                         }
                     }
                     

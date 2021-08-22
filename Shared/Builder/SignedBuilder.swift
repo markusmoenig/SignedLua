@@ -257,10 +257,13 @@ class SignedBuilder {
         model.renderer?.restart()
         model.infoText = ""
         model.infoChanged.send()
+        
+        model.infoProgressProcessedCmds = 0
+        model.infoProgressTotalCmds = 0
                 
         vm = VirtualMachine()
         context = SignedContext(model: model)
-
+        
         // print
         vm.globals["_print"] = vm.createFunction([String.arg]) { args in
             if args.values.isEmpty == false {

@@ -130,6 +130,8 @@ class ModelerPipeline
                 
                 commandBuffer?.addCompletedHandler { cb in
                     self.isWorking = false
+                    self.model.infoProgressProcessedCmds += 1
+                    self.model.builder?.context.createProgressValues()
                     print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
                 }
             }
