@@ -1032,7 +1032,7 @@ kernel void render(            constant RenderUniform               &renderData 
             float outside = 1.0;
 
             if (depth == 0)
-                t = bbox.x;
+                t = max(bbox.x, 0.0001);
             else {
                 t = 0.0001;
                 outside = dot(state.normal, state.ffnormal) > 0.0 ? 1.0 : -1.0;
