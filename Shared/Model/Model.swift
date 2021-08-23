@@ -125,7 +125,7 @@ class Model: NSObject, ObservableObject {
     var materialOnlyMixer                   : Float = 0.5
 
     /// A value of 10 means we are modeling max 10 meter objects
-    var modelingScale                       = Float(10)
+    var modelingScale                       = Float(5)
     
     /// Info text
     var infoText                            : String = ""
@@ -219,7 +219,7 @@ class Model: NSObject, ObservableObject {
     func createShapes() {
         shapes = [
             SignedCommand("Sphere", role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.04) * modelingScale, float2(0, 5))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
-            SignedCommand("Box", role: .GeometryAndMaterial, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("Size", float3(0.03,0.03,0.03) * modelingScale, float2(0,10), .Slider), SignedDataEntity("Rounding", Float(0.0), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
+            SignedCommand("Box", role: .GeometryAndMaterial, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,10), .Slider), SignedDataEntity("Rounding", Float(0.0), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]
         selectedShape = shapes.first
     }

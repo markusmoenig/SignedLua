@@ -23,6 +23,8 @@ class SignedBuilder {
     var context                 : SignedContext!
     var alreadyRequired         : [String] = []
     
+    var workItem                : DispatchWorkItem? = nil
+    
     init(_ model: Model) {
         self.model = model
     }
@@ -253,81 +255,96 @@ class SignedBuilder {
             return
         }
         
-        modeler.clear()
-        model.renderer?.restart()
-        model.infoText = ""
-        model.infoChanged.send()
-        
-        model.infoProgressProcessedCmds = 0
-        model.infoProgressTotalCmds = 0
-                
-        vm = VirtualMachine()
-        context = SignedContext(model: model)
-        
-        // print
-        vm.globals["_print"] = vm.createFunction([String.arg]) { args in
-            if args.values.isEmpty == false {
-                self.model.infoText += args.string + "\n"
-                self.model.infoChanged.send()
+        workItem = DispatchWorkItem {
+            
+            let model = self.model
+            
+            modeler.clear()
+            model.renderer?.restart()
+            model.infoText = ""
+            DispatchQueue.main.async {
+                model.infoChanged.send()
             }
-            return .nothing
-        }
-        
-        _ = vm.eval("""
-        
-        print = function(...)
-            local args = {...}
-            local printResult = ""
-            for i,v in ipairs(args) do
-                if i > 1 then
-                    printResult = printResult .. ", "
+            
+            model.infoProgressProcessedCmds = 0
+            model.infoProgressTotalCmds = 0
+                    
+            self.vm = VirtualMachine()
+            self.context = SignedContext(model: model)
+            
+            // print
+            self.vm.globals["_print"] = self.vm.createFunction([String.arg]) { args in
+                if args.values.isEmpty == false {
+                    self.model.infoText += args.string + "\n"
+                    DispatchQueue.main.async {
+                        self.model.infoChanged.send()
+                    }
+                }
+                return .nothing
+            }
+            
+            _ = self.vm.eval("""
+            
+            print = function(...)
+                local args = {...}
+                local printResult = ""
+                for i,v in ipairs(args) do
+                    if i > 1 then
+                        printResult = printResult .. ", "
+                    end
+                    printResult = printResult .. tostring(v)
                 end
-                printResult = printResult .. tostring(v)
+                _print(printResult)
             end
-            _print(printResult)
-        end
-        
-        """, args: [])
-        // require
-        vm.globals["require"] = vm.createFunction([String.arg]) { args in
-            if args.values.isEmpty == false {
-                let string = args.string
-                self.requireModules([string])
+            
+            """, args: [])
+            // require
+            self.vm.globals["require"] = self.vm.createFunction([String.arg]) { args in
+                if args.values.isEmpty == false {
+                    let string = args.string
+                    self.requireModules([string])
+                }
+                return .nothing
             }
-            return .nothing
+            
+            // Auto require the basic modules
+            self.alreadyRequired = []
+            self.requireModules(["vec3", "vec2"])
+            
+            self.setupLuaCommand()
+
+            switch self.vm.eval(model.getObjectCode(), args: []) {
+            case let .values(values):
+                if values.isEmpty == false {
+                    print(values.first!)
+                }
+            case let .error(e):
+                self.model.infoText += e + "\n"
+                DispatchQueue.main.async {
+                    self.model.infoChanged.send()
+                }
+            }
+
+            /*
+            let cmd = SignedCommand("Ground", role: .GeometryAndMaterial, action: .Add, primitive: .Box,
+                                           data: ["Transform" : SignedData([SignedDataEntity("Position", float3(0,-0.9,0)) ]),
+                                                  "Geometry": SignedData([SignedDataEntity("Size", float3(0.6,0.4,0.6) * Float(Modeler_Global_Scale))])
+                                                 ], material: SignedMaterial(albedo: float3(0.5,0.5,0.5), metallic: 1, roughness: 0.3))
+            
+            context.addToPipeline(cmd: cmd)
+             */
+            
+            /*
+            let context = SignedContext(model: model)
+            
+            for node in topLevelNodes {
+                node.execute(context: context)
+            }*/
         }
         
-        // Auto require the basic modules
-        alreadyRequired = []
-        requireModules(["vec3", "vec2"])
-        
-        setupLuaCommand()
-
-        switch vm.eval(model.getObjectCode(), args: []) {
-        case let .values(values):
-            if values.isEmpty == false {
-                print(values.first!)
-            }
-        case let .error(e):
-            self.model.infoText += e + "\n"
-            self.model.infoChanged.send()
+        if let workItem = workItem {
+            DispatchQueue.global().async(execute: workItem)
         }
-
-        /*
-        let cmd = SignedCommand("Ground", role: .GeometryAndMaterial, action: .Add, primitive: .Box,
-                                       data: ["Transform" : SignedData([SignedDataEntity("Position", float3(0,-0.9,0)) ]),
-                                              "Geometry": SignedData([SignedDataEntity("Size", float3(0.6,0.4,0.6) * Float(Modeler_Global_Scale))])
-                                             ], material: SignedMaterial(albedo: float3(0.5,0.5,0.5), metallic: 1, roughness: 0.3))
-        
-        context.addToPipeline(cmd: cmd)
-         */
-        
-        /*
-        let context = SignedContext(model: model)
-        
-        for node in topLevelNodes {
-            node.execute(context: context)
-        }*/
     }
 }
 

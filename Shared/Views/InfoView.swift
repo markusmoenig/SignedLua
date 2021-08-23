@@ -13,7 +13,7 @@ struct InfoView: View {
     
     @State private var info                 : String = ""
 
-    @State private var progressString       : String = "Idle"
+    @State private var progressString       : String = "Ready"
     @State private var value                : Float = 0
 
     var body: some View {
@@ -34,6 +34,7 @@ struct InfoView: View {
                 HStack(spacing: 1) {
 
                     Button(action: {
+                        model.builder.workItem?.cancel()
                         model.modeler?.pipeline = []
                         model.infoProgressTotalCmds = 0
                         model.infoProgressProcessedCmds = 0

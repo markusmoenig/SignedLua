@@ -29,7 +29,7 @@ class SignedContext {
         if model.infoProgressProcessedCmds < model.infoProgressTotalCmds {
             string = "\(model.infoProgressProcessedCmds) / \(model.infoProgressTotalCmds)"
         } else {
-            string = "Idle"
+            string = "Ready"
         }
         DispatchQueue.main.async {
             self.model.modelingProgressChanged.send(string)
