@@ -188,8 +188,9 @@ typedef struct {
 #define Modeler_Add                         1
 #define Modeler_Subtract                    2
 
-#define Modeler_Sphere                      0
-#define Modeler_Box                         1
+#define Modeler_Shape_Heightfield           0
+#define Modeler_Shape_Sphere                1
+#define Modeler_Shape_Box                   2
 
 typedef struct
 {
@@ -283,6 +284,12 @@ typedef struct {
     float               repDistance;
     simd_float3         repLowerLimit;
     simd_float3         repUpperLimit;
+    
+    // heightfield
+    
+    float               heightFrequency;
+    float               heightOctaves;
+    float               heightScale;
 
     // If we are using a brush, the brush hit is used to render a preview
     simd_float3         brushHit;

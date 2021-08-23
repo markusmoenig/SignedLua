@@ -35,6 +35,7 @@ struct InfoView: View {
 
                     Button(action: {
                         model.builder.workItem?.cancel()
+                        model.builder.exitLua()
                         model.modeler?.pipeline = []
                         model.infoProgressTotalCmds = 0
                         model.infoProgressProcessedCmds = 0
@@ -78,8 +79,11 @@ struct InfoView: View {
         .onReceive(model.modelingProgressChanged) { string in
             progressString = string
             if model.infoProgressProcessedCmds < model.infoProgressTotalCmds {
-                value = Float(model.infoProgressProcessedCmds + 1) / Float(model.infoProgressTotalCmds)
+                value = Float(model.infoProgressProcessedCmds) / Float(model.infoProgressTotalCmds)
             } else {
+                if model.infoProgressTotalCmds > 0 {
+                    value = 1
+                }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     value = 0
                 }

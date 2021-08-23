@@ -30,6 +30,7 @@ class SignedContext {
             string = "\(model.infoProgressProcessedCmds) / \(model.infoProgressTotalCmds)"
         } else {
             string = "Ready"
+            model.builder.inProgress = false
         }
         DispatchQueue.main.async {
             self.model.modelingProgressChanged.send(string)

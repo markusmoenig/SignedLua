@@ -193,6 +193,10 @@ class ModelerPipeline
             modelerUniform.size = geometryData.getFloat3("Size", float3(4,4,4)) / model.modelingScale / 2
             modelerUniform.radius = geometryData.getFloat("Radius", 1) / model.modelingScale
             modelerUniform.rounding = geometryData.getFloat("Rounding", 0)
+            
+            modelerUniform.heightFrequency = geometryData.getFloat("Frequency", 2)
+            modelerUniform.heightOctaves = geometryData.getFloat("Octaves", 5)
+            modelerUniform.heightScale = geometryData.getFloat("Scale", 0.2)
         }
         
         if let booleanData = cmd.dataGroups.getGroup("Boolean") {

@@ -23,7 +23,7 @@ struct DetailView: View {
                 },
                           
                 onCommit: {
-                    model.builder?.extractVariables(variables: variableNames)
+                    //model.builder?.extractVariables(variables: variableNames)
                     maximized = true
                 } )
                 

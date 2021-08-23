@@ -218,6 +218,7 @@ class Model: NSObject, ObservableObject {
     /// Initialises the currently available shapes
     func createShapes() {
         shapes = [
+            SignedCommand("Heightfield", role: .GeometryAndMaterial, action: .Add, primitive: .Heightfield,  data: ["Geometry": SignedData([SignedDataEntity("Frequency", Float(2), float2(0, 20)), SignedDataEntity("Octaves", Float(5), float2(0, 20)), SignedDataEntity("Scale", Float(0.2), float2(0, 20))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
             SignedCommand("Sphere", role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.04) * modelingScale, float2(0, 5))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
             SignedCommand("Box", role: .GeometryAndMaterial, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,10), .Slider), SignedDataEntity("Rounding", Float(0.0), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]

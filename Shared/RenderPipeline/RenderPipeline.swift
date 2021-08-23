@@ -236,10 +236,16 @@ class RenderPipeline
     func createRenderUniform(_ icon: Bool = false) -> RenderUniform
     {
         var renderUniform = RenderUniform()
-
-        renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
         
         if icon == false {
+
+            if model.builder.inProgress == true {
+                renderUniform.randomVector = float3(0.5, 0.5, 0.5)
+            } else {
+                renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
+            }
+
+            
             renderUniform.cameraOrigin = model.project.camera.getPosition()
             renderUniform.cameraLookAt = model.project.camera.getLookAt()
             renderUniform.cameraFov = model.project.camera.getFov()
@@ -289,6 +295,9 @@ class RenderPipeline
             renderUniform.lights.0.emission = float3(4, 4, 4)
             renderUniform.lights.0.params.z = 2
         } else {
+            
+            renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
+
             renderUniform.cameraOrigin = float3(0, -0.08, -0.5)
             renderUniform.cameraLookAt = float3(0, -0.08, 0)
             renderUniform.cameraFov = 80

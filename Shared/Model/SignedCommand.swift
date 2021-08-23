@@ -21,7 +21,7 @@ class SignedCommand : Codable, Hashable {
     }
     
     enum Primitive: Int32, Codable {
-        case Sphere, Box
+        case Heightfield, Sphere, Box
     }
     
     var id              = UUID()

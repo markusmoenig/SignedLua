@@ -203,10 +203,13 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     
     p = opRepLim(p, mData.repDistance * scale, mData.repLowerLimit, mData.repUpperLimit);
 
-    if (mData.primitiveType == Modeler_Sphere) {
+    if (mData.primitiveType == Modeler_Shape_Heightfield) {
+        newDist = uv.y - (mData.position.y + valueNoiseFBM(p * mData.heightFrequency, mData.heightOctaves) * mData.heightScale);
+    } else
+    if (mData.primitiveType == Modeler_Shape_Sphere) {
         newDist = sdSphere(p, mData.radius * scale);
     } else
-    if (mData.primitiveType == Modeler_Box) {
+    if (mData.primitiveType == Modeler_Shape_Box) {
         newDist = sdRoundBox(p, mData.size * scale, mData.rounding);
     }
     

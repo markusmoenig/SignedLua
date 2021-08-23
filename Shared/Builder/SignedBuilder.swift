@@ -23,6 +23,8 @@ class SignedBuilder {
     var context                 : SignedContext!
     var alreadyRequired         : [String] = []
     
+    var inProgress              : Bool = false
+    
     var workItem                : DispatchWorkItem? = nil
     
     init(_ model: Model) {
@@ -84,6 +86,7 @@ class SignedBuilder {
         }
     }
     
+    /*
     /// extract variables from VM
     func extractVariables(variables: String)
     {
@@ -92,7 +95,7 @@ class SignedBuilder {
                 //print("test", v["id"])
             }
         }
-    }
+    }*/
     
     /// Sets up the LuaShape ecosystem
     func setupLuaCommand() {
@@ -103,7 +106,7 @@ class SignedBuilder {
             var cmd         : SignedCommand? = nil
             
             static func luaTypeName() -> String {
-                return "command"
+                return "__command"
             }
         }
         
@@ -176,21 +179,6 @@ class SignedBuilder {
                 }
                 return .nothing
             }
-
-            /*
-            // Create shape
-            type["test"] = type.createMethod([]) { cmd, args in
-                
-                if args.values.isEmpty == false {
-                    if let f = args.values.first as? Function {
-                        //f.call(["mankind"])
-                    }
-                }
-                
-                if let cmd = cmd.cmd {
-                }
-                return .nothing
-            }*/
         }
         
         commandLib["newFromShape"] = vm.createFunction([String.arg]) { args in
@@ -213,7 +201,7 @@ class SignedBuilder {
             }
         }
         
-        vm.globals["command"] = commandLib
+        vm.globals["__command"] = commandLib
     }
     
     /// Load and execute the givenessential  modules
@@ -254,6 +242,8 @@ class SignedBuilder {
         guard let modeler = model.modeler else {
             return
         }
+        
+        inProgress = true
         
         workItem = DispatchWorkItem {
             
@@ -309,7 +299,7 @@ class SignedBuilder {
             
             // Auto require the basic modules
             self.alreadyRequired = []
-            self.requireModules(["vec3", "vec2"])
+            self.requireModules(["vec3", "vec2", "command"])
             
             self.setupLuaCommand()
 
@@ -345,6 +335,12 @@ class SignedBuilder {
         if let workItem = workItem {
             DispatchQueue.global().async(execute: workItem)
         }
+    }
+    
+    func exitLua() {
+        //if let vm = vm {
+            //_ = vm.eval("yield()", args: [])
+        //}
     }
 }
 
