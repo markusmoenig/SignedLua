@@ -11,8 +11,6 @@ import CoreGraphics
 class SignedProject: Codable {
 
     private enum CodingKeys: String, CodingKey {
-        //case objects
-        case code
         case camera
         case dataGroups
         case objects

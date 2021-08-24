@@ -30,8 +30,11 @@ class RenderPipeline
     
     var needsRestart    : Bool = true
         
-    ///
+    /// The queue for shape icons
     var iconQueue       : [SignedCommand] = []
+    
+    /// The queue for material icons
+    var materialIconQueue   : [MaterialEntity] = []
         
     init(_ view: MTKView,_ model: Model)
     {
@@ -125,7 +128,7 @@ class RenderPipeline
         
         stopCompute()//(waitUntilCompleted: true)
         
-        // Render an icon sample ?
+        // Render a shape icon sample ? These icons don't use Lua or public modules and are just based on their single SignedCommand
         if let icon = iconQueue.first {
             //startRendering(SIMD2<Int>(ModelerPipeline.IconSize, ModelerPipeline.IconSize))
             startCompute()
@@ -154,6 +157,9 @@ class RenderPipeline
             }
             
             stopCompute()
+        } else
+        if let materialIcon = materialIconQueue.first {
+                
         }
     }
     
@@ -212,7 +218,7 @@ class RenderPipeline
                     modelerUniform.actionType = 0
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
                 } else {
-                    var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd)
+                    var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd, forPreview: true)
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
                 }
                 
@@ -241,15 +247,17 @@ class RenderPipeline
 
             if model.builder.inProgress == true {
                 renderUniform.randomVector = float3(0.5, 0.5, 0.5)
+                renderUniform.noShadows = 1;
             } else {
                 renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
+                renderUniform.noShadows = 0;
             }
 
             
             renderUniform.cameraOrigin = model.project.camera.getPosition()
             renderUniform.cameraLookAt = model.project.camera.getLookAt()
             renderUniform.cameraFov = model.project.camera.getFov()
-            renderUniform.scale = model.project.getWorldScale()
+            renderUniform.scale = 1//model.project.getWorldScale()
             
             renderUniform.maxDepth = 6;
             renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
@@ -260,7 +268,6 @@ class RenderPipeline
             }
             
             renderUniform.numOfLights = 1
-            renderUniform.noShadows = 0;
 
             /*
             renderUniform.lights.0.position = float3(0,1,0)
@@ -298,10 +305,10 @@ class RenderPipeline
             
             renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
 
-            renderUniform.cameraOrigin = float3(0, -0.08, -0.5)
-            renderUniform.cameraLookAt = float3(0, -0.08, 0)
+            renderUniform.cameraOrigin = float3(0, -0.012, -0.07)
+            renderUniform.cameraLookAt = float3(0, -0.012, 0)
             renderUniform.cameraFov = 80
-            renderUniform.scale = 7//model.project.scale
+            renderUniform.scale = 1
             
             renderUniform.maxDepth = 2;
 

@@ -167,7 +167,7 @@ class ModelerPipeline
     }
     
     /// Creates the uniform
-    func createModelerUniform(_ cmd: SignedCommand) -> ModelerUniform
+    func createModelerUniform(_ cmd: SignedCommand, forPreview: Bool = false) -> ModelerUniform
     {
         var modelerUniform = ModelerUniform()
                 
@@ -181,6 +181,9 @@ class ModelerPipeline
         
         if let transformData = cmd.dataGroups.getGroup("Transform") {
             modelerUniform.position = transformData.getFloat3("Position") / model.modelingScale
+            if forPreview == false {
+                modelerUniform.position.y = -0.5 + modelerUniform.position.y
+            }
             modelerUniform.rotation = transformData.getFloat3("Rotation")
         }
         

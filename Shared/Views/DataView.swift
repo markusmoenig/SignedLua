@@ -276,6 +276,7 @@ struct DataEntityView: View {
                 Spacer()
                 if entity.feature == .MaterialLibrary {
                     Button(action: {
+                        /*
                         let object = MaterialEntity(context: managedObjectContext)
                         
                         object.id = UUID()
@@ -292,6 +293,7 @@ struct DataEntityView: View {
                         do {
                             try managedObjectContext.save()
                         } catch {}
+                        */
                     })
                     {
                         Image(systemName: "building.columns")

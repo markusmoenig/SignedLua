@@ -11,8 +11,13 @@ struct ProjectView: View {
     
     @Environment(\.managedObjectContext) var managedObjectContext
 
+    enum DatabaseType {
+        case object, material, module
+    }
+    
     let model                               : Model
 
+    @State private var databaseType         : DatabaseType = .object
     @State private var showDatabasePopover  : Bool = false
     @State private var databaseName         : String = ""
 
@@ -53,7 +58,7 @@ struct ProjectView: View {
                             if let code = object.code {
                                 if let value = String(data: code, encoding: .utf8) {
                                     selected = object.id
-                                    model.codeEditorMode = .project
+                                    //model.codeEditorMode = .project
                                     model.codeEditor?.setSession(value: value)
                                     if model.codeEditorMode != .project {
                                         model.codeEditorMode = .project
@@ -72,7 +77,7 @@ struct ProjectView: View {
                     }
                 }
                 
-                Section(header: Text("Modules")) {
+                Section(header: Text("Public Modules")) {
                     ForEach(modules, id: \.self) { module in
                         Button(action: {
                             selected = module.id!
@@ -81,6 +86,7 @@ struct ProjectView: View {
                             if let data = module.code {
                                 if let value = String(data: data, encoding: .utf8) {
                                     model.codeEditor?.setSession(value: value, session: "__" + module.name!)
+                                    model.selectionChanged.send()
                                 }
                             }
                         })
@@ -98,7 +104,15 @@ struct ProjectView: View {
             HStack {
                 Menu {
                     
-                    Button("Module", action: {
+                    Button("Public Material", action: {
+                        databaseType = .material
+                        databaseName = "New Material"
+                        showDatabasePopover = true
+                    })
+                    
+                    Button("Public Module", action: {
+                        databaseType = .module
+                        databaseName = "New Module"
                         showDatabasePopover = true
                     })
                 }
@@ -123,15 +137,29 @@ struct ProjectView: View {
                     .frame(minWidth: 300)
                     Button("Create") {
                         if databaseName.isEmpty == false {
-                            let module = ModuleEntity(context: managedObjectContext)
                             
-                            module.id = UUID()
-                            module.name = databaseName
-                            module.code = "-- New Module".data(using: .utf8)
-                            
-                            do {
-                                try managedObjectContext.save()
-                            } catch {}
+                            if databaseType == .material {
+                                let material = MaterialEntity(context: managedObjectContext)
+                                
+                                material.id = UUID()
+                                material.name = databaseName
+                                material.code = "-- New Material".data(using: .utf8)
+                                
+                                do {
+                                    try managedObjectContext.save()
+                                } catch {}
+                            } else
+                            if databaseType == .module {
+                                let module = ModuleEntity(context: managedObjectContext)
+                                
+                                module.id = UUID()
+                                module.name = databaseName
+                                module.code = "-- New Module".data(using: .utf8)
+                                
+                                do {
+                                    try managedObjectContext.save()
+                                } catch {}
+                            }
                         }
                     }
                     
@@ -139,7 +167,7 @@ struct ProjectView: View {
             }
             
             .onReceive(model.selectionChanged) { _ in
-                if model.codeEditorMode != .project {
+                if model.codeEditorMode != .project && model.codeEditorMode != .module {
                     selected = nil
                 }
             }

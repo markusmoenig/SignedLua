@@ -35,8 +35,8 @@ class SignedPinholeCamera : Codable, Hashable {
         self.name = name
         data = SignedData([])
         
-        data.set("Position", float3(0,0,-3), float2(-5, 5))
-        data.set("Look At", float3(0,0,0), float2(-5, 5))
+        data.set("Position", float3(0,-0.3,-0.8), float2(-5, 5))
+        data.set("Look At", float3(0,-0.3,0), float2(-5, 5))
         data.set("Fov", Float(80), float2(0, 160))
     }
     
@@ -47,7 +47,8 @@ class SignedPinholeCamera : Codable, Hashable {
         name = try container.decode(String.self, forKey: .name)
         data = try container.decode(SignedData.self, forKey: .data)
         
-        data.set("Position", float3(0,0,-3), float2(-5, 5))
+        data.set("Position", float3(0,-0.3,-0.8), float2(-5, 5))
+        data.set("Look At", float3(0,-0.3,0.0), float2(-5, 5))
     }
     
     func encode(to encoder: Encoder) throws

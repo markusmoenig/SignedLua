@@ -36,7 +36,8 @@ class Model: NSObject, ObservableObject {
     var codeEditorMode                      : CodeEditorMode = .project
     
     var codeEditorModuleEntity              : ModuleEntity? = nil
-    
+    var codeEditorMaterialEntity            : MaterialEntity? = nil
+
     var editingMode                         : EditingMode? = .single
     var editingBrushMode                    : EditingBrushMode? = .GeometryAndMaterial
     var editingBooleanMode                  : EditingBooleanMode? = .plus
@@ -109,7 +110,7 @@ class Model: NSObject, ObservableObject {
     var shapes                              : [SignedCommand] = []
     
     /// Material library
-    var materials                           : [UUID: SignedCommand] = [:]
+    var materialIcons                       : [UUID: CGImage] = [:]
     
     /// The current editing command
     var editingCmd                          = SignedCommand()
@@ -130,8 +131,8 @@ class Model: NSObject, ObservableObject {
     /// Info text
     var infoText                            : String = ""
     
-    /// The progress text to show in the info view
-    //var infoProgressText                    : String = ""
+    /// True if the public modules were downloaded and are available
+    var modulesAreAvailable                 : Bool = false
 
     /// The modeling progress
     var infoProgressValue                   : Double = 0
@@ -157,6 +158,7 @@ class Model: NSObject, ObservableObject {
             self.modelingProgressChanged.send("Waiting for modules...")
         }
         
+        checkForMaterials()
         checkForModules()
     }
     
@@ -207,7 +209,6 @@ class Model: NSObject, ObservableObject {
     {
         self.renderer = renderer
         self.renderer?.iconQueue += shapes
-        createMaterials()
         //self.renderer?.iconQueue += materials
         self.renderer?.installNextIconCmd(shapes.first)
         
@@ -226,7 +227,23 @@ class Model: NSObject, ObservableObject {
     }
         
     /// Initialises the inbuilt materials
-    func createMaterials() {
+    func checkForMaterials() {
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let request = MaterialEntity.fetchRequest()
+            
+            let managedObjectContext = PersistenceController.shared.container.viewContext
+            let materials = try! managedObjectContext.fetch(request)
+            
+            if materials.count == 0 {
+                self.checkForMaterials()
+                return
+            }
+            
+            materials.forEach { material in
+                self.renderer?.materialIconQueue.append(material)
+            }
+        }
         
         /*
         let request = MaterialEntity.fetchRequest()
@@ -245,6 +262,7 @@ class Model: NSObject, ObservableObject {
         }*/
     }
     
+    /// Wait to receive the public modules and enable building after that
     func checkForModules() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             let request = ModuleEntity.fetchRequest()

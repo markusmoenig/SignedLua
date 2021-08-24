@@ -228,6 +228,11 @@ class CodeEditor
             } else {
                 let managedObjectContext = PersistenceController.shared.container.viewContext
 
+                if self.model.codeEditorMode == .material {
+                    if let material = self.model.codeEditorMaterialEntity {
+                        material.code = value.data(using: .utf8)
+                    }
+                } else
                 if self.model.codeEditorMode == .module {
                     if let module = self.model.codeEditorModuleEntity {
                         module.code = value.data(using: .utf8)

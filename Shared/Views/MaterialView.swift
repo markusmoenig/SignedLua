@@ -16,15 +16,15 @@ struct MaterialView: View {
       sortDescriptors: [
         NSSortDescriptor(keyPath: \MaterialEntity.name, ascending: true)
       ]
-    ) var objects: FetchedResults<MaterialEntity>
+    ) var materials: FetchedResults<MaterialEntity>
     
     let model                               : Model
     
-    @State var selected                     : SignedCommand? = nil
+    @State var selected                     : UUID? = nil
     
     init(model: Model) {
         self.model = model
-        _selected = State(initialValue: model.selectedMaterial)
+        //_selected = State(initialValue: model.selectedMaterial)
     }
 
     var body: some View {
@@ -34,92 +34,108 @@ struct MaterialView: View {
         ScrollView(.horizontal) {
             LazyHGrid(rows: rows, alignment: .center) {
                 //ForEach(model.materials, id: \.id) { material in
-                ForEach(objects, id: \.self) { object in
+                ForEach(materials, id: \.self) { material in
 
                     ZStack(alignment: .center) {
-                        
-                        if let material = model.materials[object.id!] {
-                            
-                            if let image = material.icon {
-                                Image(image, scale: 1.0, label: Text(object.name!))
-                                    .onTapGesture(perform: {
-                                        
-                                        selected = material
-                                                                                    
-                                        model.selectedMaterial = material
-                                        model.editingCmd.copyMaterial(from: material.material)
-                                        model.materialSelected.send(material)
-                                        
-                                        model.editingCmd.code = material.code
-                                        //model.codeEditor?.setValue(model.editingCmd)
-                                        
-                                        model.editingCmdChanged.send(model.editingCmd)
-                                        model.renderer?.restart()
-                                    })
-                                    .contextMenu {
-                                        Button("Delete") {
-                                            managedObjectContext.delete(object)
-                                            do {
-                                                try managedObjectContext.save()
-                                            } catch {}
-                                        }
+                                                    
+                        if let image = model.materialIcons[material.id!] {
+                            Image(image, scale: 1.0, label: Text(material.name!))
+                                .onTapGesture(perform: {
+                                    
+                                    selected = material.id
+                                    /*
+                                    model.selectedMaterial = material
+                                    model.editingCmd.copyMaterial(from: material.material)
+                                    model.materialSelected.send(material)
+                                    
+                                    model.editingCmd.code = material.code
+                                    //model.codeEditor?.setValue(model.editingCmd)
+                                    
+                                    model.editingCmdChanged.send(model.editingCmd)
+                                    model.renderer?.restart()
+                                    */
+                                })
+                                .contextMenu {
+                                    Button("Delete") {
+                                        managedObjectContext.delete(material)
+                                        do {
+                                            try managedObjectContext.save()
+                                        } catch {}
                                     }
-                            } else {
-                                Rectangle()
-                                    .fill(Color.secondary)
-                                    .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
-                                    .onTapGesture(perform: {
-                                        
-                                        selected = material
-                                                                                    
-                                        model.selectedMaterial = material
-                                        model.editingCmd.copyMaterial(from: material.material)
-                                        model.materialSelected.send(material)
-                                        
-                                        model.editingCmd.code = material.code
-                                        //model.codeEditor?.setValue(model.editingCmd)
-                                        
-                                        model.editingCmdChanged.send(model.editingCmd)
-                                        model.renderer?.restart()
-                                    })
-                                    .contextMenu {
-                                        Button("Delete") {
-                                            managedObjectContext.delete(object)
-                                            do {
-                                                try managedObjectContext.save()
-                                            } catch {}
-                                        }
-                                    }
-                            }
-                            
-                            if material === selected {
-                                Rectangle()
-                                    .stroke(Color.accentColor, lineWidth: 2)
-                                    .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
-                                    .allowsHitTesting(false)
-                            }
-                            
+                                }
+                        } else {
                             Rectangle()
-                                .fill(.black)
-                                .opacity(0.4)
-                                .frame(width: CGFloat(ModelerPipeline.IconSize - (material === selected ? 2 : 0)), height: CGFloat(20 - (material === selected ? 1 : 0)))
-                                .padding(.top, CGFloat(ModelerPipeline.IconSize - (20 + (material === selected ? 1 : 0))))
-                            
-                            Text(object.name!)
-                                .padding(.top, CGFloat(ModelerPipeline.IconSize - 20))
-                                .allowsHitTesting(false)
-                                .foregroundColor(.white)
+                                .fill(Color.secondary)
+                                .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
+                                .onTapGesture(perform: {
+                                    
+                                    selected = material.id
+                                    
+                                    if let data = material.code {
+                                        if let value = String(data: data, encoding: .utf8) {
+                                            model.codeEditor?.setSession(value: value, session: "___" + material.name!)
+                                            
+                                            model.codeEditorMode = .material
+                                            model.codeEditorMaterialEntity = material
+                                            model.selectionChanged.send()
+                                        }
+                                    }
+                                                          
+                                    /*
+                                    model.selectedMaterial = material
+                                    model.editingCmd.copyMaterial(from: material.material)
+                                    model.materialSelected.send(material)
+                                    
+                                    model.editingCmd.code = material.code
+                                    //model.codeEditor?.setValue(model.editingCmd)
+                                    
+                                    model.editingCmdChanged.send(model.editingCmd)
+                                    model.renderer?.restart()
+                                    */
+                                })
+                                .contextMenu {
+                                    Button("Delete") {
+                                        managedObjectContext.delete(material)
+                                        do {
+                                            try managedObjectContext.save()
+                                        } catch {}
+                                    }
+                                }
                         }
+                        
+                        if material.id == selected {
+                            Rectangle()
+                                .stroke(Color.accentColor, lineWidth: 2)
+                                .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
+                                .allowsHitTesting(false)
+                        }
+                        
+                        Rectangle()
+                            .fill(.black)
+                            .opacity(0.4)
+                            .frame(width: CGFloat(ModelerPipeline.IconSize - (material.id == selected ? 2 : 0)), height: CGFloat(20 - (material.id == selected ? 1 : 0)))
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - (20 + (material.id == selected ? 1 : 0))))
+                        
+                        Text(material.name!)
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - 20))
+                            .allowsHitTesting(false)
+                            .foregroundColor(.white)
                     }
                 }
             }
             .padding()
         }
+        
+        .onReceive(model.selectionChanged) { _ in
+            if model.codeEditorMode != .material {
+                selected = nil
+            }
+        }
     
         .onReceive(model.iconFinished) { cmd in
-            let buffer = selected
-            selected = cmd
-            selected = buffer
+            //let buffer = selected
+            //selected = cmd
+            //selected = buffer
             //print("finished", cmd.name)
         }
     }
