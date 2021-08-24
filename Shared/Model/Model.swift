@@ -73,7 +73,7 @@ class Model: NSObject, ObservableObject {
     let materialSelected                    = PassthroughSubject<SignedCommand, Never>()
     
     /// Send when an icon for  a cmd has been rendered
-    let iconFinished                        = PassthroughSubject<SignedCommand, Never>()
+    let iconFinished                        = PassthroughSubject<UUID, Never>()
     
     /// Editing cmd changed, update the UI
     let editingCmdChanged                   = PassthroughSubject<SignedCommand, Never>()
@@ -210,7 +210,7 @@ class Model: NSObject, ObservableObject {
         self.renderer = renderer
         self.renderer?.iconQueue += shapes
         //self.renderer?.iconQueue += materials
-        self.renderer?.installNextIconCmd(shapes.first)
+        self.renderer?.installNextShapeIconCmd(shapes.first)
         
         editingCmd.copyGeometry(from: shapes.first!)
         editingCmd.action = .None
@@ -243,6 +243,8 @@ class Model: NSObject, ObservableObject {
             materials.forEach { material in
                 self.renderer?.materialIconQueue.append(material)
             }
+            
+            self.renderer?.resume()
         }
         
         /*
@@ -275,6 +277,7 @@ class Model: NSObject, ObservableObject {
                 return
             }
             
+            self.modulesAreAvailable = true
             self.modulesArrived.send()
             self.modelingProgressChanged.send("Ready")
             self.infoChanged.send()

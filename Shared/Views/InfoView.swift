@@ -36,7 +36,9 @@ struct InfoView: View {
                     Button(action: {
                         model.builder.workItem?.cancel()
                         model.builder.exitLua()
-                        model.modeler?.pipeline = []
+                        if let mainKit = model.modeler?.mainKit {
+                            mainKit.pipeline = []
+                        }
                         model.infoProgressTotalCmds = 0
                         model.infoProgressProcessedCmds = 0
                         model.builder.context.createProgressValues()

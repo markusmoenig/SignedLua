@@ -35,6 +35,8 @@ class RenderPipeline
     
     /// The queue for material icons
     var materialIconQueue   : [MaterialEntity] = []
+    
+    var iconBuilder     : SignedBuilder
         
     init(_ view: MTKView,_ model: Model)
     {
@@ -47,6 +49,7 @@ class RenderPipeline
         renderStates = RenderStates(device)
         
         model.modeler = ModelerPipeline(view, model)
+        iconBuilder = SignedBuilder(model)
     }
     
     /// Restarts the path tracer
@@ -88,12 +91,14 @@ class RenderPipeline
     /// Render a single sample
     func renderSample()
     {
-        if model.modeler?.pipeline.isEmpty == false {
-            if model.modeler?.isWorking == false {
-                model.modeler?.executeNext()
-                restart()
+        if let mainKit = model.modeler?.mainKit {
+            if mainKit.pipeline.isEmpty == false {
+                if mainKit.gpuIsWorking == false {
+                    model.modeler?.executeNext(kit: mainKit)
+                    restart()
+                }
+                //return
             }
-            //return
         }
         
         startCompute()
@@ -114,10 +119,6 @@ class RenderPipeline
                 
                 model.modeler?.accumulate(texture: mainKit.sampleTexture!, targetTexture: mainKit.outputTexture!, samples: mainKit.samples)
                 mainKit.samples += 1
-            } else {
-                if model.modeler!.pipeline.isEmpty && iconQueue.isEmpty {
-                    view.isPaused = true
-                }
             }
 
             //commandBuffer?.addCompletedHandler { cb in
@@ -148,23 +149,77 @@ class RenderPipeline
                     iconQueue.removeFirst()
                     
                     icon.icon = model.modeler?.kitToImage(iconKit)
-                    model.iconFinished.send(icon)
+                    model.iconFinished.send(icon.id)
                     
                     // Init the next one to render
                     iconKit.samples = 0
-                    installNextIconCmd(iconQueue.first)
+                    installNextShapeIconCmd(iconQueue.first)
+                    
+                    iconKit.status = .ready
                 }
             }
             
             stopCompute()
         } else
-        if let materialIcon = materialIconQueue.first {
+        /// Render a material icon ?
+        if let material = materialIconQueue.first, model.modulesAreAvailable {
+            startCompute()
+
+            if let iconKit = model.modeler?.iconKit, iconKit.isValid() {
                 
+                if iconKit.status == .ready {
+                    if let data = material.code {
+                        if let value = String(data: data, encoding: .utf8) {
+                            self.model.modeler?.clear(iconKit)
+                            iconBuilder.build(code: value, kit: iconKit)
+                        }
+                    }
+                } else if iconKit.status == .running {
+                    if iconKit.pipeline.isEmpty {
+                        iconKit.status = .rendering
+                    } else {
+                        if iconKit.gpuIsWorking == false {
+                            model.modeler?.executeNext(kit: iconKit)
+                        }
+                    }
+                } else if iconKit.status == .rendering {
+                    
+                    if iconKit.samples == 0 {
+                        clearTexture(iconKit.outputTexture!)
+                    }
+                    
+                    runRender(iconKit)
+                    
+                    model.modeler?.accumulate(texture: iconKit.sampleTexture!, targetTexture: iconKit.outputTexture!, samples: iconKit.samples)
+                    iconKit.samples += 1
+                    
+                    if iconKit.samples == ModelerPipeline.IconSamples {
+                        materialIconQueue.removeFirst()
+                        
+                        let icon = model.modeler?.kitToImage(iconKit)
+                        self.model.materialIcons[material.id!] = icon
+                        self.model.iconFinished.send(material.id!)                        
+                        
+                        // Init the next one to render
+                        iconKit.samples = 0
+                        iconKit.status = .ready
+                    }
+                }
+            }
+            
+            stopCompute()
+        } else {
+            if let mainKit = model.modeler?.mainKit {
+                if mainKit.pipeline.isEmpty && mainKit.samples >= 200 && iconQueue.isEmpty && materialIconQueue.isEmpty {
+                    view.isPaused = true
+                    print("paused")
+                }
+           }
         }
     }
     
-    /// Installs the next icon command
-    func installNextIconCmd(_ cmd: SignedCommand?) {
+    /// Installs the next shape icon command
+    func installNextShapeIconCmd(_ cmd: SignedCommand?) {
         if let cmd = cmd {
             model.iconCmd = cmd//.copy()!
             model.modeler?.clear(model.modeler?.iconKit)

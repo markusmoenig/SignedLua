@@ -43,6 +43,16 @@ struct MaterialView: View {
                                 .onTapGesture(perform: {
                                     
                                     selected = material.id
+                                    
+                                    if let data = material.code {
+                                        if let value = String(data: data, encoding: .utf8) {
+                                            model.codeEditor?.setSession(value: value, session: "___" + material.name!)
+                                            
+                                            model.codeEditorMode = .material
+                                            model.codeEditorMaterialEntity = material
+                                            model.selectionChanged.send()
+                                        }
+                                    }
                                     /*
                                     model.selectedMaterial = material
                                     model.editingCmd.copyMaterial(from: material.material)
@@ -132,10 +142,11 @@ struct MaterialView: View {
             }
         }
     
-        .onReceive(model.iconFinished) { cmd in
-            //let buffer = selected
+        .onReceive(model.iconFinished) { id in
+            let buffer = selected
             //selected = cmd
-            //selected = buffer
+            selected = id
+            selected = buffer
             //print("finished", cmd.name)
         }
     }

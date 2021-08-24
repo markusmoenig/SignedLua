@@ -344,7 +344,7 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .automatic) {
                           
                 Button(action: {
-                    document.model.builder.build()
+                    document.model.builder.build(code: document.model.getObjectCode(), kit: document.model.modeler!.mainKit)
                 }) {
                     Text("Build")
                 }

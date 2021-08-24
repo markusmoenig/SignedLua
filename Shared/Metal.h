@@ -296,6 +296,7 @@ typedef struct {
     
     int                 writeBrush;
     float               brushSize;
+
 } ModelerUniform;
 
 #endif /* Metal_h */

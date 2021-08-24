@@ -8,20 +8,26 @@
 import Foundation
 
 class SignedContext {
+    
     let model           : Model
+    let kit             : ModelerKit
+    
     /// One meter is 0.1 inside the texture by default
     let meterScale      : Float = 10
     
-    init(model: Model) {
+    init(model: Model, kit: ModelerKit) {
         self.model = model
+        self.kit = kit
     }
     
     /// Adds the given cmd to the modeler pipeline
     func addToPipeline(cmd: SignedCommand) {
-        model.modeler?.pipeline.append(cmd)
-        model.infoProgressTotalCmds += 1
+        kit.pipeline.append(cmd)
         
-        createProgressValues()
+        if kit.role == .main {
+            model.infoProgressTotalCmds += 1
+            createProgressValues()
+        }
     }
     
     func createProgressValues() {

@@ -21,7 +21,7 @@ class SignedMaterial: Codable {
         case libraryData
     }
     
-    init(albedo: float3 = float3(0.5, 0.5, 0.5), specular: Float = 0.5, anisotropic: Float = 0, metallic: Float = 0, roughness: Float = 0.5, subsurface: Float = 0, specularTint: Float = 0, sheen: Float = 0, sheenTint: Float = 0.0, clearcoat: Float = 0, clearcoatGloss: Float = 0, specTrans: Float = 0, ior: Float = 1.45, emission: float3 = float3(0,0,0)) {
+    init(albedo: float3 = float3(0.5, 0.5, 0.5), specular: Float = 0.0, anisotropic: Float = 0, metallic: Float = 0, roughness: Float = 0.5, subsurface: Float = 0, specularTint: Float = 0, sheen: Float = 0, sheenTint: Float = 0.0, clearcoat: Float = 0, clearcoatGloss: Float = 0, specTrans: Float = 0, ior: Float = 1.45, emission: float3 = float3(0,0,0)) {
         
         data = SignedData([])
         libraryData = SignedData([])

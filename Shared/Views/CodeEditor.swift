@@ -231,6 +231,13 @@ class CodeEditor
                 if self.model.codeEditorMode == .material {
                     if let material = self.model.codeEditorMaterialEntity {
                         material.code = value.data(using: .utf8)
+                        //self.model.materialIcons[material.id!] = nil
+                        
+                        // Append material to the icon queue if not in the queue already
+                        if self.model.renderer?.materialIconQueue.contains(material) == false {
+                            self.model.renderer?.materialIconQueue.append(material)
+                            self.model.renderer?.resume()
+                        }
                     }
                 } else
                 if self.model.codeEditorMode == .module {

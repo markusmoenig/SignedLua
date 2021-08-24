@@ -83,7 +83,7 @@ struct ShapeView: View {
             .padding()
         }
 
-        .onReceive(model.iconFinished) { cmd in
+        .onReceive(model.iconFinished) { id in
             let buffer = selected
             selected = nil
             selected = buffer

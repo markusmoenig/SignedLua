@@ -10,6 +10,19 @@ import MetalKit
 /// Holds all the textures needed to model and render
 class ModelerKit {
     
+    enum Role {
+        case main, icon
+    }
+    
+    enum Status {
+        case ready, running, rendering
+    }
+    
+    var role            : Role = .main
+    var status          : Status = .ready
+    
+    var gpuIsWorking    : Bool = false
+
     // For modeling
     var modelTexture    : MTLTexture? = nil
     var colorTexture    : MTLTexture? = nil
@@ -17,6 +30,8 @@ class ModelerKit {
     var materialTexture2: MTLTexture? = nil
     var materialTexture3: MTLTexture? = nil
     var materialTexture4: MTLTexture? = nil
+
+    var pipeline        : [SignedCommand] = []
 
     // For rendering
     var sampleTexture   : MTLTexture? = nil
@@ -55,11 +70,7 @@ class ModelerPipeline
     
     static var IconSize : Int = 80
     static var IconSamples : Int = 40
-    
-    var pipeline        : [SignedCommand] = []
-    
-    var isWorking       : Bool = false
-
+        
     init(_ view: MTKView,_ model: Model)
     {
         self.view = view
@@ -72,7 +83,8 @@ class ModelerPipeline
         
         mainKit = allocateKit(512)
         iconKit = allocateKit(ModelerPipeline.IconSize)
-        
+        iconKit.role = .icon
+
         iconKit.sampleTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
         iconKit.outputTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
 
@@ -81,12 +93,12 @@ class ModelerPipeline
         scriptHandler = ScriptHandler(self)
     }
     
-    /// Executes the next command in the pipeline
-    func executeNext()
+    /// Executes the next command in the pipeline of the kit
+    func executeNext(kit: ModelerKit)
     {
-        if pipeline.isEmpty { return }
+        if kit.pipeline.isEmpty { return }
         
-        executeCommand(pipeline.removeFirst())
+        executeCommand(kit.pipeline.removeFirst(), kit)
     }
     
     /// Executes a single command
@@ -124,14 +136,16 @@ class ModelerPipeline
 
                         calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
                     }
-                    isWorking = true
+                    kit.gpuIsWorking = true
                     computeEncoder.endEncoding()
                 }
                 
                 commandBuffer?.addCompletedHandler { cb in
-                    self.isWorking = false
-                    self.model.infoProgressProcessedCmds += 1
-                    self.model.builder?.context.createProgressValues()
+                    kit.gpuIsWorking = false
+                    if kit.role == .main {
+                        self.model.infoProgressProcessedCmds += 1
+                        self.model.builder?.context.createProgressValues()
+                    }
                     print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
                 }
             }

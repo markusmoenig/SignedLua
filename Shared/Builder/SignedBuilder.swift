@@ -237,7 +237,7 @@ class SignedBuilder {
     }
     
     /// build 3D texture
-    func build() {
+    func build(code: String, kit: ModelerKit) {
         
         guard let modeler = model.modeler else {
             return
@@ -249,25 +249,33 @@ class SignedBuilder {
             
             let model = self.model
             
-            modeler.clear()
-            model.renderer?.restart()
-            model.infoText = ""
-            DispatchQueue.main.async {
-                model.infoChanged.send()
-            }
+            kit.status = .running
             
-            model.infoProgressProcessedCmds = 0
-            model.infoProgressTotalCmds = 0
+            modeler.clear(kit)
+            if kit.role == .main {
+                model.renderer?.restart()
+                model.infoText = ""
+                DispatchQueue.main.async {
+                    model.infoChanged.send()
+                }
+            
+                model.infoProgressProcessedCmds = 0
+                model.infoProgressTotalCmds = 0
+            }
                     
             self.vm = VirtualMachine()
-            self.context = SignedContext(model: model)
+            self.context = SignedContext(model: model, kit: kit)
             
             // print
             self.vm.globals["_print"] = self.vm.createFunction([String.arg]) { args in
                 if args.values.isEmpty == false {
-                    self.model.infoText += args.string + "\n"
-                    DispatchQueue.main.async {
-                        self.model.infoChanged.send()
+                    if kit.role == .main {
+                        self.model.infoText += args.string + "\n"
+                        DispatchQueue.main.async {
+                            self.model.infoChanged.send()
+                        }
+                    } else {
+                        print(args.string)
                     }
                 }
                 return .nothing
@@ -303,7 +311,7 @@ class SignedBuilder {
             
             self.setupLuaCommand()
 
-            switch self.vm.eval(model.getObjectCode(), args: []) {
+            switch self.vm.eval(code, args: []) {
             case let .values(values):
                 if values.isEmpty == false {
                     print(values.first!)
