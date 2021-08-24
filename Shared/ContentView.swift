@@ -538,20 +538,20 @@ struct ContentView: View {
     /// Returns the resolution of the current preview
     func computeResolutionText() -> String {
         let string = ""
-        if let width = document.model.modeler?.mainKit?.sampleTexture?.width {
-            if let height = document.model.modeler?.mainKit?.sampleTexture?.height {
-                return "\(width) x \(height)"
-            }
+        if let mainRenderKit = document.model.renderer?.mainRenderKit {
+            let width = mainRenderKit.sampleTexture!.width
+            let height = mainRenderKit.sampleTexture!.height
+            return "\(width) x \(height)"
         }
         return string
     }
     
     /// Returns the resolution of the current preview
     func getAspectRatio() -> Float {
-        if let width = document.model.modeler?.mainKit?.sampleTexture?.width {
-            if let height = document.model.modeler?.mainKit?.sampleTexture?.height {
-                return Float(width) / Float(height)
-            }
+        if let mainRenderKit = document.model.renderer?.mainRenderKit {
+            let width = mainRenderKit.sampleTexture!.width
+            let height = mainRenderKit.sampleTexture!.height
+            return Float(width) / Float(height)
         }
         return 1
     }

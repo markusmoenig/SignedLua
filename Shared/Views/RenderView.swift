@@ -52,7 +52,7 @@ public class STKView        : MTKView
             //if modeler.mainKit.samples >= 1 {
                 if drawables?.encodeStart(float4(0,0,0,0)) != nil {
                     
-                    if let texture = model.modeler?.mainKit.outputTexture {
+                    if let texture = model.renderer?.mainRenderKit.outputTexture {
                         drawables?.drawBox(position: float2(0,0), size: float2(Float(texture.width), Float(texture.height)), rounding: 0, borderSize: 0, onion: 0, fillColor: float4(0,0,0,1), borderColor: float4(0,0,0,0), texture: texture)
                     }
                     

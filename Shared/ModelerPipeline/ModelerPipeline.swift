@@ -7,7 +7,7 @@
 
 import MetalKit
 
-/// Holds all the textures needed to model and render
+/// Holds all the textures and metadata needed to model
 class ModelerKit {
     
     enum Role {
@@ -39,14 +39,18 @@ class ModelerKit {
     var pipeline        : [SignedCommand] = []
 
     // For rendering
-    var sampleTexture   : MTLTexture? = nil
-    var outputTexture   : MTLTexture? = nil
     
-    var samples         : Int32 = 0
-    var maxSamples      : Int32 = 400
+    var renderKits      : [RenderKit] = []
+    var currentRenderKit: RenderKit? = nil
 
     func isValid() -> Bool {
         return modelTexture != nil && colorTexture != nil
+    }
+    
+    func nextRenderKit() -> RenderKit? {
+        
+        currentRenderKit = renderKits[0]
+        return currentRenderKit
     }
 }
 
@@ -69,7 +73,7 @@ class ModelerPipeline
     
     /// The kit used to render previews
     var iconKit         : ModelerKit!
-    
+
     /// The script handler
     var scriptHandler   : ScriptHandler? = nil
     
@@ -85,13 +89,10 @@ class ModelerPipeline
         semaphore = DispatchSemaphore(value: 1)
         
         modelingStates = ModelerStates(device)
-        
+
         mainKit = allocateKit(512)
         iconKit = allocateKit(ModelerPipeline.IconSize)
         iconKit.role = .icon
-
-        iconKit.sampleTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
-        iconKit.outputTexture = allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
 
         clear()
         
@@ -162,7 +163,7 @@ class ModelerPipeline
     }
     
     /// Accumulates the rendered texture into the target, placed here for convenience (compute)
-    func accumulate(texture: MTLTexture, targetTexture: MTLTexture, samples: Int32)
+    func accumulate(renderKit: RenderKit)
     {
         startCompute()
         if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
@@ -171,14 +172,14 @@ class ModelerPipeline
                 computeEncoder.setComputePipelineState( state )
                 
                 var uniform = AccumUniform()
-                uniform.samples = samples
+                uniform.samples = renderKit.samples
                                 
                 computeEncoder.setBytes(&uniform, length: MemoryLayout<RenderUniform>.stride, index: 0)
                 
-                computeEncoder.setTexture(texture, index: 1 )
-                computeEncoder.setTexture(targetTexture, index: 2 )
+                computeEncoder.setTexture(renderKit.sampleTexture!, index: 1 )
+                computeEncoder.setTexture(renderKit.outputTexture!, index: 2 )
 
-                calculateThreadGroups(state, computeEncoder, texture)
+                calculateThreadGroups(state, computeEncoder, renderKit.sampleTexture!)
             }
             computeEncoder.endEncoding()
         }
@@ -387,25 +388,27 @@ class ModelerPipeline
             
             startCompute()
 
-            if let texture = allocateTexture2D(width: kit.outputTexture!.width, height: kit.outputTexture!.height, format: .bgra8Unorm) {
-                
-                if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+            if let renderKit = kit.currentRenderKit {
+                if let texture = allocateTexture2D(width: renderKit.outputTexture!.width, height: renderKit.outputTexture!.height, format: .bgra8Unorm) {
                     
-                    // Evaluate shapes
-                    if let state = modelingStates.getComputeState(stateName: "modelerMakeCGIImage") {
-                    
-                        computeEncoder.setComputePipelineState( state )
-                        computeEncoder.setTexture(texture, index: 0)
-                        computeEncoder.setTexture(kit.outputTexture, index: 1)
+                    if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+                        
+                        // Evaluate shapes
+                        if let state = modelingStates.getComputeState(stateName: "modelerMakeCGIImage") {
+                        
+                            computeEncoder.setComputePipelineState( state )
+                            computeEncoder.setTexture(texture, index: 0)
+                            computeEncoder.setTexture(renderKit.outputTexture, index: 1)
 
-                        calculateThreadGroups(state, computeEncoder, kit.outputTexture!)
+                            calculateThreadGroups(state, computeEncoder, renderKit.outputTexture!)
+                        }
+                        computeEncoder.endEncoding()
                     }
-                    computeEncoder.endEncoding()
+                    
+                    stopCompute(syncTexture: texture, waitUntilCompleted: true)
+                    
+                    return makeCGIImage(texture: texture)
                 }
-                
-                stopCompute(syncTexture: texture, waitUntilCompleted: true)
-                
-                return makeCGIImage(texture: texture)
             }
         }
         return nil

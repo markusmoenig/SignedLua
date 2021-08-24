@@ -7,6 +7,25 @@
 
 import MetalKit
 
+/// Holds all the textures and metadata needed to render
+class RenderKit {
+    
+    
+    init(maxSamples: Int32) {
+        self.maxSamples = maxSamples
+    }
+    
+    var sampleTexture   : MTLTexture? = nil
+    var outputTexture   : MTLTexture? = nil
+    
+    var samples         : Int32 = 0
+    var maxSamples      : Int32
+
+    func isValid() -> Bool {
+        return sampleTexture != nil && outputTexture != nil
+    }
+}
+
 class RenderPipeline
 {
     var view            : MTKView
@@ -36,6 +55,12 @@ class RenderPipeline
     /// The queue for material icons
     var materialIconQueue   : [MaterialEntity] = []
     
+    /// The main render kit
+    var mainRenderKit   : RenderKit
+    
+    /// The icon render kit
+    var iconRenderKit   : RenderKit
+    
     var iconBuilder     : SignedBuilder
         
     init(_ view: MTKView,_ model: Model)
@@ -48,7 +73,21 @@ class RenderPipeline
         
         renderStates = RenderStates(device)
         
+        mainRenderKit = RenderKit(maxSamples: 200)
+        iconRenderKit = RenderKit(maxSamples: 40)
+        
         model.modeler = ModelerPipeline(view, model)
+
+        if let modeler = model.modeler {
+            iconRenderKit.sampleTexture = modeler.allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
+            iconRenderKit.outputTexture = modeler.allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
+            
+            modeler.mainKit.renderKits = [mainRenderKit]
+            modeler.mainKit.currentRenderKit = mainRenderKit
+            modeler.iconKit.renderKits = [iconRenderKit]
+            modeler.iconKit.currentRenderKit = iconRenderKit
+        }
+        
         iconBuilder = SignedBuilder(model)
     }
     
@@ -70,22 +109,19 @@ class RenderPipeline
     {        
         _ = checkMainKitTextures()
         
-        if let mainKit = model.modeler?.mainKit {
-
-            if started == false {
-                startCompute()
-            }
-            
-            //if clear {
-            //    clearTexture(mainKit.outputTexture!)
-            //}
-            
-            if started == false {
-                stopCompute()
-            }
-        
-            mainKit.samples = 0
+        if started == false {
+            startCompute()
         }
+        
+        //if clear {
+        //    clearTexture(mainKit.outputTexture!)
+        //}
+        
+        if started == false {
+            stopCompute()
+        }
+    
+        mainRenderKit.samples = 0
     }
     
     /// Render a single sample
@@ -114,11 +150,15 @@ class RenderPipeline
                         
         if let mainKit = model.modeler?.mainKit {
             
-            if mainKit.samples < 200 {
-                runRender(mainKit)
-                
-                model.modeler?.accumulate(texture: mainKit.sampleTexture!, targetTexture: mainKit.outputTexture!, samples: mainKit.samples)
-                mainKit.samples += 1
+            if let renderKit = mainKit.currentRenderKit {
+                if renderKit.samples < renderKit.maxSamples {
+                    runRender(mainKit)
+                    
+                    if let renderKit = mainKit.currentRenderKit {
+                        model.modeler?.accumulate(renderKit: renderKit)
+                        renderKit.samples += 1
+                    }
+                }
             }
 
             //commandBuffer?.addCompletedHandler { cb in
@@ -130,29 +170,31 @@ class RenderPipeline
         stopCompute()//(waitUntilCompleted: true)
         
         // Render a shape icon sample ? These icons don't use Lua or public modules and are just based on their single SignedCommand
+        
         if let icon = iconQueue.first {
             //startRendering(SIMD2<Int>(ModelerPipeline.IconSize, ModelerPipeline.IconSize))
             startCompute()
                     
-            if let iconKit = model.modeler?.iconKit, iconKit.isValid() {
+            if let iconKit = model.modeler?.iconKit, iconKit.isValid(),
+               let renderKit = iconKit.currentRenderKit {
                 
-                if iconKit.samples == 0 {
-                    clearTexture(iconKit.outputTexture!)
+                if renderKit.samples == 0 {
+                    clearTexture(renderKit.outputTexture!)
                 }
                 
                 runRender(iconKit)
                 
-                model.modeler?.accumulate(texture: iconKit.sampleTexture!, targetTexture: iconKit.outputTexture!, samples: iconKit.samples)
-                iconKit.samples += 1
+                model.modeler?.accumulate(renderKit: renderKit)
+                renderKit.samples += 1
                 
-                if iconKit.samples == ModelerPipeline.IconSamples {
+                if renderKit.samples == renderKit.maxSamples {
                     iconQueue.removeFirst()
                     
                     icon.icon = model.modeler?.kitToImage(iconKit)
                     model.iconFinished.send(icon.id)
                     
                     // Init the next one to render
-                    iconKit.samples = 0
+                    renderKit.samples = 0
                     installNextShapeIconCmd(iconQueue.first)
                     
                     iconKit.status = .ready
@@ -208,12 +250,13 @@ class RenderPipeline
             }
             
             stopCompute()
-        }*/ else {
+        } */else {
             if let mainKit = model.modeler?.mainKit {
+                /*
                 if mainKit.pipeline.isEmpty && mainKit.samples >= 200 && iconQueue.isEmpty /*&& materialIconQueue.isEmpty*/ {
                     view.isPaused = true
                     print("paused")
-                }
+                }*/
            }
         }
     }
@@ -283,11 +326,11 @@ class RenderPipeline
                 computeEncoder.setTexture(kit.materialTexture2, index: 5)
                 computeEncoder.setTexture(kit.materialTexture3, index: 6)
                 computeEncoder.setTexture(kit.materialTexture4, index: 7)
-                computeEncoder.setTexture(kit.sampleTexture, index: 8)
-
-                // ---
                 
-                calculateThreadGroups(state, computeEncoder, kit.sampleTexture!)
+                if let renderKit = kit.currentRenderKit {
+                    computeEncoder.setTexture(renderKit.sampleTexture, index: 8)
+                    calculateThreadGroups(state, computeEncoder, renderKit.sampleTexture!)
+                }
             }
             computeEncoder.endEncoding()
         }
@@ -430,39 +473,37 @@ class RenderPipeline
     {
         var resChanged = false
 
-        if let mainKit = model.modeler?.mainKit {
             
-            // Get the renderSize
-            if let rSize = self.model.renderSize {
-                renderSize.x = rSize.x
-                renderSize.y = rSize.y
-            } else {
-                renderSize.x = Int(self.view.frame.width)
-                renderSize.y = Int(self.view.frame.height)
-            }
-
-            func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
-                if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
-                    //if let texture = texture {
-                        //texture.setPurgeableState(.empty)
-                    //}
-                    resChanged = true
-                    let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
-                    if let texture = texture {
-                        clearTexture(texture)
-                        resume()
-                    } else {
-                        print("error allocating texture")
-                    }
-                    return texture
-                } else {
-                    return texture
-                }
-            }
-
-            mainKit.sampleTexture = checkTexture(mainKit.sampleTexture)
-            mainKit.outputTexture = checkTexture(mainKit.outputTexture)
+        // Get the renderSize
+        if let rSize = self.model.renderSize {
+            renderSize.x = rSize.x
+            renderSize.y = rSize.y
+        } else {
+            renderSize.x = Int(self.view.frame.width)
+            renderSize.y = Int(self.view.frame.height)
         }
+
+        func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
+            if texture == nil || texture!.width != renderSize.x || texture!.height != renderSize.y {
+                //if let texture = texture {
+                    //texture.setPurgeableState(.empty)
+                //}
+                resChanged = true
+                let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
+                if let texture = texture {
+                    clearTexture(texture)
+                    resume()
+                } else {
+                    print("error allocating texture")
+                }
+                return texture
+            } else {
+                return texture
+            }
+        }
+
+        mainRenderKit.sampleTexture = checkTexture(mainRenderKit.sampleTexture)
+        mainRenderKit.outputTexture = checkTexture(mainRenderKit.outputTexture)
         
         if resChanged {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
