@@ -240,11 +240,13 @@ class Model: NSObject, ObservableObject {
                 return
             }
             
+            /*
             materials.forEach { material in
                 self.renderer?.materialIconQueue.append(material)
             }
             
             self.renderer?.resume()
+            */
         }
         
         /*

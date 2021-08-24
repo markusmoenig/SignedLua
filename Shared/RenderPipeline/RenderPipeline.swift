@@ -160,7 +160,7 @@ class RenderPipeline
             }
             
             stopCompute()
-        } else
+        } /*else
         /// Render a material icon ?
         if let material = materialIconQueue.first, model.modulesAreAvailable {
             startCompute()
@@ -208,9 +208,9 @@ class RenderPipeline
             }
             
             stopCompute()
-        } else {
+        }*/ else {
             if let mainKit = model.modeler?.mainKit {
-                if mainKit.pipeline.isEmpty && mainKit.samples >= 200 && iconQueue.isEmpty && materialIconQueue.isEmpty {
+                if mainKit.pipeline.isEmpty && mainKit.samples >= 200 && iconQueue.isEmpty /*&& materialIconQueue.isEmpty*/ {
                     view.isPaused = true
                     print("paused")
                 }
@@ -265,10 +265,10 @@ class RenderPipeline
                 
                 computeEncoder.setComputePipelineState( state )
                 
-                var renderUniforms = createRenderUniform(model.modeler?.mainKit !== kit)
+                var renderUniforms = createRenderUniform(kit: kit)
                 computeEncoder.setBytes(&renderUniforms, length: MemoryLayout<RenderUniform>.stride, index: 0)
                 
-                if model.modeler?.mainKit === kit {
+                if kit.role == .main {
                     var modelerUniform = ModelerUniform()
                     modelerUniform.actionType = 0
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
@@ -294,11 +294,11 @@ class RenderPipeline
     }
     
     /// Create a uniform buffer containing general information about the current project
-    func createRenderUniform(_ icon: Bool = false) -> RenderUniform
+    func createRenderUniform(kit: ModelerKit) -> RenderUniform
     {
         var renderUniform = RenderUniform()
         
-        if icon == false {
+        if kit.role == .main {
 
             if model.builder.inProgress == true {
                 renderUniform.randomVector = float3(0.5, 0.5, 0.5)
@@ -309,9 +309,17 @@ class RenderPipeline
             }
 
             
-            renderUniform.cameraOrigin = model.project.camera.getPosition()
-            renderUniform.cameraLookAt = model.project.camera.getLookAt()
-            renderUniform.cameraFov = model.project.camera.getFov()
+            if kit.content == .project {
+                renderUniform.cameraOrigin = model.project.camera.getPosition()
+                renderUniform.cameraLookAt = model.project.camera.getLookAt()
+                renderUniform.cameraFov = model.project.camera.getFov()
+            } else
+            if kit.content == .material {
+                renderUniform.cameraOrigin = float3(0,0,-1)
+                renderUniform.cameraLookAt = float3(0,0,0)
+                renderUniform.cameraFov = 80
+            }
+            
             renderUniform.scale = 1//model.project.getWorldScale()
             
             renderUniform.maxDepth = 6;
@@ -442,6 +450,7 @@ class RenderPipeline
                     let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
                     if let texture = texture {
                         clearTexture(texture)
+                        resume()
                     } else {
                         print("error allocating texture")
                     }

@@ -41,6 +41,8 @@ class SignedProject: Codable {
         objects = try container.decode([SignedObject].self, forKey: .objects)
         camera = try container.decode(SignedPinholeCamera.self, forKey: .camera)
         dataGroups = try container.decode(SignedDataGroups.self, forKey: .dataGroups)
+        
+        dataGroups.groups["Renderer"]!.set("Background", float4(0.35, 0.35, 0.35, 1.0))
     }
     
     func encode(to encoder: Encoder) throws
@@ -59,7 +61,8 @@ class SignedProject: Codable {
         ])
         
         addDataGroup(name: "Renderer", entities: [
-            SignedDataEntity("Background", float4(0.55,0.55,0.85,1.0), float2(0, 1), .Color),
+            //SignedDataEntity("Background", float4(0.55,0.55,0.85,1.0), float2(0, 1), .Color),
+            SignedDataEntity("Background", float4(0.1,0.1,0.1,1.0), float2(0, 1), .Color),
             SignedDataEntity("Reflections", Int(6), float2(1, 20), .Slider),
         ])
     }

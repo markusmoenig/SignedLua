@@ -344,7 +344,18 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .automatic) {
                           
                 Button(action: {
-                    document.model.builder.build(code: document.model.getObjectCode(), kit: document.model.modeler!.mainKit)
+                    
+                    if document.model.codeEditorMode == .material {
+                        if let material = document.model.codeEditorMaterialEntity {
+                            if let data = material.code {
+                                if let value = String(data: data, encoding: .utf8) {
+                                    document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .material)
+                                }
+                            }
+                        }
+                    } else {
+                        document.model.builder.build(code: document.model.getObjectCode(), kit: document.model.modeler!.mainKit)
+                    }
                 }) {
                     Text("Build")
                 }

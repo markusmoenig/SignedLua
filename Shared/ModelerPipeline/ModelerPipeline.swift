@@ -14,13 +14,18 @@ class ModelerKit {
         case main, icon
     }
     
+    enum Content {
+        case project, object, material
+    }
+    
     enum Status {
         case ready, running, rendering
     }
     
     var role            : Role = .main
     var status          : Status = .ready
-    
+    var content         : Content = .project
+
     var gpuIsWorking    : Bool = false
 
     // For modeling
