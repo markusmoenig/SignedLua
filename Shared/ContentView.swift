@@ -349,12 +349,16 @@ struct ContentView: View {
                         if let material = document.model.codeEditorMaterialEntity {
                             if let data = material.code {
                                 if let value = String(data: data, encoding: .utf8) {
-                                    document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .material)
+                                    if let renderer = document.model.renderer {
+                                        document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], materialEntity: material)
+                                    }
                                 }
                             }
                         }
                     } else {
-                        document.model.builder.build(code: document.model.getObjectCode(), kit: document.model.modeler!.mainKit)
+                        if let renderer = document.model.renderer {
+                            document.model.builder.build(code: document.model.getObjectCode(), kit: document.model.modeler!.mainKit, renderKits: [renderer.mainRenderKit])
+                        }
                     }
                 }) {
                     Text("Build")
@@ -376,7 +380,7 @@ struct ContentView: View {
             do {
                 let url = try result.get()
                 
-                if let image = document.model.modeler?.kitToImage() {
+                if let image = document.model.modeler?.kitToImage(renderKit: document.model.renderer!.mainRenderKit) {
                     if let imageDestination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) {
                         CGImageDestinationAddImage(imageDestination, image, nil)
                         CGImageDestinationFinalize(imageDestination)

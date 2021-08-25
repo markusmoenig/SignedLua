@@ -237,7 +237,7 @@ class SignedBuilder {
     }
     
     /// build 3D texture
-    func build(code: String, kit: ModelerKit, content: ModelerKit.Content = .project) {
+    func build(code: String, kit: ModelerKit, content: ModelerKit.Content = .project, renderKits: [RenderKit], materialEntity: MaterialEntity? = nil) {
         
         guard let modeler = model.modeler else {
             return
@@ -251,6 +251,9 @@ class SignedBuilder {
             
             kit.status = .running
             kit.content = content
+            kit.renderKits = renderKits
+            kit.installNextRenderKit()
+            kit.materialEntity = materialEntity
             
             modeler.clear(kit)
             if kit.role == .main {

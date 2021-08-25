@@ -47,10 +47,17 @@ class ModelerKit {
         return modelTexture != nil && colorTexture != nil
     }
     
-    func nextRenderKit() -> RenderKit? {
-        
-        currentRenderKit = renderKits[0]
-        return currentRenderKit
+    // If this pass computes a material, put the pointer to it here to install the icon
+    var materialEntity  : MaterialEntity? = nil
+    
+    /// Installes the next available renderkit
+    func installNextRenderKit() {
+        if renderKits.count > 0 {
+            currentRenderKit = renderKits.removeFirst()
+            currentRenderKit?.samples = 0
+        } else {
+            currentRenderKit = nil
+        }
     }
 }
 
@@ -351,67 +358,72 @@ class ModelerPipeline
     }
     
     /// Converts a kit to a CGIImage
-    func kitToImage(_ modelerKit: ModelerKit? = nil) -> CGImage? {
-        let kitToUse : ModelerKit? = modelerKit == nil ? mainKit : modelerKit
+    func kitToImage(renderKit: RenderKit) -> CGImage? {
 
-        if let kit = kitToUse {
-            func makeCGIImage(texture: MTLTexture) -> CGImage?
-            {
-                let width = texture.width
-                let height = texture.height
-                let pixelByteCount = 4 * MemoryLayout<UInt8>.size
-                let imageBytesPerRow = width * pixelByteCount
-                let imageByteCount = imageBytesPerRow * height
+        func makeCGIImage(texture: MTLTexture) -> CGImage?
+        {
+            let width = texture.width
+            let height = texture.height
+            let pixelByteCount = 4 * MemoryLayout<UInt8>.size
+            let imageBytesPerRow = width * pixelByteCount
+            let imageByteCount = imageBytesPerRow * height
+            
+            let imageBytes = UnsafeMutableRawPointer.allocate(byteCount: imageByteCount, alignment: pixelByteCount)
+            defer {
+                imageBytes.deallocate()
+            }
+
+            texture.getBytes(imageBytes,
+                             bytesPerRow: imageBytesPerRow,
+                             from: MTLRegionMake2D(0, 0, width, height),
+                             mipmapLevel: 0)
+            guard let colorSpace = CGColorSpace(name: CGColorSpace.linearSRGB) else { return nil }
+            let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
+            guard let bitmapContext = CGContext(data: nil,
+                                                width: width,
+                                                height: height,
+                                                bitsPerComponent: 8,
+                                                bytesPerRow: imageBytesPerRow,
+                                                space: colorSpace,
+                                                bitmapInfo: bitmapInfo) else { return nil }
+            bitmapContext.data?.copyMemory(from: imageBytes, byteCount: imageByteCount)
+            let image = bitmapContext.makeImage()
+            return image
+        }
+        
+        startCompute()
+
+        if let texture = allocateTexture2D(width: renderKit.outputTexture!.width, height: renderKit.outputTexture!.height, format: .bgra8Unorm) {
+            
+            if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
                 
-                let imageBytes = UnsafeMutableRawPointer.allocate(byteCount: imageByteCount, alignment: pixelByteCount)
-                defer {
-                    imageBytes.deallocate()
-                }
+                // Evaluate shapes
+                if let state = modelingStates.getComputeState(stateName: "modelerMakeCGIImage") {
+                
+                    computeEncoder.setComputePipelineState( state )
+                    computeEncoder.setTexture(texture, index: 0)
+                    computeEncoder.setTexture(renderKit.outputTexture, index: 1)
 
-                texture.getBytes(imageBytes,
-                                 bytesPerRow: imageBytesPerRow,
-                                 from: MTLRegionMake2D(0, 0, width, height),
-                                 mipmapLevel: 0)
-                guard let colorSpace = CGColorSpace(name: CGColorSpace.linearSRGB) else { return nil }
-                let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-                guard let bitmapContext = CGContext(data: nil,
-                                                    width: width,
-                                                    height: height,
-                                                    bitsPerComponent: 8,
-                                                    bytesPerRow: imageBytesPerRow,
-                                                    space: colorSpace,
-                                                    bitmapInfo: bitmapInfo) else { return nil }
-                bitmapContext.data?.copyMemory(from: imageBytes, byteCount: imageByteCount)
-                let image = bitmapContext.makeImage()
-                return image
+                    calculateThreadGroups(state, computeEncoder, renderKit.outputTexture!)
+                }
+                computeEncoder.endEncoding()
             }
             
-            startCompute()
-
-            if let renderKit = kit.currentRenderKit {
-                if let texture = allocateTexture2D(width: renderKit.outputTexture!.width, height: renderKit.outputTexture!.height, format: .bgra8Unorm) {
-                    
-                    if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
-                        
-                        // Evaluate shapes
-                        if let state = modelingStates.getComputeState(stateName: "modelerMakeCGIImage") {
-                        
-                            computeEncoder.setComputePipelineState( state )
-                            computeEncoder.setTexture(texture, index: 0)
-                            computeEncoder.setTexture(renderKit.outputTexture, index: 1)
-
-                            calculateThreadGroups(state, computeEncoder, renderKit.outputTexture!)
-                        }
-                        computeEncoder.endEncoding()
-                    }
-                    
-                    stopCompute(syncTexture: texture, waitUntilCompleted: true)
-                    
-                    return makeCGIImage(texture: texture)
-                }
-            }
+            stopCompute(syncTexture: texture, waitUntilCompleted: true)
+            
+            return makeCGIImage(texture: texture)
         }
+
         return nil
+    }
+    
+    /// Convert a CGImage to Data
+    func cgiImageToData(image: CGImage) -> Data? {
+        guard let mutableData = CFDataCreateMutable(nil, 0),
+            let destination = CGImageDestinationCreateWithData(mutableData, "public.png" as CFString, 1, nil) else { return nil }
+        CGImageDestinationAddImage(destination, image, nil)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return mutableData as Data
     }
     
     /// Starts compute operation

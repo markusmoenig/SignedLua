@@ -38,7 +38,7 @@ struct MaterialView: View {
 
                     ZStack(alignment: .center) {
                                                     
-                        if let image = model.materialIcons[material.id!] {
+                        if let image = getMaterialIcon(material: material) {
                             Image(image, scale: 1.0, label: Text(material.name!))
                                 .onTapGesture(perform: {
                                     
@@ -149,5 +149,14 @@ struct MaterialView: View {
             selected = buffer
             //print("finished", cmd.name)
         }
+    }
+    
+    func getMaterialIcon(material: MaterialEntity) -> CGImage? {
+        if let data = material.icon {
+            if let image = NSImage(data: data) {
+                return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+            }
+        }
+        return nil
     }
 }

@@ -144,7 +144,11 @@ struct ProjectView: View {
                                 material.id = UUID()
                                 material.name = databaseName
                                 material.code = "-- New Material".data(using: .utf8)
-                                
+                                //material.icon = "  ".data(using: .utf8)
+                                //material.render = "  ".data(using: .utf8)
+                                material.about = ""
+                                material.tags = ""
+
                                 do {
                                     try managedObjectContext.save()
                                 } catch {}

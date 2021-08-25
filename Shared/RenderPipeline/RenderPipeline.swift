@@ -82,9 +82,7 @@ class RenderPipeline
             iconRenderKit.sampleTexture = modeler.allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
             iconRenderKit.outputTexture = modeler.allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
             
-            modeler.mainKit.renderKits = [mainRenderKit]
             modeler.mainKit.currentRenderKit = mainRenderKit
-            modeler.iconKit.renderKits = [iconRenderKit]
             modeler.iconKit.currentRenderKit = iconRenderKit
         }
         
@@ -157,6 +155,23 @@ class RenderPipeline
                     if let renderKit = mainKit.currentRenderKit {
                         model.modeler?.accumulate(renderKit: renderKit)
                         renderKit.samples += 1
+                        //print(renderKit.samples, renderKit.outputTexture!.width)
+                    }
+                } else {
+                    mainKit.installNextRenderKit()
+                    if mainKit.content == .material && mainKit.currentRenderKit == nil {
+                        if let materialEntity = mainKit.materialEntity {
+                            if let image = model.modeler!.kitToImage(renderKit: iconRenderKit) {
+                                materialEntity.icon = model.modeler!.cgiImageToData(image: image)
+                                model.iconFinished.send(materialEntity.id!)
+                                
+                                // Save the icon in DB
+                                let managedObjectContext = PersistenceController.shared.container.viewContext
+                                do {
+                                    try managedObjectContext.save()
+                                } catch {}
+                            }
+                        }
                     }
                 }
             }
@@ -190,7 +205,7 @@ class RenderPipeline
                 if renderKit.samples == renderKit.maxSamples {
                     iconQueue.removeFirst()
                     
-                    icon.icon = model.modeler?.kitToImage(iconKit)
+                    icon.icon = model.modeler?.kitToImage(renderKit: iconRenderKit)
                     model.iconFinished.send(icon.id)
                     
                     // Init the next one to render
@@ -252,11 +267,10 @@ class RenderPipeline
             stopCompute()
         } */else {
             if let mainKit = model.modeler?.mainKit {
-                /*
-                if mainKit.pipeline.isEmpty && mainKit.samples >= 200 && iconQueue.isEmpty /*&& materialIconQueue.isEmpty*/ {
+                if mainKit.pipeline.isEmpty && mainKit.currentRenderKit == nil && iconQueue.isEmpty {
                     view.isPaused = true
                     print("paused")
-                }*/
+                }
            }
         }
     }
