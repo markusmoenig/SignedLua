@@ -41,8 +41,8 @@ class SignedCommand : Codable, Hashable {
     // To identify the editor session
     var scriptContext   = ""
     
-    /// The geometryId for this cmd
-    var geometryId      : Int = 0
+    /// The materialId for this cmd
+    var materialId      : Int = 0
     
     var icon            : CGImage? = nil
     
@@ -56,7 +56,7 @@ class SignedCommand : Codable, Hashable {
         case material
         case normal
         case code
-        case geometryId
+        case materialId
     }
     
     init(_ name: String = "Unnamed", role: Role = .GeometryAndMaterial, action: Action = .Add, primitive: Primitive = .Box, data: [String: SignedData] = [:], material: SignedMaterial = SignedMaterial())
@@ -88,7 +88,7 @@ class SignedCommand : Codable, Hashable {
         normal = try container.decode(float3.self, forKey: .normal)
 
         code = try container.decode(String.self, forKey: .code)
-        geometryId = try container.decode(Int.self, forKey: .geometryId)
+        materialId = try container.decode(Int.self, forKey: .materialId)
     }
     
     func encode(to encoder: Encoder) throws
@@ -103,7 +103,7 @@ class SignedCommand : Codable, Hashable {
         try container.encode(material, forKey: .material)
         try container.encode(normal, forKey: .normal)
         try container.encode(code, forKey: .code)
-        try container.encode(geometryId, forKey: .geometryId)
+        try container.encode(materialId, forKey: .materialId)
     }
     
     static func ==(lhs: SignedCommand, rhs: SignedCommand) -> Bool {

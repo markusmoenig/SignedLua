@@ -126,7 +126,7 @@ class Model: NSObject, ObservableObject {
     var materialOnlyMixer                   : Float = 0.5
 
     /// A value of 10 means we are modeling max 10 meter objects
-    var modelingScale                       = Float(5)
+    var modelingScale                       = Float(1)
     
     /// Info text
     var infoText                            : String = ""
@@ -164,44 +164,6 @@ class Model: NSObject, ObservableObject {
     
     func setProject(_ project: SignedProject) {
         self.project = project
-        
-        //selectedObject = project.objects.first
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            //if let selectedCommand = self.selectedCommand {
-            //    self.commandSelected.send(selectedCommand)
-                /*
-                let managedObjectContext = PersistenceController.shared.container.viewContext
-                
-                let object = ObjectEntity(context: managedObjectContext)
-                
-                object.id = UUID()
-                object.name = "test"
-                
-                let project = ProjectEntity(context: managedObjectContext)
-                
-                project.id = UUID()
-                project.name = "testdd"
-                
-                let module = ModuleEntity(context: managedObjectContext)
-                
-                module.id = UUID()
-                module.name = "testdd"
-            
-            let material = MaterialEntity(context: managedObjectContext)
-            
-            material.id = UUID()
-            material.name = "testdd"
-                
-                print("jere")
-                
-                do {
-                    try managedObjectContext.save()
-                    print("jere 2")
-                } catch {}
-                 */
-            //}
-        }
     }
     
     /// Sets the renderer

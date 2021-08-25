@@ -211,6 +211,7 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     } else
     if (mData.primitiveType == Modeler_Shape_Box) {
         newDist = sdRoundBox(p, mData.size * scale, mData.rounding);
+        //newDist -= valueNoiseFBM(p * 30, 5) * 0.02;
     }
     
     // Noise
@@ -456,8 +457,8 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
             mat.emission = emissionId.xyz;
             mat.atDistance = 1.0;
             
-            Material material = mat;
-            computeModelerMaterial(uv, mData, 1.0, material, mData.materialOnlyMixerValue);
+            Material material = mData.material;
+            //computeModelerMaterial(uv, mData, 1.0, material, mData.materialOnlyMixerValue);
             
             Material outMaterial = material;//mixMaterials(mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));
             

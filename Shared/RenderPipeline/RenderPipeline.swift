@@ -74,7 +74,7 @@ class RenderPipeline
         renderStates = RenderStates(device)
         
         mainRenderKit = RenderKit(maxSamples: 200)
-        iconRenderKit = RenderKit(maxSamples: 40)
+        iconRenderKit = RenderKit(maxSamples: 100)
         
         model.modeler = ModelerPipeline(view, model)
 
@@ -94,6 +94,11 @@ class RenderPipeline
     {
         needsRestart = true
         view.isPaused = false
+        if let modeler = model.modeler {
+            if modeler.mainKit.currentRenderKit == nil {
+                modeler.mainKit.currentRenderKit = mainRenderKit
+            }
+        }
     }
     
     /// Resumes the renderer
@@ -155,7 +160,6 @@ class RenderPipeline
                     if let renderKit = mainKit.currentRenderKit {
                         model.modeler?.accumulate(renderKit: renderKit)
                         renderKit.samples += 1
-                        //print(renderKit.samples, renderKit.outputTexture!.width)
                     }
                 } else {
                     mainKit.installNextRenderKit()
@@ -164,6 +168,7 @@ class RenderPipeline
                             if let image = model.modeler!.kitToImage(renderKit: iconRenderKit) {
                                 materialEntity.icon = model.modeler!.cgiImageToData(image: image)
                                 model.iconFinished.send(materialEntity.id!)
+                                mainKit.materialEntity = nil
                                 
                                 // Save the icon in DB
                                 let managedObjectContext = PersistenceController.shared.container.viewContext
@@ -330,7 +335,7 @@ class RenderPipeline
                     modelerUniform.actionType = 0
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
                 } else {
-                    var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd, forPreview: true)
+                    var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd, kit: kit, forPreview: true)
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
                 }
                 
@@ -364,7 +369,6 @@ class RenderPipeline
                 renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
                 renderUniform.noShadows = 0;
             }
-
             
             if kit.content == .project {
                 renderUniform.cameraOrigin = model.project.camera.getPosition()
@@ -372,8 +376,8 @@ class RenderPipeline
                 renderUniform.cameraFov = model.project.camera.getFov()
             } else
             if kit.content == .material {
-                renderUniform.cameraOrigin = float3(0,0,-1)
-                renderUniform.cameraLookAt = float3(0,0,0)
+                renderUniform.cameraOrigin = float3(0, 0, -0.8)
+                renderUniform.cameraLookAt = float3(0, 0, 0)
                 renderUniform.cameraFov = 80
             }
             
@@ -425,8 +429,10 @@ class RenderPipeline
             
             renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
 
-            renderUniform.cameraOrigin = float3(0, -0.012, -0.07)
-            renderUniform.cameraLookAt = float3(0, -0.012, 0)
+            //renderUniform.cameraOrigin = float3(0, -0.012, -0.07)
+            //renderUniform.cameraLookAt = float3(0, -0.012, 0)
+            renderUniform.cameraOrigin = float3(0, 0, -0.07)
+            renderUniform.cameraLookAt = float3(0, 0, 0)
             renderUniform.cameraFov = 80
             renderUniform.scale = 1
             
@@ -506,7 +512,7 @@ class RenderPipeline
                 let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
                 if let texture = texture {
                     clearTexture(texture)
-                    resume()
+                    restart()
                 } else {
                     print("error allocating texture")
                 }

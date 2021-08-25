@@ -25,6 +25,9 @@ class ModelerKit {
     var role            : Role = .main
     var status          : Status = .ready
     var content         : Content = .project
+    
+    /// Scale of the kit
+    var scale           : Float = 5
 
     var gpuIsWorking    : Bool = false
 
@@ -137,7 +140,7 @@ class ModelerPipeline
                     
                         computeEncoder.setComputePipelineState( state )
                         
-                        var modelerUniform = createModelerUniform(cmd)
+                        var modelerUniform = createModelerUniform(cmd, kit: kit)
                         computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
                         
                         computeEncoder.setTexture(kit.modelTexture!, index: 1 )
@@ -194,7 +197,7 @@ class ModelerPipeline
     }
     
     /// Creates the uniform
-    func createModelerUniform(_ cmd: SignedCommand, forPreview: Bool = false) -> ModelerUniform
+    func createModelerUniform(_ cmd: SignedCommand, kit: ModelerKit, forPreview: Bool = false) -> ModelerUniform
     {
         var modelerUniform = ModelerUniform()
                 
@@ -204,51 +207,48 @@ class ModelerPipeline
                 
         //modelerUniform.brushHit = model.editingHit
         //modelerUniform.writeBrush = model.writeAction
-        modelerUniform.materialOnlyMixerValue = model.materialOnlyMixer
+        modelerUniform.materialOnlyMixerValue = 1//model.materialOnlyMixer
         
-        if let transformData = cmd.dataGroups.getGroup("Transform") {
-            modelerUniform.position = transformData.getFloat3("Position") / model.modelingScale
-            if forPreview == false {
-                modelerUniform.position.y = -0.5 + modelerUniform.position.y
+        if cmd.role == .GeometryAndMaterial {
+            if let transformData = cmd.dataGroups.getGroup("Transform") {
+                modelerUniform.position = transformData.getFloat3("Position") / kit.scale
+                if forPreview == false {
+                    modelerUniform.position.y = -0.5 + modelerUniform.position.y
+                }
+                modelerUniform.rotation = transformData.getFloat3("Rotation")
             }
-            modelerUniform.rotation = transformData.getFloat3("Rotation")
-        }
-        
-        if let modifierData = cmd.dataGroups.getGroup("Modifier") {
-            modelerUniform.noise = modifierData.getFloat("Noise", 0.3)
-            modelerUniform.surfaceDistance = modifierData.getFloat("Surface Distance", 0)
-        }
-        
-        if let geometryData = cmd.dataGroups.getGroup("Geometry") {
-            modelerUniform.size = geometryData.getFloat3("Size", float3(4,4,4)) / model.modelingScale / 2
-            modelerUniform.radius = geometryData.getFloat("Radius", 1) / model.modelingScale
-            modelerUniform.rounding = geometryData.getFloat("Rounding", 0)
             
-            modelerUniform.heightFrequency = geometryData.getFloat("Frequency", 2)
-            modelerUniform.heightOctaves = geometryData.getFloat("Octaves", 5)
-            modelerUniform.heightScale = geometryData.getFloat("Scale", 0.2)
-        }
-        
-        if let booleanData = cmd.dataGroups.getGroup("Boolean") {
-            modelerUniform.smoothing = booleanData.getFloat("Smoothing", 0.1)
-        }
-        
-        if let repetitionData = cmd.dataGroups.getGroup("Repetition") {
-            modelerUniform.repDistance = repetitionData.getFloat("Distance", 0)
-            modelerUniform.repLowerLimit = repetitionData.getFloat3("Lower Limit", float3(0,0,0))
-            modelerUniform.repUpperLimit = repetitionData.getFloat3("Upper Limit", float3(0,0,0))
+            if let modifierData = cmd.dataGroups.getGroup("Modifier") {
+                modelerUniform.noise = modifierData.getFloat("Noise", 0.3)
+                modelerUniform.surfaceDistance = modifierData.getFloat("Surface Distance", 0)
+            }
+            
+            if let geometryData = cmd.dataGroups.getGroup("Geometry") {
+                modelerUniform.size = geometryData.getFloat3("Size", float3(4,4,4)) / kit.scale / 2
+                modelerUniform.radius = geometryData.getFloat("Radius", 1) / kit.scale
+                modelerUniform.rounding = geometryData.getFloat("Rounding", 0)
+                
+                modelerUniform.heightFrequency = geometryData.getFloat("Frequency", 2)
+                modelerUniform.heightOctaves = geometryData.getFloat("Octaves", 5)
+                modelerUniform.heightScale = geometryData.getFloat("Scale", 0.2)
+            }
+            
+            if let booleanData = cmd.dataGroups.getGroup("Boolean") {
+                modelerUniform.smoothing = booleanData.getFloat("Smoothing", 0.1)
+            }
+            
+            if let repetitionData = cmd.dataGroups.getGroup("Repetition") {
+                modelerUniform.repDistance = repetitionData.getFloat("Distance", 0)
+                modelerUniform.repLowerLimit = repetitionData.getFloat3("Lower Limit", float3(0,0,0))
+                modelerUniform.repUpperLimit = repetitionData.getFloat3("Upper Limit", float3(0,0,0))
+            }
         }
         
         modelerUniform.normal = cmd.normal                
         modelerUniform.material = cmd.material.toMaterialStruct()
         modelerUniform.mixer = cmd.material.toMaterialMixerStruct()
         
-        if cmd.role == .GeometryAndMaterial {
-            cmd.geometryId = 0
-            modelerUniform.id = Int32(cmd.geometryId)
-        } else {
-            modelerUniform.id = Int32(cmd.geometryId)
-        }
+        modelerUniform.id = Int32(cmd.materialId)
 
         return modelerUniform
     }

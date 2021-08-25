@@ -10,6 +10,13 @@ open class Number: StoredValue, CustomDebugStringConvertible {
         return v
     }
     
+    open func toFloat() -> Float {
+        push(vm)
+        let v = lua_tonumberx(vm.vm, -1, nil)
+        vm.pop()
+        return Float(v)
+    }
+    
     open func toInteger() -> Int64 {
         push(vm)
         let v = lua_tointegerx(vm.vm, -1, nil)

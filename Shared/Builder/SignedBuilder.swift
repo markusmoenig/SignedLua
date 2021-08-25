@@ -72,15 +72,27 @@ class SignedBuilder {
         for data in groups {
             for entity in data.data {
                 if entity.key == name && entity.type == .Float3 {
-                    if let x = value["x"] as? Number {
-                        entity.value.x = Float(x.toDouble())
-                    }
-                    if let y = value["y"] as? Number {
-                        entity.value.y = Float(y.toDouble())
-                    }
-                    if let z = value["z"] as? Number {
-                        entity.value.z = Float(z.toDouble())
-                    }
+                    /*if name == "Color" {
+                        if let x = value["x"] as? Number {
+                            entity.value.x = pow(x.toFloat(), 2.2)
+                        }
+                        if let y = value["y"] as? Number {
+                            entity.value.y = pow(y.toFloat(), 2.2)
+                        }
+                        if let z = value["z"] as? Number {
+                            entity.value.z = pow(z.toFloat(), 2.2)
+                        }
+                    } else {*/
+                        if let x = value["x"] as? Number {
+                            entity.value.x = x.toFloat()
+                        }
+                        if let y = value["y"] as? Number {
+                            entity.value.y = y.toFloat()
+                        }
+                        if let z = value["z"] as? Number {
+                            entity.value.z = z.toFloat()
+                        }
+                    //}
                 }
             }
         }
@@ -167,21 +179,45 @@ class SignedBuilder {
                 return .nothing
             }
             
+            // Set Mode
+            type["setMode"] = type.createMethod([String.arg]) { cmd, args in
+                if args.values.count == 1 {
+                    let modeName = args.string.lowercased()
+                    if let cmd = cmd.cmd {
+                        if modeName == "add" {
+                            cmd.action = .Add
+                        } else
+                        if modeName == "subtract" {
+                            cmd.action = .Subtract
+                        }
+                    }
+                }
+                return .nothing
+            }
+            
             // Get name of cmd
             type["getName"] = type.createMethod([]) { cmd, args in
                 return .value(cmd.name)
             }
             
-            // Create shape
-            type["execute"] = type.createMethod([]) { cmd, args in
+            // Execute the command
+            type["execute"] = type.createMethod([Number.arg]) { cmd, args in
+                
+                var materialId : Int = 0
+                if args.values.isEmpty == false {
+                    let value = args.number
+                    materialId = Int(value.toInteger())
+                }
+                                
                 if let cmd = cmd.cmd {
+                    cmd.materialId = materialId
                     self.context.addToPipeline(cmd: cmd)
                 }
                 return .nothing
             }
         }
         
-        commandLib["newFromShape"] = vm.createFunction([String.arg]) { args in
+        commandLib["newShape"] = vm.createFunction([String.arg]) { args in
             if args.values.isEmpty == false {
                 let shape = LuaCommand()
                 shape.name = args.string
@@ -195,6 +231,25 @@ class SignedBuilder {
                 shape.cmd?.action = .Add
                 
                 let data = self.vm.createUserdata(shape)
+                return .value(data)
+            } else {
+                return .nothing
+            }
+        }
+        
+        commandLib["newMaterial"] = vm.createFunction([String.arg]) { args in
+            if args.values.isEmpty == false {
+                let cmd = LuaCommand()
+                cmd.name = args.string
+                
+                if cmd.name.isEmpty == true {
+                    cmd.cmd = SignedCommand()
+                }
+                
+                cmd.cmd?.role = .MaterialOnly
+                cmd.cmd?.action = .None
+                
+                let data = self.vm.createUserdata(cmd)
                 return .value(data)
             } else {
                 return .nothing
@@ -254,6 +309,12 @@ class SignedBuilder {
             kit.renderKits = renderKits
             kit.installNextRenderKit()
             kit.materialEntity = materialEntity
+            
+            if content == .project {
+                kit.scale = 5
+            } else {
+                kit.scale = 1
+            }
             
             modeler.clear(kit)
             if kit.role == .main {
@@ -325,6 +386,60 @@ class SignedBuilder {
                 DispatchQueue.main.async {
                     self.model.infoChanged.send()
                 }
+            }
+            
+            if kit.content == .material {
+                
+                let materialCode = """
+
+                sphereCmd = command:newShape("Sphere")
+                sphereCmd:setVec3("Position", vec3(0,0.5,0))
+                sphereCmd:setNumber("Radius", 0.5)
+                sphereCmd:execute(0)
+
+                sphereCmd = command:newShape("Sphere")
+                sphereCmd:setVec3("Position", vec3(0,0.5,0))
+                sphereCmd:setNumber("Radius", 0.47)
+                sphereCmd:setMode("subtract")
+                sphereCmd:execute(1)
+
+                boxCmd = command:newShape("Box")
+                boxCmd:setVec3("Position", vec3(0,0.5,0))
+                boxCmd:setVec3("Rotation", vec3(0,0,0))
+                boxCmd:setVec3("Size", vec3(2, 0.07, 2))
+                boxCmd:setMode("subtract")
+                boxCmd:execute(1)
+
+                boxCmd = command:newShape("Box")
+                boxCmd:setVec3("Position", vec3(0,0.5,0))
+                boxCmd:setVec3("Rotation", vec3(0,0,0))
+                boxCmd:setVec3("Size", vec3(0.07, 2, 2))
+                boxCmd:setMode("subtract")
+                boxCmd:execute(1)
+
+                sphereCmd = command:newShape("Sphere")
+                sphereCmd:setVec3("Position", vec3(0,0.5,0))
+                sphereCmd:setVec3("Color", vec3(0.5,0.5,0.5))
+                sphereCmd:setNumber("Roughness", 0)
+                sphereCmd:setNumber("Radius", 0.44)
+                sphereCmd:execute(1)
+                
+                material(0)
+
+                """
+                
+                switch self.vm.eval(materialCode, args: []) {
+                case let .values(values):
+                    if values.isEmpty == false {
+                        print(values.first!)
+                    }
+                case let .error(e):
+                    self.model.infoText += e + "\n"
+                    DispatchQueue.main.async {
+                        self.model.infoChanged.send()
+                    }
+                }
+                
             }
 
             /*
