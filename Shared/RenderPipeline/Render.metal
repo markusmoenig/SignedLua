@@ -1033,13 +1033,13 @@ kernel void render(            constant RenderUniform               &renderData 
         
         if (bbox.y > 0.0) {
                     
-            float outside = 1.0;
+            //float outside = 1.0;
 
             if (depth == 0)
-                t = max(bbox.x, 0.0001);
+                t = max(bbox.x, 0.000);
             else {
-                t = 0.0001;
-                outside = dot(state.normal, state.ffnormal) > 0.0 ? 1.0 : -1.0;
+                t = 0.000;
+                //outside = dot(state.normal, state.ffnormal) > 0.0 ? 1.0 : -1.0;
             }
             
             bool hit = false;
@@ -1072,7 +1072,7 @@ kernel void render(            constant RenderUniform               &renderData 
                         break;
                     }
                     
-                    t += d * outside;
+                    t += abs(d);// * outside;
 
                     if (t >= bbox.y)
                         break;
@@ -1265,7 +1265,7 @@ kernel void render(            constant RenderUniform               &renderData 
 #endif
 
         ray.direction = bsdfSampleRec.L;
-        ray.origin = state.fhp + ray.direction * (EPS + 0.04 * scale);
+        ray.origin = state.fhp + ray.direction * (EPS + 0.02 * scale);
     }
 
     sampleTexture.write(float4(radiance, 1.0), gid);
