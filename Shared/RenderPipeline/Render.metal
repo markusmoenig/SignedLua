@@ -1182,42 +1182,15 @@ kernel void render(            constant RenderUniform               &renderData 
         state.mat.specTrans = clearcoatGlossSpecTransIor.y;
         state.mat.ior = clearcoatGlossSpecTransIor.z;
         state.mat.emission = emissionId.xyz;
-        int id = int(emissionId.w);
+        //int id = int(emissionId.w);
         state.mat.atDistance = 1.0;
         
-        Material material = state.mat;
+        Material material = mData.material;
         
         if (mData.roleType == Modeler_GeometryAndMaterial) {
             // Geometry preview material blending
-            computeModelerMaterial(state.fhp, mData, scale, material, 1.0);
             state.mat = mixMaterials(state.mat, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
-        } else
-        if (mData.roleType == Modeler_MaterialOnly) {
-            // Material only layer
-            if (id == mData.id) {
-                computeModelerMaterial(state.fhp, mData, scale, material, mData.materialOnlyMixerValue);
-                state.mat = material;//mixMaterials(state.mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));
-            }
         }
-        /*} else {
-            // Brush based Material painting
-            
-            float brushDist = distance(mData.brushHit, state.fhp);
-            
-            if (brushDist < mData.brushSize * scale) {
-            
-                brushDist /= mData.brushSize * scale;
-                state.mat = mixMaterials(state.mat, mData.material, smoothstep(0.0, 1.0, 1.0 - brushDist));
-                
-                if (mData.writeBrush && brushDist < 1) {
-                    setMaterialData(state.fhp, float4(state.mat.albedo, state.mat.roughness), colorTexture, scale);
-                    setMaterialData(state.fhp, float4(state.mat.specular, state.mat.metallic, state.mat.subsurface, state.mat.clearcoat), materialTexture1, scale);
-                    setMaterialData(state.fhp, float4(state.mat.anisotropic, state.mat.specularTint, state.mat.sheen, state.mat.sheenTint), materialTexture2, scale);
-                    setMaterialData(state.fhp, float4(state.mat.clearcoatGloss, state.mat.specTrans, state.mat.ior, 0), materialTexture3, scale);
-                    setMaterialData(state.fhp, float4(state.mat.emission, 0), materialTexture4, scale);
-                }
-            }
-        }*/
         
         state.mat.roughness = max(state.mat.roughness, 0.001);
 

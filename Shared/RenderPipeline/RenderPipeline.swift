@@ -52,9 +52,6 @@ class RenderPipeline
     /// The queue for shape icons
     var iconQueue       : [SignedCommand] = []
     
-    /// The queue for material icons
-    var materialIconQueue   : [MaterialEntity] = []
-    
     /// The main render kit
     var mainRenderKit   : RenderKit
     
@@ -74,7 +71,7 @@ class RenderPipeline
         renderStates = RenderStates(device)
         
         mainRenderKit = RenderKit(maxSamples: 400)
-        iconRenderKit = RenderKit(maxSamples: 100)
+        iconRenderKit = RenderKit(maxSamples: 200)
         
         model.modeler = ModelerPipeline(view, model)
 
@@ -222,55 +219,7 @@ class RenderPipeline
             }
             
             stopCompute()
-        } /*else
-        /// Render a material icon ?
-        if let material = materialIconQueue.first, model.modulesAreAvailable {
-            startCompute()
-
-            if let iconKit = model.modeler?.iconKit, iconKit.isValid() {
-                
-                if iconKit.status == .ready {
-                    if let data = material.code {
-                        if let value = String(data: data, encoding: .utf8) {
-                            self.model.modeler?.clear(iconKit)
-                            iconBuilder.build(code: value, kit: iconKit)
-                        }
-                    }
-                } else if iconKit.status == .running {
-                    if iconKit.pipeline.isEmpty {
-                        iconKit.status = .rendering
-                    } else {
-                        if iconKit.gpuIsWorking == false {
-                            model.modeler?.executeNext(kit: iconKit)
-                        }
-                    }
-                } else if iconKit.status == .rendering {
-                    
-                    if iconKit.samples == 0 {
-                        clearTexture(iconKit.outputTexture!)
-                    }
-                    
-                    runRender(iconKit)
-                    
-                    model.modeler?.accumulate(texture: iconKit.sampleTexture!, targetTexture: iconKit.outputTexture!, samples: iconKit.samples)
-                    iconKit.samples += 1
-                    
-                    if iconKit.samples == ModelerPipeline.IconSamples {
-                        materialIconQueue.removeFirst()
-                        
-                        let icon = model.modeler?.kitToImage(iconKit)
-                        self.model.materialIcons[material.id!] = icon
-                        self.model.iconFinished.send(material.id!)                        
-                        
-                        // Init the next one to render
-                        iconKit.samples = 0
-                        iconKit.status = .ready
-                    }
-                }
-            }
-            
-            stopCompute()
-        } */else {
+        } else {
             if let mainKit = model.modeler?.mainKit {
                 if mainKit.pipeline.isEmpty && mainKit.currentRenderKit == nil && iconQueue.isEmpty {
                     view.isPaused = true
@@ -285,12 +234,7 @@ class RenderPipeline
         if let cmd = cmd {
             model.iconCmd = cmd//.copy()!
             model.modeler?.clear(model.modeler?.iconKit)
-
-            //model.iconCmd.action = .None
-            //model.modeler?.executeCommand(cmd, model.modeler?.iconKit, clearFirst: true)
-            //model.iconCmd.material.data.set("Emission", float3(1,0.2,0.2))
         } else {
-            //model.iconCmd = cmd//.copy()!
             model.iconCmd.action = .None
         }
     }
@@ -335,7 +279,7 @@ class RenderPipeline
                     modelerUniform.actionType = 0
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
                 } else {
-                    var modelerUniform = model.modeler?.createModelerUniform(model.modeler?.mainKit === kit ? model.editingCmd : model.iconCmd, kit: kit, forPreview: true)
+                    var modelerUniform = model.modeler?.createModelerUniform(model.iconCmd, kit: kit, forPreview: true)
                     computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 1)
                 }
                 

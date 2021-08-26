@@ -77,10 +77,10 @@ struct SideView: View {
             Divider()            
             
             if mode == .shape {
-                DataViews(model: model, data: getShapeGroups(), bottomPadding: 12)
+                //DataViews(model: model, data: getShapeGroups(), bottomPadding: 12)
             } else
             if mode == .material {
-                DataViews(model: model, data: [model.editingCmd.material.libraryData, model.editingCmd.material.data], bottomPadding: 0)
+                //DataViews(model: model, data: [model.editingCmd.material.libraryData, model.editingCmd.material.data], bottomPadding: 0)
             } else
             if mode == .javascript {
                 WebView(model, deviceColorScheme)
@@ -108,31 +108,6 @@ struct SideView: View {
             mode = .camera
             mode = .material
         }
-    }
-    
-    /// Returns the data groups for this shape
-    func getShapeGroups() -> [SignedData] {
-        var views : [SignedData] = []
-
-        if let transformData = model.editingCmd.dataGroups.getGroup("Transform") {
-            views.append(transformData)
-        }
-        if let geometryData = model.editingCmd.dataGroups.getGroup("Geometry") {
-            views.append(geometryData)
-        }
-        if let modifierData = model.editingCmd.dataGroups.getGroup("Modifier") {
-            views.append(modifierData)
-        }
-        if let booleanData = model.editingCmd.dataGroups.getGroup("Boolean") {
-            views.append(booleanData)
-        }
-        if let repetitionData = model.editingCmd.dataGroups.getGroup("Repetition") {
-            views.append(repetitionData)
-        }
-        if let libraryData = model.editingCmd.dataGroups.getGroup("Library") {
-            views.append(libraryData)
-        }
-        return views
     }
     
     /// Returns the project settings groups

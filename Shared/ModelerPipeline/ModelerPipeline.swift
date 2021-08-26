@@ -204,10 +204,6 @@ class ModelerPipeline
         modelerUniform.roleType = cmd.role.rawValue
         modelerUniform.actionType = cmd.action.rawValue
         modelerUniform.primitiveType = cmd.primitive.rawValue
-                
-        //modelerUniform.brushHit = model.editingHit
-        //modelerUniform.writeBrush = model.writeAction
-        modelerUniform.materialOnlyMixerValue = 1//model.materialOnlyMixer
         
         if cmd.role == .GeometryAndMaterial {
             if let transformData = cmd.dataGroups.getGroup("Transform") {
@@ -244,10 +240,16 @@ class ModelerPipeline
             }
         }
         
+        
+        
         modelerUniform.normal = cmd.normal                
         modelerUniform.material = cmd.material.toMaterialStruct()
-        modelerUniform.mixer = cmd.material.toMaterialMixerStruct()
         
+        modelerUniform.blendMode = cmd.blendMode.rawValue
+        modelerUniform.blendValue1 = cmd.blendValue1
+        modelerUniform.blendValue2 = cmd.blendValue2
+        modelerUniform.blendValue3 = cmd.blendValue3
+
         modelerUniform.id = Int32(cmd.materialId)
 
         return modelerUniform

@@ -24,13 +24,22 @@ class SignedCommand : Codable, Hashable {
         case Heightfield, Sphere, Box
     }
     
+    enum BlendMode: Int32, Codable {
+        case Linear, ValueNoise
+    }
+    
     var id              = UUID()
     var name            : String
     
     var role            : Role
     var action          : Action
     var primitive       : Primitive
+    var blendMode       : BlendMode = .Linear
     
+    var blendValue1     : Float = 1
+    var blendValue2     : Float = 1
+    var blendValue3     : Float = 1
+
     var dataGroups      : SignedDataGroups
     var material        : SignedMaterial
 
@@ -57,6 +66,10 @@ class SignedCommand : Codable, Hashable {
         case normal
         case code
         case materialId
+        case blendMode
+        case blendValue1
+        case blendValue2
+        case blendValue3
     }
     
     init(_ name: String = "Unnamed", role: Role = .GeometryAndMaterial, action: Action = .Add, primitive: Primitive = .Box, data: [String: SignedData] = [:], material: SignedMaterial = SignedMaterial())
@@ -89,6 +102,10 @@ class SignedCommand : Codable, Hashable {
 
         code = try container.decode(String.self, forKey: .code)
         materialId = try container.decode(Int.self, forKey: .materialId)
+        blendMode = try container.decode(BlendMode.self, forKey: .blendMode)
+        blendValue1 = try container.decode(Float.self, forKey: .blendValue1)
+        blendValue2 = try container.decode(Float.self, forKey: .blendValue2)
+        blendValue3 = try container.decode(Float.self, forKey: .blendValue3)
     }
     
     func encode(to encoder: Encoder) throws
@@ -104,6 +121,10 @@ class SignedCommand : Codable, Hashable {
         try container.encode(normal, forKey: .normal)
         try container.encode(code, forKey: .code)
         try container.encode(materialId, forKey: .materialId)
+        try container.encode(blendMode, forKey: .blendMode)
+        try container.encode(blendValue1, forKey: .blendValue1)
+        try container.encode(blendValue2, forKey: .blendValue2)
+        try container.encode(blendValue3, forKey: .blendValue3)
     }
     
     static func ==(lhs: SignedCommand, rhs: SignedCommand) -> Bool {
@@ -187,7 +208,7 @@ class SignedCommand : Codable, Hashable {
         
         if let data = try? JSONEncoder().encode(from) {
             if let copied = try? JSONDecoder().decode(SignedMaterial.self, from: data) {
-                self.material = copied
+                self.material = copied                
             }
         }
     }

@@ -72,11 +72,8 @@ class Model: NSObject, ObservableObject {
     /// Send when a material  has been selected
     let materialSelected                    = PassthroughSubject<SignedCommand, Never>()
     
-    /// Send when an icon for  a cmd has been rendered
+    /// Send when an icon for  an entity has been rendered
     let iconFinished                        = PassthroughSubject<UUID, Never>()
-    
-    /// Editing cmd changed, update the UI
-    let editingCmdChanged                   = PassthroughSubject<SignedCommand, Never>()
     
     /// Editing cmd changed, update the UI
     let modelChanged                        = PassthroughSubject<Void, Never>()
@@ -109,24 +106,8 @@ class Model: NSObject, ObservableObject {
     /// The currently supported shapes
     var shapes                              : [SignedCommand] = []
     
-    /// Material library
-    var materialIcons                       : [UUID: CGImage] = [:]
-    
-    /// The current editing command
-    var editingCmd                          = SignedCommand()
+    /// Icon cmd to render the shape previews
     var iconCmd                             = SignedCommand()
-    
-    /// Set to the current hit position of the mouse cursor
-    var editingHit                          = float3()
-    
-    /// The current modeling action is a write (currenrtly unused as no brush painting is allowed)
-    var writeAction                         : Int32 = 0
-    
-    /// The current materialOnlyMixer
-    var materialOnlyMixer                   : Float = 0.5
-
-    /// A value of 10 means we are modeling max 10 meter objects
-    var modelingScale                       = Float(1)
     
     /// Info text
     var infoText                            : String = ""
@@ -146,9 +127,6 @@ class Model: NSObject, ObservableObject {
         
         builder = SignedBuilder(self)
 
-        //selectedObject = project.objects.first
-        
-        editingCmd.action = .None
         iconCmd.action = .None
         
         createShapes()
@@ -171,18 +149,14 @@ class Model: NSObject, ObservableObject {
     {
         self.renderer = renderer
         self.renderer?.iconQueue += shapes
-        //self.renderer?.iconQueue += materials
         self.renderer?.installNextShapeIconCmd(shapes.first)
-        
-        editingCmd.copyGeometry(from: shapes.first!)
-        editingCmd.action = .None
     }
     
     /// Initialises the currently available shapes
     func createShapes() {
         shapes = [
             SignedCommand("Heightfield", role: .GeometryAndMaterial, action: .Add, primitive: .Heightfield,  data: ["Geometry": SignedData([SignedDataEntity("Frequency", Float(2), float2(0, 20)), SignedDataEntity("Octaves", Float(5), float2(0, 20)), SignedDataEntity("Scale", Float(0.2), float2(0, 20))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
-            SignedCommand("Sphere", role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.04) * modelingScale, float2(0, 5))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
+            SignedCommand("Sphere", role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.22), float2(0, 5))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
             SignedCommand("Box", role: .GeometryAndMaterial, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,10), .Slider), SignedDataEntity("Rounding", Float(0.0), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]
         selectedShape = shapes.first
@@ -286,5 +260,22 @@ class Model: NSObject, ObservableObject {
             }
         }
         return ""
+    }
+    
+    ///  Gets the material entity of the given name
+    func getMaterialEntity(name: String) -> MaterialEntity? {
+        
+        let request = MaterialEntity.fetchRequest()
+        
+        let managedObjectContext = PersistenceController.shared.container.viewContext
+        let materials = try! managedObjectContext.fetch(request)
+
+        for material in materials {
+            if material.name == name {
+                return material
+            }
+        }
+
+        return nil
     }
 }

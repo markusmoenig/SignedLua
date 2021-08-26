@@ -267,108 +267,6 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     return rc;
 }
 
-/// Computes the given distance for the given modeler cmd
-void computeModelerMaterial(float3 uv, constant ModelerUniform &mData, float scale, thread Material &material, float globalMaterialScale = 1.0)
-{
-    if (mData.mixer.albedoMixer == 0) {
-        material.albedo = mix(material.albedo, mData.material.albedo, globalMaterialScale);
-    } else
-    if (mData.mixer.albedoMixer == 1) {
-        material.albedo = mix(material.albedo, mData.material.albedo, valueNoiseFBM(uv * 100.0 * mData.mixer.albedoMixerScale / scale, mData.mixer.albedoMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.specularMixer == 0) {
-        material.specular = mix(material.specular, mData.material.specular, globalMaterialScale);
-    }
-    if (mData.mixer.specularMixer == 1) {
-        material.specular = mix(material.specular, mData.material.specular, valueNoiseFBM(uv * 100.0 * mData.mixer.specularMixerScale / scale, mData.mixer.specularMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.specularTintMixer == 0) {
-        material.specularTint = mix(material.specularTint, mData.material.specularTint, globalMaterialScale);
-    } else
-    if (mData.mixer.specularTintMixer == 1) {
-        material.specularTint = mix(material.specularTint, mData.material.specularTint, valueNoiseFBM(uv * 100.0 * mData.mixer.specularTintMixerScale / scale, mData.mixer.specularTintMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.anisotropicMixer == 0) {
-        material.anisotropic = mix(material.anisotropic, mData.material.anisotropic, globalMaterialScale);
-    } else
-    if (mData.mixer.anisotropicMixer == 1) {
-        material.anisotropic = mix(material.anisotropic, mData.material.anisotropic, valueNoiseFBM(uv * 100.0 * mData.mixer.anisotropicMixerScale / scale, mData.mixer.anisotropicMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.metallicMixer == 0) {
-        material.metallic = mix(material.metallic, mData.material.metallic, globalMaterialScale);
-    } else
-    if (mData.mixer.metallicMixer == 1) {
-        material.metallic = mix(material.metallic, mData.material.metallic, valueNoiseFBM(uv * 100.0 * mData.mixer.metallicMixerScale / scale, mData.mixer.metallicMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.roughnessMixer == 0) {
-        material.roughness = mix(material.roughness, mData.material.roughness, globalMaterialScale);
-    } else
-    if (mData.mixer.roughnessMixer == 1) {
-        material.roughness = mix(material.roughness, mData.material.roughness, valueNoiseFBM(uv * 100.0 * mData.mixer.roughnessMixerScale / scale, mData.mixer.roughnessMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.subsurfaceMixer == 0) {
-        material.subsurface = mix(material.subsurface, mData.material.subsurface, globalMaterialScale);
-    } else
-    if (mData.mixer.subsurfaceMixer == 1) {
-        material.subsurface = mix(material.subsurface, mData.material.subsurface, valueNoiseFBM(uv * 100.0 * mData.mixer.subsurfaceMixerScale / scale, mData.mixer.subsurfaceMixerSmoothing) * globalMaterialScale);
-    }
- 
-    if (mData.mixer.sheenMixer == 0) {
-        material.sheen = mix(material.sheen, mData.material.sheen, globalMaterialScale);
-    } else
-    if (mData.mixer.sheenMixer == 1) {
-        material.sheen = mix(material.sheen, mData.material.sheen, valueNoiseFBM(uv * 100.0 * mData.mixer.sheenMixerScale / scale, mData.mixer.sheenMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.sheenTintMixer == 0) {
-        material.sheenTint = mix(material.sheenTint, mData.material.sheenTint, globalMaterialScale);
-    } else
-    if (mData.mixer.sheenTintMixer == 1) {
-        material.sheenTint = mix(material.sheenTint, mData.material.sheenTint, valueNoiseFBM(uv * 100.0 * mData.mixer.sheenTintMixerScale / scale, mData.mixer.sheenTintMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.clearcoatMixer == 0) {
-        material.clearcoat = mix(material.clearcoat, mData.material.clearcoat, globalMaterialScale);
-    } else
-    if (mData.mixer.clearcoatMixer == 1) {
-        material.clearcoat = mix(material.clearcoat, mData.material.clearcoat, valueNoiseFBM(uv * 100.0 * mData.mixer.clearcoatMixerScale / scale, mData.mixer.clearcoatMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.clearcoatGlossMixer == 0) {
-        material.clearcoatGloss = mix(material.clearcoatGloss, mData.material.clearcoatGloss, globalMaterialScale);
-    } else
-    if (mData.mixer.clearcoatGlossMixer == 1) {
-        material.clearcoatGloss = mix(material.clearcoatGloss, mData.material.clearcoatGloss, valueNoiseFBM(uv * 100.0 * mData.mixer.clearcoatGlossMixerScale / scale, mData.mixer.clearcoatGlossMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.specTransMixer == 0) {
-        material.specTrans = mix(material.specTrans, mData.material.specTrans, globalMaterialScale);
-    } else
-    if (mData.mixer.specTransMixer == 1) {
-        material.specTrans = mix(material.specTrans, mData.material.specTrans, valueNoiseFBM(uv * 100.0 * mData.mixer.specTransMixerScale / scale, mData.mixer.specTransMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.iorMixer == 0) {
-        material.ior = mix(material.ior, mData.material.ior, globalMaterialScale);
-    } else
-    if (mData.mixer.iorMixer == 1) {
-        material.ior = mix(material.ior, mData.material.ior, valueNoiseFBM(uv * 100.0 * mData.mixer.iorMixerScale / scale, mData.mixer.iorMixerSmoothing) * globalMaterialScale);
-    }
-    
-    if (mData.mixer.emissionMixer == 0) {
-        material.emission = mix(material.emission, mData.material.emission, globalMaterialScale);
-    } else
-    if (mData.mixer.emissionMixer == 1) {
-        material.emission = mix(material.emission, mData.material.emission, valueNoiseFBM(uv * 100.0 * mData.mixer.emissionMixerScale / scale, mData.mixer.emissionMixerSmoothing) * globalMaterialScale);
-    }
-}
-
 /// Executes one modeler command
 kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer(0) ]],
                        texture3d<half, access::read_write>      modelTexture  [[texture(1)]],
@@ -416,9 +314,7 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
             mat.emission = emission;
             mat.atDistance = 1.0;
             
-            Material material = mat;
-            computeModelerMaterial(uv, mData, 1.0, material, 1.0);
-            
+            Material material = mData.material;
             Material outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
             
             colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);
@@ -460,7 +356,15 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
             Material material = mData.material;
             //computeModelerMaterial(uv, mData, 1.0, material, mData.materialOnlyMixerValue);
             
-            Material outMaterial = material;//mixMaterials(mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));
+            Material outMaterial;// = material;//mixMaterials(mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));
+            
+            if (mData.blendMode == Modeler_BlendMode_Linear) {
+                 outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, mData.blendValue1));
+            } else
+            if (mData.blendMode == Modeler_BlendMode_ValueNoise) {
+                float noise = valueNoiseFBM(uv * 100.0 * mData.blendValue1, mData.blendValue2);
+                outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, noise));
+            }
             
             colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);
             materialTexture1.write(half4(float4(outMaterial.specular, outMaterial.metallic, outMaterial.subsurface, outMaterial.clearcoat)), gid);

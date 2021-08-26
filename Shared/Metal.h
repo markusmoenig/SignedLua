@@ -192,6 +192,9 @@ typedef struct {
 #define Modeler_Shape_Sphere                1
 #define Modeler_Shape_Box                   2
 
+#define Modeler_BlendMode_Linear            0
+#define Modeler_BlendMode_ValueNoise        1
+
 typedef struct
 {
     int                 albedoMixer;
@@ -277,9 +280,6 @@ typedef struct {
     float               surfaceDistance;
         
     Material            material;
-    MaterialMixer       mixer;
-
-    float               materialOnlyMixerValue;
     
     float               repDistance;
     simd_float3         repLowerLimit;
@@ -290,12 +290,11 @@ typedef struct {
     float               heightFrequency;
     float               heightOctaves;
     float               heightScale;
-
-    // If we are using a brush, the brush hit is used to render a preview
-    simd_float3         brushHit;
     
-    int                 writeBrush;
-    float               brushSize;
+    int                 blendMode;
+    float               blendValue1;
+    float               blendValue2;
+    float               blendValue3;
 
 } ModelerUniform;
 

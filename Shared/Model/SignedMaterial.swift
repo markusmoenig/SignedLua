@@ -116,68 +116,6 @@ class SignedMaterial: Codable {
         return material
     }
     
-    func toMaterialMixerStruct() -> MaterialMixer {
-        var materialMixer = MaterialMixer()
-        
-        materialMixer.albedoMixer = Int32(data.getEntity("Color")!.subData!.getInt("MixerType"))
-        materialMixer.albedoMixerScale = data.getEntity("Color")!.subData!.getFloat("Scale", 1)
-        materialMixer.albedoMixerSmoothing = Int32(data.getEntity("Color")!.subData!.getInt("Smoothing", 1))
-
-        materialMixer.specularMixer = Int32(data.getEntity("Specular")!.subData!.getInt("MixerType"))
-        materialMixer.specularMixerScale = data.getEntity("Specular")!.subData!.getFloat("Scale", 1)
-        materialMixer.specularMixerSmoothing = Int32(data.getEntity("Specular")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.anisotropicMixer = Int32(data.getEntity("Anisotropic")!.subData!.getInt("MixerType"))
-        materialMixer.anisotropicMixerScale = data.getEntity("Anisotropic")!.subData!.getFloat("Scale", 1)
-        materialMixer.anisotropicMixerSmoothing = Int32(data.getEntity("Anisotropic")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.metallicMixer = Int32(data.getEntity("Metallic")!.subData!.getInt("MixerType"))
-        materialMixer.metallicMixerScale = data.getEntity("Metallic")!.subData!.getFloat("Scale", 1)
-        materialMixer.metallicMixerSmoothing = Int32(data.getEntity("Metallic")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.roughnessMixer = Int32(data.getEntity("Roughness")!.subData!.getInt("MixerType"))
-        materialMixer.roughnessMixerScale = data.getEntity("Roughness")!.subData!.getFloat("Scale", 1)
-        materialMixer.roughnessMixerSmoothing = Int32(data.getEntity("Roughness")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.subsurfaceMixer = Int32(data.getEntity("Subsurface")!.subData!.getInt("MixerType"))
-        materialMixer.subsurfaceMixerScale = data.getEntity("Subsurface")!.subData!.getFloat("Scale", 1)
-        materialMixer.subsurfaceMixerSmoothing = Int32(data.getEntity("Subsurface")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.specularTintMixer = Int32(data.getEntity("Specular Tint")!.subData!.getInt("MixerType"))
-        materialMixer.specularTintMixerScale = data.getEntity("Specular Tint")!.subData!.getFloat("Scale", 1)
-        materialMixer.specularTintMixerSmoothing = Int32(data.getEntity("Specular Tint")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.sheenMixer = Int32(data.getEntity("Sheen")!.subData!.getInt("MixerType"))
-        materialMixer.sheenMixerScale = data.getEntity("Sheen")!.subData!.getFloat("Scale", 1)
-        materialMixer.sheenMixerSmoothing = Int32(data.getEntity("Sheen")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.sheenTintMixer = Int32(data.getEntity("Sheen Tint")!.subData!.getInt("MixerType"))
-        materialMixer.sheenTintMixerScale = data.getEntity("Sheen Tint")!.subData!.getFloat("Scale", 1)
-        materialMixer.sheenTintMixerSmoothing = Int32(data.getEntity("Sheen Tint")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.clearcoatMixer = Int32(data.getEntity("Clearcoat")!.subData!.getInt("MixerType"))
-        materialMixer.clearcoatMixerScale = data.getEntity("Clearcoat")!.subData!.getFloat("Scale", 1)
-        materialMixer.clearcoatMixerSmoothing = Int32(data.getEntity("Clearcoat")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.clearcoatGlossMixer = Int32(data.getEntity("Clearcoat Gloss")!.subData!.getInt("MixerType"))
-        materialMixer.clearcoatGlossMixerScale = data.getEntity("Clearcoat Gloss")!.subData!.getFloat("Scale", 1)
-        materialMixer.clearcoatGlossMixerSmoothing = Int32(data.getEntity("Clearcoat Gloss")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.specTransMixer = Int32(data.getEntity("Transmission")!.subData!.getInt("MixerType"))
-        materialMixer.specTransMixerScale = data.getEntity("Transmission")!.subData!.getFloat("Scale", 1)
-        materialMixer.specTransMixerSmoothing = Int32(data.getEntity("Transmission")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.iorMixer = Int32(data.getEntity("IOR")!.subData!.getInt("MixerType"))
-        materialMixer.iorMixerScale = data.getEntity("IOR")!.subData!.getFloat("Scale", 1)
-        materialMixer.iorMixerSmoothing = Int32(data.getEntity("IOR")!.subData!.getInt("Smoothing", 1))
-        
-        materialMixer.emissionMixer = Int32(data.getEntity("Emission")!.subData!.getInt("MixerType"))
-        materialMixer.emissionMixerScale = data.getEntity("Emission")!.subData!.getFloat("Scale", 1)
-        materialMixer.emissionMixerSmoothing = Int32(data.getEntity("Emission")!.subData!.getInt("Smoothing", 1))
-        
-        return materialMixer
-    }
-    
     /// Creates a copy of itself
     func copy() -> SignedMaterial?
     {

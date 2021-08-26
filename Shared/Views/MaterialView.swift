@@ -90,18 +90,6 @@ struct MaterialView: View {
                                             model.selectionChanged.send()
                                         }
                                     }
-                                                          
-                                    /*
-                                    model.selectedMaterial = material
-                                    model.editingCmd.copyMaterial(from: material.material)
-                                    model.materialSelected.send(material)
-                                    
-                                    model.editingCmd.code = material.code
-                                    //model.codeEditor?.setValue(model.editingCmd)
-                                    
-                                    model.editingCmdChanged.send(model.editingCmd)
-                                    model.renderer?.restart()
-                                    */
                                 })
                                 .contextMenu {
                                     Button("Delete") {
@@ -122,12 +110,12 @@ struct MaterialView: View {
                         
                         Rectangle()
                             .fill(.black)
-                            .opacity(0.4)
-                            .frame(width: CGFloat(ModelerPipeline.IconSize - (material.id == selected ? 2 : 0)), height: CGFloat(20 - (material.id == selected ? 1 : 0)))
-                            .padding(.top, CGFloat(ModelerPipeline.IconSize - (20 + (material.id == selected ? 1 : 0))))
+                            .opacity(0.2)
+                            .frame(width: CGFloat(ModelerPipeline.IconSize - (material.id == selected ? 2 : 0)), height: CGFloat(18 - (material.id == selected ? 1 : 0)))
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - (18 + (material.id == selected ? 1 : 0))))
                         
                         Text(material.name!)
-                            .padding(.top, CGFloat(ModelerPipeline.IconSize - 20))
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - 18))
                             .allowsHitTesting(false)
                             .foregroundColor(.white)
                     }

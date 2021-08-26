@@ -33,14 +33,7 @@ struct ShapeView: View {
                                 .onTapGesture(perform: {
                                     selected = shape
                                     model.selectedShape = shape
-                                    model.editingCmd.copyGeometry(from: shape)
                                     model.shapeSelected.send(shape)
-                                    
-                                    model.editingCmd.code = shape.code
-                                    //model.codeEditor?.setValue(model.editingCmd)
-                                    
-                                    model.editingCmdChanged.send(model.editingCmd)
-                                    model.renderer?.restart()
                                 })
                         } else {
                             Rectangle()
@@ -49,14 +42,7 @@ struct ShapeView: View {
                                 .onTapGesture(perform: {
                                     selected = shape
                                     model.selectedShape = shape
-                                    model.editingCmd.copyGeometry(from: shape)
                                     model.shapeSelected.send(shape)
-                                    
-                                    model.editingCmd.code = shape.code
-                                    //model.codeEditor?.setValue(model.editingCmd)
-                                    
-                                    model.editingCmdChanged.send(model.editingCmd)
-                                    model.renderer?.restart()
                                 })
                         }
                         

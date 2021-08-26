@@ -25,15 +25,6 @@ struct BrowserView: View {
     let model                               : Model
     
     @State private var selection            : NavigationItem? = .shapes
-    
-    @State private var editingMode          : Model.EditingMode? = .single
-    @State private var editingBooleanMode   : Model.EditingBooleanMode? = .plus
-
-    @State private var editingBrushMode     : Model.EditingBrushMode? = .GeometryAndMaterial
-    
-    @State private var materialOnlyMixer    : Float = 0.5
-    @State private var materialOnlyText     : String = "0.5"
-    @State private var materialOnlyRange    = float2(0, 1)
 
     @State private var showDatabasePopover  : Bool = false
     @State private var databaseName         : String = ""
@@ -171,8 +162,8 @@ struct BrowserView: View {
             .padding(.top, 0)
         }
         
-        .onChange(of: materialOnlyMixer) { value in
-            model.materialOnlyMixer = value
-        }
+        //.onChange(of: materialOnlyMixer) { value in
+        //    model.materialOnlyMixer = value
+        //}
     }
 }

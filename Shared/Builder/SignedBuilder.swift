@@ -195,6 +195,27 @@ class SignedBuilder {
                 return .nothing
             }
             
+            // Set Mode
+            type["setBlendMode"] = type.createMethod([String.arg, Number.arg, Number.arg, Number.arg]) { cmd, args in
+                if args.values.count == 4 {
+
+                    if let cmd = cmd.cmd {
+                        
+                        let modeName = args.string.lowercased()
+                        cmd.blendValue1 = args.number.toFloat()
+                        cmd.blendValue2 = args.number.toFloat()
+                        cmd.blendValue3 = args.number.toFloat()
+                                                
+                        if modeName == "valuenoise" {
+                            cmd.blendMode = .ValueNoise
+                        } else {
+                            cmd.blendMode = .Linear
+                        }
+                    }
+                }
+                return .nothing
+            }
+            
             // Get name of cmd
             type["getName"] = type.createMethod([]) { cmd, args in
                 return .value(cmd.name)
@@ -211,7 +232,20 @@ class SignedBuilder {
                                 
                 if let cmd = cmd.cmd {
                     cmd.materialId = materialId
-                    self.context.addToPipeline(cmd: cmd)
+
+                    if cmd.role == .GeometryAndMaterial {
+                        // Geometry
+                        self.context.addToPipeline(cmd: cmd)
+                    } else
+                    if cmd.role == .MaterialOnly {
+                        // Material
+                        if cmd.code.isEmpty == true {
+                            self.context.addToPipeline(cmd: cmd)
+                        } else {
+                            _ = self.vm.eval(cmd.code)
+                            _ = self.vm.eval("buildMaterial(\(materialId))\n")
+                        }
+                    }
                 }
                 return .nothing
             }
@@ -242,8 +276,16 @@ class SignedBuilder {
                 let cmd = LuaCommand()
                 cmd.name = args.string
                 
-                if cmd.name.isEmpty == true {
-                    cmd.cmd = SignedCommand()
+                cmd.cmd = SignedCommand()
+
+                if cmd.name.isEmpty == false {
+                    if let entity = self.model.getMaterialEntity(name: cmd.name) {
+                        if let data = entity.code {
+                            if let value = String(data: data, encoding: .utf8) {
+                                cmd.cmd?.code = value
+                            }
+                        }
+                    }
                 }
                 
                 cmd.cmd?.role = .MaterialOnly
@@ -422,9 +464,10 @@ class SignedBuilder {
                 sphereCmd:setVec3("Color", vec3(0.5,0.5,0.5))
                 sphereCmd:setNumber("Roughness", 0)
                 sphereCmd:setNumber("Radius", 0.44)
+                sphereCmd:setVec3("Emission", vec3(0.4,0.4,0.4))
                 sphereCmd:execute(1)
                 
-                material(0)
+                buildMaterial(0)
 
                 """
                 
@@ -441,22 +484,6 @@ class SignedBuilder {
                 }
                 
             }
-
-            /*
-            let cmd = SignedCommand("Ground", role: .GeometryAndMaterial, action: .Add, primitive: .Box,
-                                           data: ["Transform" : SignedData([SignedDataEntity("Position", float3(0,-0.9,0)) ]),
-                                                  "Geometry": SignedData([SignedDataEntity("Size", float3(0.6,0.4,0.6) * Float(Modeler_Global_Scale))])
-                                                 ], material: SignedMaterial(albedo: float3(0.5,0.5,0.5), metallic: 1, roughness: 0.3))
-            
-            context.addToPipeline(cmd: cmd)
-             */
-            
-            /*
-            let context = SignedContext(model: model)
-            
-            for node in topLevelNodes {
-                node.execute(context: context)
-            }*/
         }
         
         if let workItem = workItem {
