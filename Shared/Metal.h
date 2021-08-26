@@ -194,6 +194,7 @@ typedef struct {
 
 #define Modeler_BlendMode_Linear            0
 #define Modeler_BlendMode_ValueNoise        1
+#define Modeler_BlendMode_Depth             2
 
 typedef struct
 {

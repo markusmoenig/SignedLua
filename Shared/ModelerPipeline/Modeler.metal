@@ -364,6 +364,12 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
             if (mData.blendMode == Modeler_BlendMode_ValueNoise) {
                 float noise = valueNoiseFBM(uv * 100.0 * mData.blendValue1, mData.blendValue2);
                 outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, noise));
+            } else
+            if (mData.blendMode == Modeler_BlendMode_Depth) {
+                float depth = 0;
+                float absDist = abs(dist);
+                if (absDist >= mData.blendValue1 && absDist <= mData.blendValue2) depth = 1;
+                outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, depth));
             }
             
             colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);

@@ -11,13 +11,24 @@ import CoreGraphics
 class SignedProject: Codable {
 
     private enum CodingKeys: String, CodingKey {
+        case main
+        case objects
+        case materials
+        case modules
         case camera
         case dataGroups
-        case objects
     }
+    
+    var main                                : SignedObject
     
     /// The objects in the project
     var objects                             : [SignedObject] = []
+    
+    /// The materials in the project
+    var materials                           : [SignedObject] = []
+    
+    /// The modules in the project
+    var modules                             : [SignedObject] = []
     
     /// Camera
     var camera                              : SignedPinholeCamera
@@ -25,12 +36,11 @@ class SignedProject: Codable {
     /// Project settings data groups
     var dataGroups                          : SignedDataGroups
     
-    init() {
-        let object = SignedObject("main")
-        objects.append(object)
-        
+    init() {        
         camera = SignedPinholeCamera()
         dataGroups = SignedDataGroups()
+        
+        main = SignedObject("main")
         
         initDataGroups()
     }
@@ -38,17 +48,23 @@ class SignedProject: Codable {
     required init(from decoder: Decoder) throws
     {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        main = try container.decode(SignedObject.self, forKey: .main)
         objects = try container.decode([SignedObject].self, forKey: .objects)
+        materials = try container.decode([SignedObject].self, forKey: .materials)
+        modules = try container.decode([SignedObject].self, forKey: .modules)
         camera = try container.decode(SignedPinholeCamera.self, forKey: .camera)
         dataGroups = try container.decode(SignedDataGroups.self, forKey: .dataGroups)
-        
+                
         dataGroups.groups["Renderer"]!.set("Background", float4(0.25, 0.25, 0.25, 1.0))
     }
     
     func encode(to encoder: Encoder) throws
     {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(main, forKey: .main)
         try container.encode(objects, forKey: .objects)
+        try container.encode(materials, forKey: .materials)
+        try container.encode(modules, forKey: .modules)
         try container.encode(camera, forKey: .camera)
         try container.encode(dataGroups, forKey: .dataGroups)
     }
@@ -84,11 +100,26 @@ class SignedProject: Codable {
         }
     }
     
-    /// Returns the world scale, i.e. the scale of the 3D texture
-    func getWorldScale() -> Float {
-        if let worldData = dataGroups.getGroup("World") {
-            return Float(worldData.getInt("Scale", 3))
+    /// Returns the object of the given uuid
+    func getObject(from: UUID) -> SignedObject? {
+        if main.id == from {
+            return main
         }
-        return 3
+        for o in objects {
+            if o.id == from {
+                return o
+            }
+        }
+        for o in materials {
+            if o.id == from {
+                return o
+            }
+        }
+        for o in modules {
+            if o.id == from {
+                return o
+            }
+        }
+        return nil
     }
 }

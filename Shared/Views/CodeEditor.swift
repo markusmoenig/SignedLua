@@ -17,7 +17,7 @@ class CodeEditor
     
     var sessions        : [String] = []
     
-    var currentSession  : String
+    var currentSession  : String = ""
     
     init(_ view: WKWebView, _ model: Model,_ colorScheme: ColorScheme)
     {
@@ -25,23 +25,18 @@ class CodeEditor
         self.model = model
         self.colorScheme = colorScheme
 
-        currentSession = "__project"
-        if let object = model.getObject() {
-            if let code = object.code {
-                if let value = String(data: code, encoding: .utf8) {
-                    createSession(value: value)
-                }
-            }
-        }
+        currentSession = "__project_main"
+        createSession(value: model.project.main.getCode(), session: model.project.main.session)
+        
         setTheme(colorScheme)
     }
     
     /// Create a new editor session
-    func createSession(value: String, session: String = "__project", cb: (()->())? = nil)
+    func createSession(value: String, session: String, cb: (()->())? = nil)
     {
         sessions.append(session)
         currentSession = session
-
+        
         webView.evaluateJavaScript(
             """
             var \(session) = ace.createEditSession(`\(value)`)
@@ -106,7 +101,7 @@ class CodeEditor
     }
     
     /// Set the value for the given session context
-    func setSession(value: String, session: String = "__project")
+    func setSession(value: String, session: String)
     {
         if sessions.contains(session) == false {
             createSession(value: value, session: session)
@@ -219,10 +214,36 @@ class CodeEditor
     func updated()
     {
         getValue(session: currentSession, cb: { (value) in
-            if self.currentSession == "__project" {
-                if let object = self.model.getObject() {
-                    if let data = value.data(using: .utf8) {
-                        object.code = data
+            if self.currentSession.starts(with: "__project") {
+                if let data = value.data(using: .utf8) {
+                    var found = false
+                    if self.model.project.main.session == self.currentSession {
+                        self.model.project.main.code = data
+                        found = true
+                    }
+                    if found == false {
+                        for m in self.model.project.materials {
+                            if m.session == self.currentSession {
+                                m.code = data
+                                found = true
+                            }
+                        }
+                    }
+                    if found == false {
+                        for o in self.model.project.objects {
+                            if o.session == self.currentSession {
+                                o.code = data
+                                found = true
+                            }
+                        }
+                    } else
+                    if found == false {
+                        for m in self.model.project.modules {
+                            if m.session == self.currentSession {
+                                m.code = data
+                                found = true
+                            }
+                        }
                     }
                 }
             } else {

@@ -357,7 +357,7 @@ struct ContentView: View {
                         }
                     } else {
                         if let renderer = document.model.renderer {
-                            document.model.builder.build(code: document.model.getObjectCode(), kit: document.model.modeler!.mainKit, renderKits: [renderer.mainRenderKit])
+                            document.model.builder.build(code: document.model.project.main.getCode(), kit: document.model.modeler!.mainKit, renderKits: [renderer.mainRenderKit])
                         }
                     }
                 }) {

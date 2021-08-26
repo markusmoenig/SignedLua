@@ -21,6 +21,9 @@ struct ProjectView: View {
     @State private var showDatabasePopover  : Bool = false
     @State private var databaseName         : String = ""
 
+    @State private var showProjectNamePopover : Bool = false
+    @State private var projectName            : String = ""
+    
     @State private var selected             : UUID? = nil
 
     @State var updateView                   : Bool = false
@@ -41,9 +44,7 @@ struct ProjectView: View {
     init(_ model: Model)
     {
         self.model = model
-        if let object = model.getObject() {
-            _selected = State(initialValue: object.id)
-        }
+        _selected = State(initialValue: model.project.main.id)
     }
     
     var body: some View {
@@ -52,31 +53,95 @@ struct ProjectView: View {
 
             List {
                 Section(header: Text("Project")) {
+                    
+                    Button(action: {
+                        let object = model.project.main
+                        selected = object.id
+                        model.codeEditor?.setSession(value: object.getCode(), session: object.session)
+                        if model.codeEditorMode != .project {
+                            model.codeEditorMode = .project
+                            model.selectionChanged.send()
+                        }
+                    })
+                    {
+                        Label("main", systemImage: selected == model.project.main.id ? "s.square.fill" :  "s.square")
+                            .foregroundColor(selected == model.project.main.id ? .accentColor : .primary)
+                    }
+                    .contextMenu {
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
                 //DisclosureGroup("Primitives", isExpanded: $showMaterials) {
                     ForEach(model.project.objects, id: \.id) { object in
                         Button(action: {
-                            if let code = object.code {
-                                if let value = String(data: code, encoding: .utf8) {
-                                    selected = object.id
-                                    //model.codeEditorMode = .project
-                                    model.codeEditor?.setSession(value: value)
-                                    if model.codeEditorMode != .project {
-                                        model.codeEditorMode = .project
-                                        model.selectionChanged.send()
-                                    }
-                                }
+                            selected = object.id
+                            model.codeEditor?.setSession(value: object.getCode(), session: object.session)
+                            if model.codeEditorMode != .project {
+                                model.codeEditorMode = .project
+                                model.selectionChanged.send()
                             }
                         })
                         {
-                            Label("main", systemImage: "s.square")
+                            Label(object.name, systemImage: "s.square")
                                 .foregroundColor(selected == object.id ? .accentColor : .primary)
                         }
                         .contextMenu {
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
+                    
+                    ForEach(model.project.materials, id: \.id) { material in
+                        Button(action: {
+                            selected = material.id
+                            model.codeEditor?.setSession(value: material.getCode(), session: material.session)
+                            if model.codeEditorMode != .project {
+                                model.codeEditorMode = .project
+                                model.selectionChanged.send()
+                            }
+                        })
+                        {
+                            Label(material.name, systemImage: selected == material.id ? "paintpalette.fill" : "paintpalette")
+                                .foregroundColor(selected == material.id ? .accentColor : .primary)
+                        }
+                        .contextMenu {
+                            Button("Rename...") {
+                                projectName = material.name
+                                showProjectNamePopover = true
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    
+                    ForEach(model.project.modules, id: \.id) { module in
+                        Button(action: {
+                            selected = module.id
+                            model.codeEditor?.setSession(value: module.getCode(), session: module.session)
+                            if model.codeEditorMode != .project {
+                                model.codeEditorMode = .project
+                                model.selectionChanged.send()
+                            }
+                        })
+                        {
+                            Label(module.name, systemImage: selected == module.id ? "cylinder.fill " : "cylinder")
+                                .foregroundColor(selected == module.id ? .accentColor : .primary)
+                        }
+                        .contextMenu {
+                            Button("Upload to Database...") {
+                                let moduleEntity = ModuleEntity(context: managedObjectContext)
+                                
+                                moduleEntity.id = UUID()
+                                moduleEntity.name = databaseName
+                                moduleEntity.code = module.code!
+                                
+                                do {
+                                    try managedObjectContext.save()
+                                } catch {}
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
                 }
-                
+                                
                 Section(header: Text("Public Modules")) {
                     ForEach(modules, id: \.self) { module in
                         Button(action: {
@@ -101,8 +166,35 @@ struct ProjectView: View {
                 }
             }
             
+            // Edit object name
+            .popover(isPresented: self.$showProjectNamePopover,
+                     arrowEdge: .top
+            ) {
+                VStack(alignment: .leading) {
+                    Text("Name:")
+                    TextField("Name", text: $projectName, onEditingChanged: { (changed) in
+                        if let selected = selected {
+                            if let o = self.model.project.getObject(from: selected) {
+                                o.name = projectName
+                                self.selected = nil
+                                self.selected = o.id
+                            }
+                        }
+                    })
+                    .frame(minWidth: 200)
+                }.padding()
+            }
+            
             HStack {
                 Menu {
+                    
+                    Button("Material", action: {
+                        let material = SignedObject("New Material")
+                        material.code = "-- Material\n\nfunction buildMaterial(index)\n\nend\n".data(using: .utf8)
+                        model.project.materials.append(material)
+                        selected = material.id
+                        model.codeEditor?.setSession(value: material.getCode(), session: material.session)
+                    })
                     
                     Button("Public Material", action: {
                         databaseType = .material

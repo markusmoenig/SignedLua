@@ -205,7 +205,10 @@ class SignedBuilder {
                         cmd.blendValue1 = args.number.toFloat()
                         cmd.blendValue2 = args.number.toFloat()
                         cmd.blendValue3 = args.number.toFloat()
-                                                
+                            
+                        if modeName == "depth" {
+                            cmd.blendMode = .Depth
+                        } else
                         if modeName == "valuenoise" {
                             cmd.blendMode = .ValueNoise
                         } else {
@@ -279,10 +282,24 @@ class SignedBuilder {
                 cmd.cmd = SignedCommand()
 
                 if cmd.name.isEmpty == false {
-                    if let entity = self.model.getMaterialEntity(name: cmd.name) {
-                        if let data = entity.code {
-                            if let value = String(data: data, encoding: .utf8) {
-                                cmd.cmd?.code = value
+                    
+                    var found = false
+                    /// First search the project materials
+                    /// 
+                    for material in self.model.project.materials {
+                        if material.name == cmd.name {
+                            cmd.cmd?.code = material.getCode()
+                            found = true
+                        }
+                    }
+                    
+                    /// Than search the material cloud database
+                    if found == false {
+                        if let entity = self.model.getMaterialEntity(name: cmd.name) {
+                            if let data = entity.code {
+                                if let value = String(data: data, encoding: .utf8) {
+                                    cmd.cmd?.code = value
+                                }
                             }
                         }
                     }

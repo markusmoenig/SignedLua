@@ -16,7 +16,12 @@ class SignedObject : Codable, Hashable, Identifiable {
     
     var children        : [SignedObject]? = nil
 
-    var code            : Data? = "-- Lua code\n".data(using: .utf8)
+    var code            : Data? = "-- Signed, a Lua based 3D construction language\n".data(using: .utf8)
+    
+    /// CodeEditor session name
+    var session         : String
+    
+    static var sessionCounter   : Int = 0
     
     private enum CodingKeys: String, CodingKey {
         case id
@@ -29,13 +34,8 @@ class SignedObject : Codable, Hashable, Identifiable {
     {
         self.name = name
         
-        /*
-        let initialCmd = SignedCommand("Ground", role: .GeometryAndMaterial, action: .Add, primitive: .Box,
-                                       data: ["Transform" : SignedData([SignedDataEntity("Position", float3(0,-0.9,0)) ]),
-                                              "Geometry": SignedData([SignedDataEntity("Size", float3(0.6,0.4,0.6) * Float(Modeler_Global_Scale))])
-                                             ], material: SignedMaterial(albedo: float3(0.5,0.5,0.5), metallic: 1, roughness: 0.3))
-        commands.append(initialCmd)
-        */
+        session = "__project_session\(SignedObject.sessionCounter)"
+        SignedObject.sessionCounter += 1
     }
     
     required init(from decoder: Decoder) throws
@@ -45,6 +45,9 @@ class SignedObject : Codable, Hashable, Identifiable {
         name = try container.decode(String.self, forKey: .name)
         children = try container.decode([SignedObject]?.self, forKey: .children)
         code = try container.decode(Data?.self, forKey: .code)
+        
+        session = "__project_session\(SignedObject.sessionCounter)"
+        SignedObject.sessionCounter += 1
     }
     
     func encode(to encoder: Encoder) throws
@@ -62,5 +65,15 @@ class SignedObject : Codable, Hashable, Identifiable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+    
+    /// Returns the decoded code of the object
+    func getCode() -> String {
+        if let data = code {
+            if let value = String(data: data, encoding: .utf8) {
+                return value
+            }
+        }
+        return ""
     }
 }

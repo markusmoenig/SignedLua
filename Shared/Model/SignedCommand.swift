@@ -25,7 +25,7 @@ class SignedCommand : Codable, Hashable {
     }
     
     enum BlendMode: Int32, Codable {
-        case Linear, ValueNoise
+        case Linear, ValueNoise, Depth
     }
     
     var id              = UUID()
@@ -208,7 +208,7 @@ class SignedCommand : Codable, Hashable {
         
         if let data = try? JSONEncoder().encode(from) {
             if let copied = try? JSONDecoder().decode(SignedMaterial.self, from: data) {
-                self.material = copied                
+                self.material = copied
             }
         }
     }
