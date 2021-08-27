@@ -71,7 +71,7 @@ class RenderPipeline
         renderStates = RenderStates(device)
         
         mainRenderKit = RenderKit(maxSamples: 400)
-        iconRenderKit = RenderKit(maxSamples: 200)
+        iconRenderKit = RenderKit(maxSamples: 150)
         
         model.modeler = ModelerPipeline(view, model)
 

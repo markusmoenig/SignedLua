@@ -130,8 +130,6 @@
 		2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */; };
 		2B6FF6B225D2771F0053CEF8 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 2B6FF6B125D2771F0053CEF8 /* DynamicColor */; };
 		2B6FF6B625D2772B0053CEF8 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 2B6FF6B525D2772B0053CEF8 /* DynamicColor */; };
-		2B71C50C2682CF4500DC7F17 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B71C50B2682CF4500DC7F17 /* LibraryView.swift */; };
-		2B71C50D2682CF4500DC7F17 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B71C50B2682CF4500DC7F17 /* LibraryView.swift */; };
 		2B7242DD26CB398300F265F1 /* ModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7242DC26CB398300F265F1 /* ModuleView.swift */; };
 		2B7242DE26CB398300F265F1 /* ModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7242DC26CB398300F265F1 /* ModuleView.swift */; };
 		2B76D82B25AC46F000AF6FF2 /* SignedCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */; };
@@ -351,7 +349,6 @@
 		2B6D5CFA259C094E003F7DD8 /* FunctionNodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionNodes.swift; sourceTree = "<group>"; };
 		2B6FF69525D25E470053CEF8 /* NodesWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodesWidget.swift; sourceTree = "<group>"; };
 		2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorRing.swift; sourceTree = "<group>"; };
-		2B71C50B2682CF4500DC7F17 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		2B7242DC26CB398300F265F1 /* ModuleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleView.swift; sourceTree = "<group>"; };
 		2B76D82A25AC46F000AF6FF2 /* SignedCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedCamera.swift; sourceTree = "<group>"; };
 		2B7CFA2D2686F61D00221917 /* RenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderPipeline.swift; sourceTree = "<group>"; };
@@ -669,7 +666,6 @@
 				2BC042F2267ED3FB00DD85E2 /* ParameterView.swift */,
 				2BC042F5267ED4A500DD85E2 /* EditorView.swift */,
 				2BC042F8267ED54500DD85E2 /* ToolViews.swift */,
-				2B71C50B2682CF4500DC7F17 /* LibraryView.swift */,
 				2B7CFA302686FC0500221917 /* RenderView.swift */,
 				2B224F6B25844C1800F32354 /* CodeEditor.swift */,
 			);
@@ -978,7 +974,6 @@
 				2B407E792689602A004E6F4C /* ModelerPipeline.swift in Sources */,
 				2BC733B126C8EDE400BCE667 /* llex.c in Sources */,
 				2BC733BF26C8EDE400BCE667 /* lstate.c in Sources */,
-				2B71C50C2682CF4500DC7F17 /* LibraryView.swift in Sources */,
 				2BC7338126C8EDE400BCE667 /* lbitlib.c in Sources */,
 				2B260E1826CC8E6E00EDEBC2 /* DetailView.swift in Sources */,
 				2B224F8125844C1900F32354 /* Drawables.metal in Sources */,
@@ -1118,7 +1113,6 @@
 				2B407E7A2689602A004E6F4C /* ModelerPipeline.swift in Sources */,
 				2BC733B226C8EDE400BCE667 /* llex.c in Sources */,
 				2BC733C026C8EDE400BCE667 /* lstate.c in Sources */,
-				2B71C50D2682CF4500DC7F17 /* LibraryView.swift in Sources */,
 				2BC7338226C8EDE400BCE667 /* lbitlib.c in Sources */,
 				2B260E1926CC8E6E00EDEBC2 /* DetailView.swift in Sources */,
 				2B224F8225844C1900F32354 /* Drawables.metal in Sources */,

@@ -429,10 +429,30 @@ class SignedBuilder {
                 return .nothing
             }
             
-            // Auto require the basic modules
             self.alreadyRequired = []
+            
+            // Auto require the basic public modules
             self.requireModules(["vec3", "vec2", "command"])
             
+            // If we build a project require the project modules first, these have priority over public modules
+            if kit.content == .project && kit.role == .main {
+                for module in model.project.modules {
+                    switch self.vm.eval(module.getCode(), args: []) {
+                    case let .values(values):
+                        if values.isEmpty == false {
+                            print(values.first!)
+                        }
+                    case let .error(e):
+                        self.model.infoText += e + "\n"
+                        DispatchQueue.main.async {
+                            self.model.infoChanged.send()
+                        }
+                    }
+                    self.alreadyRequired.append(module.name)
+                }
+            }
+            
+            // Set up the native __command class
             self.setupLuaCommand()
 
             switch self.vm.eval(code, args: []) {

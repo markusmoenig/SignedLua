@@ -15,18 +15,19 @@ struct ProjectView: View {
         case object, material, module
     }
     
-    let model                               : Model
+    let model                                   : Model
 
-    @State private var databaseType         : DatabaseType = .object
-    @State private var showDatabasePopover  : Bool = false
-    @State private var databaseName         : String = ""
+    @State private var databaseType             : DatabaseType = .object
+    @State private var showDatabasePopover      : Bool = false
+    @State private var databaseObject           : SignedObject? = nil
+    @State private var databaseTypeName         : String = ""
 
-    @State private var showProjectNamePopover : Bool = false
-    @State private var projectName            : String = ""
+    @State private var showProjectNamePopover   : Bool = false
+    @State private var projectName              : String = ""
     
-    @State private var selected             : UUID? = nil
+    @State private var selected                 : UUID? = nil
 
-    @State var updateView                   : Bool = false
+    @State var updateView                       : Bool = false
     
     @FetchRequest(
       entity: ModuleEntity.entity(),
@@ -90,6 +91,7 @@ struct ProjectView: View {
                         .buttonStyle(PlainButtonStyle())
                     }
                     
+                    // Materials
                     ForEach(model.project.materials, id: \.id) { material in
                         Button(action: {
                             selected = material.id
@@ -104,14 +106,35 @@ struct ProjectView: View {
                                 .foregroundColor(selected == material.id ? .accentColor : .primary)
                         }
                         .contextMenu {
+                            
+                            Button("Upload to Database...") {
+                                
+                                selected = material.id
+                                databaseObject = material
+                                databaseType = .material
+                                databaseTypeName = " material "
+                                showDatabasePopover = true
+                            }
+                            
                             Button("Rename...") {
+                                selected = material.id
                                 projectName = material.name
                                 showProjectNamePopover = true
+                            }
+                            
+                            Divider()
+                            
+                            Button("Delete") {
+                                if let index = model.project.materials.firstIndex(of: material) {
+                                    model.project.materials.remove(at: index)
+                                }
+                                selected = model.project.main.id
                             }
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
                     
+                    // Modules
                     ForEach(model.project.modules, id: \.id) { module in
                         Button(action: {
                             selected = module.id
@@ -122,20 +145,36 @@ struct ProjectView: View {
                             }
                         })
                         {
-                            Label(module.name, systemImage: selected == module.id ? "cylinder.fill " : "cylinder")
+                            Label(module.name, systemImage: selected == module.id ? "cylinder.fill" : "cylinder")
                                 .foregroundColor(selected == module.id ? .accentColor : .primary)
                         }
                         .contextMenu {
                             Button("Upload to Database...") {
-                                let moduleEntity = ModuleEntity(context: managedObjectContext)
                                 
-                                moduleEntity.id = UUID()
-                                moduleEntity.name = databaseName
-                                moduleEntity.code = module.code!
+                                selected = module.id
+                                databaseObject = module
+                                databaseType = .module
+                                databaseTypeName = " module "
+                                showDatabasePopover = true
                                 
                                 do {
                                     try managedObjectContext.save()
                                 } catch {}
+                            }
+                            
+                            Button("Rename...") {
+                                selected = module.id
+                                projectName = module.name
+                                showProjectNamePopover = true
+                            }
+                            
+                            Divider()
+                            
+                            Button("Delete") {
+                                if let index = model.project.modules.firstIndex(of: module) {
+                                    model.project.modules.remove(at: index)
+                                }
+                                selected = model.project.main.id
                             }
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -194,18 +233,18 @@ struct ProjectView: View {
                         model.project.materials.append(material)
                         selected = material.id
                         model.codeEditor?.setSession(value: material.getCode(), session: material.session)
+                        projectName = material.name
+                        showProjectNamePopover = true
                     })
                     
-                    Button("Public Material", action: {
-                        databaseType = .material
-                        databaseName = "New Material"
-                        showDatabasePopover = true
-                    })
-                    
-                    Button("Public Module", action: {
-                        databaseType = .module
-                        databaseName = "New Module"
-                        showDatabasePopover = true
+                    Button("Module", action: {
+                        let module = SignedObject("newmodule")
+                        module.code = "-- module\n".data(using: .utf8)
+                        model.project.modules.append(module)
+                        selected = module.id
+                        model.codeEditor?.setSession(value: module.getCode(), session: module.session)
+                        projectName = module.name
+                        showProjectNamePopover = true
                     })
                 }
                 label: {
@@ -217,25 +256,42 @@ struct ProjectView: View {
                 Spacer()
             }
             
-            // Create DB Object
+            // Upload an object, material or module to the public database
             .popover(isPresented: $showDatabasePopover,
                      arrowEdge: .top
             ) {
                 VStack(alignment: .leading) {
-                    Text("Database Name")
+                    Text("Database upload")
+                        .font(.title)
+                    Text("By uploading your \(databaseTypeName) code to the public database")
+                        .font(.body)
                         .foregroundColor(Color.secondary)
-                    TextField("Name", text: $databaseName, onEditingChanged: { (changed) in
-                    })
-                    .frame(minWidth: 300)
-                    Button("Create") {
-                        if databaseName.isEmpty == false {
+                        .padding(.top, 4)
+                    Text("you make it available for public consumption and waive any")
+                        .font(.body)
+                        .foregroundColor(Color.secondary)
+                    Text("proprietory copyright.")
+                        .font(.body)
+                        .foregroundColor(Color.secondary)
+                    Text("Please test it first and choose a unique name.")
+                        .font(.body)
+                        .foregroundColor(Color.secondary)
+                        .padding(.top, 2)
+                    Text("Thanks for sharing!")
+                        .font(.body)
+                        .foregroundColor(Color.secondary)
+                        //.frame(minWidth: 400, maxWidth: 400)
+                        .padding(.top, 2)
+
+                    Button("Upload") {
+                        if let databaseObject = databaseObject {
                             
                             if databaseType == .material {
                                 let material = MaterialEntity(context: managedObjectContext)
                                 
                                 material.id = UUID()
-                                material.name = databaseName
-                                material.code = "-- New Material".data(using: .utf8)
+                                material.name = databaseObject.name
+                                material.code = databaseObject.code
                                 //material.icon = "  ".data(using: .utf8)
                                 //material.render = "  ".data(using: .utf8)
                                 material.about = ""
@@ -249,8 +305,9 @@ struct ProjectView: View {
                                 let module = ModuleEntity(context: managedObjectContext)
                                 
                                 module.id = UUID()
-                                module.name = databaseName
-                                module.code = "-- New Module".data(using: .utf8)
+                                module.name = databaseObject.name
+                                module.code = databaseObject.code
+                                module.about = ""
                                 
                                 do {
                                     try managedObjectContext.save()
@@ -267,241 +324,6 @@ struct ProjectView: View {
                     selected = nil
                 }
             }
-            
-            /*
-            List(topLevelNodes, children: \.children) { node in
-                
-                
-                Button(action: {
-                    
-                    selectedNode = node
-                    //document.model.objectSelected.send(object)
-                    model.parser?.gotoNode(node: node)
-                })
-                {
-                    Label(node.name, systemImage: getNodeIconName(node))
-                        //.frame(maxWidth: .infinity, alignment: .leading)
-                        //.contentShape(Rectangle())
-                        .foregroundColor(selectedNode === node || selectedTopLevel === node ? .accentColor : .primary)
-                }
-                .buttonStyle(PlainButtonStyle())
-            }*/
         }
-        /*
-        .onReceive(model.modelChanged) { _ in
-            if let parser = model.parser {
-                topLevelNodes = parser.topLevelNodes
-                updateView.toggle()
-            }
-        }*/
-        /*
-        ZStack(alignment: .center) {
-            
-            ForEach(model.project.objects, id: \.self) { object in
-                
-                Canvas { context, size in
-                    
-                    context.fill(
-                        Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 10),
-                        with: .color(.gray))
-                    
-                    context.stroke(
-                        Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 10),
-                        with: .color(selection === object ? .white : .clear),
-                        lineWidth: 4)
-                    
-                    context.draw(Text(object.name), at: CGPoint(x: 10, y: 4), anchor: .topLeading)
-                    
-                }
-                .frame(width: 100, height: 100)
-                //.border(Color.blue)
-                .scaleEffect(scale)
-                .onTapGesture {
-                    //print()
-                    model.selectedObject = object
-                    model.objectSelected.send(object)
-                }
-                .contextMenu {
-                    Text("hallo")
-                }
-            }
-        }*/
-        
-        //.onReceive(model.objectSelected) { object in
-        //    selection = object
-        //}
-        
-        /*
-
-        VStack {
-            if let context = asset?.graph {
-                
-                List() {
-                    
-                    // Camera
-                    if let cameraNode = context.cameraNode {
-                        Button(action: {
-                            core.graphBuilder.gotoNode(cameraNode)
-                        })
-                        {
-                            Label(cameraNode.givenName, systemImage: "camera")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .listRowBackground(Group {
-                            if selection == cameraNode.id {
-                                Color.gray.mask(RoundedRectangle(cornerRadius: 4))
-                            } else { Color.clear }
-                        })
-                    }
-                    
-                    // Sun
-                    if let sunNode = context.sunNode {
-                        Button(action: {
-                            core.graphBuilder.gotoNode(sunNode)
-                        })
-                        {
-                            Label(sunNode.name, systemImage: "sun.max")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .listRowBackground(Group {
-                            if selection == sunNode.id {
-                                Color.gray.mask(RoundedRectangle(cornerRadius: 4))
-                            } else { Color.clear }
-                        })
-                    }
-                    
-                    // Environment
-                    if let envNode = context.environmentNode {
-                        Button(action: {
-                            core.graphBuilder.gotoNode(envNode)
-                        })
-                        {
-                            Label(envNode.defNode!.givenName, systemImage: "cloud.sun")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .listRowBackground(Group {
-                            if selection == envNode.id {
-                                Color.gray.mask(RoundedRectangle(cornerRadius: 4))
-                            } else { Color.clear }
-                        })
-                    }
-                    
-                    // Definitions
-                    Section(header: Text("Definitions")) {
-                    //DisclosureGroup("Primitives", isExpanded: $showMaterials) {
-                        ForEach(context.defPrimitiveNodes, id: \.id) { node in
-                            Button(action: {
-                                core.graphBuilder.gotoNode(node)
-                            })
-                            {
-                                Label(node.givenName, systemImage: "circle")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .contentShape(Rectangle())
-                                    .padding(.leading, 4)
-                            }
-                            
-                            .contextMenu {
-                                Button("Add To Library") {
-                                    addDefinitionToLibrary(node, type: "SDF3D")
-                                    print(node.givenName, node.code)
-                                }
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .listRowBackground(Group {
-                                if selection == node.id {
-                                    Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
-                                } else { Color.clear }
-                            })
-                        }
-                        ForEach(context.defBooleanNodes, id: \.id) { node in
-                            Button(action: {
-                                core.graphBuilder.gotoNode(node)
-                            })
-                            {
-                                Label(node.givenName, systemImage: "square.on.circle")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .contentShape(Rectangle())
-                                    .padding(.leading, 4)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .listRowBackground(Group {
-                                if selection == node.id {
-                                    Color.accentColor.mask(RoundedRectangle(cornerRadius: 4))
-                                } else { Color.clear }
-                            })
-                        }
-                    }
-                    Section(header: Text("Materials")) {
-                    //DisclosureGroup("Materials", isExpanded: $showMaterials) {
-                        ForEach(context.materialNodes, id: \.id) { node in
-                            Button(action: {
-                                core.graphBuilder.gotoNode(node)
-                            })
-                            {
-                                Label(node.givenName, systemImage: "light.max")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .listRowBackground(Group {
-                                if selection == node.id {
-                                    Color.gray.mask(RoundedRectangle(cornerRadius: 4))
-                                } else { Color.clear }
-                            })
-                        }
-                    }
-                    Section(header: Text("Objects")) {
-                    //DisclosureGroup("Objects", isExpanded: $showObjects) {
-                        ForEach(context.objectNodes, id: \.id) { node in
-                            Button(action: {
-                                core.graphBuilder.gotoNode(node)
-                            })
-                            {
-                                Label(node.givenName, systemImage: "cube")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .listRowBackground(Group {
-                                if selection == node.id {
-                                    Color.gray.mask(RoundedRectangle(cornerRadius: 4))
-                                } else { Color.clear }
-                            })
-                        }
-                    }
-                }
-            }
-        }
-                
-        .onReceive(self.core.modelChanged) { core in
-            asset = self.core.assetFolder.getAsset("main", .Source)
-            updateView.toggle()
-        }
-        
-        .onReceive(self.core.graphBuilder.selectionChanged) { id in
-            selection = id
-            //DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            //    selection = id
-            //}
-        }
-         
-         */
     }
-    
-    // Adds a definition node to the library
-    /*
-    func addDefinitionToLibrary(_ node: GraphNode, type: String) {
-        let object = Component(context: managedObjectContext)
-        object.name = node.givenName
-        object.data = node.code
-        object.type = type
-        
-        try! managedObjectContext.save()
-    }*/
 }
