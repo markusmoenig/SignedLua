@@ -46,6 +46,7 @@ struct ProjectView: View {
     {
         self.model = model
         _selected = State(initialValue: model.project.main.id)
+        model.selectedObject = model.project.main
     }
     
     var body: some View {
@@ -58,6 +59,7 @@ struct ProjectView: View {
                     Button(action: {
                         let object = model.project.main
                         selected = object.id
+                        model.selectedObject = object
                         model.codeEditor?.setSession(value: object.getCode(), session: object.session)
                         if model.codeEditorMode != .project {
                             model.codeEditorMode = .project
@@ -76,6 +78,7 @@ struct ProjectView: View {
                     ForEach(model.project.objects, id: \.id) { object in
                         Button(action: {
                             selected = object.id
+                            model.selectedObject = object
                             model.codeEditor?.setSession(value: object.getCode(), session: object.session)
                             if model.codeEditorMode != .project {
                                 model.codeEditorMode = .project
@@ -95,6 +98,7 @@ struct ProjectView: View {
                     ForEach(model.project.materials, id: \.id) { material in
                         Button(action: {
                             selected = material.id
+                            model.selectedObject = material
                             model.codeEditor?.setSession(value: material.getCode(), session: material.session)
                             if model.codeEditorMode != .project {
                                 model.codeEditorMode = .project
@@ -108,7 +112,6 @@ struct ProjectView: View {
                         .contextMenu {
                             
                             Button("Upload to Database...") {
-                                
                                 selected = material.id
                                 databaseObject = material
                                 databaseType = .material
@@ -138,6 +141,7 @@ struct ProjectView: View {
                     ForEach(model.project.modules, id: \.id) { module in
                         Button(action: {
                             selected = module.id
+                            model.selectedObject = model.project.main
                             model.codeEditor?.setSession(value: module.getCode(), session: module.session)
                             if model.codeEditorMode != .project {
                                 model.codeEditorMode = .project

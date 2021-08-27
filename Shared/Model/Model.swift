@@ -18,29 +18,10 @@ class Model: NSObject, ObservableObject {
         case module
     }
     
-    enum EditingMode {
-        case single
-        case multiple
-    }
-    
-    enum EditingBooleanMode {
-        case plus
-        case minus
-    }
-    
-    enum EditingBrushMode {
-        case GeometryAndMaterial
-        case MaterialOnly
-    }
-    
     var codeEditorMode                      : CodeEditorMode = .project
     
     var codeEditorModuleEntity              : ModuleEntity? = nil
     var codeEditorMaterialEntity            : MaterialEntity? = nil
-
-    var editingMode                         : EditingMode? = .single
-    var editingBrushMode                    : EditingBrushMode? = .GeometryAndMaterial
-    var editingBooleanMode                  : EditingBooleanMode? = .plus
 
     /// The project itself
     var project                             : SignedProject
@@ -175,31 +156,7 @@ class Model: NSObject, ObservableObject {
                 self.checkForMaterials()
                 return
             }
-            
-            /*
-            materials.forEach { material in
-                self.renderer?.materialIconQueue.append(material)
-            }
-            
-            self.renderer?.resume()
-            */
         }
-        
-        /*
-        let request = MaterialEntity.fetchRequest()
-        
-        let managedObjectContext = PersistenceController.shared.container.viewContext
-        let objects = try! managedObjectContext.fetch(request)
-
-        objects.forEach { object in
-            
-            //let material = try? JSONDecoder().decode(SignedMaterial.self, from: object.data!)
-
-            let cmd = SignedCommand(object.name!, role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("Radius", Float(0.4))])])
-            
-            materials[object.id!] = cmd
-            self.renderer?.iconQueue += [cmd]
-        }*/
     }
     
     /// Wait to receive the public modules and enable building after that

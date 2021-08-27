@@ -11,6 +11,10 @@ import CoreGraphics
 /// A name with a piece of code
 class SignedObject : Codable, Hashable, Identifiable {
     
+    enum Role {
+        case main, object, material, module
+    }
+    
     var id              = UUID()
     var name            : String
     

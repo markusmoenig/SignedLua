@@ -122,4 +122,27 @@ class SignedProject: Codable {
         }
         return nil
     }
+    
+    /// Returns the type of the given object id
+    func getObjectType(from: UUID) -> SignedObject.Role {
+        if main.id == from {
+            return .main
+        }
+        for o in objects {
+            if o.id == from {
+                return .object
+            }
+        }
+        for o in materials {
+            if o.id == from {
+                return .material
+            }
+        }
+        for o in modules {
+            if o.id == from {
+                return .module
+            }
+        }
+        return .main
+    }
 }
