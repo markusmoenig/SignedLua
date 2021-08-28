@@ -20,7 +20,7 @@ class SignedObject : Codable, Hashable, Identifiable {
     
     var children        : [SignedObject]? = nil
 
-    var code            : Data? = "-- Signed, a Lua based 3D construction language\n".data(using: .utf8)
+    var code            : Data? = "-- Signed, a 3d construction language\n".data(using: .utf8)
     
     /// CodeEditor session name
     var session         : String

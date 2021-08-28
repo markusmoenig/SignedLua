@@ -48,118 +48,15 @@ public class STKView        : MTKView
     func update()
     {
         renderer?.renderSample()
-        //if let modeler = model?.modeler {
-            //if modeler.mainKit.samples >= 1 {
-                if drawables?.encodeStart(float4(0,0,0,0)) != nil {
-                    
-                    if let texture = model.renderer?.mainRenderKit.outputTexture {
-                        drawables?.drawBox(position: float2(0,0), size: float2(Float(texture.width), Float(texture.height)), rounding: 0, borderSize: 0, onion: 0, fillColor: float4(0,0,0,1), borderColor: float4(0,0,0,0), texture: texture)
-                    }
-                    
-                    drawables?.encodeEnd()
-                }
-            //}
-        //}
-    }
-    
-    /*
-    /// Perform the preview of an editing command, we handle only brushes here
-    func editHover()
-    {
-        //let size = float2(Float(frame.width), Float(frame.height))
-        /*
-        if model.editingBrushMode == .Brush {
-            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
-                model.editingHit = hit.0
-                
-                model.editingCmd.action = .None
-                model.editingCmd.role = .Brush
-                model.writeAction = 0
-                renderer?.restart()
-            }
-        }*/
-    }
-    
-    /// Perform an editing command
-    func editCommand(editingState: EditingState)
-    {
-        let size = float2(Float(frame.width), Float(frame.height))
-
-        if model.editingBrushMode == .GeometryAndMaterial {
-            if model.editingMode == .multiple && editingState != .Starting { return }
-
-            //print("editCommand", editingState, model.editingMode)
+        if drawables?.encodeStart(float4(0,0,0,0)) != nil {
             
-            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
-
-                let cmd = model.editingCmd
-                if let transformData = cmd.dataGroups.getGroup("Transform") {
-                    transformData.set("Position", hit.0 / model.project.getWorldScale())
-                }
-                cmd.normal = hit.1
-                cmd.role = .GeometryAndMaterial
-
-                if model.editingMode == .single {
-                
-                    // In single mode we just update the position of the current cmd as the cmd
-                    // itself will need to be approved by the user via the "Accept" button
-                    
-                    if model.editingBooleanMode == .minus {
-                        cmd.action = .Subtract
-                    } else {
-                        cmd.action = .Add
-                    }
-
-                    renderer?.restart()
-                    model.updateDataViews.send()
-                } else
-                if model.editingMode == .multiple {
-
-                    // In multiple mode we auto accept the cmd and add it to the stack
-                    
-                    if editingState == .Starting {
-                        if let object = model.selectedObject {
-                            if let cmd = model.editingCmd.copy() {
-                        
-                                if model.editingBooleanMode == .minus {
-                                    cmd.action = .Subtract
-                                } else {
-                                    cmd.action = .Add
-                                }
-                                
-                                if let selectedShape = model.selectedShape {
-                                    cmd.name = selectedShape.name
-                                }
-                        
-                                object.commands.append(cmd)
-                                model.modeler?.executeCommand(cmd)
-
-                                renderer?.restart()
-                                model.updateDataViews.send()
-                                model.commandSelected.send(cmd)
-
-                                model.editingCmd.action = .None
-                            }
-                        }
-                    }
-                }
+            if let texture = model.renderer?.mainRenderKit.outputTexture {
+                drawables?.drawBox(position: float2(0,0), size: float2(Float(texture.width), Float(texture.height)), rounding: 0, borderSize: 0, onion: 0, fillColor: float4(0,0,0,1), borderColor: float4(0,0,0,0), texture: texture)
             }
-        } else
-        if model.editingBrushMode == .MaterialOnly {
             
-            if let hit = model.modeler?.getSceneHit(mousePos / size, size) {
-                model.editingHit = hit.0
-                
-                model.editingCmd.action = .None
-                model.editingCmd.role = .MaterialOnly
-                model.editingCmd.geometryId = Int(hit.2)
-
-                renderer?.restart()
-                
-                print(hit.2)
-            }
+            drawables?.encodeEnd()
         }
-    }*/
+    }
     
     #if os(OSX)
 

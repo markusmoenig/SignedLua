@@ -255,7 +255,7 @@ class SignedBuilder {
                         } else {
                             _ = self.vm.eval(cmd.code)
                             
-                            let cmdString = "buildObject(\(materialId), \(self.getFloat3AsVec3(name: "Position", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "Rotation", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "Size", groups: cmd.allDataGroups())))\n"
+                            let cmdString = "buildObject(\(materialId), \(self.getFloat3AsVec3(name: "position", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "rotation", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "size", groups: cmd.allDataGroups())))\n"
                             print(cmdString)
                             _ = self.vm.eval(cmdString)
                         }
@@ -328,9 +328,9 @@ class SignedBuilder {
                 }
                 
                 if let cmd = cmd.cmd {
-                    let geometryData = SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,10), .Slider), SignedDataEntity("Rounding", Float(0.0), float2(0,1))])
+                    let geometryData = SignedData([SignedDataEntity("size", float3(0.3,0.3,0.3), float2(0,10), .Slider)])
                     
-                    cmd.dataGroups.addGroup("Geometry", geometryData)                    
+                    cmd.dataGroups.addGroup("Geometry", geometryData)
                     cmd.role = .GeometryAndMaterial
                     cmd.action = .None
                 }
@@ -561,36 +561,36 @@ class SignedBuilder {
                 let materialCode = """
 
                 sphereCmd = command:newShape("Sphere")
-                sphereCmd:setVec3("Position", vec3(0,0.5,0))
-                sphereCmd:setNumber("Radius", 0.5)
+                sphereCmd:setVec3("position", vec3(0,0.5,0))
+                sphereCmd:setNumber("radius", 0.5)
                 sphereCmd:execute(0)
 
                 sphereCmd = command:newShape("Sphere")
-                sphereCmd:setVec3("Position", vec3(0,0.5,0))
-                sphereCmd:setNumber("Radius", 0.47)
+                sphereCmd:setVec3("position", vec3(0,0.5,0))
+                sphereCmd:setNumber("radius", 0.47)
                 sphereCmd:setMode("subtract")
                 sphereCmd:execute(1)
 
                 boxCmd = command:newShape("Box")
-                boxCmd:setVec3("Position", vec3(0,0.5,0))
-                boxCmd:setVec3("Rotation", vec3(0,0,0))
-                boxCmd:setVec3("Size", vec3(2, 0.07, 2))
+                boxCmd:setVec3("position", vec3(0,0.5,0))
+                boxCmd:setVec3("rotation", vec3(0,0,0))
+                boxCmd:setVec3("size", vec3(2, 0.07, 2))
                 boxCmd:setMode("subtract")
                 boxCmd:execute(1)
 
                 boxCmd = command:newShape("Box")
-                boxCmd:setVec3("Position", vec3(0,0.5,0))
-                boxCmd:setVec3("Rotation", vec3(0,0,0))
-                boxCmd:setVec3("Size", vec3(0.07, 2, 2))
+                boxCmd:setVec3("position", vec3(0,0.5,0))
+                boxCmd:setVec3("rotation", vec3(0,0,0))
+                boxCmd:setVec3("size", vec3(0.07, 2, 2))
                 boxCmd:setMode("subtract")
                 boxCmd:execute(1)
 
                 sphereCmd = command:newShape("Sphere")
-                sphereCmd:setVec3("Position", vec3(0,0.5,0))
-                sphereCmd:setVec3("Color", vec3(0.5,0.5,0.5))
-                sphereCmd:setNumber("Roughness", 0)
-                sphereCmd:setNumber("Radius", 0.44)
-                sphereCmd:setVec3("Emission", vec3(0.4,0.4,0.4))
+                sphereCmd:setVec3("position", vec3(0,0.5,0))
+                sphereCmd:setVec3("color", vec3(0.5,0.5,0.5))
+                sphereCmd:setNumber("roughness", 0)
+                sphereCmd:setNumber("radius", 0.44)
+                sphereCmd:setVec3("emission", vec3(0.4,0.4,0.4))
                 sphereCmd:execute(1)
                 
                 buildMaterial(0)

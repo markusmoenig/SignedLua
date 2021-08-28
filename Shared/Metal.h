@@ -276,10 +276,7 @@ typedef struct {
     
     simd_float3         size;
     float               rounding;
-    
-    simd_float3         normal;
-    float               surfaceDistance;
-        
+            
     Material            material;
     
     float               repDistance;

@@ -139,27 +139,22 @@ class SignedCommand : Codable, Hashable {
     func initDataGroups(fromConstructor: Bool = false) {
             
         addDataGroup(name: "Transform", entities: [
-            SignedDataEntity("Position", float3(0,0,0), float2(-0.5, 0.5)),
-            SignedDataEntity("Rotation", float3(0,0,0), float2(0, 360), .Slider),
+            SignedDataEntity("position", float3(0,0,0), float2(-0.5, 0.5)),
+            SignedDataEntity("rotation", float3(0,0,0), float2(0, 360), .Slider),
         ])
         
         addDataGroup(name: "Modifier", entities: [
-            SignedDataEntity("Noise", Float(0), float2(0, 2)),
-            SignedDataEntity("Surface Distance", Float(0), float2(-0.5, 0.5)),
+            SignedDataEntity("noise", Float(0), float2(0, 2)),
         ])
         
         addDataGroup(name: "Boolean", entities: [
-            SignedDataEntity("Smoothing", Float(0.0), float2(0, 1))
+            SignedDataEntity("smoothing", Float(0.0), float2(0, 1))
         ])
         
         addDataGroup(name: "Repetition", entities: [
-            SignedDataEntity("Distance", Float(0.1), float2(0, 5)),
-            SignedDataEntity("Upper Limit", float3(0,0,0), float2(-1000, 1000)),
-            SignedDataEntity("Lower Limit", float3(0,0,0), float2(-1000, 1000)),
-        ])
-        
-        addDataGroup(name: "Library", entities: [
-            SignedDataEntity("Name", "Object", .TextField, .GeometryLibrary)
+            SignedDataEntity("distance", Float(0.1), float2(0, 5)),
+            SignedDataEntity("upperLimit", float3(0,0,0), float2(-1000, 1000)),
+            SignedDataEntity("lowerLimit", float3(0,0,0), float2(-1000, 1000)),
         ])
     }
     

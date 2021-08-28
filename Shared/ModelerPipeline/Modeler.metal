@@ -191,7 +191,7 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     transformedPosition.xz = rotatePivot(transformedPosition.xz, radians(rotation.y), offsetFromCenter.xz );
     transformedPosition.xy = rotatePivot(transformedPosition.xy, radians(rotation.z), offsetFromCenter.xy );*/
 
-    float3 position = mData.position * scale + mData.normal * mData.surfaceDistance * scale;
+    float3 position = mData.position * scale;
     
     float3 p = uv - position;
     
