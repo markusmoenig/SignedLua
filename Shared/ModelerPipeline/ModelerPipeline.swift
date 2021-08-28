@@ -83,9 +83,6 @@ class ModelerPipeline
     
     /// The kit used to render previews
     var iconKit         : ModelerKit!
-
-    /// The script handler
-    var scriptHandler   : ScriptHandler? = nil
     
     static var IconSize : Int = 80
     static var IconSamples : Int = 40
@@ -105,8 +102,6 @@ class ModelerPipeline
         iconKit.role = .icon
 
         clear()
-        
-        scriptHandler = ScriptHandler(self)
     }
     
     /// Executes the next command in the pipeline of the kit
@@ -129,46 +124,38 @@ class ModelerPipeline
         if let kit = kitToUse, kit.isValid() {
             startCompute()
             
-            let jsSupport = scriptHandler?.setup(cmd)
-
-            if jsSupport?.0 == true {
-                // Script handles geometry creation
-            } else {
-                // No script, execute the geometry command
-                if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
-                    if let state = modelingStates.getComputeState(stateName: "modelerCmd") {
-                    
-                        computeEncoder.setComputePipelineState( state )
-                        
-                        var modelerUniform = createModelerUniform(cmd, kit: kit)
-                        computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
-                        
-                        computeEncoder.setTexture(kit.modelTexture!, index: 1 )
-                        computeEncoder.setTexture(kit.colorTexture, index: 2 )
-                        computeEncoder.setTexture(kit.materialTexture1!, index: 3 )
-                        computeEncoder.setTexture(kit.materialTexture2!, index: 4 )
-                        computeEncoder.setTexture(kit.materialTexture3!, index: 5 )
-                        computeEncoder.setTexture(kit.materialTexture4!, index: 6 )
-
-                        calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
-                    }
-                    kit.gpuIsWorking = true
-                    computeEncoder.endEncoding()
-                }
+            // No script, execute the geometry command
+            if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+                if let state = modelingStates.getComputeState(stateName: "modelerCmd") {
                 
-                commandBuffer?.addCompletedHandler { cb in
-                    kit.gpuIsWorking = false
-                    if kit.role == .main {
-                        self.model.infoProgressProcessedCmds += 1
-                        self.model.builder?.context.createProgressValues()
-                    }
-                    print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+                    computeEncoder.setComputePipelineState( state )
+                    
+                    var modelerUniform = createModelerUniform(cmd, kit: kit)
+                    computeEncoder.setBytes(&modelerUniform, length: MemoryLayout<ModelerUniform>.stride, index: 0)
+                    
+                    computeEncoder.setTexture(kit.modelTexture!, index: 1 )
+                    computeEncoder.setTexture(kit.colorTexture, index: 2 )
+                    computeEncoder.setTexture(kit.materialTexture1!, index: 3 )
+                    computeEncoder.setTexture(kit.materialTexture2!, index: 4 )
+                    computeEncoder.setTexture(kit.materialTexture3!, index: 5 )
+                    computeEncoder.setTexture(kit.materialTexture4!, index: 6 )
+
+                    calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
                 }
+                kit.gpuIsWorking = true
+                computeEncoder.endEncoding()
             }
             
-            stopCompute(waitUntilCompleted: false)
+            commandBuffer?.addCompletedHandler { cb in
+                kit.gpuIsWorking = false
+                if kit.role == .main {
+                    self.model.infoProgressProcessedCmds += 1
+                    self.model.builder?.context.createProgressValues()
+                }
+                print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+            }
             
-            scriptHandler?.close()
+            stopCompute(waitUntilCompleted: false)            
         }
     }
     

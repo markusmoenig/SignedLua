@@ -77,7 +77,6 @@ class SignedProject: Codable {
         ])
         
         addDataGroup(name: "Renderer", entities: [
-            //SignedDataEntity("Background", float4(0.55,0.55,0.85,1.0), float2(0, 1), .Color),
             SignedDataEntity("background", float4(0.25,0.25,0.25,1.0), float2(0, 1), .Color),
             SignedDataEntity("reflections", Int(6), float2(1, 20), .Slider),
         ])

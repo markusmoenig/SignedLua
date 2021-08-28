@@ -16,7 +16,6 @@ extension UTType {
 
 struct SignedDocument: FileDocument {
     
-    var core        = Core()
     var model       = Model()
     
     var updated     = false

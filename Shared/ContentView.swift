@@ -14,22 +14,14 @@ import MobileCoreServices
 struct ContentView: View {
     
     @Environment(\.managedObjectContext) var managedObjectContext
-
-    enum ScreenState {
-        case Mixed, RenderOnly
-    }
     
     @Binding var document                               : SignedDocument
     @StateObject var storeManager                       : StoreManager
 
     @State var selection                                : SignedObject? = nil
 
-    @State var asset                                    : Asset? = nil
-
     @Environment(\.colorScheme) var deviceColorScheme   : ColorScheme
     
-    @State private var screenState                      : ScreenState = .Mixed
-
     @State private var rightSideParamsAreVisible        : Bool = true
     
     @State var updateView                               : Bool = false
@@ -417,28 +409,19 @@ struct ContentView: View {
     var toolPreviewMenu: some View {
         Menu {
             Section(header: Text("Preview")) {
-                Button("Small", action: {
-                    screenState = .Mixed
-                    updateView.toggle()
-                })
-                Button("Large", action: {
-                    screenState = .RenderOnly
-                    updateView.toggle()
-                })
-                .keyboardShortcut("3")
+
                 Button("Set Custom", action: {
                     
         
-                    customResWidth = String(document.core.renderPipeline.renderSize.x)
-                    customResHeight = String(document.core.renderPipeline.renderSize.y)
+                    //customResWidth = String(document.model.renderSize.x)
+                    //customResHeight = String(document.model.renderSize.y)
                     
                     showCustomResPopover = true
                     updateView.toggle()
                 })
                 
                 Button("Clear Custom", action: {
-                    document.core.customRenderSize = nil
-                    document.core.renderPipeline.restart()
+                    document.model.renderer?.restart()
                     updateView.toggle()
                 })
             }
@@ -479,8 +462,8 @@ struct ContentView: View {
                 Button(action: {
                     if let width = Int(customResWidth), width > 0 {
                         if let height = Int(customResHeight), height > 0 {
-                            document.core.customRenderSize = SIMD2<Int>(width, height)
-                            document.core.renderPipeline.restart()
+                            //document.core.customRenderSize = SIMD2<Int>(width, height)
+                            //document.core.renderPipeline.restart()
                         }
                     }
                 })
@@ -565,22 +548,5 @@ struct ContentView: View {
             return Float(width) / Float(height)
         }
         return 1
-    }
-    
-    /// Supplies the search results for the given searchText
-    var searchResults: [String] {
-        var names : [String] = []
-        
-        if let graph = document.core.assetFolder.getGraph() {
-            for n in graph.nodes {
-                names.append(n.givenName)
-            }
-        }
-                        
-        if searchText.isEmpty {
-            return names
-        } else {
-            return names.filter { $0.contains(searchText) }
-        }
     }
 }

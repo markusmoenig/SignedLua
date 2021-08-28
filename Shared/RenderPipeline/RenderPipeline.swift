@@ -331,8 +331,8 @@ class RenderPipeline
             renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
 
             if let rendererData = model.project.dataGroups.getGroup("Renderer") {
-                renderUniform.backgroundColor = rendererData.getFloat4("Background")
-                renderUniform.maxDepth = Int32(rendererData.getInt("Reflections", 6))
+                renderUniform.backgroundColor = rendererData.getFloat4("background")
+                renderUniform.maxDepth = Int32(rendererData.getInt("reflections", 6))
             }
             
             renderUniform.numOfLights = 1
