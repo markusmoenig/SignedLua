@@ -46,7 +46,7 @@ struct MaterialView: View {
                                     
                                     if let data = material.code {
                                         if let value = String(data: data, encoding: .utf8) {
-                                            model.codeEditor?.setSession(value: value, session: "___" + material.name!)
+                                            model.codeEditor?.setSession(value: value, session: "__material_" + material.name!)
                                             
                                             model.codeEditorMode = .material
                                             model.codeEditorMaterialEntity = material
@@ -83,7 +83,7 @@ struct MaterialView: View {
                                     
                                     if let data = material.code {
                                         if let value = String(data: data, encoding: .utf8) {
-                                            model.codeEditor?.setSession(value: value, session: "___" + material.name!)
+                                            model.codeEditor?.setSession(value: value, session: "__material_" + material.name!)
                                             
                                             model.codeEditorMode = .material
                                             model.codeEditorMaterialEntity = material

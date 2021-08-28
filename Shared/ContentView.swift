@@ -337,6 +337,17 @@ struct ContentView: View {
                           
                 Button(action: {
                     
+                    if document.model.codeEditorMode == .object {
+                        if let object = document.model.codeEditorObjectEntity {
+                            if let data = object.code {
+                                if let value = String(data: data, encoding: .utf8) {
+                                    if let renderer = document.model.renderer {
+                                        document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], objectEntity: object)
+                                    }
+                                }
+                            }
+                        }
+                    } else
                     if document.model.codeEditorMode == .material {
                         if let material = document.model.codeEditorMaterialEntity {
                             if let data = material.code {
@@ -385,19 +396,6 @@ struct ContentView: View {
                         CGImageDestinationFinalize(imageDestination)
                     }
                 }
-                
-                //let core = document.core
-                /*
-                if let texture = core.renderPipeline.getTexture() {
-                    if let cgiTexture = core.makeCGIImage(texture) {
-                        if let image = makeCGIImage(texture: cgiTexture, forImage: true) {
-                            if let imageDestination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) {
-                                CGImageDestinationAddImage(imageDestination, image, nil)
-                                CGImageDestinationFinalize(imageDestination)
-                            }
-                        }
-                    }
-                }*/
             } catch {
                 // Handle failure.
             }

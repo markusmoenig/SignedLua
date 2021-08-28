@@ -160,6 +160,21 @@ class RenderPipeline
                     }
                 } else {
                     mainKit.installNextRenderKit()
+                    if mainKit.content == .object && mainKit.currentRenderKit == nil {
+                        if let objectEntity = mainKit.objectEntity {
+                            if let image = model.modeler!.kitToImage(renderKit: iconRenderKit) {
+                                objectEntity.icon = model.modeler!.cgiImageToData(image: image)
+                                model.iconFinished.send(objectEntity.id!)
+                                mainKit.objectEntity = nil
+                                
+                                // Save the icon in DB
+                                let managedObjectContext = PersistenceController.shared.container.viewContext
+                                do {
+                                    try managedObjectContext.save()
+                                } catch {}
+                            }
+                        }
+                    } else
                     if mainKit.content == .material && mainKit.currentRenderKit == nil {
                         if let materialEntity = mainKit.materialEntity {
                             if let image = model.modeler!.kitToImage(renderKit: iconRenderKit) {

@@ -326,6 +326,21 @@ struct ProjectView: View {
                     Button("Upload") {
                         if let databaseObject = databaseObject {
                             
+                            if databaseType == .object {
+                                let object = ObjectEntity(context: managedObjectContext)
+                                
+                                object.id = UUID()
+                                object.name = databaseObject.name
+                                object.code = databaseObject.code
+                                object.icon = "  ".data(using: .utf8)
+                                object.render = "  ".data(using: .utf8)
+                                object.about = ""
+                                object.tags = ""
+
+                                do {
+                                    try managedObjectContext.save()
+                                } catch {}
+                            } else
                             if databaseType == .material {
                                 let material = MaterialEntity(context: managedObjectContext)
                                 

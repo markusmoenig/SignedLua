@@ -50,6 +50,9 @@ class ModelerKit {
         return modelTexture != nil && colorTexture != nil
     }
     
+    // If this pass computes an object, put the pointer to it here to install the icon
+    var objectEntity    : ObjectEntity? = nil
+    
     // If this pass computes a material, put the pointer to it here to install the icon
     var materialEntity  : MaterialEntity? = nil
     

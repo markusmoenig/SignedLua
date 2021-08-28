@@ -62,8 +62,6 @@
 		2B651A452682C8BC002DF988 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B651A432682C8BC002DF988 /* PersistenceController.swift */; };
 		2B6AAACF26C4AF5C00AD7D55 /* SignedBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6AAACE26C4AF5C00AD7D55 /* SignedBuilder.swift */; };
 		2B6AAAD026C4AF5C00AD7D55 /* SignedBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6AAACE26C4AF5C00AD7D55 /* SignedBuilder.swift */; };
-		2B6FF6AA25D2763C0053CEF8 /* ColorRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */; };
-		2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */; };
 		2B7242DD26CB398300F265F1 /* ModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7242DC26CB398300F265F1 /* ModuleView.swift */; };
 		2B7242DE26CB398300F265F1 /* ModuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7242DC26CB398300F265F1 /* ModuleView.swift */; };
 		2B7CFA2E2686F61D00221917 /* RenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CFA2D2686F61D00221917 /* RenderPipeline.swift */; };
@@ -224,7 +222,6 @@
 		2B651A402682C5FC002DF988 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
 		2B651A432682C8BC002DF988 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		2B6AAACE26C4AF5C00AD7D55 /* SignedBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedBuilder.swift; sourceTree = "<group>"; };
-		2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorRing.swift; sourceTree = "<group>"; };
 		2B7242DC26CB398300F265F1 /* ModuleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleView.swift; sourceTree = "<group>"; };
 		2B7CFA2D2686F61D00221917 /* RenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderPipeline.swift; sourceTree = "<group>"; };
 		2B7CFA302686FC0500221917 /* RenderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderView.swift; sourceTree = "<group>"; };
@@ -401,7 +398,6 @@
 		2B224F8525844C2500F32354 /* Misc */ = {
 			isa = PBXGroup;
 			children = (
-				2B6FF6A925D2763C0053CEF8 /* ColorRing.swift */,
 				2B224F6225844C1800F32354 /* Utils.swift */,
 				2B224D9725A40C3D006C5C2F /* ScriptProcessor.swift */,
 			);
@@ -709,7 +705,6 @@
 				2B7CFA3A26870D5400221917 /* MiscShader.swift in Sources */,
 				2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2BC733B926C8EDE400BCE667 /* lcode.c in Sources */,
-				2B6FF6AA25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2B52C5F9268805A700CAB2F2 /* SignedProject.swift in Sources */,
 				2BC7338F26C8EDE400BCE667 /* lopcodes.c in Sources */,
 				2BC733A926C8EDE400BCE667 /* lmathlib.c in Sources */,
@@ -802,7 +797,6 @@
 				2B7CFA3B26870D5400221917 /* MiscShader.swift in Sources */,
 				2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2BC733BA26C8EDE400BCE667 /* lcode.c in Sources */,
-				2B6FF6AB25D2763C0053CEF8 /* ColorRing.swift in Sources */,
 				2B52C5FA268805A700CAB2F2 /* SignedProject.swift in Sources */,
 				2BC7339026C8EDE400BCE667 /* lopcodes.c in Sources */,
 				2BC733AA26C8EDE400BCE667 /* lmathlib.c in Sources */,

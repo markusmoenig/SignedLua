@@ -20,8 +20,10 @@ class Model: NSObject, ObservableObject {
     
     var codeEditorMode                      : CodeEditorMode = .project
     
-    var codeEditorModuleEntity              : ModuleEntity? = nil
+    // The entity the code editor is editing at the moment
+    var codeEditorObjectEntity              : ObjectEntity? = nil
     var codeEditorMaterialEntity            : MaterialEntity? = nil
+    var codeEditorModuleEntity              : ModuleEntity? = nil
 
     /// The project itself
     var project                             : SignedProject

@@ -256,7 +256,6 @@ class SignedBuilder {
                             _ = self.vm.eval(cmd.code)
                             
                             let cmdString = "buildObject(\(materialId), \(self.getFloat3AsVec3(name: "position", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "rotation", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "size", groups: cmd.allDataGroups())))\n"
-                            print(cmdString)
                             _ = self.vm.eval(cmdString)
                         }
                     } else
@@ -420,7 +419,7 @@ class SignedBuilder {
     }
     
     /// build 3D texture
-    func build(code: String, kit: ModelerKit, content: ModelerKit.Content = .project, renderKits: [RenderKit], materialEntity: MaterialEntity? = nil) {
+    func build(code: String, kit: ModelerKit, content: ModelerKit.Content = .project, renderKits: [RenderKit], objectEntity: ObjectEntity? = nil, materialEntity: MaterialEntity? = nil) {
         
         guard let modeler = model.modeler else {
             return
@@ -436,6 +435,7 @@ class SignedBuilder {
             kit.content = content
             kit.renderKits = renderKits
             kit.installNextRenderKit()
+            kit.objectEntity = objectEntity
             kit.materialEntity = materialEntity
             
             if content == .project {
