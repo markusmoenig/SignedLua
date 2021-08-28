@@ -357,8 +357,9 @@ struct ContentView: View {
                         }
                     } else {
                         if let renderer = document.model.renderer, let object = document.model.selectedObject {
-                            
                             switch document.model.project.getObjectType(from: object.id) {
+                                case .object:
+                                    document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit])
                                 case .material:
                                     document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit])
                                 default:

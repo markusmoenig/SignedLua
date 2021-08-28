@@ -219,6 +219,23 @@ class Model: NSObject, ObservableObject {
         return ""
     }
     
+    ///  Get an object entity of the given name
+    func getObjectEntity(name: String) -> ObjectEntity? {
+        
+        let request = ObjectEntity.fetchRequest()
+        
+        let managedObjectContext = PersistenceController.shared.container.viewContext
+        let objects = try! managedObjectContext.fetch(request)
+
+        for object in objects {
+            if object.name == name {
+                return object
+            }
+        }
+
+        return nil
+    }
+    
     ///  Gets the material entity of the given name
     func getMaterialEntity(name: String) -> MaterialEntity? {
         

@@ -236,7 +236,7 @@ class CodeEditor
                                 found = true
                             }
                         }
-                    } else
+                    }
                     if found == false {
                         for m in self.model.project.modules {
                             if m.session == self.currentSession {

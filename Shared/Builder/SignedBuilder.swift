@@ -55,6 +55,18 @@ class SignedBuilder {
         return nil
     }
     
+    /// Get a named float3 and convert it to a vec3 string
+    func getFloat3AsVec3(name: String, groups: [SignedData]) -> String {
+        for data in groups {
+            for entity in data.data {
+                if entity.key == name && entity.type == .Float3 {
+                    return "vec3(\(entity.value.x), \(entity.value.y), \(entity.value.z))"
+                }
+            }
+        }
+        return "vec3()"
+    }
+    
     /// Sets a named Float in the given data groups
     func setFloat(name: String, value: Number, groups: [SignedData]) {
         for data in groups {
@@ -238,7 +250,15 @@ class SignedBuilder {
 
                     if cmd.role == .GeometryAndMaterial {
                         // Geometry
-                        self.context.addToPipeline(cmd: cmd)
+                        if cmd.code.isEmpty == true {
+                            self.context.addToPipeline(cmd: cmd)
+                        } else {
+                            _ = self.vm.eval(cmd.code)
+                            
+                            let cmdString = "buildObject(\(materialId), \(self.getFloat3AsVec3(name: "Position", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "Rotation", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "Size", groups: cmd.allDataGroups())))\n"
+                            print(cmdString)
+                            _ = self.vm.eval(cmdString)
+                        }
                     } else
                     if cmd.role == .MaterialOnly {
                         // Material
@@ -254,6 +274,7 @@ class SignedBuilder {
             }
         }
         
+        // Create a cmd from a shape
         commandLib["newShape"] = vm.createFunction([String.arg]) { args in
             if args.values.isEmpty == false {
                 let shape = LuaCommand()
@@ -274,6 +295,54 @@ class SignedBuilder {
             }
         }
         
+        // Create a cmd from an object, try project objects and then DB objects
+        commandLib["newObject"] = vm.createFunction([String.arg]) { args in
+            if args.values.isEmpty == false {
+                let cmd = LuaCommand()
+                cmd.name = args.string
+                
+                cmd.cmd = SignedCommand()
+
+                if cmd.name.isEmpty == false {
+                    
+                    var found = false
+                    /// First search the project materials
+                    ///
+                    for object in self.model.project.objects {
+                        if object.name == cmd.name {
+                            cmd.cmd?.code = object.getCode()
+                            found = true
+                        }
+                    }
+                    
+                    /// Than search the object cloud database
+                    if found == false {
+                        if let entity = self.model.getObjectEntity(name: cmd.name) {
+                            if let data = entity.code {
+                                if let value = String(data: data, encoding: .utf8) {
+                                    cmd.cmd?.code = value
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if let cmd = cmd.cmd {
+                    let geometryData = SignedData([SignedDataEntity("Size", float3(0.3,0.3,0.3), float2(0,10), .Slider), SignedDataEntity("Rounding", Float(0.0), float2(0,1))])
+                    
+                    cmd.dataGroups.addGroup("Geometry", geometryData)                    
+                    cmd.role = .GeometryAndMaterial
+                    cmd.action = .None
+                }
+                
+                let data = self.vm.createUserdata(cmd)
+                return .value(data)
+            } else {
+                return .nothing
+            }
+        }
+        
+        // Create a cmd from a material, try project materials and then DB materials
         commandLib["newMaterial"] = vm.createFunction([String.arg]) { args in
             if args.values.isEmpty == false {
                 let cmd = LuaCommand()
@@ -467,6 +536,26 @@ class SignedBuilder {
                 }
             }
             
+            if kit.content == .object {
+                let objectCode = """
+
+                buildObject(0, vec3(0, \(kit.scale / 2), 0), vec3(0,0,0), vec3(0.99,0.99,0.99))
+
+                """
+                
+                switch self.vm.eval(objectCode, args: []) {
+                case let .values(values):
+                    if values.isEmpty == false {
+                        print(values.first!)
+                    }
+                case let .error(e):
+                    self.model.infoText += e + "\n"
+                    DispatchQueue.main.async {
+                        self.model.infoChanged.send()
+                    }
+                }
+            }
+            
             if kit.content == .material {
                 
                 let materialCode = """
@@ -519,7 +608,6 @@ class SignedBuilder {
                         self.model.infoChanged.send()
                     }
                 }
-                
             }
         }
         

@@ -46,7 +46,9 @@ struct ProjectView: View {
     {
         self.model = model
         _selected = State(initialValue: model.project.main.id)
-        model.selectedObject = model.project.main
+        if model.selectedObject == nil {
+            model.selectedObject = model.project.main
+        }
     }
     
     var body: some View {
@@ -73,8 +75,8 @@ struct ProjectView: View {
                     .contextMenu {
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
-                //DisclosureGroup("Primitives", isExpanded: $showMaterials) {
+
+                    // Objects
                     ForEach(model.project.objects, id: \.id) { object in
                         Button(action: {
                             selected = object.id
@@ -86,10 +88,33 @@ struct ProjectView: View {
                             }
                         })
                         {
-                            Label(object.name, systemImage: "s.square")
+                            Label(object.name, systemImage: selected == object.id ? "cube.fill" : "cube")
                                 .foregroundColor(selected == object.id ? .accentColor : .primary)
                         }
                         .contextMenu {
+                            Button("Upload to Database...") {
+                                selected = object.id
+                                databaseObject = object
+                                databaseType = .object
+                                databaseTypeName = " object "
+                                showDatabasePopover = true
+                            }
+                            
+                            Button("Rename...") {
+                                selected = object.id
+                                projectName = object.name
+                                showProjectNamePopover = true
+                            }
+                            
+                            Divider()
+                            
+                            Button("Delete") {
+                                if let index = model.project.objects.firstIndex(of: object) {
+                                    model.project.objects.remove(at: index)
+                                }
+                                selected = model.project.main.id
+                                model.selectedObject = model.project.main
+                            }
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -110,7 +135,6 @@ struct ProjectView: View {
                                 .foregroundColor(selected == material.id ? .accentColor : .primary)
                         }
                         .contextMenu {
-                            
                             Button("Upload to Database...") {
                                 selected = material.id
                                 databaseObject = material
@@ -132,6 +156,7 @@ struct ProjectView: View {
                                     model.project.materials.remove(at: index)
                                 }
                                 selected = model.project.main.id
+                                model.selectedObject = model.project.main
                             }
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -179,6 +204,7 @@ struct ProjectView: View {
                                     model.project.modules.remove(at: index)
                                 }
                                 selected = model.project.main.id
+                                model.selectedObject = model.project.main
                             }
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -230,6 +256,16 @@ struct ProjectView: View {
             
             HStack {
                 Menu {
+                    
+                    Button("Object", action: {
+                        let object = SignedObject("New Object")
+                        object.code = "-- Object\n\nfunction buildObject(index, position, rotation, size)\n\nend\n".data(using: .utf8)
+                        model.project.objects.append(object)
+                        selected = object.id
+                        model.codeEditor?.setSession(value: object.getCode(), session: object.session)
+                        projectName = object.name
+                        showProjectNamePopover = true
+                    })
                     
                     Button("Material", action: {
                         let material = SignedObject("New Material")

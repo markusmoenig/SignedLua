@@ -319,7 +319,7 @@ class RenderPipeline
                 renderUniform.cameraLookAt = model.project.camera.getLookAt()
                 renderUniform.cameraFov = model.project.camera.getFov()
             } else
-            if kit.content == .material {
+            if kit.content == .object || kit.content == .material {
                 renderUniform.cameraOrigin = float3(0, 0, -0.8)
                 renderUniform.cameraLookAt = float3(0, 0, 0)
                 renderUniform.cameraFov = 80
