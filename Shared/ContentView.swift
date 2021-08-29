@@ -78,8 +78,72 @@ struct ContentView: View {
                                     .zIndex(0)
                                     .animation(.default)
                                     .allowsHitTesting(true)
-                                //ToolsView(document.core)
-                                //    .zIndex(1)
+
+                                Menu {
+                                    
+                                    Button("Set Custom", action: {
+                                        
+                                        if let mainRenderKit = document.model.renderer?.mainRenderKit {
+                                            let width = mainRenderKit.sampleTexture!.width
+                                            let height = mainRenderKit.sampleTexture!.height
+                                            
+                                            document.model.renderSize = SIMD2<Int>(width, height)
+                                            customResWidth = String(width)
+                                            customResHeight = String(height)
+                                        }
+                                        
+                                        showCustomResPopover = true
+                                    })
+                                    
+                                    Button("Clear Custom", action: {
+                                        document.model.renderSize = nil
+                                        document.model.renderer?.restart()
+                                    })
+                                    
+                                    Divider()
+                                    
+                                    Button("Export Image...", action: {
+                                        exportingImage = true
+                                    })
+                                }
+                                label: {
+                                    Text(computeResolutionText())
+                                }
+                                .zIndex(1)
+                                .padding(.leading, 10)
+                                .padding(.bottom, geometry.size.height - 120)
+                                .menuStyle(BorderlessButtonMenuStyle())
+                                .frame(width: 100)
+                                .foregroundColor(.gray)
+                                
+                                // Custom Resolution Popover
+                                .popover(isPresented: self.$showCustomResPopover,
+                                         arrowEdge: .top
+                                ) {
+                                    VStack(alignment: .leading) {
+                                        Text("Resolution:")
+                                        TextField("Width", text: $customResWidth, onEditingChanged: { (changed) in
+                                        })
+                                        TextField("Height", text: $customResHeight, onEditingChanged: { (changed) in
+                                        })
+                                        
+                                        Button(action: {
+                                            if let width = Int(customResWidth), width > 0 {
+                                                if let height = Int(customResHeight), height > 0 {
+                                                    document.model.renderSize = SIMD2<Int>(width, height)
+                                                    document.model.renderer?.restart()
+                                                }
+                                            }
+                                        })
+                                        {
+                                            Text("Apply")
+                                        }
+                                        .foregroundColor(Color.accentColor)
+                                        .padding(4)
+                                        .padding(.leading, 10)
+                                        .frame(minWidth: 200)
+                                    }.padding()
+                                }
                                  
                                 Button(action: {
                                     
@@ -213,11 +277,6 @@ struct ContentView: View {
                         .frame(minHeight: 90, maxHeight: 110)
                     #endif
                 }
-
-                //Divider()
-                    
-                //SideView(model: document.model)
-                //    .frame(width: geometry.size.width / 2.5)
             }
         }
         
@@ -227,34 +286,6 @@ struct ContentView: View {
         
         
         .toolbar {
-            ToolbarItemGroup(placement: .automatic) {
-                
-                ColorPicker("", selection: $colorValue, supportsOpacity: false)
-                    .onChange(of: colorValue) { newValue in
-                        if let cgColor = newValue.cgColor?.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil) {
-                            
-                            let colorValueText = "vec3(\(String(format: "%.02f", Float(cgColor.components![0]))),\(String(format: "%.02f", Float(cgColor.components![1]))),\(String(format: "%.02f", Float(cgColor.components![2]))))"
-                            
-                            #if os(iOS)
-                            UIPasteboard.general.string = colorValueText
-                            #elseif os(OSX)
-                            let pasteBoard = NSPasteboard.general
-                            pasteBoard.clearContents()
-                            pasteBoard.setString(colorValueText, forType: .string)
-                            #endif
-                        }
-                    }
-                
-
-            }
-            
-            ToolbarItemGroup(placement: .automatic) {
-                Button(action: {
-                    exportingImage = true
-                }) {
-                    Image(systemName: "square.and.arrow.up")
-                }
-            }
             
             ToolbarItemGroup(placement: .automatic) {
 
@@ -298,6 +329,30 @@ struct ContentView: View {
                 }
                 .keyboardShortcut("b")
                 .disabled(modulesArrived == false)
+            }
+
+            ToolbarItemGroup(placement: .automatic) {
+                
+                ColorPicker("", selection: $colorValue, supportsOpacity: false)
+                    .onChange(of: colorValue) { newValue in
+                        if let cgColor = newValue.cgColor?.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil) {
+                            
+                            let colorValueText = "vec3(\(String(format: "%.02f", Float(cgColor.components![0]))),\(String(format: "%.02f", Float(cgColor.components![1]))),\(String(format: "%.02f", Float(cgColor.components![2]))))"
+                            
+                            #if os(iOS)
+                            UIPasteboard.general.string = colorValueText
+                            #elseif os(OSX)
+                            let pasteBoard = NSPasteboard.general
+                            pasteBoard.clearContents()
+                            pasteBoard.setString(colorValueText, forType: .string)
+                            #endif
+                        }
+                    }
+                
+
+            }
+            
+            ToolbarItemGroup(placement: .automatic) {
             }
         }
         
