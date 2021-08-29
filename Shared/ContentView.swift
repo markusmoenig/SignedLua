@@ -111,9 +111,13 @@ struct ContentView: View {
                                 }
                                 .zIndex(1)
                                 .padding(.leading, 10)
+                                #if os(OSX)
                                 .padding(.bottom, geometry.size.height - 120)
-                                .menuStyle(BorderlessButtonMenuStyle())
                                 .frame(width: 100)
+                                #else
+                                .padding(.bottom, geometry.size.height - 140)
+                                #endif
+                                .menuStyle(BorderlessButtonMenuStyle())
                                 .foregroundColor(.gray)
                                 
                                 // Custom Resolution Popover
