@@ -217,6 +217,7 @@
 		2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentParser.swift; sourceTree = "<group>"; };
 		2B52C5F8268805A700CAB2F2 /* SignedProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedProject.swift; sourceTree = "<group>"; };
 		2B58F31D268FE95200DE1121 /* SignedMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedMaterial.swift; sourceTree = "<group>"; };
+		2B5F1B0226DB1CC6000DA322 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
 		2B62AD67268D60B1000504C0 /* ShapeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeView.swift; sourceTree = "<group>"; };
 		2B62AD70268D7FF4000504C0 /* DataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataView.swift; sourceTree = "<group>"; };
 		2B651A402682C5FC002DF988 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
@@ -382,6 +383,7 @@
 			isa = PBXGroup;
 			children = (
 				2B224F382584485300F32354 /* Info.plist */,
+				2B5F1B0226DB1CC6000DA322 /* iOS.entitlements */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -980,6 +982,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iOS/iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = G6R6L3VH62;
 				ENABLE_PREVIEWS = YES;
@@ -989,7 +992,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.Signed;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.signed;
 				PRODUCT_NAME = Signed;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = Shared/Bridge.h;
@@ -1003,6 +1006,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iOS/iOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = G6R6L3VH62;
 				ENABLE_PREVIEWS = YES;
@@ -1012,7 +1016,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.Signed;
+				PRODUCT_BUNDLE_IDENTIFIER = com.moenig.signed;
 				PRODUCT_NAME = Signed;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = Shared/Bridge.h;

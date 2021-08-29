@@ -329,18 +329,19 @@ class ModelerPipeline
         
         //print(device.supportsFeatureSet(.macOS_GPUFamily2_v1))
         modelerKit.modelTexture = allocateTexture3D(width: size, height: size, depth: size, format: .r16Float)
-        modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float);////.bgra8Unorm)
+        #if os(OSX)
+        modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)
         modelerKit.materialTexture1 = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)
         modelerKit.materialTexture2 = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)
         modelerKit.materialTexture3 = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)
         modelerKit.materialTexture4 = allocateTexture3D(width: size, height: size, depth: size, format: .rgba16Float)
-        
-        /*
-        modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm);////.bgra8Unorm)
+        #elseif os(iOS)
+        modelerKit.colorTexture = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         modelerKit.materialTexture1 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         modelerKit.materialTexture2 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
         modelerKit.materialTexture3 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
-        modelerKit.materialTexture4 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)*/
+        modelerKit.materialTexture4 = allocateTexture3D(width: size, height: size, depth: size, format: .bgra8Unorm)
+        #endif
         
         return modelerKit
     }

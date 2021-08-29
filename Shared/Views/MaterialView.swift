@@ -140,11 +140,19 @@ struct MaterialView: View {
     }
     
     func getMaterialIcon(material: MaterialEntity) -> CGImage? {
+        #if os(OSX)
         if let data = material.icon {
             if let image = NSImage(data: data) {
                 return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
             }
         }
+        #else
+        if let data = material.icon {
+            if let image = UIImage(data: data) {
+                return image.cgImage
+            }
+        }
+        #endif
         return nil
     }
 }

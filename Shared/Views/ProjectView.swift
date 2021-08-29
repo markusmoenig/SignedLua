@@ -380,5 +380,6 @@ struct ProjectView: View {
                 }
             }
         }
+        .frame(maxWidth: 200)
     }
 }

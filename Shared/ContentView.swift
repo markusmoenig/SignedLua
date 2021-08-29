@@ -42,6 +42,8 @@ struct ContentView: View {
 
     @State private var modulesArrived                   : Bool = false
 
+    @State private var colorValue                       : Color = Color(.gray)
+
     #if os(macOS)
     let leftPanelWidth                      : CGFloat = 180
     #else
@@ -205,7 +207,11 @@ struct ContentView: View {
                     }
                     
                     BrowserView(model: document.model)
+                    #if os(OSX)
                         .frame(minHeight: 80, maxHeight: 100)
+                    #else
+                        .frame(minHeight: 90, maxHeight: 110)
+                    #endif
                 }
 
                 //Divider()
@@ -219,122 +225,39 @@ struct ContentView: View {
             selection = object
         }
         
-        /*
-        
-        VStack(spacing: 0) {
-        //VSplitView {
-                        
-            HStack {
-                NavigationView {
-                        
-                    
-                    ProjectView(document.core)
-                        .frame(minWidth: leftPanelWidth, idealWidth: leftPanelWidth, maxWidth: leftPanelWidth)
-                        .layoutPriority(0)
-                        .animation(.easeInOut)
-                     
-                    
-                    ZStack(alignment: .bottomLeading) {
-                        // Show tools
-                        
-                        MetalView(document.core, .Main)
-                            .zIndex(0)
-                            .animation(.default)
-                            .allowsHitTesting(true)
-                        ToolsView(document.core)
-                            .zIndex(1)
-                         
-                    }
-                    //.layoutPriority(2)
-                    //.frame(idealWidth: .infinity, maxWidth: .infinity)
-                }
-                
-                if rightSideParamsAreVisible == true {
-                    SettingsView(document.core)
-                        .frame(minWidth: rightPanelWidth, idealWidth: rightPanelWidth, maxWidth: rightPanelWidth)
-                        .layoutPriority(0)
-                        .animation(.easeInOut)
-                }
-            }
-
-            if screenState == .Mixed {
-                Divider()
-                EditorView(document.core)
-            }
-        }
         
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
-                          
-                toolPreviewMenu
                 
-                Divider()
-                    .padding(.horizontal, 20)
-                    .opacity(0)
-                
-                // Controls for Start Render / Stop Render
-                Button(action: {
-                    document.core.renderPipeline.isStopped = false
-                    document.core.renderPipeline.restart()
-                })
-                {
-                    Label("Render", systemImage: "play.fill")
-                }
-                .keyboardShortcut("r")
-                
-                // Controls for Start Render / Stop Render
-                Button(action: {
-                    document.core.renderPipeline.isStopped = true
-                    document.core.renderPipeline.stop()
-                })
-                {
-                    Label("Stop", systemImage: "stop.fill")
-                }
-                .keyboardShortcut("t")
-
-                Divider()
-                    .padding(.horizontal, 20)
-                    .opacity(0)
-                
-                toolGiftMenu
-                
-                // Toggle the Right sidebar
-                Button(action: { rightSideParamsAreVisible.toggle() }, label: {
-                    Image(systemName: "sidebar.right")
-                })
-            }
-        }
-        
-        // Search
-        .searchable(text: $searchText) {
-            ForEach(searchResults, id: \.self) { result in
-                Text("\(result)").searchCompletion(result)
-            }
-        }
-        
-        // If the searchtext matches a specific object name, select it
-        .onChange(of: searchText) { newValue in
-            if let graph = document.core.assetFolder.getGraph() {
-                for n in graph.nodes {
-                    if n.givenName == newValue {
-                        document.core.graphBuilder.gotoNode(n)
-                        break
+                ColorPicker("", selection: $colorValue, supportsOpacity: false)
+                    .onChange(of: colorValue) { newValue in
+                        if let cgColor = newValue.cgColor?.converted(to: CGColorSpace(name: CGColorSpace.sRGB)!, intent: .defaultIntent, options: nil) {
+                            
+                            let colorValueText = "vec3(\(String(format: "%.02f", Float(cgColor.components![0]))),\(String(format: "%.02f", Float(cgColor.components![1]))),\(String(format: "%.02f", Float(cgColor.components![2]))))"
+                            
+                            #if os(iOS)
+                            UIPasteboard.general.string = colorValueText
+                            #elseif os(OSX)
+                            let pasteBoard = NSPasteboard.general
+                            pasteBoard.clearContents()
+                            pasteBoard.setString(colorValueText, forType: .string)
+                            #endif
+                        }
                     }
-                }
-            }
-        }
+                
 
-        .onAppear(perform: {
-            if storeManager.myProducts.isEmpty {
-                DispatchQueue.main.async {
-                    storeManager.getProducts()
+            }
+            
+            ToolbarItemGroup(placement: .automatic) {
+                Button(action: {
+                    exportingImage = true
+                }) {
+                    Image(systemName: "square.and.arrow.up")
                 }
             }
-        })*/
-        
-        .toolbar {
+            
             ToolbarItemGroup(placement: .automatic) {
-                          
+
                 Button(action: {
                     
                     if document.model.codeEditorMode == .object {
@@ -375,8 +298,6 @@ struct ContentView: View {
                 }
                 .keyboardShortcut("b")
                 .disabled(modulesArrived == false)
-                
-                toolPreviewMenu
             }
         }
         
@@ -401,79 +322,12 @@ struct ContentView: View {
             }
         }
 
-    }
-    
-    /// Preview Menu
-    var toolPreviewMenu: some View {
-        Menu {
-            Section(header: Text("Preview")) {
-
-                Button("Set Custom", action: {
-                    
-        
-                    //customResWidth = String(document.model.renderSize.x)
-                    //customResHeight = String(document.model.renderSize.y)
-                    
-                    showCustomResPopover = true
-                    updateView.toggle()
-                })
-                
-                Button("Clear Custom", action: {
-                    document.model.renderer?.restart()
-                    updateView.toggle()
-                })
-            }
-            Section(header: Text("Export")) {
-                Button("Export Image...", action: {
-                    exportingImage = true
-                })
-            }
-        }
-        label: {
-            Text(computeResolutionText())
-        }
-        
         .onReceive(self.document.model.updateUI) { _ in
             updateView.toggle()
         }
         
         .onReceive(self.document.model.modulesArrived) { _ in
             modulesArrived = true
-        }
-        
-        // Custom Resolution Popover
-        .popover(isPresented: self.$showCustomResPopover,
-                 arrowEdge: .top
-        ) {
-            VStack(alignment: .leading) {
-                Text("Resolution:")
-                TextField("Width", text: $customResWidth, onEditingChanged: { (changed) in
-                })
-                TextField("Height", text: $customResHeight, onEditingChanged: { (changed) in
-                    /*
-                    if let width = Int(customResWidth), width > 0 {
-                        if let height = Int(customResHeight), height > 0 {
-                            document.core.customRenderSize = SIMD2<Int>(width, height)
-                        }
-                    }*/
-                })
-                Button(action: {
-                    if let width = Int(customResWidth), width > 0 {
-                        if let height = Int(customResHeight), height > 0 {
-                            //document.core.customRenderSize = SIMD2<Int>(width, height)
-                            //document.core.renderPipeline.restart()
-                        }
-                    }
-                })
-                {
-                    Text("Apply")
-                    //Label("Run", systemImage: "viewfinder")
-                }
-                .foregroundColor(Color.accentColor)
-                .padding(4)
-                .padding(.leading, 10)
-                .frame(minWidth: 200)
-            }.padding()
         }
     }
     

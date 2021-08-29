@@ -128,11 +128,19 @@ struct ObjectView: View {
     }
     
     func getObjectIcon(object: ObjectEntity) -> CGImage? {
+        #if os(OSX)
         if let data = object.icon {
             if let image = NSImage(data: data) {
                 return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
             }
         }
+        #else
+        if let data = object.icon {
+            if let image = UIImage(data: data) {
+                return image.cgImage
+            }
+        }
+        #endif
         return nil
     }
 }
