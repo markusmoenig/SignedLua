@@ -34,11 +34,9 @@ class SignedCommand : Codable, Hashable {
     var role            : Role
     var action          : Action
     var primitive       : Primitive
-    var blendMode       : BlendMode = .Linear
     
-    var blendValue1     : Float = 1
-    var blendValue2     : Float = 1
-    var blendValue3     : Float = 1
+    var blendMode       : BlendMode = .Linear
+    var blendOptions    = SignedData([])
 
     var dataGroups      : SignedDataGroups
     var material        : SignedMaterial
@@ -67,9 +65,7 @@ class SignedCommand : Codable, Hashable {
         case code
         case materialId
         case blendMode
-        case blendValue1
-        case blendValue2
-        case blendValue3
+        case blendOptions
     }
     
     init(_ name: String = "Unnamed", role: Role = .GeometryAndMaterial, action: Action = .Add, primitive: Primitive = .Box, data: [String: SignedData] = [:], material: SignedMaterial = SignedMaterial())
@@ -103,9 +99,7 @@ class SignedCommand : Codable, Hashable {
         code = try container.decode(String.self, forKey: .code)
         materialId = try container.decode(Int.self, forKey: .materialId)
         blendMode = try container.decode(BlendMode.self, forKey: .blendMode)
-        blendValue1 = try container.decode(Float.self, forKey: .blendValue1)
-        blendValue2 = try container.decode(Float.self, forKey: .blendValue2)
-        blendValue3 = try container.decode(Float.self, forKey: .blendValue3)
+        blendOptions = try container.decode(SignedData.self, forKey: .blendOptions)
     }
     
     func encode(to encoder: Encoder) throws
@@ -122,9 +116,7 @@ class SignedCommand : Codable, Hashable {
         try container.encode(code, forKey: .code)
         try container.encode(materialId, forKey: .materialId)
         try container.encode(blendMode, forKey: .blendMode)
-        try container.encode(blendValue1, forKey: .blendValue1)
-        try container.encode(blendValue2, forKey: .blendValue2)
-        try container.encode(blendValue3, forKey: .blendValue3)
+        try container.encode(blendOptions, forKey: .blendOptions)
     }
     
     static func ==(lhs: SignedCommand, rhs: SignedCommand) -> Bool {
@@ -145,6 +137,7 @@ class SignedCommand : Codable, Hashable {
         
         addDataGroup(name: "Modifier", entities: [
             SignedDataEntity("noise", Float(0), float2(0, 2)),
+            SignedDataEntity("depth", float2(-5, 5), float2(-5, 5)),
         ])
         
         addDataGroup(name: "Boolean", entities: [

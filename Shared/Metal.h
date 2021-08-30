@@ -271,6 +271,7 @@ typedef struct {
 
     float               noise;
     float               smoothing;
+    simd_float2         depth;
 
     float               radius;
     
@@ -288,11 +289,16 @@ typedef struct {
     float               heightFrequency;
     float               heightOctaves;
     float               heightScale;
+        
+    // All possible blend options
     
     int                 blendMode;
-    float               blendValue1;
-    float               blendValue2;
-    float               blendValue3;
+    
+    float               blendLinearValue;
+    
+    simd_float3         blendOffset;
+    float               blendFrequency;
+    float               blendSmoothing;
 
 } ModelerUniform;
 

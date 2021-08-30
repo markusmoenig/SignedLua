@@ -27,6 +27,8 @@ class SignedBuilder {
     
     var workItem                : DispatchWorkItem? = nil
     
+    var parentMaterial          : SignedCommand? = nil
+    
     init(_ model: Model) {
         self.model = model
     }
@@ -76,6 +78,33 @@ class SignedBuilder {
                 }
             }
         }
+    }
+    
+    /// extracts a float3 from a table
+    func extractFloat2(table: Table) -> float2 {
+        var v = float2()
+        if let x = table["x"] as? Number {
+            v.x = x.toFloat()
+        }
+        if let y = table["y"] as? Number {
+            v.y = y.toFloat()
+        }
+        return v
+    }
+    
+    /// extracts a float3 from a table
+    func extractFloat3(table: Table) -> float3 {
+        var v = float3()
+        if let x = table["x"] as? Number {
+            v.x = x.toFloat()
+        }
+        if let y = table["y"] as? Number {
+            v.y = y.toFloat()
+        }
+        if let z = table["z"] as? Number {
+            v.z = z.toFloat()
+        }
+        return v
     }
     
     /// Sets a named Vec3 in the given data groups
@@ -208,23 +237,36 @@ class SignedBuilder {
             }
             
             // Set Mode
-            type["setBlendMode"] = type.createMethod([String.arg, Number.arg, Number.arg, Number.arg]) { cmd, args in
-                if args.values.count == 4 {
-
+            type["setBlendMode"] = type.createMethod([String.arg, Table.arg]) { cmd, args in
+                if args.values.count == 2 {
                     if let cmd = cmd.cmd {
                         
                         let modeName = args.string.lowercased()
-                        cmd.blendValue1 = args.number.toFloat()
-                        cmd.blendValue2 = args.number.toFloat()
-                        cmd.blendValue3 = args.number.toFloat()
-                            
-                        if modeName == "depth" {
-                            cmd.blendMode = .Depth
-                        } else
+                        let table = args.table
+                                         
+                        if let value = table["depth"] as? Table {
+                            if let modifierData = cmd.dataGroups.getGroup("Modifier") {
+                                modifierData.set("depth", self.extractFloat2(table: value))
+                            }
+                        }
+                        
                         if modeName == "valuenoise" {
                             cmd.blendMode = .ValueNoise
+                            
+                            if let offset = table["offset"] as? Table {
+                                cmd.blendOptions.set("offset", self.extractFloat3(table: offset))
+                            }
+                            if let value = table["frequency"] as? Number {
+                                cmd.blendOptions.set("frequency", value.toFloat())
+                            }
+                            if let value = table["smoothing"] as? Number {
+                                cmd.blendOptions.set("smoothing", value.toFloat())
+                            }                            
                         } else {
                             cmd.blendMode = .Linear
+                            if let value = table["value"] as? Number {
+                                cmd.blendOptions.set("value", value.toFloat())
+                            }
                         }
                     }
                 }
@@ -262,10 +304,20 @@ class SignedBuilder {
                     if cmd.role == .MaterialOnly {
                         // Material
                         if cmd.code.isEmpty == true {
+                            if let parentMaterial = self.parentMaterial {
+                                if let modifierData = parentMaterial.dataGroups.getGroup("Modifier") {
+                                    let depthValue = modifierData.getFloat2("depth", float2(-5,5))
+                                    if let modifierData = cmd.dataGroups.getGroup("Modifier") {
+                                        modifierData.set("depth", depthValue)
+                                    }
+                                }
+                            }
                             self.context.addToPipeline(cmd: cmd)
                         } else {
+                            self.parentMaterial = cmd
                             _ = self.vm.eval(cmd.code)
                             _ = self.vm.eval("buildMaterial(\(materialId))\n")
+                            self.parentMaterial = nil
                         }
                     }
                 }

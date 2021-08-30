@@ -206,6 +206,7 @@ class ModelerPipeline
             
             if let modifierData = cmd.dataGroups.getGroup("Modifier") {
                 modelerUniform.noise = modifierData.getFloat("noise", 0.3)
+                modelerUniform.depth = modifierData.getFloat2("depth", float2(-5, 5))
             }
             
             if let geometryData = cmd.dataGroups.getGroup("Geometry") {
@@ -227,14 +228,22 @@ class ModelerPipeline
                 modelerUniform.repLowerLimit = repetitionData.getFloat3("lowerLimit", float3(0,0,0))
                 modelerUniform.repUpperLimit = repetitionData.getFloat3("upperLimit", float3(0,0,0))
             }
+        } else {
+            if let modifierData = cmd.dataGroups.getGroup("Modifier") {
+                modelerUniform.noise = modifierData.getFloat("noise", 0.3)
+                modelerUniform.depth = modifierData.getFloat2("depth", float2(-5, 5))
+            }
         }
         
         modelerUniform.material = cmd.material.toMaterialStruct()
         
         modelerUniform.blendMode = cmd.blendMode.rawValue
-        modelerUniform.blendValue1 = cmd.blendValue1
-        modelerUniform.blendValue2 = cmd.blendValue2
-        modelerUniform.blendValue3 = cmd.blendValue3
+        
+        modelerUniform.blendLinearValue = cmd.blendOptions.getFloat("value", 1)
+        
+        modelerUniform.blendOffset = cmd.blendOptions.getFloat3("offset", float3(0,0,0))
+        modelerUniform.blendFrequency = cmd.blendOptions.getFloat("frequency", 1)
+        modelerUniform.blendSmoothing = cmd.blendOptions.getFloat("smoothing", 5)
 
         modelerUniform.id = Int32(cmd.materialId)
 

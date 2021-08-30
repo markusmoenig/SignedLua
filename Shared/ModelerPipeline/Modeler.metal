@@ -323,6 +323,8 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
             materialTexture3.write(half4(float4(outMaterial.clearcoatGloss, outMaterial.specTrans, outMaterial.ior, 0)), gid);
             materialTexture4.write(half4(float4(outMaterial.emission, mData.id)), gid);
         }
+        
+        modelTexture.write(half4(newDist), gid);
     } else
     if (mData.roleType == Modeler_MaterialOnly) {
         // Material only on the given geometry id
@@ -358,29 +360,24 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
             
             Material outMaterial;// = material;//mixMaterials(mat, material, smoothstep(0.0, 1.0, mData.materialOnlyMixerValue));
             
-            if (mData.blendMode == Modeler_BlendMode_Linear) {
-                 outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, mData.blendValue1));
-            } else
-            if (mData.blendMode == Modeler_BlendMode_ValueNoise) {
-                float noise = valueNoiseFBM(uv * 100.0 * mData.blendValue1, mData.blendValue2);
-                outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, noise));
-            } else
-            if (mData.blendMode == Modeler_BlendMode_Depth) {
-                float depth = 0;
-                float absDist = abs(dist);
-                if (absDist >= mData.blendValue1 && absDist <= mData.blendValue2) depth = 1;
-                outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, depth));
+            float absDist = abs(dist);
+            if (absDist >= mData.depth.x && absDist <= mData.depth.y) {
+                if (mData.blendMode == Modeler_BlendMode_Linear) {
+                     outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, mData.blendLinearValue));
+                } else
+                if (mData.blendMode == Modeler_BlendMode_ValueNoise) {
+                    float noise = valueNoiseFBM(uv * 100.0 * mData.blendFrequency + mData.blendOffset, mData.blendSmoothing);
+                    outMaterial = mixMaterials(mat, material, smoothstep(0.0, 1.0, noise));
+                }
+                
+                colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);
+                materialTexture1.write(half4(float4(outMaterial.specular, outMaterial.metallic, outMaterial.subsurface, outMaterial.clearcoat)), gid);
+                materialTexture2.write(half4(float4(outMaterial.anisotropic, outMaterial.specularTint, outMaterial.sheen, outMaterial.sheenTint)), gid);
+                materialTexture3.write(half4(float4(outMaterial.clearcoatGloss, outMaterial.specTrans, outMaterial.ior, 0)), gid);
+                materialTexture4.write(half4(float4(outMaterial.emission, mData.id)), gid);
             }
-            
-            colorTexture.write(half4(float4(outMaterial.albedo, outMaterial.roughness)), gid);
-            materialTexture1.write(half4(float4(outMaterial.specular, outMaterial.metallic, outMaterial.subsurface, outMaterial.clearcoat)), gid);
-            materialTexture2.write(half4(float4(outMaterial.anisotropic, outMaterial.specularTint, outMaterial.sheen, outMaterial.sheenTint)), gid);
-            materialTexture3.write(half4(float4(outMaterial.clearcoatGloss, outMaterial.specTrans, outMaterial.ior, 0)), gid);
-            materialTexture4.write(half4(float4(outMaterial.emission, mData.id)), gid);
         }
     }
-    
-    modelTexture.write(half4(newDist), gid);
 }
 
 /// Clears the texture
