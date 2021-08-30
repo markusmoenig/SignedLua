@@ -304,11 +304,13 @@ class SignedBuilder {
                     if cmd.role == .MaterialOnly {
                         // Material
                         if cmd.code.isEmpty == true {
+                            // Merging the depth values of the calling material and the currently executing material
                             if let parentMaterial = self.parentMaterial {
                                 if let modifierData = parentMaterial.dataGroups.getGroup("Modifier") {
                                     let depthValue = modifierData.getFloat2("depth", float2(-5,5))
                                     if let modifierData = cmd.dataGroups.getGroup("Modifier") {
-                                        modifierData.set("depth", depthValue)
+                                        let depthValue1 = modifierData.getFloat2("depth", float2(-5,5))
+                                        modifierData.set("depth", float2(max(depthValue.x, depthValue1.x), min(depthValue.y, depthValue1.y)))
                                     }
                                 }
                             }
