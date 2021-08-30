@@ -1238,7 +1238,7 @@ kernel void render(            constant RenderUniform               &renderData 
 #endif
 
         ray.direction = bsdfSampleRec.L;
-        ray.origin = state.fhp + ray.direction * (EPS + 0.02 * scale);
+        ray.origin = state.fhp + ray.direction * (EPS + 0.01 * scale);
     }
 
     sampleTexture.write(float4(radiance, 1.0), gid);

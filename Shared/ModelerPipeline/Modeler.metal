@@ -214,6 +214,12 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
         //newDist -= valueNoiseFBM(p * 30, 5) * 0.02;
     }
     
+    if (mData.onion > 0) {
+        newDist = abs(newDist) - mData.onion;
+        
+        //if (p.x > 0.0) newDist = dist;
+    }
+    
     // Noise
 
     if (mData.noise > 0) {

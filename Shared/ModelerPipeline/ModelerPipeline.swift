@@ -207,6 +207,7 @@ class ModelerPipeline
             if let modifierData = cmd.dataGroups.getGroup("Modifier") {
                 modelerUniform.noise = modifierData.getFloat("noise", 0.3)
                 modelerUniform.depth = modifierData.getFloat2("depth", float2(-5, 5))
+                modelerUniform.onion = modifierData.getFloat("onion", 0.0)
             }
             
             if let geometryData = cmd.dataGroups.getGroup("Geometry") {

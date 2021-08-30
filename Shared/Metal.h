@@ -272,6 +272,7 @@ typedef struct {
     float               noise;
     float               smoothing;
     simd_float2         depth;
+    float               onion;
 
     float               radius;
     

@@ -177,7 +177,7 @@ class Model: NSObject, ObservableObject {
             self.modulesAreAvailable = true
             self.modulesArrived.send()
             self.modelingProgressChanged.send("Ready")
-            self.infoChanged.send()
+            //self.infoChanged.send()
         }
     }
     

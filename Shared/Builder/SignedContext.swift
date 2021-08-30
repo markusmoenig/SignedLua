@@ -22,7 +22,9 @@ class SignedContext {
     
     /// Adds the given cmd to the modeler pipeline
     func addToPipeline(cmd: SignedCommand) {
-        kit.pipeline.append(cmd)
+        if let copy = cmd.copy() {
+            kit.pipeline.append(copy)
+        }
         
         if kit.role == .main {
             model.infoProgressTotalCmds += 1
