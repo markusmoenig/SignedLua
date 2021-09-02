@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AVFoundation
+import MetalKit
 
 class Model: NSObject, ObservableObject {
     
@@ -79,6 +80,9 @@ class Model: NSObject, ObservableObject {
     /// Reference to the underlying code editor
     var codeEditor                          : CodeEditor? = nil
 
+    /// Reference to the current renderView
+    var renderView                          : STKView!
+    
     /// Reference to the renderer
     var renderer                            : RenderPipeline? = nil
     var modeler                             : ModelerPipeline? = nil
@@ -128,11 +132,16 @@ class Model: NSObject, ObservableObject {
     }
     
     /// Sets the renderer
-    func setRenderer(_ renderer: RenderPipeline?)
+    func setRenderView(_ renderView: STKView)
     {
-        self.renderer = renderer
-        self.renderer?.iconQueue += shapes
-        self.renderer?.installNextShapeIconCmd(shapes.first)
+        self.renderView = renderView
+        if renderer == nil {
+            renderer = RenderPipeline(self)
+            
+            self.renderer?.iconQueue += shapes
+            self.renderer?.installNextShapeIconCmd(shapes.first)
+        }
+        renderView.renderer = renderer
     }
     
     /// Initialises the currently available shapes

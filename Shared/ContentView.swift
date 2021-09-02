@@ -26,19 +26,9 @@ struct ContentView: View {
     
     @State var updateView                               : Bool = false
     
-    @State private var showCustomResPopover             : Bool = false
-    @State private var customResWidth                   : String = ""
-    @State private var customResHeight                  : String = ""
-
-    @State private var exportingImage                   : Bool = false
-    
     @State private var toolsAreOn                       : Bool = false
     
     @State private var searchText = ""
-    
-    @State private var isOrbiting                       : Bool = false
-    @State private var isMoving                         : Bool = false
-    @State private var isZooming                        : Bool = false
 
     @State private var modulesArrived                   : Bool = false
 
@@ -59,8 +49,6 @@ struct ContentView: View {
     var body: some View {
         
         GeometryReader { geometry in
-
-            
             NavigationView {
                 
                 ProjectView(document.model)
@@ -69,209 +57,7 @@ struct ContentView: View {
                     
                     HStack(spacing: 2) {
                         EditorView(document.model)
-
-                        VStack(spacing: 2) {
-                            ZStack(alignment: .bottomLeading) {
-                                // Show tools
-                                
-                                RenderView(model: document.model)
-                                    .zIndex(0)
-                                    .animation(.default)
-                                    .allowsHitTesting(true)
-
-                                Menu {
-                                    
-                                    Button("Set Custom", action: {
-                                        
-                                        if let mainRenderKit = document.model.renderer?.mainRenderKit {
-                                            let width = mainRenderKit.sampleTexture!.width
-                                            let height = mainRenderKit.sampleTexture!.height
-                                            
-                                            document.model.renderSize = SIMD2<Int>(width, height)
-                                            customResWidth = String(width)
-                                            customResHeight = String(height)
-                                        }
-                                        
-                                        showCustomResPopover = true
-                                    })
-                                    
-                                    Button("Clear Custom", action: {
-                                        document.model.renderSize = nil
-                                        document.model.renderer?.restart()
-                                    })
-                                    
-                                    Divider()
-                                    
-                                    Button("Export Image...", action: {
-                                        exportingImage = true
-                                    })
-                                }
-                                label: {
-                                    Text(computeResolutionText())
-                                }
-                                .zIndex(1)
-                                .padding(.leading, 10)
-                                #if os(OSX)
-                                .padding(.bottom, geometry.size.height - 120)
-                                .frame(width: 100)
-                                #else
-                                .padding(.bottom, geometry.size.height - 140)
-                                #endif
-                                .menuStyle(BorderlessButtonMenuStyle())
-                                .foregroundColor(.gray)
-                                
-                                // Custom Resolution Popover
-                                .popover(isPresented: self.$showCustomResPopover,
-                                         arrowEdge: .top
-                                ) {
-                                    VStack(alignment: .leading) {
-                                        Text("Resolution:")
-                                        TextField("Width", text: $customResWidth, onEditingChanged: { (changed) in
-                                        })
-                                        TextField("Height", text: $customResHeight, onEditingChanged: { (changed) in
-                                        })
-                                        
-                                        Button(action: {
-                                            if let width = Int(customResWidth), width > 0 {
-                                                if let height = Int(customResHeight), height > 0 {
-                                                    document.model.renderSize = SIMD2<Int>(width, height)
-                                                    document.model.renderer?.restart()
-                                                }
-                                            }
-                                        })
-                                        {
-                                            Text("Apply")
-                                        }
-                                        .foregroundColor(Color.accentColor)
-                                        .padding(4)
-                                        .padding(.leading, 10)
-                                        .frame(minWidth: 200)
-                                    }.padding()
-                                }
-                                 
-                                Button(action: {
-                                    
-                                })
-                                {
-                                    ZStack(alignment: .center) {
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.gray, lineWidth: 0)
-                                        Text("Orbit")
-                                    }
-                                }
-                                .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
-                                .font(.system(size: 16))
-                                .background(isOrbiting ? Color.accentColor : Color.clear)
-                                .cornerRadius(10)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.gray, lineWidth: 1)
-                                )
-                                .padding(.leading, 10)
-                                .padding(.bottom, 70)
-                                .buttonStyle(.plain)
-                                
-                                .simultaneousGesture(
-                                    DragGesture(minimumDistance: 4)
-                                    
-                                        .onChanged({ info in
-
-                                            isOrbiting = true
-                                            let delta = float2(Float(info.location.x - info.startLocation.x), 0)//Float(info.location.y - info.startLocation.y))
-                                            
-                                            document.model.project.camera.rotateDelta(delta * 0.01)
-                                            document.model.renderer?.restart()
-                                            document.model.updateDataViews.send()
-                                        })
-                                        .onEnded({ info in
-                                            isOrbiting = false
-                                            document.model.project.camera.lastDelta = float2(0,0)
-                                        })
-                                )
-                                
-                                Button(action: {
-                                    
-                                })
-                                {
-                                    ZStack(alignment: .center) {
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.gray, lineWidth: 0)
-                                        Text("Move")
-                                    }
-                                }
-                                .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
-                                .font(.system(size: 16))
-                                .background(isMoving ? Color.accentColor : Color.clear)
-                                .cornerRadius(10)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.gray, lineWidth: 1)
-                                )
-                                .padding(.leading, 10)
-                                .padding(.bottom, 40)
-                                .buttonStyle(.plain)
-                                
-                                .simultaneousGesture(
-                                    DragGesture(minimumDistance: 4)
-                                    
-                                        .onChanged({ info in
-
-                                            isMoving = true
-                                            let delta = float2(/*Float(info.location.x - info.startLocation.x)*/0, Float(info.location.y - info.startLocation.y))
-                                            
-                                            document.model.project.camera.moveDelta(delta * 0.003, aspect: getAspectRatio())
-                                            document.model.renderer?.restart()
-                                            document.model.updateDataViews.send()
-                                        })
-                                        .onEnded({ info in
-                                            isMoving = false
-                                            document.model.project.camera.lastDelta = float2(0,0)
-                                        })
-                                )
-                                
-                                Button(action: {
-                                    
-                                })
-                                {
-                                    ZStack(alignment: .center) {
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.gray, lineWidth: 0)
-                                        Text("Zoom")
-                                    }
-                                }
-                                .frame(minWidth: 70, maxWidth: 70, maxHeight: 20)
-                                .font(.system(size: 16))
-                                .background(isZooming ? Color.accentColor : Color.clear)
-                                .cornerRadius(10)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.gray, lineWidth: 1)
-                                )
-                                .padding(.leading, 10)
-                                .padding(.bottom, 10)
-                                .buttonStyle(.plain)
-                                
-                                .simultaneousGesture(
-                                    DragGesture(minimumDistance: 4)
-                                    
-                                        .onChanged({ info in
-
-                                            isZooming = true
-                                            let delta = float2(Float(info.location.x - info.startLocation.x), Float(info.location.y - info.startLocation.y))
-                                            
-                                            document.model.project.camera.zoomDelta(delta.x * 0.04)
-                                            document.model.renderer?.restart()
-                                            document.model.updateDataViews.send()
-                                        })
-                                        .onEnded({ info in
-                                            isZooming = false
-                                            document.model.project.camera.lastZoomDelta = 0
-                                        })
-                                )
-                            }
-                            
-                            //DetailView(model: document.model)
-                        }
+                        SideView(document: document, model: document.model)
                     }
                     
                     BrowserView(model: document.model)
@@ -288,8 +74,11 @@ struct ContentView: View {
             selection = object
         }
         
-        
         .toolbar {
+            
+            ToolbarItemGroup(placement: .automatic) {
+
+            }
             
             ToolbarItemGroup(placement: .automatic) {
 
@@ -359,27 +148,6 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .automatic) {
             }
         }
-        
-        // Export Image
-        .fileExporter(
-            isPresented: $exportingImage,
-            document: document,
-            contentType: .png,
-            defaultFilename: "Image"
-        ) { result in
-            do {
-                let url = try result.get()
-                
-                if let image = document.model.modeler?.kitToImage(renderKit: document.model.renderer!.mainRenderKit) {
-                    if let imageDestination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) {
-                        CGImageDestinationAddImage(imageDestination, image, nil)
-                        CGImageDestinationFinalize(imageDestination)
-                    }
-                }
-            } catch {
-                // Handle failure.
-            }
-        }
 
         .onReceive(self.document.model.updateUI) { _ in
             updateView.toggle()
@@ -438,26 +206,5 @@ struct ContentView: View {
         label: {
             Label("Dollar", systemImage: "gift")//dollarsign.circle")
         }
-    }
-    
-    /// Returns the resolution of the current preview
-    func computeResolutionText() -> String {
-        let string = ""
-        if let mainRenderKit = document.model.renderer?.mainRenderKit {
-            let width = mainRenderKit.sampleTexture!.width
-            let height = mainRenderKit.sampleTexture!.height
-            return "\(width) x \(height)"
-        }
-        return string
-    }
-    
-    /// Returns the resolution of the current preview
-    func getAspectRatio() -> Float {
-        if let mainRenderKit = document.model.renderer?.mainRenderKit {
-            let width = mainRenderKit.sampleTexture!.width
-            let height = mainRenderKit.sampleTexture!.height
-            return Float(width) / Float(height)
-        }
-        return 1
     }
 }

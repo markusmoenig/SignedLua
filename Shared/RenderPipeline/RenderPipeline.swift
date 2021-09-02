@@ -28,7 +28,6 @@ class RenderKit {
 
 class RenderPipeline
 {
-    var view            : MTKView
     var device          : MTLDevice
 
     var commandQueue    : MTLCommandQueue!
@@ -60,12 +59,11 @@ class RenderPipeline
     
     var iconBuilder     : SignedBuilder
         
-    init(_ view: MTKView,_ model: Model)
+    init(_ model: Model)
     {
-        self.view = view
         self.model = model
         
-        device = view.device!
+        device = model.renderView!.device!
         semaphore = DispatchSemaphore(value: 1)
         
         renderStates = RenderStates(device)
@@ -73,7 +71,7 @@ class RenderPipeline
         mainRenderKit = RenderKit(maxSamples: 400)
         iconRenderKit = RenderKit(maxSamples: 150)
         
-        model.modeler = ModelerPipeline(view, model)
+        model.modeler = ModelerPipeline(model)
 
         if let modeler = model.modeler {
             iconRenderKit.sampleTexture = modeler.allocateTexture2D(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize)
@@ -90,7 +88,7 @@ class RenderPipeline
     func restart()
     {
         needsRestart = true
-        view.isPaused = false
+        model.renderView?.isPaused = false
         if let modeler = model.modeler {
             if modeler.mainKit.currentRenderKit == nil {
                 modeler.mainKit.currentRenderKit = mainRenderKit
@@ -101,7 +99,7 @@ class RenderPipeline
     /// Resumes the renderer
     func resume()
     {
-        view.isPaused = false
+        model.renderView?.isPaused = false
     }
     
     /// Restarts the renderer
@@ -237,7 +235,7 @@ class RenderPipeline
         } else {
             if let mainKit = model.modeler?.mainKit {
                 if mainKit.pipeline.isEmpty && mainKit.currentRenderKit == nil && iconQueue.isEmpty {
-                    view.isPaused = true
+                    model.renderView?.isPaused = true
                     print("paused")
                 }
            }
@@ -458,8 +456,8 @@ class RenderPipeline
             renderSize.x = rSize.x
             renderSize.y = rSize.y
         } else {
-            renderSize.x = Int(self.view.frame.width)
-            renderSize.y = Int(self.view.frame.height)
+            renderSize.x = Int(model.renderView!.frame.width)
+            renderSize.y = Int(model.renderView!.frame.height)
         }
 
         func checkTexture(_ texture: MTLTexture?) -> MTLTexture? {
@@ -497,10 +495,10 @@ class RenderPipeline
     func updateOnce()
     {
         #if os(OSX)
-        let nsrect : NSRect = NSRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-        self.view.setNeedsDisplay(nsrect)
+        let nsrect : NSRect = NSRect(x:0, y: 0, width: model.renderView!.frame.width, height: model.renderView!.frame.height)
+        model.renderView?.setNeedsDisplay(nsrect)
         #else
-        self.view.setNeedsDisplay()
+        model.renderView?.setNeedsDisplay()
         #endif
     }
     

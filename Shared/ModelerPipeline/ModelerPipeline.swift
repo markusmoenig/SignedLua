@@ -69,7 +69,6 @@ class ModelerKit {
 
 class ModelerPipeline
 {
-    var view            : MTKView
     var device          : MTLDevice
 
     var commandQueue    : MTLCommandQueue!
@@ -90,12 +89,11 @@ class ModelerPipeline
     static var IconSize : Int = 80
     static var IconSamples : Int = 40
         
-    init(_ view: MTKView,_ model: Model)
+    init(_ model: Model)
     {
-        self.view = view
         self.model = model
         
-        device = view.device!
+        device = model.renderView.device!
         semaphore = DispatchSemaphore(value: 1)
         
         modelingStates = ModelerStates(device)
@@ -469,10 +467,10 @@ class ModelerPipeline
     func updateOnce()
     {
         #if os(OSX)
-        let nsrect : NSRect = NSRect(x:0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-        self.view.setNeedsDisplay(nsrect)
+        let nsrect : NSRect = NSRect(x:0, y: 0, width: model.renderView.frame.width, height: model.renderView.frame.height)
+        model.renderView.setNeedsDisplay(nsrect)
         #else
-        self.view.setNeedsDisplay()
+        model.renderView.setNeedsDisplay()
         #endif
     }
     
