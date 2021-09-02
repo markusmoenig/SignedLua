@@ -147,7 +147,7 @@ class Model: NSObject, ObservableObject {
     /// Initialises the currently available shapes
     func createShapes() {
         shapes = [
-            SignedCommand("Heightfield", role: .GeometryAndMaterial, action: .Add, primitive: .Heightfield,  data: ["Geometry": SignedData([SignedDataEntity("frequency", Float(2), float2(0, 20)), SignedDataEntity("octaves", Float(5), float2(0, 20)), SignedDataEntity("scale", Float(0.2), float2(0, 20))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
+            //SignedCommand("Heightfield", role: .GeometryAndMaterial, action: .Add, primitive: .Heightfield,  data: ["Geometry": SignedData([SignedDataEntity("frequency", Float(2), float2(0, 20)), SignedDataEntity("octaves", Float(5), float2(0, 20)), SignedDataEntity("scale", Float(0.2), float2(0, 20))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
             SignedCommand("Sphere", role: .GeometryAndMaterial, action: .Add, primitive: .Sphere, data: ["Geometry": SignedData([SignedDataEntity("radius", Float(0.22), float2(0, 5))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
             SignedCommand("Box", role: .GeometryAndMaterial, action: .Add, primitive: .Box, data: ["Geometry": SignedData([SignedDataEntity("size", float3(0.3,0.3,0.3), float2(0,10), .Slider), SignedDataEntity("rounding", Float(0.0), float2(0,1))])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5)))
         ]

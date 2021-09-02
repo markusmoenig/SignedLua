@@ -7,20 +7,19 @@
 
 import SwiftUI
 
-#if os(iOS)
-import MobileCoreServices
-#endif
-
 struct ContentView: View {
     
     @Environment(\.managedObjectContext) var managedObjectContext
-    
+    @Environment(\.colorScheme) var deviceColorScheme   : ColorScheme
+
     @Binding var document                               : SignedDocument
     @StateObject var storeManager                       : StoreManager
 
-    @State var selection                                : SignedObject? = nil
-
-    @Environment(\.colorScheme) var deviceColorScheme   : ColorScheme
+    enum Layout {
+        case horizontal, vertical
+    }
+    
+    @State private var layout                           : Layout = .horizontal
     
     @State private var rightSideParamsAreVisible        : Bool = true
     
@@ -35,13 +34,13 @@ struct ContentView: View {
     @State private var colorValue                       : Color = Color(.gray)
 
     #if os(macOS)
-    let leftPanelWidth                      : CGFloat = 180
+    let leftPanelWidth                      : CGFloat = 160
     #else
     let leftPanelWidth                      : CGFloat = 230
     #endif
     
     #if os(macOS)
-    let rightPanelWidth                     : CGFloat = 180
+    let rightPanelWidth                     : CGFloat = 200
     #else
     let rightPanelWidth                     : CGFloat = 230
     #endif
@@ -49,35 +48,82 @@ struct ContentView: View {
     var body: some View {
         
         GeometryReader { geometry in
-            NavigationView {
-                
-                ProjectView(document.model)
-                
-                VStack(spacing: 0) {
+            
+            #if os(OSX)
+            HSplitView {
+                NavigationView {
                     
-                    HStack(spacing: 2) {
-                        EditorView(document.model)
-                        SideView(document: document, model: document.model)
+                    ProjectView(document.model)
+
+                    VStack(spacing: 0) {
+                        
+                        if layout == .vertical {
+                            HSplitView {
+                                EditorView(document.model)
+                                PreviewView(document: document, model: document.model)
+                            }
+                        } else {
+                            VSplitView {
+                                PreviewView(document: document, model: document.model)
+                                EditorView(document.model)
+                            }
+                        }
                     }
-                    
-                    BrowserView(model: document.model)
-                    #if os(OSX)
-                        .frame(minHeight: 80, maxHeight: 100)
-                    #else
-                        .frame(minHeight: 90, maxHeight: 110)
-                    #endif
                 }
+                
+                SideView(model: document.model)
+                    .frame(maxWidth: rightPanelWidth)
             }
+            #else
+            HStack {
+                NavigationView {
+                    
+                    ProjectView(document.model)
+                        .frame(maxWidth: leftPanelWidth)
+
+                    VStack(spacing: 0) {
+                        
+                        if layout == .vertical {
+                            HStack(spacing: 2) {
+                                EditorView(document.model)
+                                PreviewView(document: document, model: document.model)
+                            }
+                        } else {
+                            VStack(spacing: 2) {
+                                PreviewView(document: document, model: document.model)
+                                EditorView(document.model)
+                            }
+                        }
+                    }
+                }
+                
+                SideView(model: document.model)
+                    .frame(maxWidth: rightPanelWidth)
+            }
+            #endif
         }
         
-        .onReceive(document.model.objectSelected) { object in
-            selection = object
-        }
+        //.onReceive(document.model.objectSelected) { object in
+            //selection = object
+        //}
         
         .toolbar {
             
             ToolbarItemGroup(placement: .automatic) {
-
+                
+                HStack(spacing: 0) {
+                    Button(action: {
+                        layout = .horizontal
+                    }) {
+                        Image(systemName: layout == .horizontal ? "rectangle.split.1x2.fill" : "rectangle.split.1x2")
+                    }
+                    
+                    Button(action: {
+                        layout = .vertical
+                    }) {
+                        Image(systemName: layout == .vertical ? "rectangle.split.2x1.fill" : "rectangle.split.2x1")
+                    }
+                }
             }
             
             ToolbarItemGroup(placement: .automatic) {

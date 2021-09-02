@@ -136,9 +136,8 @@ public class STKView        : MTKView
     /// Setup the view
     func platformInit(_ model: Model, command: SignedCommand? = nil)
     {
-        renderer = RenderPipeline(self, model)
         drawables = MetalDrawables(self)
-        model.setRenderer(renderer)
+        model.setRenderView(self)
         self.model = model
         
         let tapRecognizer = UITapGestureRecognizer(target: self, action:(#selector(self.handleTapGesture(_:))))

@@ -29,10 +29,10 @@ struct ObjectView: View {
 
     var body: some View {
     
-        let rows: [GridItem] = Array(repeating: .init(.fixed(70)), count: 1)
+        let rows: [GridItem] = Array(repeating: .init(.fixed(80)), count: 2)
             
         ScrollView(.horizontal) {
-            LazyHGrid(rows: rows, alignment: .center) {
+            LazyVGrid(columns: rows, alignment: .center) {
                 ForEach(objects, id: \.self) { object in
 
                     ZStack(alignment: .center) {
