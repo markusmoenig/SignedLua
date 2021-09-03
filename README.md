@@ -28,10 +28,10 @@ The following code creates a slightly rounded red box. In Signed you can select 
 
 ```lua
 local box = command:newShape("Box")
-box:setVec3("position", vec3(0, 0, 0))
-box:setVec3("size", vec3(5,0.2,5))
-box:setNumber("rounding", 0.1)
-box:setVec3("color", vec3(1,0,0))
+box:set("position", 0, 0, 0)
+box:set("size", 5,0.2,5)
+box:set("rounding", 0.1)
+box:set("color", 1,0,0)
 box:execute(0)
 ```
 
@@ -59,8 +59,8 @@ For shapes you can also define the boolean mode via setMode like
 ```lua
 local sphere = command:newShape("Sphere")
 sphere:setMode("add") -- "subtract", "intersect" etc
-sphere:setNumber("smoothing", 0.2)
-sphere:setNumber("radius", 1.2)
+sphere:set("smoothing", 0.2)
+sphere:set("radius", 1.2)
 sphere:execute(1)
 ```
 

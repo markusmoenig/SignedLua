@@ -110,23 +110,6 @@ struct ContentView: View {
         .toolbar {
             
             ToolbarItemGroup(placement: .automatic) {
-                
-                HStack(spacing: 0) {
-                    Button(action: {
-                        layout = .horizontal
-                    }) {
-                        Image(systemName: layout == .horizontal ? "rectangle.split.1x2.fill" : "rectangle.split.1x2")
-                    }
-                    
-                    Button(action: {
-                        layout = .vertical
-                    }) {
-                        Image(systemName: layout == .vertical ? "rectangle.split.2x1.fill" : "rectangle.split.2x1")
-                    }
-                }
-            }
-            
-            ToolbarItemGroup(placement: .automatic) {
 
                 Button(action: {
                     
@@ -168,6 +151,23 @@ struct ContentView: View {
                 }
                 .keyboardShortcut("b")
                 .disabled(modulesArrived == false)
+            }
+            
+            ToolbarItemGroup(placement: .automatic) {
+                
+                HStack(spacing: 0) {
+                    Button(action: {
+                        layout = .horizontal
+                    }) {
+                        Image(systemName: layout == .horizontal ? "rectangle.split.1x2.fill" : "rectangle.split.1x2")
+                    }
+                    
+                    Button(action: {
+                        layout = .vertical
+                    }) {
+                        Image(systemName: layout == .vertical ? "rectangle.split.2x1.fill" : "rectangle.split.2x1")
+                    }
+                }
             }
 
             ToolbarItemGroup(placement: .automatic) {
