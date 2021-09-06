@@ -297,7 +297,7 @@ class SignedBuilder {
                         } else {
                             _ = self.vm.eval(cmd.code)
                             
-                            let cmdString = "buildObject(\(materialId), \(self.getFloat3AsVec3(name: "position", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "rotation", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "size", groups: cmd.allDataGroups())))\n"
+                            let cmdString = "buildObject(\(materialId), \(self.getFloat3AsVec3(name: "position", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "rotation", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "size", groups: cmd.allDataGroups())), {})\n"
                             _ = self.vm.eval(cmdString)
                         }
                     } else

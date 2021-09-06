@@ -21,7 +21,7 @@ struct ContentView: View {
     
     @State private var layout                           : Layout = .horizontal
     
-    @State private var rightSideParamsAreVisible        : Bool = true
+    @State private var showSideView                     : Bool = true
     
     @State var updateView                               : Bool = false
     
@@ -71,8 +71,10 @@ struct ContentView: View {
                     }
                 }
                 
-                SideView(model: document.model)
-                    .frame(maxWidth: rightPanelWidth)
+                if showSideView == true {
+                    SideView(model: document.model)
+                        .frame(maxWidth: rightPanelWidth)
+                }
             }
             #else
             HStack {
@@ -97,8 +99,10 @@ struct ContentView: View {
                     }
                 }
                 
-                SideView(model: document.model)
-                    .frame(maxWidth: rightPanelWidth)
+                if showSideView == true {
+                    SideView(model: document.model)
+                        .frame(maxWidth: rightPanelWidth)
+                }
             }
             #endif
         }
@@ -167,6 +171,12 @@ struct ContentView: View {
                     }) {
                         Image(systemName: layout == .vertical ? "rectangle.split.2x1.fill" : "rectangle.split.2x1")
                     }
+                }
+                
+                Button(action: {
+                    showSideView.toggle()
+                }) {
+                    Image(systemName: "sidebar.right")
                 }
             }
 
