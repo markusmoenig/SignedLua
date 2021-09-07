@@ -1020,7 +1020,7 @@ kernel void render(            constant RenderUniform               &renderData 
     bool editHit; float materialMixValue;
     
     int maxDepth = renderData.maxDepth;
-    //bool didHitBBox = false;
+    bool didHitBBox = false;
 
     for (int depth = 0; depth < maxDepth; depth++)
     {
@@ -1044,7 +1044,7 @@ kernel void render(            constant RenderUniform               &renderData 
             
             bool hit = false;
             bool needsNormal = true;
-            //float bd = INFINITY;
+            float bd = INFINITY;
             
             // Check for border hit
             float3 p = ray.origin + ray.direction * t;
@@ -1060,15 +1060,15 @@ kernel void render(            constant RenderUniform               &renderData 
                     float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);
                     
                     // --- Visual Bounding Box, only test on the first pass
-                    //if (i == 0) {
-                    //    bd = sdBoxFrame(p, float(r), 0.004);
-                    //    d = min(d, bd);
-                    //}
+                    if (i == 0) {
+                        bd = sdBoxFrame(p, float(r), 0.004);
+                        d = min(d, bd);
+                    }
                     // ---
 
                     if (abs(d) < (0.0001*t*scale)) {
                         hit = true;
-                        //if (i == 0 && d == bd) didHitBBox = true;
+                        if (i == 0 && d == bd) didHitBBox = true;
                         break;
                     }
                     
@@ -1155,10 +1155,10 @@ kernel void render(            constant RenderUniform               &renderData 
             return;
         }
         
-        //if (didHitBBox) {
-        //    radiance = float3(1);
-        //    break;
-        //}
+        if (didHitBBox) {
+            radiance = float3(1);
+            break;
+        }
         
         Onb(state.normal, state.tangent, state.bitangent);
             

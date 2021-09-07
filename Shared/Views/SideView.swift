@@ -105,6 +105,10 @@ struct SideView: View {
                         MaterialView(model: model)
                     } else
                     if mode == .settings {
+                        
+                        TextureSizeView(model)
+                        Divider()
+                        
                         DataViews(model: model, data: getSettingsGroups(), bottomPadding: 12)
                             .padding(.top, 4)
                     }
@@ -134,5 +138,59 @@ struct SideView: View {
     func getSettingsGroups() -> [SignedData]
     {
         return [model.project.dataGroups.getGroup("Renderer")!]
+    }
+}
+
+struct TextureSizeView: View {
+    
+    let model                                           : Model
+    
+    // For Numeric
+    @State private var xText                            : String = ""
+    @State private var yText                            : String = ""
+    @State private var zText                            : String = ""
+    
+    init(_ model: Model) {
+        self.model = model
+        
+        if let kit = model.modeler?.mainKit {
+            
+            _xText = State(initialValue: String(kit.modelTexture!.width))
+            _yText = State(initialValue: String(kit.modelTexture!.height))
+            _zText = State(initialValue: String(kit.modelTexture!.depth))
+        }
+    }
+    
+    var body: some View {
+                
+        VStack(alignment: .leading) {
+            Text("3D Texture Size")
+            HStack {
+                TextField("", text: $xText, onEditingChanged: { changed in
+                })
+                    .border(.red)
+                
+                TextField("", text: $yText, onEditingChanged: { changed in
+                })
+                    .border(.green)
+                
+                TextField("", text: $zText, onEditingChanged: { changed in
+                })
+                    .border(.blue)
+            }
+            
+            Button("Apply") {                
+                if let x = Int(xText), let y = Int(yText), let z = Int(zText) {
+                    print(x,y,z)
+                    if x * y * z < 512 * 512 * 512 {
+                        if let kit = model.modeler?.mainKit {
+                            model.modeler?.freeKit(kit)
+                        }
+                        model.modeler!.mainKit = model.modeler!.allocateKit(width: x, height: y, depth: z)
+                    }
+                }
+            }
+        }
+        .padding(4)
     }
 }
