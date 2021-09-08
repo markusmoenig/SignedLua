@@ -27,7 +27,7 @@ class ModelerKit {
     var content         : Content = .project
     
     /// Scale of the kit
-    var scale           : Float = 5
+    var scale           = float3(1,1,1)
 
     var gpuIsWorking    : Bool = false
 
@@ -98,7 +98,7 @@ class ModelerPipeline
         
         modelingStates = ModelerStates(device)
 
-        mainKit = allocateKit(width: 512, height: 512, depth: 512)
+        mainKit = allocateKit(width: model.project.resolution.x, height: model.project.resolution.y, depth: model.project.resolution.z)
         iconKit = allocateKit(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize, depth: ModelerPipeline.IconSize)
         iconKit.role = .icon
 
@@ -193,9 +193,11 @@ class ModelerPipeline
         modelerUniform.actionType = cmd.action.rawValue
         modelerUniform.primitiveType = cmd.primitive.rawValue
         
+        let scale = kit.scale
+        
         if cmd.role == .GeometryAndMaterial {
             if let transformData = cmd.dataGroups.getGroup("Transform") {
-                modelerUniform.position = transformData.getFloat3("position") / kit.scale
+                modelerUniform.position = transformData.getFloat3("position") / scale
                 if forPreview == false {
                     modelerUniform.position.y = -0.5 + modelerUniform.position.y
                 }
@@ -209,8 +211,8 @@ class ModelerPipeline
             }
             
             if let geometryData = cmd.dataGroups.getGroup("Geometry") {
-                modelerUniform.size = geometryData.getFloat3("size", float3(4,4,4)) / kit.scale / 2
-                modelerUniform.radius = geometryData.getFloat("radius", 1) / kit.scale
+                modelerUniform.size = geometryData.getFloat3("size", float3(4,4,4)) / scale / 2
+                modelerUniform.radius = geometryData.getFloat("radius", 1) / scale.x
                 modelerUniform.rounding = geometryData.getFloat("rounding", 0)
                 
                 modelerUniform.heightFrequency = geometryData.getFloat("frequency", 2)

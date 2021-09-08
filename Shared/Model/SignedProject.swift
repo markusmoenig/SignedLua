@@ -17,6 +17,8 @@ class SignedProject: Codable {
         case modules
         case camera
         case dataGroups
+        case resolution
+        case pixelsPerMeter
     }
     
     var main                                : SignedObject
@@ -32,6 +34,12 @@ class SignedProject: Codable {
     
     /// Camera
     var camera                              : SignedPinholeCamera
+    
+    /// Resolution of the 3D texture
+    var resolution                          = SIMD3<Int>(500, 500, 500)
+    
+    /// How many pixels per meter
+    var pixelsPerMeter                      = Int(100)
     
     /// Project settings data groups
     var dataGroups                          : SignedDataGroups
@@ -54,8 +62,18 @@ class SignedProject: Codable {
         modules = try container.decode([SignedObject].self, forKey: .modules)
         camera = try container.decode(SignedPinholeCamera.self, forKey: .camera)
         dataGroups = try container.decode(SignedDataGroups.self, forKey: .dataGroups)
-                
-        dataGroups.groups["Renderer"]!.set("background", float4(0.25, 0.25, 0.25, 1.0))
+        if let res = try container.decodeIfPresent(SIMD3<Int>.self, forKey: .resolution) {
+            resolution = res
+        }
+        if let ppm = try container.decodeIfPresent(Int.self, forKey: .pixelsPerMeter) {
+            pixelsPerMeter = ppm
+        }
+        //dataGroups.groups["Renderer"]!.set("Background", float4(0.25, 0.25, 0.25, 1.0))
+        if let rendererData = dataGroups.groups["Renderer"] {
+            rendererData.removeEntity("background")
+            rendererData.removeEntity("reflections")
+        }
+        initDataGroups()
     }
     
     func encode(to encoder: Encoder) throws
@@ -67,18 +85,20 @@ class SignedProject: Codable {
         try container.encode(modules, forKey: .modules)
         try container.encode(camera, forKey: .camera)
         try container.encode(dataGroups, forKey: .dataGroups)
+        try container.encode(resolution, forKey: .resolution)
+        try container.encode(pixelsPerMeter, forKey: .pixelsPerMeter)
     }
     
     /// Initializes the data groups with default values, or, when already exists, make sure all options are present
     func initDataGroups(fromConstructor: Bool = false) {
             
-        addDataGroup(name: "World", entities: [
-            SignedDataEntity("scale", Int(3), float2(1, 10), .Slider),
-        ])
+        //addDataGroup(name: "World", entities: [
+        //    SignedDataEntity("scale", Int(3), float2(1, 10), .Slider),
+        //])
         
         addDataGroup(name: "Renderer", entities: [
-            SignedDataEntity("background", float4(0.25,0.25,0.25,1.0), float2(0, 1), .Color),
-            SignedDataEntity("reflections", Int(6), float2(1, 20), .Slider),
+            SignedDataEntity("Background", float4(0.25,0.25,0.25,1.0), float2(0, 1), .Color),
+            SignedDataEntity("Reflections", Int(6), float2(1, 20), .Slider),
         ])
     }
     

@@ -493,9 +493,9 @@ class SignedBuilder {
             kit.materialEntity = materialEntity
             
             if content == .project {
-                kit.scale = 5
+                kit.scale = float3(Float(model.project.resolution.x / model.project.pixelsPerMeter), Float(model.project.resolution.y / model.project.pixelsPerMeter), Float(model.project.resolution.z / model.project.pixelsPerMeter))
             } else {
-                kit.scale = 1
+                kit.scale = float3(1,1,1)
             }
             
             modeler.clear(kit)

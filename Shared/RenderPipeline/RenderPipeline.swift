@@ -338,14 +338,14 @@ class RenderPipeline
                 renderUniform.cameraFov = 80
             }
             
-            renderUniform.scale = 1//model.project.getWorldScale()
+            renderUniform.scale = kit.scale
             
             renderUniform.maxDepth = 6;
             renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
 
             if let rendererData = model.project.dataGroups.getGroup("Renderer") {
-                renderUniform.backgroundColor = rendererData.getFloat4("background")
-                renderUniform.maxDepth = Int32(rendererData.getInt("reflections", 6))
+                renderUniform.backgroundColor = rendererData.getFloat4("Background")
+                renderUniform.maxDepth = Int32(rendererData.getInt("Reflections", 6))
             }
             
             renderUniform.numOfLights = 1
@@ -391,7 +391,7 @@ class RenderPipeline
             renderUniform.cameraOrigin = float3(0, 0, -0.07)
             renderUniform.cameraLookAt = float3(0, 0, 0)
             renderUniform.cameraFov = 80
-            renderUniform.scale = 1
+            renderUniform.scale = float3(1,1,1)
             
             renderUniform.maxDepth = 2;
 

@@ -792,18 +792,18 @@ float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, th
     return finalRayDir;
 }
 
-float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float scal, thread float &materialMixValue);
+float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float3 scale, thread float &materialMixValue);
 void computeModelerMaterial(float3 uv, constant ModelerUniform &mData, float scale, thread Material &material, float globalMaterialScale);
 Material mixMaterials(Material materialA, Material materialB, float k);
 
 /// Gets the distance at the given point
-float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUniform &mData, thread bool &editHit, thread float &materialMixValue, float scale = 1.0)
+float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUniform &mData, thread bool &editHit, thread float &materialMixValue, float3 scale = float3(1.0, 1.0, 1.0))
 {
     constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
     
     editHit = false;
     
-    float d = modelTexture.sample(textureSampler, clamp((p / scale + float3(0.5)), 0., 1.)).x * scale;
+    float d = modelTexture.sample(textureSampler, clamp((p / scale + float3(0.5)), 0., 1.)).x;// * scale;
     
     float editingDist = applyModelerData(p, d, mData, scale, materialMixValue);
     
@@ -817,16 +817,16 @@ float getDistance(float3 p, texture3d<float> modelTexture, constant ModelerUnifo
 }
 
 /// Gets the distance at the given point
-float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
+float getDistance(float3 p, texture3d<float> modelTexture, float3 scale = float3(1, 1, 1))
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     
     float d = modelTexture.sample(textureSampler, clamp((p / scale + float3(0.5)), 0., 1.)).x;
-    return d * scale;
+    return d;
 }
 
 /// Reads material data
-float4 getMaterialData(float3 p, texture3d<float, access::read_write> materialTexture, float scale = 1.0)
+float4 getMaterialData(float3 p, texture3d<float, access::read_write> materialTexture, float3 scale = float3(1, 1, 1))
 {
     float3 size = float3(materialTexture.get_width() - 1, materialTexture.get_height() - 1, materialTexture.get_depth() - 1);
     
@@ -835,7 +835,7 @@ float4 getMaterialData(float3 p, texture3d<float, access::read_write> materialTe
 }
 
 /// Writes material data
-void setMaterialData(float3 p, float4 value, texture3d<float, access::read_write> materialTexture, float scale = 1.0)
+void setMaterialData(float3 p, float4 value, texture3d<float, access::read_write> materialTexture, float3 scale = float3(1, 1, 1))
 {
     float3 size = float3(materialTexture.get_width() - 1, materialTexture.get_height() - 1, materialTexture.get_depth() - 1);
 
@@ -843,7 +843,7 @@ void setMaterialData(float3 p, float4 value, texture3d<float, access::read_write
 }
 
 /// Calculates the normal at the given point
-float3 getNormal(float3 p, texture3d<float> modelTexture, constant ModelerUniform  &mData, float scale = 1.0)
+float3 getNormal(float3 p, texture3d<float> modelTexture, constant ModelerUniform  &mData, float3 scale = float3(1,1,1))
 {
     float3 epsilon = float3(0.001, 0., 0.);
     
@@ -869,7 +869,7 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 }
 
 //-----------------------------------------------------------------------
-float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderUniform &renderData, constant ModelerUniform  &mData, texture3d<float> modelTexture, float scale = 1.0)
+float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderUniform &renderData, constant ModelerUniform  &mData, texture3d<float> modelTexture, float3 scale = float3(1, 1, 1))
 //-----------------------------------------------------------------------
 {
     float3 Li = float3(0.0);
@@ -948,7 +948,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
                     float3 p = surfacePos + lightSampleRec.direction * t;
                     float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);//map(p, dataIn);
 
-                    if (abs(d) < (0.0001*t*scale)) {
+                    if (abs(d) < (0.0001*t)) {
                         inShadow = true;
                         break;
                     }
@@ -994,7 +994,7 @@ kernel void render(            constant RenderUniform               &renderData 
 
     float3 ro = renderData.cameraOrigin;
     float3 rd = renderData.cameraLookAt;
-    float scale = renderData.scale;
+    float3 scale = renderData.scale;
 
     struct DataIn dataIn;
     
@@ -1026,8 +1026,8 @@ kernel void render(            constant RenderUniform               &renderData 
     {
         state.depth = depth;
      
-        float r = 0.5 * scale; float3 rectNormal;
-        float2 bbox = boxIntersection(ray.origin, ray.direction, float3(r, r, r), rectNormal);
+        float3 r = 0.5 * scale; float3 rectNormal;
+        float2 bbox = boxIntersection(ray.origin, ray.direction, r, rectNormal);
 
         float t = INFINITY;
         
@@ -1061,12 +1061,12 @@ kernel void render(            constant RenderUniform               &renderData 
                     
                     // --- Visual Bounding Box, only test on the first pass
                     if (i == 0) {
-                        bd = sdBoxFrame(p, float(r), 0.004);
+                        bd = sdBoxFrame(p, r, 0.004);
                         d = min(d, bd);
                     }
                     // ---
 
-                    if (abs(d) < (0.0001*t*scale)) {
+                    if (abs(d) < (0.0001*t)) {
                         hit = true;
                         if (i == 0 && d == bd) didHitBBox = true;
                         break;

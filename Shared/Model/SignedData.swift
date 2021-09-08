@@ -282,6 +282,20 @@ class SignedData: Codable, Hashable {
         return nil
     }
     
+    /// Removes the given entity if it exists
+    func removeEntity(_ key : String) {
+        var index : Int? = nil
+        for (i,e) in data.enumerated() {
+            if e.key == key {
+                index = i
+            }
+        }
+        
+        if let index = index {
+            data.remove(at: index)
+        }
+    }
+    
     /// Set Text
     func set(_ key: String,_ value: String,_ usage: SignedDataEntity.UsageType = .TextField,_ feature: SignedDataEntity.Feature = .None,_ time: Double? = nil) {
         if let ex = getExisting(key, .Int, time) {

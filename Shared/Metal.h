@@ -145,7 +145,7 @@ typedef struct {
     
     simd_float4         backgroundColor;
     
-    float               scale;
+    simd_float3         scale;
         
     int                 samples;
     int                 depth;

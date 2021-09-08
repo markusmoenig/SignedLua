@@ -112,7 +112,7 @@ float2 rotatePivot(float2 pos, float angle, float2 pivot)
 }
 
 // https://www.shadertoy.com/view/3syGzz
-float3 opRepLim(float3 p, float s, float3 lima, float3 limb )
+float3 opRepLim(float3 p, float3 s, float3 lima, float3 limb )
 {
     return p-s*clamp(round(p/s),lima,limb);
 }
@@ -170,7 +170,7 @@ float opSmoothIntersection( float d1, float d2, float k ) {
     return mix( d2, d1, h ) + k*h*(1.0-h); }
 
 /// Computes the given distance for the given modeler cmd
-float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float scale, thread float &materialMixValue)
+float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, float3 scale, thread float &materialMixValue)
 {    
     if (mData.actionType == Modeler_None) {
         materialMixValue = 1;
@@ -207,7 +207,7 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
         newDist = uv.y - (mData.position.y + valueNoiseFBM(p * mData.heightFrequency, mData.heightOctaves) * mData.heightScale);
     } else
     if (mData.primitiveType == Modeler_Shape_Sphere) {
-        newDist = sdSphere(p, mData.radius * scale);
+        newDist = sdSphere(p, mData.radius * scale.x);
     } else
     if (mData.primitiveType == Modeler_Shape_Box) {
         newDist = sdRoundBox(p, mData.size * scale, mData.rounding);
@@ -227,7 +227,7 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
                             -1.60,  0.72, -0.96,
                             -1.20, -0.96,  1.28 );
 
-        newDist /= scale;
+        //newDist /= scale;
         float3  q = p / scale;
         
         float level = mData.noise;
@@ -259,15 +259,15 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
         }
         */
         
-        newDist *= scale;
+        //newDist *= scale;
     }
     
     float rc = INFINITY;
         
     if (mData.actionType == Modeler_Subtract) {
-        rc = opSmoothSubtraction(newDist, dist, mData.smoothing * scale, materialMixValue);//max(dist, -newDist);
+        rc = opSmoothSubtraction(newDist, dist, mData.smoothing * scale.x, materialMixValue);//max(dist, -newDist);
     } else {
-        rc = opSmoothUnion(dist, newDist, mData.smoothing * scale, materialMixValue);//min(dist, newDist);
+        rc = opSmoothUnion(dist, newDist, mData.smoothing * scale.x, materialMixValue);//min(dist, newDist);
     }
     
     return rc;
