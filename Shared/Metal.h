@@ -186,8 +186,9 @@ typedef struct {
 #define Modeler_MaterialOnly                1
 
 #define Modeler_None                        0
-#define Modeler_Add                         1
-#define Modeler_Subtract                    2
+#define Modeler_Clear                       1
+#define Modeler_Add                         2
+#define Modeler_Subtract                    3
 
 #define Modeler_Shape_Heightfield           0
 #define Modeler_Shape_Sphere                1

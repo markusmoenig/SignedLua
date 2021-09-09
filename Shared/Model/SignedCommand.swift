@@ -17,7 +17,7 @@ class SignedCommand : Codable, Hashable {
     }
     
     enum Action: Int32, Codable {
-        case None, Add, Subtract
+        case None, Clear, Add, Subtract
     }
     
     enum Primitive: Int32, Codable {

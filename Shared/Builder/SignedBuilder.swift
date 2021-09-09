@@ -503,8 +503,7 @@ class SignedBuilder {
             } else {
                 kit.scale = float3(1,1,1)
             }
-            
-            modeler.clear(kit)
+                        
             if kit.role == .main {
                 model.renderer?.restart()
                 model.infoText = ""
@@ -518,6 +517,7 @@ class SignedBuilder {
                     
             self.vm = VirtualMachine()
             self.context = SignedContext(model: model, kit: kit)
+            self.context.addToPipeline(cmd: SignedCommand("Clear", role: .GeometryAndMaterial, action: .Clear))
             
             // print
             self.vm.globals["_print"] = self.vm.createFunction([String.arg]) { args in

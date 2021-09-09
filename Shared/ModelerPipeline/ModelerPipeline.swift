@@ -123,6 +123,17 @@ class ModelerPipeline
         }
         
         if let kit = kitToUse, kit.isValid() {
+            
+            if cmd.action == .Clear {
+                clear(kit)
+                kit.gpuIsWorking = false
+                if kit.role == .main {
+                    self.model.infoProgressProcessedCmds += 1
+                    self.model.builder?.context.createProgressValues()
+                }
+                return
+            }
+            
             startCompute()
             
             // No script, execute the geometry command
