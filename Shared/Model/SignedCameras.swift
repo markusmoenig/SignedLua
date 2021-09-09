@@ -30,13 +30,18 @@ class SignedPinholeCamera : Codable, Hashable {
         case data
     }
     
-    init(_ name: String = "Pinhole")
+    init(_ name: String = "Pinhole", _ type: ModelerKit.Content = .project)
     {
         self.name = name
         data = SignedData([])
         
-        data.set("position", float3(0,-0.3,-0.8), float2(-5, 5))
-        data.set("lookAt", float3(0,-0.3,0), float2(-5, 5))
+        if type == .project {
+            data.set("position", float3(0, -0.3, -0.8), float2(-5, 5))
+            data.set("lookAt", float3(0, -0.3, 0), float2(-5, 5))
+        } else {
+            data.set("position", float3(0, 0, -0.8), float2(-5, 5))
+            data.set("lookAt", float3(0, 0, 0), float2(-5, 5))
+        }
         data.set("fov", Float(80), float2(0, 160))
     }
     

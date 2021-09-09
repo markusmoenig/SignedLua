@@ -152,6 +152,7 @@ typedef struct {
     int                 maxDepth;
         
     int                 noShadows;
+    int                 showBBox;
     
     // bbox
     simd_float3         P;
@@ -195,66 +196,6 @@ typedef struct {
 #define Modeler_BlendMode_Linear            0
 #define Modeler_BlendMode_ValueNoise        1
 #define Modeler_BlendMode_Depth             2
-
-typedef struct
-{
-    int                 albedoMixer;
-    int                 specularMixer;
-    int                 emissionMixer;
-    int                 anisotropicMixer;
-    int                 metallicMixer;
-    int                 roughnessMixer;
-    int                 subsurfaceMixer;
-    int                 specularTintMixer;
-    int                 sheenMixer;
-    int                 sheenTintMixer;
-    int                 clearcoatMixer;
-    int                 clearcoatGlossMixer;
-    int                 specTransMixer;
-    int                 iorMixer;
-    
-    float               albedoMixerScale;
-    int                 albedoMixerSmoothing;
-    
-    float               specularMixerScale;
-    int                 specularMixerSmoothing;
-    
-    float               emissionMixerScale;
-    int                 emissionMixerSmoothing;
-    
-    float               anisotropicMixerScale;
-    int                 anisotropicMixerSmoothing;
-    
-    float               metallicMixerScale;
-    int                 metallicMixerSmoothing;
-    
-    float               roughnessMixerScale;
-    int                 roughnessMixerSmoothing;
-    
-    float               subsurfaceMixerScale;
-    int                 subsurfaceMixerSmoothing;
-    
-    float               specularTintMixerScale;
-    int                 specularTintMixerSmoothing;
-    
-    float               sheenMixerScale;
-    int                 sheenMixerSmoothing;
-    
-    float               sheenTintMixerScale;
-    int                 sheenTintMixerSmoothing;
-    
-    float               clearcoatMixerScale;
-    int                 clearcoatMixerSmoothing;
-    
-    float               clearcoatGlossMixerScale;
-    int                 clearcoatGlossMixerSmoothing;
-    
-    float               specTransMixerScale;
-    int                 specTransMixerSmoothing;
-    
-    float               iorMixerScale;
-    int                 iorMixerSmoothing;
-} MaterialMixer;
 
 typedef struct {
     

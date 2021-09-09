@@ -34,7 +34,9 @@ class SignedProject: Codable {
     
     /// Camera
     var camera                              : SignedPinholeCamera
-    
+    var objectCamera                        = SignedPinholeCamera("Object Camera", .object)
+    var materialCamera                      = SignedPinholeCamera("Material Camera", .material)
+
     /// Resolution of the 3D texture
     var resolution                          = SIMD3<Int>(500, 500, 500)
     

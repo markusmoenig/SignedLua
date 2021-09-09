@@ -129,13 +129,5 @@ struct EditorView: View {
             }
             */
         }
-        
-        /*
-        .onReceive(model.objectSelected) { object in
-            model.selectedComponent = object.components.first
-            if let component = model.selectedComponent {
-                model.scriptEditor?.setComponentSession(component)
-            }
-        }*/
     }
 }

@@ -1060,7 +1060,7 @@ kernel void render(            constant RenderUniform               &renderData 
                     float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);
                     
                     // --- Visual Bounding Box, only test on the first pass
-                    if (i == 0) {
+                    if (renderData.showBBox == 1 && i == 0) {
                         bd = sdBoxFrame(p, r, 0.004);
                         d = min(d, bd);
                     }

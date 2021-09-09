@@ -107,10 +107,6 @@ struct ContentView: View {
             #endif
         }
         
-        //.onReceive(document.model.objectSelected) { object in
-            //selection = object
-        //}
-        
         .toolbar {
             
             ToolbarItemGroup(placement: .automatic) {

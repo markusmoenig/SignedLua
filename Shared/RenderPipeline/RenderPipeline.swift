@@ -331,11 +331,19 @@ class RenderPipeline
                 renderUniform.cameraOrigin = model.project.camera.getPosition()
                 renderUniform.cameraLookAt = model.project.camera.getLookAt()
                 renderUniform.cameraFov = model.project.camera.getFov()
+                renderUniform.showBBox = 1;
             } else
-            if kit.content == .object || kit.content == .material {
-                renderUniform.cameraOrigin = float3(0, 0, -0.8)
-                renderUniform.cameraLookAt = float3(0, 0, 0)
-                renderUniform.cameraFov = 80
+            if kit.content == .object {
+                renderUniform.cameraOrigin = model.project.objectCamera.getPosition()
+                renderUniform.cameraLookAt = model.project.objectCamera.getLookAt()
+                renderUniform.cameraFov = model.project.objectCamera.getFov()
+                renderUniform.showBBox = 0;
+            } else
+            if kit.content == .material {
+                renderUniform.cameraOrigin = model.project.materialCamera.getPosition()
+                renderUniform.cameraLookAt = model.project.materialCamera.getLookAt()
+                renderUniform.cameraFov = model.project.materialCamera.getFov()
+                renderUniform.showBBox = 0;
             }
             
             renderUniform.scale = kit.scale

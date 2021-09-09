@@ -296,7 +296,6 @@ class SignedBuilder {
                             self.context.addToPipeline(cmd: cmd)
                         } else {
                             _ = self.vm.eval(cmd.code)
-                            
                             let cmdString = "buildObject(\(materialId), \(self.getFloat3AsVec3(name: "position", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "rotation", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "size", groups: cmd.allDataGroups())), {})\n"
                             _ = self.vm.eval(cmdString)
                         }
@@ -492,6 +491,13 @@ class SignedBuilder {
             kit.objectEntity = objectEntity
             kit.materialEntity = materialEntity
             
+            if model.cameraMode != content {
+                model.cameraMode = content
+                DispatchQueue.main.async {
+                    model.cameraModeChanged.send(content)
+                }
+            }
+            
             if content == .project {
                 kit.scale = float3(Float(model.project.resolution.x / model.project.pixelsPerMeter), Float(model.project.resolution.y / model.project.pixelsPerMeter), Float(model.project.resolution.z / model.project.pixelsPerMeter))
             } else {
@@ -593,10 +599,10 @@ class SignedBuilder {
             if kit.content == .object {
                 let objectCode = """
 
-                buildObject(0, vec3(0, \(kit.scale / 2), 0), vec3(0,0,0), vec3(0.99,0.99,0.99))
+                buildObject(0, vec3(0, \(kit.scale.y / 2), 0), vec3(0,0,0), vec3(0.99,0.99,0.99), {})
 
                 """
-                
+                                
                 switch self.vm.eval(objectCode, args: []) {
                 case let .values(values):
                     if values.isEmpty == false {
