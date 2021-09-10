@@ -21,7 +21,7 @@ class SignedCommand : Codable, Hashable {
     }
     
     enum Primitive: Int32, Codable {
-        case Heightfield, Sphere, Box
+        case Heightfield, Sphere, Box, Cylinder
     }
     
     enum BlendMode: Int32, Codable {

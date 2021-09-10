@@ -127,7 +127,7 @@ class RenderPipeline
     {
         if let mainKit = model.modeler?.mainKit {
             if mainKit.pipeline.isEmpty == false {
-                if mainKit.gpuIsWorking == false {
+                if mainKit.modelGPUBusy == false {
                     model.modeler?.executeNext(kit: mainKit)
                     restart()
                 }
@@ -146,10 +146,17 @@ class RenderPipeline
             needsRestart = false
         }
                         
-        if let mainKit = model.modeler?.mainKit {
+        if let mainKit = model.modeler?.mainKit, mainKit.renderGPUBusy == false {
             
             if let renderKit = mainKit.currentRenderKit {
                 if renderKit.samples < renderKit.maxSamples {
+                    
+                    mainKit.renderGPUBusy = true
+                    commandBuffer?.addCompletedHandler { cb in
+                        mainKit.renderGPUBusy = false
+                        //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+                    }
+                    
                     runRender(mainKit)
                     
                     if let renderKit = mainKit.currentRenderKit {
@@ -190,11 +197,6 @@ class RenderPipeline
                     }
                 }
             }
-
-            //commandBuffer?.addCompletedHandler { cb in
-                //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
-                //mainKit.samples += 1
-            //}
         }
         
         stopCompute()//(waitUntilCompleted: true)

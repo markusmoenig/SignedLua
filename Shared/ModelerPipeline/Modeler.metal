@@ -99,6 +99,18 @@ float sdRoundBox(float3 p, float3 b, float r )
     return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
 }
 
+float sdCappedCylinder(float3 p, float h, float r )
+{
+    float2 d = abs(float2(length(p.xz),p.y)) - float2(h,r);
+    return min(max(d.x,d.y),0.0) + length(max(d,0.0));
+}
+
+float sdRoundedCylinder(float3 p, float ra, float rb, float h )
+{
+    float2 d = float2( length(p.xz)-2.0*ra+rb, abs(p.y) - h );
+    return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rb;
+}
+
 float2 rotate(float2 pos, float angle)
 {
     float ca = cos(angle), sa = sin(angle);
@@ -178,6 +190,7 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     }
     
     float newDist = INFINITY;
+    float mScale = min(min(scale.x, scale.y), scale.x);
 
     /*
     float3 transformedPosition = (position - objectPosition) / objectScale * \(scale.toMetal());
@@ -207,11 +220,14 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
         newDist = uv.y - (mData.position.y + valueNoiseFBM(p * mData.heightFrequency, mData.heightOctaves) * mData.heightScale);
     } else
     if (mData.primitiveType == Modeler_Shape_Sphere) {
-        newDist = sdSphere(p, mData.radius * scale.x);
+        newDist = sdSphere(p, mData.radius * mScale);
     } else
     if (mData.primitiveType == Modeler_Shape_Box) {
         newDist = sdRoundBox(p, mData.size * scale, mData.rounding);
         //newDist -= valueNoiseFBM(p * 30, 5) * 0.02;
+    } else
+    if (mData.primitiveType == Modeler_Shape_Cylinder) {
+        newDist = sdRoundedCylinder(p, mData.radius * mScale, mData.rounding, mData.height * scale.y);
     }
     
     if (mData.onion > 0) {

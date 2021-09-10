@@ -29,7 +29,8 @@ class ModelerKit {
     /// Scale of the kit
     var scale           = float3(1,1,1)
 
-    var gpuIsWorking    : Bool = false
+    var modelGPUBusy    : Bool = false
+    var renderGPUBusy   : Bool = false
 
     // For modeling
     var modelTexture    : MTLTexture? = nil
@@ -126,7 +127,7 @@ class ModelerPipeline
             
             if cmd.action == .Clear {
                 clear(kit)
-                kit.gpuIsWorking = false
+                kit.modelGPUBusy = false
                 if kit.role == .main {
                     self.model.infoProgressProcessedCmds += 1
                     self.model.builder?.context.createProgressValues()
@@ -154,17 +155,17 @@ class ModelerPipeline
 
                     calculateThreadGroups(state, computeEncoder, kit.modelTexture!)
                 }
-                kit.gpuIsWorking = true
+                kit.modelGPUBusy = true
                 computeEncoder.endEncoding()
             }
             
             commandBuffer?.addCompletedHandler { cb in
-                kit.gpuIsWorking = false
+                kit.modelGPUBusy = false
                 if kit.role == .main {
                     self.model.infoProgressProcessedCmds += 1
                     self.model.builder?.context.createProgressValues()
                 }
-                print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+                print("Modeling Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
             }
             
             stopCompute(waitUntilCompleted: false)            
@@ -224,6 +225,7 @@ class ModelerPipeline
             if let geometryData = cmd.dataGroups.getGroup("Geometry") {
                 modelerUniform.size = geometryData.getFloat3("size", float3(4,4,4)) / scale / 2
                 modelerUniform.radius = geometryData.getFloat("radius", 1) / scale.x
+                modelerUniform.height = geometryData.getFloat("height", 1) / scale.y
                 modelerUniform.rounding = geometryData.getFloat("rounding", 0)
                 
                 modelerUniform.heightFrequency = geometryData.getFloat("frequency", 2)

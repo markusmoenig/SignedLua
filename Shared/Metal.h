@@ -193,6 +193,7 @@ typedef struct {
 #define Modeler_Shape_Heightfield           0
 #define Modeler_Shape_Sphere                1
 #define Modeler_Shape_Box                   2
+#define Modeler_Shape_Cylinder              3
 
 #define Modeler_BlendMode_Linear            0
 #define Modeler_BlendMode_ValueNoise        1
@@ -216,6 +217,7 @@ typedef struct {
     simd_float2         depth;
     float               onion;
 
+    float               height;
     float               radius;
     
     simd_float3         size;
