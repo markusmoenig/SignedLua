@@ -109,6 +109,9 @@ class Model: NSObject, ObservableObject {
     var infoProgressProcessedCmds           : Int32 = 0
     var infoProgressTotalCmds               : Int32 = 0
     
+    /// Shows the bounding box
+    var showBBox                            : Int32 = 1
+    
     override init() {
         project = SignedProject()
         super.init()

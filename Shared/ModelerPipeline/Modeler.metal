@@ -232,10 +232,13 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     
     if (mData.onion > 0) {
         newDist = abs(newDist) - mData.onion;
-        
         //if (p.x > 0.0) newDist = dist;
     }
     
+    newDist = max(newDist, p.x - mData.max.x);
+    newDist = max(newDist, p.y - mData.max.y);
+    newDist = max(newDist, p.z - mData.max.z);
+
     // Noise
 
     if (mData.noise > 0) {

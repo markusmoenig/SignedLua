@@ -206,6 +206,7 @@ class ModelerPipeline
         modelerUniform.primitiveType = cmd.primitive.rawValue
         
         let scale = kit.scale
+        let mScale = min(min(kit.scale.x, kit.scale.y), kit.scale.z)
         
         if cmd.role == .GeometryAndMaterial {
             if let transformData = cmd.dataGroups.getGroup("Transform") {
@@ -220,12 +221,13 @@ class ModelerPipeline
                 modelerUniform.noise = modifierData.getFloat("noise", 0.3)
                 modelerUniform.depth = modifierData.getFloat2("depth", float2(-5, 5))
                 modelerUniform.onion = modifierData.getFloat("onion", 0.0)
+                modelerUniform.max = modifierData.getFloat3("max", float3(10, 10, 10))
             }
             
             if let geometryData = cmd.dataGroups.getGroup("Geometry") {
                 modelerUniform.size = geometryData.getFloat3("size", float3(4,4,4)) / scale / 2
-                modelerUniform.radius = geometryData.getFloat("radius", 1) / scale.x
-                modelerUniform.height = geometryData.getFloat("height", 1) / scale.y
+                modelerUniform.radius = geometryData.getFloat("radius", 1) / mScale
+                modelerUniform.height = geometryData.getFloat("height", 1) / mScale / 2
                 modelerUniform.rounding = geometryData.getFloat("rounding", 0)
                 
                 modelerUniform.heightFrequency = geometryData.getFloat("frequency", 2)

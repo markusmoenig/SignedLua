@@ -229,6 +229,9 @@ typedef struct {
     simd_float3         repLowerLimit;
     simd_float3         repUpperLimit;
     
+    simd_float3         max;
+    simd_float3         min;
+
     // heightfield
     
     float               heightFrequency;

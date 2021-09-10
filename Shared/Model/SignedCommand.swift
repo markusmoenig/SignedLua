@@ -139,6 +139,7 @@ class SignedCommand : Codable, Hashable {
             SignedDataEntity("noise", Float(0), float2(0, 2)),
             SignedDataEntity("onion", Float(0), float2(0, 1)),
             SignedDataEntity("depth", float2(-5, 5), float2(-5, 5)),
+            SignedDataEntity("max", float3(10,10,10), float2(0, 10), .Slider),
         ])
         
         addDataGroup(name: "Boolean", entities: [

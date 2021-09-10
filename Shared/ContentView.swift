@@ -33,6 +33,8 @@ struct ContentView: View {
 
     @State private var colorValue                       : Color = Color(.gray)
     
+    @State private var showBBox                         : Bool = true
+
     /// Indicatesn that building is in progress
     @State private var isBuilding                       : Bool = false
 
@@ -183,6 +185,20 @@ struct ContentView: View {
                 }
                 .keyboardShortcut("b")
                 .disabled(modulesArrived == false)
+            }
+            
+            ToolbarItemGroup(placement: .automatic) {
+                Button(action: {
+                    showBBox.toggle()
+                    if showBBox {
+                        document.model.showBBox = 1
+                    } else {
+                        document.model.showBBox = 0
+                    }
+                    document.model.renderer?.restart()
+                }) {
+                    Image(systemName: showBBox ? "rectangle.fill" : "rectangle")
+                }
             }
             
             ToolbarItemGroup(placement: .automatic) {
