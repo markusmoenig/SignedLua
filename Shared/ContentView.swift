@@ -32,6 +32,10 @@ struct ContentView: View {
     @State private var modulesArrived                   : Bool = false
 
     @State private var colorValue                       : Color = Color(.gray)
+    
+    /// Indicatesn that building is in progress
+    @State private var isBuilding                       : Bool = false
+
 
     #if os(macOS)
     let leftPanelWidth                      : CGFloat = 160
@@ -60,11 +64,15 @@ struct ContentView: View {
                         if layout == .vertical {
                             HSplitView {
                                 EditorView(document.model)
+                                ProgressView(model: document.model)
+                                    .frame(maxWidth: 3)
                                 PreviewView(document: document, model: document.model)
                             }
                         } else {
                             VSplitView {
                                 PreviewView(document: document, model: document.model)
+                                ProgressView(model: document.model)
+                                    .frame(maxHeight: 3)
                                 EditorView(document.model)
                             }
                         }
@@ -113,41 +121,65 @@ struct ContentView: View {
 
                 Button(action: {
                     
-                    if document.model.codeEditorMode == .object {
-                        if let object = document.model.codeEditorObjectEntity {
-                            if let data = object.code {
-                                if let value = String(data: data, encoding: .utf8) {
-                                    if let renderer = document.model.renderer {
-                                        document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], objectEntity: object)
+                    if isBuilding == false {
+                        if document.model.codeEditorMode == .object {
+                            if let object = document.model.codeEditorObjectEntity {
+                                if let data = object.code {
+                                    if let value = String(data: data, encoding: .utf8) {
+                                        if let renderer = document.model.renderer {
+                                            document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], objectEntity: object)
+                                            isBuilding = true
+                                        }
                                     }
                                 }
                             }
-                        }
-                    } else
-                    if document.model.codeEditorMode == .material {
-                        if let material = document.model.codeEditorMaterialEntity {
-                            if let data = material.code {
-                                if let value = String(data: data, encoding: .utf8) {
-                                    if let renderer = document.model.renderer {
-                                        document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], materialEntity: material)
+                        } else
+                        if document.model.codeEditorMode == .material {
+                            if let material = document.model.codeEditorMaterialEntity {
+                                if let data = material.code {
+                                    if let value = String(data: data, encoding: .utf8) {
+                                        if let renderer = document.model.renderer {
+                                            document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], materialEntity: material)
+                                            isBuilding = true
+                                        }
                                     }
+                                }
+                            }
+                        } else {
+                            if let renderer = document.model.renderer, let object = document.model.selectedObject {
+                                switch document.model.project.getObjectType(from: object.id) {
+                                    case .object:
+                                        document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit])
+                                        isBuilding = true
+                                    case .material:
+                                        document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit])
+                                        isBuilding = true
+                                    default:
+                                        document.model.builder.build(code: document.model.project.main.getCode(), kit: document.model.modeler!.mainKit, renderKits: [renderer.mainRenderKit])
+                                        isBuilding = true
                                 }
                             }
                         }
                     } else {
-                        if let renderer = document.model.renderer, let object = document.model.selectedObject {
-                            switch document.model.project.getObjectType(from: object.id) {
-                                case .object:
-                                    document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit])
-                                case .material:
-                                    document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit])
-                                default:
-                                    document.model.builder.build(code: document.model.project.main.getCode(), kit: document.model.modeler!.mainKit, renderKits: [renderer.mainRenderKit])
-                            }
+                        isBuilding = false
+                        document.model.builder.workItem?.cancel()
+                        document.model.builder.exitLua()
+                        if let mainKit = document.model.modeler?.mainKit {
+                            mainKit.pipeline = []
                         }
+                        document.model.infoProgressTotalCmds = 0
+                        document.model.infoProgressProcessedCmds = 0
+                        document.model.builder.context.createProgressValues()
                     }
                 }) {
-                    Text("Build")
+                    if modulesArrived == false {
+                        Text("Waiting for modules...")
+                    } else
+                    if isBuilding {
+                        Text("Stop")
+                    } else {
+                        Text("Build")
+                    }
                 }
                 .keyboardShortcut("b")
                 .disabled(modulesArrived == false)
@@ -201,12 +233,18 @@ struct ContentView: View {
             }
         }
 
-        .onReceive(self.document.model.updateUI) { _ in
+        .onReceive(document.model.updateUI) { _ in
             updateView.toggle()
         }
         
-        .onReceive(self.document.model.modulesArrived) { _ in
+        .onReceive(document.model.modulesArrived) { _ in
             modulesArrived = true
+        }
+        
+        .onReceive(document.model.modelingProgressChanged) { string in
+            if document.model.infoProgressProcessedCmds == document.model.infoProgressTotalCmds {
+                isBuilding = false
+            }
         }
     }
     

@@ -75,34 +75,21 @@ struct SideView: View {
 
                 Divider()
                 
-                /*
-                if mode == .shape {
-                    //DataViews(model: model, data: getShapeGroups(), bottomPadding: 12)
-                } else
-                if mode == .material {
-                    //DataViews(model: model, data: [model.editingCmd.material.libraryData, model.editingCmd.material.data], bottomPadding: 0)
-                } else
-                if mode == .javascript {
-                    WebView(model, deviceColorScheme)
-                        .onChange(of: deviceColorScheme) { newValue in
-                            model.codeEditor?.setTheme(newValue)
-                        }            }
-                if mode == .camera {
-                    DataView(model: model, data: model.project.camera.data)
-                } else
-                if mode == .settings {
-                    DataViews(model: model, data: getProjectSettingGroups(), bottomPadding: 12)
-                }*/
-                
                 VStack {
                     if mode == .shapes {
-                        ShapeView(model: model)
+                        ScrollView {
+                            ShapeView(model: model)
+                        }
                     } else
                     if mode == .objects {
-                        ObjectView(model: model)
+                        ScrollView {
+                            ObjectView(model: model)
+                        }
                     } else
                     if mode == .materials {
-                        MaterialView(model: model)
+                        ScrollView {
+                            MaterialView(model: model)
+                        }
                     } else
                     if mode == .settings {
                         
@@ -113,25 +100,13 @@ struct SideView: View {
                             .padding(.top, 4)
                     }
                     
-                    InfoView(model: model)
+                    if mode != .settings {
+                        Divider()
+                        InfoView(model: model)
+                    }
                 }
             }
         }
-        
-        //.onReceive(self.document.model.updateUI) { _ in
-        //    updateView.toggle()
-        //}
-        
-        /*/
-        .onReceive(model.shapeSelected) { shape in
-            mode = .camera
-            mode = .shape
-        }
-        
-        .onReceive(model.materialSelected) { shape in
-            mode = .camera
-            mode = .material
-        }*/
     }
     
     /// Get the settings groups

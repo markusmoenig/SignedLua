@@ -46,6 +46,8 @@
 		2B407E80268962E3004E6F4C /* ModelerStates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B407E7E268962E3004E6F4C /* ModelerStates.swift */; };
 		2B423B6B26C9FD5B007DD8E7 /* SignedContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B423B6A26C9FD5B007DD8E7 /* SignedContext.swift */; };
 		2B423B6C26C9FD5B007DD8E7 /* SignedContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B423B6A26C9FD5B007DD8E7 /* SignedContext.swift */; };
+		2B4401BB26EAE11700F4371D /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4401BA26EAE11700F4371D /* ProgressView.swift */; };
+		2B4401BC26EAE11700F4371D /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4401BA26EAE11700F4371D /* ProgressView.swift */; };
 		2B52C5F6268801C100CAB2F2 /* ComponentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */; };
 		2B52C5F7268801C100CAB2F2 /* ComponentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */; };
 		2B52C5F9268805A700CAB2F2 /* SignedProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F8268805A700CAB2F2 /* SignedProject.swift */; };
@@ -216,6 +218,7 @@
 		2B407E7B268960B8004E6F4C /* Modeler.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Modeler.metal; sourceTree = "<group>"; };
 		2B407E7E268962E3004E6F4C /* ModelerStates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelerStates.swift; sourceTree = "<group>"; };
 		2B423B6A26C9FD5B007DD8E7 /* SignedContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedContext.swift; sourceTree = "<group>"; };
+		2B4401BA26EAE11700F4371D /* ProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
 		2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentParser.swift; sourceTree = "<group>"; };
 		2B52C5F8268805A700CAB2F2 /* SignedProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedProject.swift; sourceTree = "<group>"; };
 		2B58F31D268FE95200DE1121 /* SignedMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedMaterial.swift; sourceTree = "<group>"; };
@@ -489,6 +492,7 @@
 				2B9218FC26E06E9700C9A455 /* PreviewView.swift */,
 				2B7CFA302686FC0500221917 /* RenderView.swift */,
 				2B224F6B25844C1800F32354 /* CodeEditor.swift */,
+				2B4401BA26EAE11700F4371D /* ProgressView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -732,6 +736,7 @@
 				2B7CFA312686FC0500221917 /* RenderView.swift in Sources */,
 				2B2B3C9B26CB56BB00FFA287 /* ObjectView.swift in Sources */,
 				2BC7339326C8EDE400BCE667 /* ldblib.c in Sources */,
+				2B4401BB26EAE11700F4371D /* ProgressView.swift in Sources */,
 				2BC733E126C8EE7E00BCE667 /* Userdata.swift in Sources */,
 				2BC733BB26C8EDE400BCE667 /* lundump.c in Sources */,
 				2BC042ED267ED31000DD85E2 /* ProjectView.swift in Sources */,
@@ -825,6 +830,7 @@
 				2B7CFA322686FC0500221917 /* RenderView.swift in Sources */,
 				2B2B3C9C26CB56BB00FFA287 /* ObjectView.swift in Sources */,
 				2BC7339426C8EDE400BCE667 /* ldblib.c in Sources */,
+				2B4401BC26EAE11700F4371D /* ProgressView.swift in Sources */,
 				2BC733E226C8EE7E00BCE667 /* Userdata.swift in Sources */,
 				2BC733BC26C8EDE400BCE667 /* lundump.c in Sources */,
 				2BC042EE267ED31000DD85E2 /* ProjectView.swift in Sources */,
