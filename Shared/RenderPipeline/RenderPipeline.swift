@@ -397,10 +397,10 @@ class RenderPipeline
 
             //renderUniform.cameraOrigin = float3(0, -0.012, -0.07)
             //renderUniform.cameraLookAt = float3(0, -0.012, 0)
-            renderUniform.cameraOrigin = float3(0, 0, -0.07)
+            renderUniform.cameraOrigin = float3(0, 0, -0.07 * 7)
             renderUniform.cameraLookAt = float3(0, 0, 0)
             renderUniform.cameraFov = 80
-            renderUniform.scale = float3(1,1,1)
+            renderUniform.scale = 1
             
             renderUniform.maxDepth = 2;
 

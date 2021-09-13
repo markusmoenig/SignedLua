@@ -27,7 +27,7 @@ class ModelerKit {
     var content         : Content = .project
     
     /// Scale of the kit
-    var scale           = float3(1,1,1)
+    var scale           = Float(1)
 
     var modelGPUBusy    : Bool = false
     var renderGPUBusy   : Bool = false
@@ -99,7 +99,7 @@ class ModelerPipeline
         
         modelingStates = ModelerStates(device)
 
-        mainKit = allocateKit(width: model.project.resolution.x, height: model.project.resolution.y, depth: model.project.resolution.z)
+        mainKit = allocateKit(width: model.project.resolution, height: model.project.resolution, depth: model.project.resolution)
         iconKit = allocateKit(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize, depth: ModelerPipeline.IconSize)
         iconKit.role = .icon
 
@@ -206,7 +206,6 @@ class ModelerPipeline
         modelerUniform.primitiveType = cmd.primitive.rawValue
         
         let scale = kit.scale
-        let mScale = min(min(kit.scale.x, kit.scale.y), kit.scale.z)
         
         if cmd.role == .GeometryAndMaterial {
             if let transformData = cmd.dataGroups.getGroup("Transform") {
@@ -226,8 +225,8 @@ class ModelerPipeline
             
             if let geometryData = cmd.dataGroups.getGroup("Geometry") {
                 modelerUniform.size = geometryData.getFloat3("size", float3(4,4,4)) / scale / 2
-                modelerUniform.radius = geometryData.getFloat("radius", 1) / mScale
-                modelerUniform.height = geometryData.getFloat("height", 1) / mScale / 2
+                modelerUniform.radius = geometryData.getFloat("radius", 1) / scale
+                modelerUniform.height = geometryData.getFloat("height", 1) / scale / 2
                 modelerUniform.rounding = geometryData.getFloat("rounding", 0)
                 
                 modelerUniform.heightFrequency = geometryData.getFloat("frequency", 2)

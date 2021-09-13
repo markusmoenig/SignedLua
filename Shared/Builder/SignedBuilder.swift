@@ -499,9 +499,9 @@ class SignedBuilder {
             }
             
             if content == .project {
-                kit.scale = float3(Float(model.project.resolution.x / model.project.pixelsPerMeter), Float(model.project.resolution.y / model.project.pixelsPerMeter), Float(model.project.resolution.z / model.project.pixelsPerMeter))
+                kit.scale = Float(model.project.resolution) / Float(model.project.pixelsPerMeter)
             } else {
-                kit.scale = float3(1,1,1)
+                kit.scale = 1
             }
                         
             if kit.role == .main {
@@ -599,7 +599,7 @@ class SignedBuilder {
             if kit.content == .object {
                 let objectCode = """
 
-                buildObject(0, vec3(0, \(kit.scale.y / 2), 0), vec3(0,0,0), vec3(0.99,0.99,0.99), {})
+                buildObject(0, vec3(0, \(kit.scale / 2), 0), vec3(0,0,0), vec3(0.99,0.99,0.99), {})
 
                 """
                                 

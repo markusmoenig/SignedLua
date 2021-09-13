@@ -122,17 +122,14 @@ struct TextureSizeView: View {
     let model                                           : Model
     
     // For Numeric
-    @State private var xText                            : String = ""
+    @State private var resolutionText                   : String = ""
     @State private var yText                            : String = ""
     @State private var zText                            : String = ""
     @State private var pixelPerMeterText                : String = ""
 
     init(_ model: Model) {
         self.model = model
-                    
-        _xText = State(initialValue: String(model.project.resolution.x))
-        _yText = State(initialValue: String(model.project.resolution.y))
-        _zText = State(initialValue: String(model.project.resolution.z))
+        _resolutionText = State(initialValue: String(model.project.resolution))
         _pixelPerMeterText = State(initialValue: String(model.project.pixelsPerMeter))
     }
     
@@ -141,19 +138,8 @@ struct TextureSizeView: View {
         VStack(alignment: .leading) {
             Text("3D Texture Size")
                 .padding(.leading, 4)
-            HStack {
-                TextField("", text: $xText, onEditingChanged: { changed in
-                })
-                    .border(.red)
-                
-                TextField("", text: $yText, onEditingChanged: { changed in
-                })
-                    .border(.green)
-                
-                TextField("", text: $zText, onEditingChanged: { changed in
-                })
-                    .border(.blue)
-            }
+            TextField("", text: $resolutionText, onEditingChanged: { changed in
+            })
             .padding(.top, 0)
             .padding(.horizontal, 8)
             
@@ -167,18 +153,13 @@ struct TextureSizeView: View {
             .padding(.horizontal, 8)
             
             Button("Apply") {                
-                if let x = Int(xText), let y = Int(yText), let z = Int(zText), let ppm = Int(pixelPerMeterText) {
-                    print(x,y,z)
-                    if x * y * z < 512 * 512 * 512 {
-                        if let kit = model.modeler?.mainKit {
-                            model.modeler?.freeKit(kit)
-                        }
-                        model.project.resolution.x = x
-                        model.project.resolution.y = y
-                        model.project.resolution.z = z
-                        model.project.pixelsPerMeter = ppm
-                        model.modeler!.mainKit = model.modeler!.allocateKit(width: x, height: y, depth: z)
+                if let res = Int(resolutionText), let ppm = Int(pixelPerMeterText) {
+                    if let kit = model.modeler?.mainKit {
+                        model.modeler?.freeKit(kit)
                     }
+                    model.project.resolution = res
+                    model.project.pixelsPerMeter = ppm
+                    model.modeler!.mainKit = model.modeler!.allocateKit(width: res, height: res, depth: res)
                 }
             }
             .padding(.horizontal, 4)

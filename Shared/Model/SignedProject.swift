@@ -38,7 +38,7 @@ class SignedProject: Codable {
     var materialCamera                      = SignedPinholeCamera("Material Camera", .material)
 
     /// Resolution of the 3D texture
-    var resolution                          = SIMD3<Int>(500, 500, 500)
+    var resolution                          = Int(512)
     
     /// How many pixels per meter
     var pixelsPerMeter                      = Int(100)
@@ -64,12 +64,8 @@ class SignedProject: Codable {
         modules = try container.decode([SignedObject].self, forKey: .modules)
         camera = try container.decode(SignedPinholeCamera.self, forKey: .camera)
         dataGroups = try container.decode(SignedDataGroups.self, forKey: .dataGroups)
-        if let res = try container.decodeIfPresent(SIMD3<Int>.self, forKey: .resolution) {
-            resolution = res
-        }
-        if let ppm = try container.decodeIfPresent(Int.self, forKey: .pixelsPerMeter) {
-            pixelsPerMeter = ppm
-        }
+        resolution = try container.decode(Int.self, forKey: .resolution)
+        pixelsPerMeter = try container.decode(Int.self, forKey: .pixelsPerMeter)
         //dataGroups.groups["Renderer"]!.set("Background", float4(0.25, 0.25, 0.25, 1.0))
         if let rendererData = dataGroups.groups["Renderer"] {
             rendererData.removeEntity("background")
