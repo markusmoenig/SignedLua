@@ -477,7 +477,11 @@ class RenderPipeline
                 resChanged = true
                 let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
                 if let texture = texture {
-                    clearTexture(texture)
+                    var color = float4(0,0,0,1)
+                    if let renderData = model.project.dataGroups.getGroup("Renderer") {
+                        color = renderData.getFloat4("Background")
+                    }
+                    clearTexture(texture, color)
                     restart()
                 } else {
                     print("error allocating texture")
