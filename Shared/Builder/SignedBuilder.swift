@@ -474,9 +474,9 @@ class SignedBuilder {
     /// build 3D texture
     func build(code: String, kit: ModelerKit, content: ModelerKit.Content = .project, renderKits: [RenderKit], objectEntity: ObjectEntity? = nil, materialEntity: MaterialEntity? = nil) {
         
-        guard let modeler = model.modeler else {
-            return
-        }
+        //guard let modeler = model.modeler else {
+        //    return
+        //}
         
         inProgress = true
         

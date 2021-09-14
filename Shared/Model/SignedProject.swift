@@ -97,6 +97,7 @@ class SignedProject: Codable {
         addDataGroup(name: "Renderer", entities: [
             SignedDataEntity("Background", float4(0.25,0.25,0.25,1.0), float2(0, 1), .Color),
             SignedDataEntity("Reflections", Int(6), float2(1, 20), .Slider),
+            SignedDataEntity("Samples", Int(400), float2(1, 10000), .Slider),
         ])
     }
     
@@ -161,5 +162,13 @@ class SignedProject: Codable {
             }
         }
         return .main
+    }
+    
+    /// Get the maximum amount of samples
+    func getMaxSamples() -> Int32 {
+        if let renderData = dataGroups.getGroup("Renderer") {
+            return Int32(renderData.getInt("Samples", 400))
+        }
+        return 400
     }
 }

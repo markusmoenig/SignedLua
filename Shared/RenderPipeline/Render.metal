@@ -942,13 +942,13 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
             bool inShadow = false;//AnyHit(shadowRay, lightSampleRec.dist - EPS);
             
             if (renderData.noShadows == 0) {
-                float t = 0.0;
+                float t = 0;
                 for(int i = 0; i < 160; ++i)
                 {
                     float3 p = surfacePos + lightSampleRec.direction * t;
                     float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);//map(p, dataIn);
 
-                    if (abs(d) < (0.0001*t*scale)) {
+                    if (abs(d) < (0.0001*t)) {
                         inShadow = true;
                         break;
                     }
@@ -957,8 +957,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
                 }
             }
 
-            if (!inShadow)
-            {
+            if (inShadow == false) {
                 bsdfSampleRec.f = DisneyEval(state, -ray.direction, state.ffnormal, lightSampleRec.direction, bsdfSampleRec.pdf);
 
                 float weight = 1.0;
@@ -976,7 +975,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
 }
 
 // MARK: Render Entry Point
-kernel void render(            constant RenderUniform               &renderData [[ buffer(0) ]],
+kernel void renderBSDF(        constant RenderUniform               &renderData [[ buffer(0) ]],
                                constant ModelerUniform              &mData [[ buffer(1) ]],
                                texture3d<float>                     modelTexture [[ texture(2) ]],
                                texture3d<float, access::read_write> colorTexture [[ texture(3) ]],
@@ -1245,6 +1244,326 @@ kernel void render(            constant RenderUniform               &renderData 
 
     sampleTexture.write(float4(radiance, 1.0), gid);
 }
+
+//------------------------------------------------------------------------------
+// BRDF
+//------------------------------------------------------------------------------
+
+float pow5(float x) {
+    float x2 = x * x;
+    return x2 * x2 * x;
+}
+
+float D_GGX(float linearRoughness, float NoH, const float3 h) {
+    // Walter et al. 2007, "Microfacet Models for Refraction through Rough Surfaces"
+    float oneMinusNoHSquared = 1.0 - NoH * NoH;
+    float a = NoH * linearRoughness;
+    float k = linearRoughness / (oneMinusNoHSquared + a * a);
+    float d = k * k * (1.0 / PI);
+    return d;
+}
+
+float V_SmithGGXCorrelated(float linearRoughness, float NoV, float NoL) {
+    // Heitz 2014, "Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs"
+    float a2 = linearRoughness * linearRoughness;
+    float GGXV = NoL * sqrt((NoV - a2 * NoV) * NoV + a2);
+    float GGXL = NoV * sqrt((NoL - a2 * NoL) * NoL + a2);
+    return 0.5 / (GGXV + GGXL);
+}
+
+float3 F_Schlick(const float3 f0, float VoH) {
+    // Schlick 1994, "An Inexpensive BRDF Model for Physically-Based Rendering"
+    return f0 + (float3(1.0) - f0) * pow5(1.0 - VoH);
+}
+
+float F_Schlick(float f0, float f90, float VoH) {
+    return f0 + (f90 - f0) * pow5(1.0 - VoH);
+}
+
+float Fd_Burley(float linearRoughness, float NoV, float NoL, float LoH) {
+    // Burley 2012, "Physically-Based Shading at Disney"
+    float f90 = 0.5 + 2.0 * linearRoughness * LoH * LoH;
+    float lightScatter = F_Schlick(1.0, f90, NoL);
+    float viewScatter  = F_Schlick(1.0, f90, NoV);
+    return lightScatter * viewScatter * (1.0 / PI);
+}
+
+float Fd_Lambert() {
+    return 1.0 / PI;
+}
+
+//------------------------------------------------------------------------------
+// Indirect lighting
+//------------------------------------------------------------------------------
+
+float3 Irradiance_SphericalHarmonics(const float3 n) {
+    // Irradiance from "Ditch River" IBL (http://www.hdrlabs.com/sibl/archive.html)
+    return max(
+          float3( 0.754554516862612,  0.748542953903366,  0.790921515418539)
+        + float3(-0.083856548007422,  0.092533500963210,  0.322764661032516) * (n.y)
+        + float3( 0.308152705331738,  0.366796330467391,  0.466698181299906) * (n.z)
+        + float3(-0.188884931542396, -0.277402551592231, -0.377844212327557) * (n.x)
+        , 0.0);
+}
+
+float2 PrefilteredDFG_Karis(float roughness, float NoV) {
+    // Karis 2014, "Physically Based Material on Mobile"
+    const float4 c0 = float4(-1.0, -0.0275, -0.572,  0.022);
+    const float4 c1 = float4( 1.0,  0.0425,  1.040, -0.040);
+
+    float4 r = roughness * c0 + c1;
+    float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+
+    return float2(-1.04, 1.04) * a004 + r.zw;
+}
+
+float3 Tonemap_ACES(const float3 x) {
+    // Narkowicz 2015, "ACES Filmic Tone Mapping Curve"
+    const float a = 2.51;
+    const float b = 0.03;
+    const float c = 2.43;
+    const float d = 0.59;
+    const float e = 0.14;
+    return (x * (a * x + b)) / (x * (c * x + d) + e);
+}
+
+float3 OECF_sRGBFast(const float3 linear) {
+    return pow(linear, float3(1.0 / 2.2));
+}
+
+float shadow(float3 origin, float3 direction, constant ModelerUniform  &mData, texture3d<float> modelTexture, float scale = 1.0) {
+    float hit = 1.0;
+    float t = 0.02;
+    
+    bool editHit; float materialMixValue;
+        
+    for (int i = 0; i < 1000; i++) {
+        float h = getDistance(origin + direction * t, modelTexture, mData, editHit, materialMixValue, scale);
+        if (h < 0.001) return 0.0;
+        t += h;
+        hit = min(hit, 10.0 * h / t);
+        if (t >= 2.5) break;
+    }
+
+    return clamp(hit, 0.0, 1.0);
+}
+
+// MARK: Render Entry Point
+kernel void renderPBR(         constant RenderUniform               &renderData [[ buffer(0) ]],
+                               constant ModelerUniform              &mData [[ buffer(1) ]],
+                               texture3d<float>                     modelTexture [[ texture(2) ]],
+                               texture3d<float, access::read_write> colorTexture [[ texture(3) ]],
+                               texture3d<float, access::read_write> materialTexture1 [[ texture(4) ]],
+                               texture3d<float, access::read_write> materialTexture2 [[ texture(5) ]],
+                               texture3d<float, access::read_write> materialTexture3 [[ texture(6) ]],
+                               texture3d<float, access::read_write> materialTexture4 [[ texture(7) ]],
+                               texture2d<float, access::write>      sampleTexture [[ texture(8) ]],
+                               uint2 gid                            [[thread_position_in_grid]])
+
+{
+    //float2 uv = float2(in.textureCoordinate.x, 1.0 - in.textureCoordinate.y);
+    float2 size = float2(sampleTexture.get_width(), sampleTexture.get_height());
+    float2 uv = float2(gid) / size;// - float3(0.5);
+
+    float3 ro = renderData.cameraOrigin;
+    float3 rd = renderData.cameraLookAt;
+    float scale = renderData.scale;
+
+    struct DataIn dataIn;
+    
+    dataIn.seed = uv;
+    dataIn.randomVector = renderData.randomVector;
+    dataIn.numOfLights = renderData.numOfLights;
+
+    rd = getCamerayRay(uv, ro, rd, renderData.cameraFov, size, dataIn);
+        
+    Ray ray;
+    ray.origin = ro;
+    ray.direction = rd;
+    
+    float3 radiance = float3(0.0);
+
+    bool editHit; float materialMixValue;
+    
+    bool didHitBBox = false;
+     
+    float r = 0.5 * scale; float3 rectNormal;
+    float2 bbox = boxIntersection(ray.origin, ray.direction, float3(r, r, r), rectNormal);
+
+    float t = INFINITY;
+    float3 normal;
+    float3 hp;
+    
+    if (bbox.y > 0.0) {
+                
+        //float outside = 1.0;
+
+        t = max(bbox.x, 0.000);
+
+        
+        bool hit = false;
+        bool needsNormal = true;
+        float bd = INFINITY;
+        
+        // Check for border hit
+        float3 p = ray.origin + ray.direction * t;
+        float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);
+        if (d < 0.) {
+            hit = true;
+            normal = rectNormal;
+            needsNormal = false;
+        } else {
+            for(int i = 0; i < 260; ++i)
+            {
+                float3 p = ray.origin + ray.direction * t;
+                float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);
+                
+                // --- Visual Bounding Box, only test on the first pass
+                
+                if (renderData.showBBox == 1 && i == 0) {
+                    bd = sdBoxFrame(p, float(r), 0.004);
+                    d = min(d, bd);
+                }
+                
+                // ---
+
+                if (abs(d) < (0.0001*t*scale)) {
+                    hit = true;
+                    if (didHitBBox && i == 0 && d == bd) didHitBBox = true;
+                    break;
+                }
+                
+                t += abs(d);// * outside;
+
+                if (t >= bbox.y)
+                    break;
+            }
+        }
+        
+        if (hit == true) {
+            float3 position = ray.origin + ray.direction * t;
+            if (needsNormal) {
+                normal = getNormal(position, modelTexture, mData, scale);
+            }
+            hp = position;
+        } else {
+            t = INFINITY;
+        }
+    }
+    
+    if (t == INFINITY) {
+        radiance += pow(renderData.backgroundColor.xyz, 2.2);
+        /*
+        else {
+            float cSize = 2;
+            
+            if ( fmod( floor( uv.x * 100 / cSize ), 2.0 ) == 0.0 ) {
+                if ( fmod( floor( uv.y * 100 / cSize ), 2.0 ) != 0.0 ) radiance += float3(0) * throughput;
+            } else {
+                if ( fmod( floor( uv.y * 100 / cSize ), 2.0 ) == 0.0 ) radiance += float3(1) * throughput;
+            }
+        }
+        */
+        sampleTexture.write(float4(radiance, renderData.backgroundColor.w), gid);
+        return;
+    }
+    
+    if (didHitBBox) {
+        radiance = float3(1);
+        return;
+    }
+
+    float4 colorAndRoughness = getMaterialData(hp, colorTexture, scale);
+    float4 specularMetallicSubsurfaceClearcoat = getMaterialData(hp, materialTexture1, scale);
+    float4 anisotropicSpecularTintSheenSheenTint = getMaterialData(hp, materialTexture2, scale);
+    float4 clearcoatGlossSpecTransIor = getMaterialData(hp, materialTexture3, scale);
+    float4 emissionId = getMaterialData(hp, materialTexture4, scale);
+    
+    Material hitMaterial;
+
+    hitMaterial.albedo = colorAndRoughness.xyz;
+    hitMaterial.specular = specularMetallicSubsurfaceClearcoat.x;
+    hitMaterial.anisotropic = anisotropicSpecularTintSheenSheenTint.x;
+    hitMaterial.metallic = specularMetallicSubsurfaceClearcoat.y;
+    hitMaterial.roughness = colorAndRoughness.w;
+    hitMaterial.subsurface = specularMetallicSubsurfaceClearcoat.z;
+    hitMaterial.specularTint = anisotropicSpecularTintSheenSheenTint.y;
+    hitMaterial.sheen = anisotropicSpecularTintSheenSheenTint.z;
+    hitMaterial.sheenTint = anisotropicSpecularTintSheenSheenTint.w;
+    hitMaterial.clearcoat = specularMetallicSubsurfaceClearcoat.w;
+    hitMaterial.clearcoatGloss = clearcoatGlossSpecTransIor.x;
+    hitMaterial.specTrans = clearcoatGlossSpecTransIor.y;
+    hitMaterial.ior = clearcoatGlossSpecTransIor.z;
+    hitMaterial.emission = emissionId.xyz;
+    //int id = int(emissionId.w);
+    //state.mat.atDistance = 1.0;
+    
+    Material material = mData.material;
+    
+    if (mData.roleType == Modeler_GeometryAndMaterial) {
+        // Geometry preview material blending
+        hitMaterial = mixMaterials(hitMaterial, material, smoothstep(0.0, 1.0, 1.0 - materialMixValue));
+    }
+    
+    hitMaterial.roughness = max(hitMaterial.roughness, 0.001);
+
+    float3 position = hp;
+    float3 direction = ray.direction;
+
+    float3 v = normalize(-direction);
+    float3 n = normal;
+    float3 l = normalize( float3(2, 3, 3) - position );//float3(0.6, 0.7, -0.7));
+    float3 h = normalize(v + l);
+    float3 rr = normalize(reflect(direction, n));
+
+    float NoV = abs(dot(n, v)) + 1e-5;
+    float NoL = saturate(dot(n, l));
+    float NoH = saturate(dot(n, h));
+    float LoH = saturate(dot(l, h));
+
+    float3 baseColor = hitMaterial.albedo;
+    float roughness = hitMaterial.roughness;
+    float metallic = hitMaterial.metallic;
+
+    float intensity = 2.0;
+    float indirectIntensity = 0.64;
+    
+    float linearRoughness = roughness * roughness;
+    float3 diffuseColor = (1.0 - metallic) * baseColor.rgb;
+    float3 f0 = 0.04 * (1.0 - metallic) + baseColor.rgb * metallic;
+
+    float attenuation = shadow(position, l, mData, modelTexture, scale);
+
+    // specular BRDF
+    float D = D_GGX(linearRoughness, NoH, h);
+    float V = V_SmithGGXCorrelated(linearRoughness, NoV, NoL);
+    float3 F = F_Schlick(f0, LoH);
+    float3 Fr = (D * V) * F;
+
+    // diffuse BRDF
+    float3 Fd = diffuseColor * Fd_Burley(linearRoughness, NoV, NoL, LoH);
+
+    radiance = Fd + Fr;
+    radiance *= (intensity * attenuation * NoL) * float3(0.98, 0.92, 0.89);
+
+    // diffuse indirect
+    float3 indirectDiffuse = Irradiance_SphericalHarmonics(n) * Fd_Lambert();
+    float3 indirectSpecular = float3(0.65, 0.85, 1.0) + rr.y * 0.72;
+
+
+
+    // indirect contribution
+    float2 dfg = PrefilteredDFG_Karis(roughness, NoV);
+    float3 specularColor = f0 * dfg.x + dfg.y;
+    float3 ibl = diffuseColor * indirectDiffuse + indirectSpecular * specularColor;
+
+    radiance += ibl * indirectIntensity;
+    
+    //radiance = color;
+    
+    sampleTexture.write(float4(radiance, 1.0), gid);
+}
+
 
 // MARK: Hit Scene Entry Point
 kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffer(0) ]],

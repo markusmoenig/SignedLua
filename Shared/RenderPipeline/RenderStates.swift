@@ -41,7 +41,8 @@ class RenderStates {
             pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
             pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
             
-            computeStates["render"] = createComputeState(name: "render")
+            computeStates["renderBSDF"] = createComputeState(name: "renderBSDF")
+            computeStates["renderPBR"] = createComputeState(name: "renderPBR")
             //states["render"] = createQuadState(name: "render")
         }
     }

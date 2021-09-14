@@ -68,7 +68,7 @@ class RenderPipeline
         
         renderStates = RenderStates(device)
         
-        mainRenderKit = RenderKit(maxSamples: 400)
+        mainRenderKit = RenderKit(maxSamples: model.project.getMaxSamples())
         iconRenderKit = RenderKit(maxSamples: 150)
         
         model.modeler = ModelerPipeline(model)
@@ -149,12 +149,12 @@ class RenderPipeline
         if let mainKit = model.modeler?.mainKit, mainKit.renderGPUBusy == false {
             
             if let renderKit = mainKit.currentRenderKit {
-                if renderKit.samples < renderKit.maxSamples {
+                if renderKit.samples < model.project.getMaxSamples() {
                     
                     mainKit.renderGPUBusy = true
                     commandBuffer?.addCompletedHandler { cb in
                         mainKit.renderGPUBusy = false
-                        //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
+                        print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000, renderKit.samples)
                     }
                     
                     runRender(mainKit)
@@ -282,7 +282,7 @@ class RenderPipeline
     
     func runRender(_ kit: ModelerKit) {
         if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
-            if let state = renderStates.getComputeState(stateName: "render") {
+            if let state = renderStates.getComputeState(stateName: "renderPBR") {
                 
                 computeEncoder.setComputePipelineState( state )
                 
@@ -357,7 +357,7 @@ class RenderPipeline
                 renderUniform.maxDepth = Int32(rendererData.getInt("Reflections", 6))
             }
             
-            renderUniform.numOfLights = 1
+            renderUniform.numOfLights = 0
 
             /*
             renderUniform.lights.0.position = float3(0,1,0)
@@ -389,7 +389,7 @@ class RenderPipeline
             renderUniform.lights.0.params.z = 0 */
             
             renderUniform.lights.0.position = float3(0, 1000, -1000)
-            renderUniform.lights.0.emission = float3(4, 4, 4)
+            renderUniform.lights.0.emission = float3(1, 1, 1)
             renderUniform.lights.0.params.z = 2
         } else {
             
