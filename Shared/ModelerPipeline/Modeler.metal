@@ -312,7 +312,8 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
     if (mData.roleType == Modeler_GeometryAndMaterial) {
         // Geometry & Material
         
-        if (dist != newDist && newDist < 1.0 && dist > 0) {
+        if (dist != newDist && newDist < 0.01) //} && dist > 0)
+        {
             
             float4 colorAndRoughness = float4(colorTexture.read(gid));
             float4 specularMetallicSubsurfaceClearcoat = float4(materialTexture1.read(gid));

@@ -33,7 +33,7 @@ struct ContentView: View {
 
     @State private var colorValue                       : Color = Color(.gray)
     
-    @State private var showBBox                         : Bool = true
+    @State private var showBBox                         : Bool = false
 
     /// Indicatesn that building is in progress
     @State private var isBuilding                       : Bool = false

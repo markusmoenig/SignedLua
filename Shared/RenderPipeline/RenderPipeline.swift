@@ -282,7 +282,7 @@ class RenderPipeline
     
     func runRender(_ kit: ModelerKit) {
         if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
-            if let state = renderStates.getComputeState(stateName: "renderPBR") {
+            if let state = renderStates.getComputeState(stateName: "renderBSDF") {
                 
                 computeEncoder.setComputePipelineState( state )
                 
@@ -357,7 +357,7 @@ class RenderPipeline
                 renderUniform.maxDepth = Int32(rendererData.getInt("Reflections", 6))
             }
             
-            renderUniform.numOfLights = 0
+            renderUniform.numOfLights = 1
 
             /*
             renderUniform.lights.0.position = float3(0,1,0)
@@ -388,8 +388,8 @@ class RenderPipeline
             renderUniform.lights.0.params.y = length(cross(renderUniform.lights.0.u, renderUniform.lights.0.v));
             renderUniform.lights.0.params.z = 0 */
             
-            renderUniform.lights.0.position = float3(0, 1000, -1000)
-            renderUniform.lights.0.emission = float3(1, 1, 1)
+            renderUniform.lights.0.position = float3(1, 4, 4)
+            renderUniform.lights.0.emission = float3(3, 3, 3)
             renderUniform.lights.0.params.z = 2
         } else {
             

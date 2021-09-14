@@ -383,7 +383,7 @@ void sampleRectLight(Light light, float3 surfacePos, thread LightSampleRec &ligh
 void sampleDistantLight(Light light, float3 surfacePos, thread LightSampleRec &lightSampleRec, thread DataIn &dataIn)
 //-----------------------------------------------------------------------
 {
-   lightSampleRec.direction = normalize(light.position - float3(0.0));
+   lightSampleRec.direction = normalize(light.position - surfacePos);
    lightSampleRec.normal = normalize(surfacePos - light.position);
    lightSampleRec.emission = light.emission * float(dataIn.numOfLights);
    lightSampleRec.dist = INFINITY;
@@ -821,8 +821,7 @@ float getDistance(float3 p, texture3d<float> modelTexture, float scale = 1.0)
 {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
     
-    float d = modelTexture.sample(textureSampler, clamp((p / scale + float3(0.5)), 0., 1.)).x;
-    return d * scale;
+    return modelTexture.sample(textureSampler, clamp((p / scale + float3(0.5)), 0., 1.)).x * scale;
 }
 
 /// Reads material data
@@ -866,6 +865,32 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
                       getDistance(p + epsilon.yyx, modelTexture, scale) - getDistance(p - epsilon.yyx, modelTexture, scale));
 
     return normalize(n);
+}
+
+bool march(Ray ray, thread float &distance, constant ModelerUniform &mData, texture3d<float> modelTexture, float maxDistance, float scale = 1.0) {
+
+    float t = EPS;
+    bool hit = false;
+
+    for(int i = 0; i < 260; ++i)
+    {
+        float3 p = ray.origin + ray.direction * t;
+        float d = getDistance(p, modelTexture, scale);
+        
+        if (abs(d) < (0.0001*t)) {
+            hit = true;
+            break;
+        }
+        
+        t += abs(d);
+
+        if (t >= maxDistance)
+            break;
+    }
+    
+    distance = t;
+    
+    return hit;
 }
 
 //-----------------------------------------------------------------------
@@ -934,26 +959,19 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
         //light = Light(position, emission, u, v, radius, area, type);
         sampleOneLight(light, surfacePos, lightSampleRec, dataIn);
         
-        bool editHit; float materialMixValue;
-
         if (dot(lightSampleRec.direction, lightSampleRec.normal) < 0.0)
         {
             //Ray shadowRay = Ray(surfacePos, lightSampleRec.direction);
             bool inShadow = false;//AnyHit(shadowRay, lightSampleRec.dist - EPS);
             
             if (renderData.noShadows == 0) {
-                float t = 0;
-                for(int i = 0; i < 160; ++i)
-                {
-                    float3 p = surfacePos + lightSampleRec.direction * t;
-                    float d = getDistance(p, modelTexture, mData, editHit, materialMixValue, scale);//map(p, dataIn);
-
-                    if (abs(d) < (0.0001*t)) {
-                        inShadow = true;
-                        break;
-                    }
-                    
-                    t += abs(d);
+                Ray lightRay;
+                lightRay.origin = surfacePos;
+                lightRay.direction = lightSampleRec.direction;
+                float t;
+                
+                if (march(lightRay, t, mData, modelTexture, INFINITY, scale)) {
+                    inShadow = true;
                 }
             }
 
@@ -1333,7 +1351,7 @@ float3 OECF_sRGBFast(const float3 linear) {
 
 float shadow(float3 origin, float3 direction, constant ModelerUniform  &mData, texture3d<float> modelTexture, float scale = 1.0) {
     float hit = 1.0;
-    float t = 0.02;
+    float t = EPS;
     
     bool editHit; float materialMixValue;
         
@@ -1514,7 +1532,7 @@ kernel void renderPBR(         constant RenderUniform               &renderData 
     float3 n = normal;
     float3 l = normalize( float3(2, 3, 3) - position );//float3(0.6, 0.7, -0.7));
     float3 h = normalize(v + l);
-    float3 rr = normalize(reflect(direction, n));
+    float3 ref = normalize(reflect(direction, n));
 
     float NoV = abs(dot(n, v)) + 1e-5;
     float NoL = saturate(dot(n, l));
@@ -1532,7 +1550,15 @@ kernel void renderPBR(         constant RenderUniform               &renderData 
     float3 diffuseColor = (1.0 - metallic) * baseColor.rgb;
     float3 f0 = 0.04 * (1.0 - metallic) + baseColor.rgb * metallic;
 
-    float attenuation = shadow(position, l, mData, modelTexture, scale);
+    float attenuation = 1;//shadow(position, l, mData, modelTexture, scale);
+    
+    Ray lightRay;
+    lightRay.origin = position;
+    lightRay.direction = l;
+    
+    if (march(lightRay, t, mData, modelTexture, INFINITY, 1.0)) {
+        attenuation = 0;
+    }
 
     // specular BRDF
     float D = D_GGX(linearRoughness, NoH, h);
@@ -1548,9 +1574,16 @@ kernel void renderPBR(         constant RenderUniform               &renderData 
 
     // diffuse indirect
     float3 indirectDiffuse = Irradiance_SphericalHarmonics(n) * Fd_Lambert();
-    float3 indirectSpecular = float3(0.65, 0.85, 1.0) + rr.y * 0.72;
+    float3 indirectSpecular = pow(renderData.backgroundColor.xyz, 2.2);//float3(0.65, 0.85, 1.0) + ref.y * 0.72;
 
-
+    Ray refRay;
+    refRay.origin = position;
+    refRay.direction = ref;
+        
+    if (march(refRay, t, mData, modelTexture, INFINITY, 1.0)) {
+        //indirectSpecular = getMaterialData(refRay.origin + refRay.direction * t, colorTexture, scale).xyz;
+    }
+    
 
     // indirect contribution
     float2 dfg = PrefilteredDFG_Karis(roughness, NoV);
