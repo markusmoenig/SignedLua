@@ -127,6 +127,9 @@ class RenderPipeline
             if mainKit.pipeline.isEmpty == false {
                 if mainKit.modelGPUBusy == false {
                     model.modeler?.executeNext(kit: mainKit)
+                    if mainKit.pipeline.isEmpty {
+                        model.currentRenderName = "renderBSDF"
+                    }
                     restart()
                 }
                 //return
@@ -281,7 +284,13 @@ class RenderPipeline
     
     func runRender(_ kit: ModelerKit) {
         if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
-            if let state = renderStates.getComputeState(stateName: kit.renderName) {
+            
+            var renderName = kit.renderName
+            if kit.role == .main {
+                renderName = model.currentRenderName
+            }
+            
+            if let state = renderStates.getComputeState(stateName: renderName) {
                 
                 computeEncoder.setComputePipelineState( state )
                 

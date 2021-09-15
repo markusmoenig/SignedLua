@@ -112,6 +112,9 @@ class Model: NSObject, ObservableObject {
     /// Shows the bounding box
     var showBBox                            : Int32 = 0
     
+    /// Current renderer
+    var currentRenderName                   = "renderPBR"
+    
     override init() {
         project = SignedProject()
         super.init()

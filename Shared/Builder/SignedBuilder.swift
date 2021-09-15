@@ -500,6 +500,7 @@ class SignedBuilder {
             
             if content == .project {
                 kit.scale = Float(model.project.resolution) / Float(model.project.pixelsPerMeter)
+                model.currentRenderName = "renderPBR"
             } else {
                 kit.scale = 1
             }

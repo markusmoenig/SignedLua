@@ -77,7 +77,8 @@ struct PreviewView: View {
                     Text(resolutionText)
                 }
                 .padding(.trailing, 6)
-                .offset(x: 10, y:  geometry.size.height - 100)
+                .padding(.leading, 10)
+                .padding(.bottom, geometry.size.height - 25)
                 .frame(width: 100)
                 
                 .menuStyle(BorderlessButtonMenuStyle())
