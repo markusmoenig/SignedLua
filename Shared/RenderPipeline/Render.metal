@@ -867,17 +867,25 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
     return normalize(n);
 }
 
-bool march(Ray ray, thread float &distance, constant ModelerUniform &mData, texture3d<float> modelTexture, float maxDistance, float scale = 1.0) {
+bool insideHit(Ray ray, thread float &distance, constant ModelerUniform &mData, texture3d<float> modelTexture, float scale = 1.0) {
 
     float t = EPS;
     bool hit = false;
 
+    float maxDistance = INFINITY;
+    
+    float r = 0.5 * scale; float3 rectNormal;
+    float2 bbox = boxIntersection(ray.origin, ray.direction, float3(r, r, r), rectNormal);
+    if (bbox.x > 0) return false;
+    else maxDistance = bbox.y;
+
     for(int i = 0; i < 260; ++i)
     {
         float3 p = ray.origin + ray.direction * t;
+        
         float d = getDistance(p, modelTexture, scale);
         
-        if (abs(d) < (0.0001*t)) {
+        if (abs(d) < (0.0001*t*scale)) {
             hit = true;
             break;
         }
@@ -970,7 +978,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
                 lightRay.direction = lightSampleRec.direction;
                 float t;
                 
-                if (march(lightRay, t, mData, modelTexture, INFINITY, scale)) {
+                if (insideHit(lightRay, t, mData, modelTexture, scale)) {
                     inShadow = true;
                 }
             }
@@ -1528,9 +1536,11 @@ kernel void renderPBR(         constant RenderUniform               &renderData 
     float3 position = hp;
     float3 direction = ray.direction;
 
+    Light light = renderData.lights[0];
+    
     float3 v = normalize(-direction);
     float3 n = normal;
-    float3 l = normalize( float3(2, 3, 3) - position );//float3(0.6, 0.7, -0.7));
+    float3 l = normalize( light.position - position );
     float3 h = normalize(v + l);
     float3 ref = normalize(reflect(direction, n));
 
@@ -1543,8 +1553,8 @@ kernel void renderPBR(         constant RenderUniform               &renderData 
     float roughness = hitMaterial.roughness;
     float metallic = hitMaterial.metallic;
 
-    float intensity = 2.0;
-    float indirectIntensity = 0.64;
+    float intensity = 3.0; // 2
+    float indirectIntensity = 0.6; // 0.64
     
     float linearRoughness = roughness * roughness;
     float3 diffuseColor = (1.0 - metallic) * baseColor.rgb;
@@ -1556,7 +1566,7 @@ kernel void renderPBR(         constant RenderUniform               &renderData 
     lightRay.origin = position;
     lightRay.direction = l;
     
-    if (march(lightRay, t, mData, modelTexture, INFINITY, 1.0)) {
+    if (insideHit(lightRay, t, mData, modelTexture, scale)) {
         attenuation = 0;
     }
 
@@ -1580,10 +1590,9 @@ kernel void renderPBR(         constant RenderUniform               &renderData 
     refRay.origin = position;
     refRay.direction = ref;
         
-    if (march(refRay, t, mData, modelTexture, INFINITY, 1.0)) {
-        //indirectSpecular = getMaterialData(refRay.origin + refRay.direction * t, colorTexture, scale).xyz;
+    if (insideHit(refRay, t, mData, modelTexture, scale)) {
+        indirectSpecular = getMaterialData(refRay.origin + refRay.direction * t, colorTexture, scale).xyz;
     }
-    
 
     // indirect contribution
     float2 dfg = PrefilteredDFG_Karis(roughness, NoV);

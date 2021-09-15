@@ -112,7 +112,7 @@ struct SideView: View {
     /// Get the settings groups
     func getSettingsGroups() -> [SignedData]
     {
-        return [model.project.dataGroups.getGroup("Renderer")!]
+        return [model.project.dataGroups.getGroup("Renderer")!, model.project.dataGroups.getGroup("Sun")!]
     }
 }
 

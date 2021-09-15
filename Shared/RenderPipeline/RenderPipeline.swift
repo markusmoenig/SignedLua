@@ -36,9 +36,7 @@ class RenderPipeline
     var model           : Model
     
     var renderSize      = SIMD2<Int>()
-        
-    var maxSamples      : Int = 10000
-    
+            
     var depth           : Int = 0
     var maxDepth        : Int = 4
         
@@ -69,7 +67,7 @@ class RenderPipeline
         renderStates = RenderStates(device)
         
         mainRenderKit = RenderKit(maxSamples: model.project.getMaxSamples())
-        iconRenderKit = RenderKit(maxSamples: 150)
+        iconRenderKit = RenderKit(maxSamples: 50)
         
         model.modeler = ModelerPipeline(model)
 
@@ -149,7 +147,7 @@ class RenderPipeline
         if let mainKit = model.modeler?.mainKit, mainKit.renderGPUBusy == false {
             
             if let renderKit = mainKit.currentRenderKit {
-                if renderKit.samples < model.project.getMaxSamples() {
+                if renderKit.samples < renderKit.maxSamples {
                     
                     mainKit.renderGPUBusy = true
                     commandBuffer?.addCompletedHandler { cb in
@@ -235,6 +233,7 @@ class RenderPipeline
             
             stopCompute()
         } else {
+            iconRenderKit.maxSamples = 400
             if let mainKit = model.modeler?.mainKit {
                 if mainKit.pipeline.isEmpty && mainKit.currentRenderKit == nil && iconQueue.isEmpty {
                     model.renderView?.isPaused = true
@@ -282,7 +281,7 @@ class RenderPipeline
     
     func runRender(_ kit: ModelerKit) {
         if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
-            if let state = renderStates.getComputeState(stateName: "renderBSDF") {
+            if let state = renderStates.getComputeState(stateName: kit.renderName) {
                 
                 computeEncoder.setComputePipelineState( state )
                 
@@ -345,20 +344,24 @@ class RenderPipeline
                 renderUniform.cameraOrigin = model.project.materialCamera.getPosition()
                 renderUniform.cameraLookAt = model.project.materialCamera.getLookAt()
                 renderUniform.cameraFov = model.project.materialCamera.getFov()
+                if kit.currentRenderKit?.outputTexture?.width == 80 {
+                    renderUniform.cameraOrigin = float3(0, 0, -0.8)
+                    renderUniform.cameraLookAt = float3(0, 0, 0)
+                }
             }
             
             renderUniform.scale = kit.scale
             
             renderUniform.maxDepth = 6;
-            renderUniform.backgroundColor = float4(0.02, 0.02, 0.02, 1);
+            renderUniform.backgroundColor = float4(0.25, 0.25, 0.25, 1)
 
-            if let rendererData = model.project.dataGroups.getGroup("Renderer") {
-                renderUniform.backgroundColor = rendererData.getFloat4("Background")
-                renderUniform.maxDepth = Int32(rendererData.getInt("Reflections", 6))
+            if kit.content == .project {
+                if let rendererData = model.project.dataGroups.getGroup("Renderer") {
+                    renderUniform.backgroundColor = rendererData.getFloat4("Background")
+                    renderUniform.maxDepth = Int32(rendererData.getInt("Reflections", 6))
+                }
             }
             
-            renderUniform.numOfLights = 1
-
             /*
             renderUniform.lights.0.position = float3(0,1,0)
             renderUniform.lights.0.emission = float3(10,10,10)
@@ -388,9 +391,19 @@ class RenderPipeline
             renderUniform.lights.0.params.y = length(cross(renderUniform.lights.0.u, renderUniform.lights.0.v));
             renderUniform.lights.0.params.z = 0 */
             
-            renderUniform.lights.0.position = float3(1, 4, 4)
-            renderUniform.lights.0.emission = float3(3, 3, 3)
+            renderUniform.numOfLights = 1
             renderUniform.lights.0.params.z = 2
+
+            if kit.content == .project {
+                if let sunData = model.project.dataGroups.getGroup("Sun") {
+                    renderUniform.lights.0.position = sunData.getFloat3("Sun Position", float3(0, 100, -100))
+                    renderUniform.lights.0.emission = sunData.getFloat3("Sun Emission", float3(4, 4, 4))
+                }
+            } else {
+                renderUniform.lights.0.position = float3(0, 100, -100)
+                renderUniform.lights.0.emission = float3(4, 4, 4)
+                renderUniform.noShadows = 1;
+            }
         } else {
             
             renderUniform.randomVector = float3(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
@@ -405,7 +418,7 @@ class RenderPipeline
             renderUniform.maxDepth = 2;
 
             renderUniform.noShadows = 1;
-            renderUniform.backgroundColor = float4(0.35, 0.35, 0.35, 1)
+            renderUniform.backgroundColor = float4(0.25, 0.25, 0.25, 1)
             
             renderUniform.numOfLights = 1
 
@@ -432,7 +445,7 @@ class RenderPipeline
             renderUniform.lights.0.params.z = 0
             */
             
-            renderUniform.lights.0.position = float3(0, 0, -1)
+            renderUniform.lights.0.position = float3(0.6, 0.7, -0.7);
             renderUniform.lights.0.emission = float3(4, 4, 4)
             renderUniform.lights.0.params.z = 2
         }

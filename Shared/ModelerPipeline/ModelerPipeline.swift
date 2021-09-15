@@ -46,6 +46,8 @@ class ModelerKit {
     
     var renderKits      : [RenderKit] = []
     var currentRenderKit: RenderKit? = nil
+    
+    var renderName      : String = "renderBSDF"
 
     func isValid() -> Bool {
         return modelTexture != nil && colorTexture != nil
@@ -88,7 +90,6 @@ class ModelerPipeline
     var iconKit         : ModelerKit!
     
     static var IconSize : Int = 80
-    static var IconSamples : Int = 40
         
     init(_ model: Model)
     {
@@ -102,6 +103,7 @@ class ModelerPipeline
         mainKit = allocateKit(width: model.project.resolution, height: model.project.resolution, depth: model.project.resolution)
         iconKit = allocateKit(width: ModelerPipeline.IconSize, height: ModelerPipeline.IconSize, depth: ModelerPipeline.IconSize)
         iconKit.role = .icon
+        iconKit.renderName = "renderPBR"
 
         clear()
     }

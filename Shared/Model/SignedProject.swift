@@ -99,6 +99,11 @@ class SignedProject: Codable {
             SignedDataEntity("Reflections", Int(6), float2(1, 20), .Slider),
             SignedDataEntity("Samples", Int(400), float2(1, 10000), .Slider),
         ])
+        
+        addDataGroup(name: "Sun", entities: [
+            SignedDataEntity("Sun Position", float3(0, 100, -100), float2(0, 1000), .Numeric),
+            SignedDataEntity("Sun Emission", float3(4, 4, 4), float2(0, 1000), .Numeric),
+        ])
     }
     
     /// Creates or adds the given entities to the new or existing group. This way we can dynamically add new options to existing projects.
