@@ -330,7 +330,7 @@ class SignedBuilder {
                             let v2 = position + size / 2
 
                             let bboxString = "bbox:new( \(self.float3ToVec3(v1)), \(self.float3ToVec3(v2)), \(self.float3ToVec3(rotation)))"
-                            let cmdString = "buildObject(\(materialId), \(bboxString), {})\n"
+                            let cmdString = "buildObject(\(materialId), \(bboxString), config.___opts)\n"
                             _ = self.vm.eval(cmdString)
                         }
                     } else
