@@ -150,7 +150,28 @@ class SignedBuilder {
         }
     }*/
     
-    /// Sets up the LuaShape ecosystem
+    /// Sets up the config class
+    func setupLuaConfig(_ kit: ModelerKit) {
+
+        let table = vm.createTable()
+        
+        if let texture = kit.modelTexture {
+            switch self.vm.eval("return vec3(\(texture.width), \(texture.height), \(texture.depth))") {
+            case let .values(values):
+                if values.isEmpty == false {
+                    table["dimensions"] = values.first!
+                }
+            case let .error(e):
+                print(e)
+            }
+        }
+        
+        table["pixelsPerMeter"] = model.project.pixelsPerMeter
+                
+        vm.globals["config"] = table
+    }
+    
+    /// Sets up the command class
     func setupLuaCommand() {
             
         class LuaCommand : CustomTypeInstance {
@@ -582,9 +603,10 @@ class SignedBuilder {
                 }
             }
             
-            // Set up the native __command class
+            // Set up the native classes
+            self.setupLuaConfig(kit)
             self.setupLuaCommand()
-
+            
             switch self.vm.eval(code, args: []) {
             case let .values(values):
                 if values.isEmpty == false {

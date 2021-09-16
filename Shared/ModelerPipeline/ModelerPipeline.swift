@@ -212,9 +212,6 @@ class ModelerPipeline
         if cmd.role == .GeometryAndMaterial {
             if let transformData = cmd.dataGroups.getGroup("Transform") {
                 modelerUniform.position = transformData.getFloat3("position") / scale
-                if forPreview == false {
-                    modelerUniform.position.y = -0.5 + modelerUniform.position.y
-                }
                 modelerUniform.rotation = transformData.getFloat3("rotation")
             }
             
