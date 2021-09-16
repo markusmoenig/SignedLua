@@ -596,7 +596,7 @@ class SignedBuilder {
             self.alreadyRequired = []
             
             // Auto require the basic public modules
-            self.requireModules(["vec3", "vec2", "command"])
+            self.requireModules(["vec3", "vec2", "bbox", "command"])
             
             // If we build a project require the project modules first, these have priority over public modules
             if kit.content == .project && kit.role == .main {
