@@ -155,7 +155,7 @@ class RenderPipeline
                     mainKit.renderGPUBusy = true
                     commandBuffer?.addCompletedHandler { cb in
                         mainKit.renderGPUBusy = false
-                        print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000, renderKit.samples)
+                        //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000, renderKit.samples)
                     }
                     
                     runRender(mainKit)

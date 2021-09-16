@@ -33,6 +33,11 @@ class SignedBuilder {
         self.model = model
     }
     
+    /// Converts the float3 to a vec3 string
+    func float3ToVec3(_ value: float3) -> String {
+        return "vec3(\(value.x), \(value.y), \(value.z))"
+    }
+    
     /// Get a named Float in the given data groups
     func getFloat(name: String, groups: [SignedData]) -> Float? {
         for data in groups {
@@ -317,7 +322,15 @@ class SignedBuilder {
                             self.context.addToPipeline(cmd: cmd)
                         } else {
                             _ = self.vm.eval(cmd.code)
-                            let cmdString = "buildObject(\(materialId), \(self.getFloat3AsVec3(name: "position", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "rotation", groups: cmd.allDataGroups())), \(self.getFloat3AsVec3(name: "size", groups: cmd.allDataGroups())), {})\n"
+                            let position = self.getFloat3(name: "position", groups: cmd.allDataGroups())!
+                            let size = self.getFloat3(name: "size", groups: cmd.allDataGroups())!
+                            let rotation = self.getFloat3(name: "rotation", groups: cmd.allDataGroups())!
+
+                            let v1 = position - size / 2
+                            let v2 = position + size / 2
+
+                            let bboxString = "bbox:new( \(self.float3ToVec3(v1)), \(self.float3ToVec3(v2)), \(self.float3ToVec3(rotation)))"
+                            let cmdString = "buildObject(\(materialId), \(bboxString), {})\n"
                             _ = self.vm.eval(cmdString)
                         }
                     } else
@@ -620,9 +633,18 @@ class SignedBuilder {
             }
             
             if kit.content == .object {
+                
+                let position = float3(0,0,0)
+                let size = float3(1,1,1)
+                let rotation = float3(0,0,0)
+
+                let v1 = position - size / 2
+                let v2 = position + size / 2
+
+                let bboxString = "bbox:new( \(self.float3ToVec3(v1)), \(self.float3ToVec3(v2)), \(self.float3ToVec3(rotation)))"
                 let objectCode = """
 
-                buildObject(0, vec3(0, \(kit.scale / 2), 0), vec3(0,0,0), vec3(0.99,0.99,0.99), {})
+                buildObject(0, \(bboxString), {})
 
                 """
                                 
