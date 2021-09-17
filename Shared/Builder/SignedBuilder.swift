@@ -638,9 +638,28 @@ class SignedBuilder {
             if kit.content == .object {
                 
                 let position = float3(0,0,0)
-                let size = kit.scale
+                var size = float3(kit.scale, kit.scale, kit.scale)
                 let rotation = float3(0,0,0)
+                
+                let defaultSizeCode = "return defaultSize()"
 
+                // Get defaultSize
+                switch self.vm.eval(defaultSizeCode, args: []) {
+                case let .values(values):
+                    if values.isEmpty == false {
+                        let s = values.first
+                        if let s = s as? Table {
+                            size = self.extractFloat3(table: s)
+                        }
+                    }
+                case let .error(e):
+                    self.model.infoText += e + "\n"
+                    DispatchQueue.main.async {
+                        self.model.infoChanged.send()
+                    }
+                }
+
+                // Build Object
                 let v1 = position - size / 2
                 let v2 = position + size / 2
 
