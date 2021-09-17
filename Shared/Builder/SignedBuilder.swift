@@ -535,6 +535,9 @@ class SignedBuilder {
             if content == .project {
                 kit.scale = Float(model.project.resolution) / Float(model.project.pixelsPerMeter)
                 model.currentRenderName = "renderPBR"
+            } else
+            if content == .object {
+                kit.scale = Float(model.project.resolution) / Float(model.project.pixelsPerMeter)
             } else {
                 kit.scale = 1
             }
@@ -599,7 +602,7 @@ class SignedBuilder {
             self.requireModules(["vec3", "vec2", "bbox", "command"])
             
             // If we build a project require the project modules first, these have priority over public modules
-            if kit.content == .project && kit.role == .main {
+            //if kit.content == .project && kit.role == .main {
                 for module in model.project.modules {
                     switch self.vm.eval(module.getCode(), args: []) {
                     case let .values(values):
@@ -614,7 +617,7 @@ class SignedBuilder {
                     }
                     self.alreadyRequired.append(module.name)
                 }
-            }
+            //}
             
             // Set up the native classes
             self.setupLuaConfig(kit)
@@ -635,7 +638,7 @@ class SignedBuilder {
             if kit.content == .object {
                 
                 let position = float3(0,0,0)
-                let size = float3(1,1,1)
+                let size = kit.scale
                 let rotation = float3(0,0,0)
 
                 let v1 = position - size / 2

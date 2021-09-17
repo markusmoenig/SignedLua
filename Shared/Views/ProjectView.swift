@@ -179,16 +179,11 @@ struct ProjectView: View {
                         }
                         .contextMenu {
                             Button("Upload to Database...") {
-                                
                                 selected = module.id
                                 databaseObject = module
                                 databaseType = .module
                                 databaseTypeName = " module "
                                 showDatabasePopover = true
-                                
-                                do {
-                                    try managedObjectContext.save()
-                                } catch {}
                             }
                             
                             Button("Rename...") {

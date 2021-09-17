@@ -207,9 +207,9 @@ float applyModelerData(float3 uv, float dist, constant ModelerUniform &mData, fl
     
     float3 p = uv - position;
     
-    p.yz = rotate(p.yz, radians(mData.rotation.x));
-    p.xz = rotate(p.xz, radians(mData.rotation.y));
-    p.xy = rotate(p.xy, radians(mData.rotation.z));
+    p.yz = rotatePivot(p.yz, radians(mData.rotation.x), mData.pivot.yz);
+    p.xz = rotatePivot(p.xz, radians(mData.rotation.y), mData.pivot.xz);
+    p.xy = rotatePivot(p.xy, radians(mData.rotation.z), mData.pivot.xy);
     
     //p = opRepLim(p, mData.repDistance * scale / Modeler_Global_Scale, mData.repLowerLimit, mData.repUpperLimit * float3(valueNoiseFBM(p * mData.repNoise.x / scale, 5), valueNoiseFBM(p * mData.repNoise.y / scale, 5), valueNoiseFBM(p * mData.repNoise.z / scale, 5)));
     

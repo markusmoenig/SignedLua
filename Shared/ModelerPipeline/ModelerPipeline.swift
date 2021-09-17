@@ -213,6 +213,7 @@ class ModelerPipeline
             if let transformData = cmd.dataGroups.getGroup("Transform") {
                 modelerUniform.position = transformData.getFloat3("position") / scale
                 modelerUniform.rotation = transformData.getFloat3("rotation")
+                modelerUniform.pivot = transformData.getFloat3("pivot") / scale
             }
             
             if let modifierData = cmd.dataGroups.getGroup("Modifier") {

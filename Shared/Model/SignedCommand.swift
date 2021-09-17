@@ -133,6 +133,7 @@ class SignedCommand : Codable, Hashable {
         addDataGroup(name: "Transform", entities: [
             SignedDataEntity("position", float3(0,0,0), float2(-0.5, 0.5)),
             SignedDataEntity("rotation", float3(0,0,0), float2(0, 360), .Slider),
+            SignedDataEntity("pivot", float3(0,0,0), float2(0, 360), .Slider),
         ])
         
         addDataGroup(name: "Modifier", entities: [
