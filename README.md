@@ -4,38 +4,118 @@
 
 ## Abstract
 
-Signed is a Lua based 3D modeling and construction language and will be a unique way to create 3D content, objects as well as whole scenes, in high detail.
+*Signed* is a Lua based 3D modeling language, it provides a unique way to create high quality 3D content for your game or visualization.
 
-I believe that the artist driven workflow of the major 3D editing packages is great, for artists. Developers still have a hard time creating high quality content for their games and Signed hopes to fill this gap.
+Artist driven workflows of the major 3D editing packages are great, for artists. Developers still have a hard time creating high quality content for their games and *Signed* hopes to fill this gap.
 
-Signed itself is a development language, but it will over time provide tools to dynamically visualize for example paths and areas while typing.
+*Signed* itself is a development language, but it will over time provide tools to dynamically visualize for example paths and areas while typing.
 
-Signed will be available for macOS and iPad OS and is heavily optimized for Metal.
+*Signed* will be available for macOS and iPad OS and is heavily optimized for Metal.
 
 ## How it works
 
-Signed executes SDF modeling and material commands into a 3D metal texture utilizing Disney BSDF materials. A full featured BSDF path tracer is included. The content of the 3D texture will later be able to be exported to polygons.
+*Signed* executes SDF modeling and material commands into a 3D texture utilizing Disney BSDF materials. A full featured BSDF path tracer is included. The content of the 3D texture will later be able to be exported to polygons.
 
-Signed is based on Lua, a fast and easy to learn scripting language which provides the foundation for the Signed workflow.
+*Signed* is based on Lua, a fast and easy to learn scripting language which provides the foundation for the Signed workflow.
 
-You can create objects, materials and modules in your project and share them in the public database, and therefore help expanding the Signed language.
+You can create objects, materials and modules (language extensions) in your project and even share them in the public database (thus expanding the available language).
 
-Modules are an important part of Signed. For example the above screenshot has a 2D path defined by the *path2d* module which is than fed into the *wallbuilder* module to create walls (brick by brick) based on the given path.
+## Modeling Commands
 
-## Examples
-
-The following code creates a slightly rounded red box. In Signed you can select any given shape and the info window will show the available options for the shape.
+The following code creates a slightly rounded, reflective red box at the center of your available 3D space.
 
 ```lua
+local bbox = bbox:new()
+
 local box = command:newShape("Box")
-box:set("position", 0, 0, 0)
-box:set("size", 5,0.2,5)
+box:set("position", bbox.center)
+box:set("size", 1, 1, 1)
 box:set("rounding", 0.1)
-box:set("color", 1,0,0)
+box:set("color", 1, 0, 0)
+box:set("roughness", 0.2)
 box:execute(0)
 ```
 
-The call to execute draws the box, the parameter for execute is the material index for the modeling call. You can later re-use this material parameter to stack any amount of material layers.
+The execute call models the box, the parameter for execute is the material index for the modeling call. You can later re-use this material id to stack any amount of material layers.
+
+Different shapes support different geometry parameters, selecting the shape icon in *Signed* will show a list of the supported parameters of the shape.
+
+Use setMode() to change the boolean mode of the command:
+
+```lua
+box:setMode("subtract")
+box:set("smoothing", 0.1)
+```
+
+This would subtract the shape from the content in the 3D texture, other modes are "add" (the default) and "intersect". The smoothing parameter allows for smooth boolean operations.
+
+## Coordinates and Bounding Boxes
+
+The coordinate 0, 0, 0 is the center of the 3D texture, with positive *X* and *Y* coordinates pointing right and up and positive *Z* pointing away from the observer. 
+
+The extend of the available modeling space is the 3D texture size divided by the pixel per meter parameter. Both can be changed in the settings of the current scene. A 3D texture size of 500x500x500 and 100 pixels per meter would give a total available modeling space of 5 meters.
+
+The bounding box (bbox) module helps to provide more context as it provides a lot of helper functions and members like left, right, top, bottom, front and back (all numbers) and center, size and the rotation (all vec3).
+
+The default bounding box can be created with
+
+```lua
+local bbox = bbox:new()
+```
+
+and encapsulates the available 3D modeling space. Bounding boxes are heavily used by objects.
+
+All functionality in *Signed* is available via public modules, selecting a module will show the implementation and detailed help in the source code.
+
+## Objects
+
+Objects help to bundle a set of modeling commands into re-usable components called objects. Adding objects to your project and sharing them with the community is one the core functions of *Signed*.
+
+Let's consider this simple example object, called Sphere:
+
+```lua
+function buildObject(index, bbox, options)
+    -- options
+    local radius = options.radius or 1.0
+
+    local cmd = command:newShape("Sphere")
+    cmd:set("position", bbox.center)
+    cmd:set("radius", radius)
+
+    bbox:execute(cmd, index)
+end
+
+-- Default size for preview rendering
+function defaultSize()
+    return vec3(1, 1, 1)
+end
+```
+
+You will note that an object definition gets it's own bounding box, together with the base material index and the options table.
+
+Important here is to note that we do not call the cmd:execute() function but the execute function of the bbox and pass it the command and material index. We do this so that rotated bounding boxes can modify the rotation parameters of the cmd to correctly rotate around the center of the bounding box.
+
+To instantiate an object (from either your project or an arbitrary object from the public database) use something like this:
+
+```lua
+local bbox = bbox:new()
+
+local v1 = vec3(bbox.center.x, bbox.bottom, bbox.front)
+local v2 = vec3(bbox.right, bbox.top, bbox.back)
+
+local obj = command:newObject("Sphere", bbox:new(v1, v2, vec3(0, 0, 0)))
+obj:execute(0, { radius: 1.5 })
+```
+
+This models tbhe Sphere object in the right half of the global bounding box. We create the bounding box and pass it to the newObject() function of the command class. 
+
+We then execute the object with the material index and the options we want to pass.
+
+The bounding box is created by passing two vec3, the first one with the left, bottom and front coordinate of the box and the second with the right, top and back coordinate. The third argument is the rotation of the bbox which is here just a 0 vector.
+
+As with the modules, selecting an object will show it's source code and clicking the "build" button will build the preview of the object. Examining the source code of objects is a good way to learn more about *Signed* (and Lua if you are not yet familiar with the language).
+
+## Materials
 
 ```lua
 local material = command:newMaterial("Gold")
