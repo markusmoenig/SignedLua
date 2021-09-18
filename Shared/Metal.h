@@ -164,7 +164,7 @@ typedef struct {
 } RenderUniform;
 
 typedef struct {
-    int                 samples;
+    float               samples;
 } AccumUniform;
 
 typedef struct {

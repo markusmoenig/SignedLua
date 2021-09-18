@@ -1670,7 +1670,7 @@ kernel void modelerHitScene(constant ModelerHitUniform           &mData [[ buffe
 }
 
 // MARK: Accumulation Entry Point
-kernel void modelerAccum(constant AccumUniform                      &uniform [[ buffer(0) ]],
+kernel void renderAccum(constant AccumUniform                       &accumData [[ buffer(0) ]],
                          texture2d<float>                           sampleTexture [[texture(1)]],
                          texture2d<float, access::read_write>       finalTexture [[texture(2)]],
                          uint2 gid                                  [[thread_position_in_grid]])
@@ -1678,10 +1678,7 @@ kernel void modelerAccum(constant AccumUniform                      &uniform [[ 
     float4 sample = sampleTexture.read(gid);
     float4 final = finalTexture.read(gid);
 
-    sample.xyz = pow(sample.xyz, 1.0 / 2.2);
-    sample = clamp(sample, 0, 5);
-
-    float k = float(uniform.samples + 1);
+    float k = accumData.samples + 1;
     final = final * (1.0 - 1.0/k) + sample * (1.0/k);
 
     finalTexture.write(final, gid);

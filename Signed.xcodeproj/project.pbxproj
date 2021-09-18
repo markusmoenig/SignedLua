@@ -48,8 +48,6 @@
 		2B423B6C26C9FD5B007DD8E7 /* SignedContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B423B6A26C9FD5B007DD8E7 /* SignedContext.swift */; };
 		2B4401BB26EAE11700F4371D /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4401BA26EAE11700F4371D /* ProgressView.swift */; };
 		2B4401BC26EAE11700F4371D /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4401BA26EAE11700F4371D /* ProgressView.swift */; };
-		2B52C5F6268801C100CAB2F2 /* ComponentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */; };
-		2B52C5F7268801C100CAB2F2 /* ComponentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */; };
 		2B52C5F9268805A700CAB2F2 /* SignedProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F8268805A700CAB2F2 /* SignedProject.swift */; };
 		2B52C5FA268805A700CAB2F2 /* SignedProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F8268805A700CAB2F2 /* SignedProject.swift */; };
 		2B58F31E268FE95200DE1121 /* SignedMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58F31D268FE95200DE1121 /* SignedMaterial.swift */; };
@@ -72,10 +70,6 @@
 		2B7CFA322686FC0500221917 /* RenderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CFA302686FC0500221917 /* RenderView.swift */; };
 		2B7CFA342686FD2000221917 /* Drawables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CFA332686FD2000221917 /* Drawables.swift */; };
 		2B7CFA352686FD2000221917 /* Drawables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CFA332686FD2000221917 /* Drawables.swift */; };
-		2B7CFA37268708D000221917 /* BaseShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CFA36268708D000221917 /* BaseShader.swift */; };
-		2B7CFA38268708D000221917 /* BaseShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CFA36268708D000221917 /* BaseShader.swift */; };
-		2B7CFA3A26870D5400221917 /* MiscShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CFA3926870D5400221917 /* MiscShader.swift */; };
-		2B7CFA3B26870D5400221917 /* MiscShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7CFA3926870D5400221917 /* MiscShader.swift */; };
 		2B8F43602686AF9D00AFDA4D /* SignedCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8F435F2686AF9C00AFDA4D /* SignedCommand.swift */; };
 		2B8F43612686AF9D00AFDA4D /* SignedCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8F435F2686AF9C00AFDA4D /* SignedCommand.swift */; };
 		2B9218FD26E06E9700C9A455 /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9218FC26E06E9700C9A455 /* PreviewView.swift */; };
@@ -219,7 +213,6 @@
 		2B407E7E268962E3004E6F4C /* ModelerStates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelerStates.swift; sourceTree = "<group>"; };
 		2B423B6A26C9FD5B007DD8E7 /* SignedContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedContext.swift; sourceTree = "<group>"; };
 		2B4401BA26EAE11700F4371D /* ProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
-		2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentParser.swift; sourceTree = "<group>"; };
 		2B52C5F8268805A700CAB2F2 /* SignedProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedProject.swift; sourceTree = "<group>"; };
 		2B58F31D268FE95200DE1121 /* SignedMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedMaterial.swift; sourceTree = "<group>"; };
 		2B5F1B0226DB1CC6000DA322 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
@@ -232,8 +225,6 @@
 		2B7CFA2D2686F61D00221917 /* RenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderPipeline.swift; sourceTree = "<group>"; };
 		2B7CFA302686FC0500221917 /* RenderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderView.swift; sourceTree = "<group>"; };
 		2B7CFA332686FD2000221917 /* Drawables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Drawables.swift; sourceTree = "<group>"; };
-		2B7CFA36268708D000221917 /* BaseShader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseShader.swift; sourceTree = "<group>"; };
-		2B7CFA3926870D5400221917 /* MiscShader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiscShader.swift; sourceTree = "<group>"; };
 		2B8F435F2686AF9C00AFDA4D /* SignedCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedCommand.swift; sourceTree = "<group>"; };
 		2B9218FC26E06E9700C9A455 /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
 		2B9299A126DE08F100D88BAF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -459,9 +450,6 @@
 			children = (
 				2B407E7026894FF8004E6F4C /* Render.metal */,
 				2B7CFA2D2686F61D00221917 /* RenderPipeline.swift */,
-				2B7CFA36268708D000221917 /* BaseShader.swift */,
-				2B7CFA3926870D5400221917 /* MiscShader.swift */,
-				2B52C5F5268801C100CAB2F2 /* ComponentParser.swift */,
 				2B407E742689544D004E6F4C /* RenderStates.swift */,
 			);
 			path = RenderPipeline;
@@ -727,7 +715,6 @@
 				2BC733E326C8EE7E00BCE667 /* Value.swift in Sources */,
 				2B407E7C268960B8004E6F4C /* Modeler.metal in Sources */,
 				2B407E7F268962E3004E6F4C /* ModelerStates.swift in Sources */,
-				2B7CFA3A26870D5400221917 /* MiscShader.swift in Sources */,
 				2BC6FB39259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2BC733B926C8EDE400BCE667 /* lcode.c in Sources */,
 				2B52C5F9268805A700CAB2F2 /* SignedProject.swift in Sources */,
@@ -740,7 +727,6 @@
 				2BC733E126C8EE7E00BCE667 /* Userdata.swift in Sources */,
 				2BC733BB26C8EDE400BCE667 /* lundump.c in Sources */,
 				2BC042ED267ED31000DD85E2 /* ProjectView.swift in Sources */,
-				2B7CFA37268708D000221917 /* BaseShader.swift in Sources */,
 				2B407E7126894FF8004E6F4C /* Render.metal in Sources */,
 				2BC042F6267ED4A500DD85E2 /* EditorView.swift in Sources */,
 				2BC733A526C8EDE400BCE667 /* lparser.c in Sources */,
@@ -767,7 +753,6 @@
 				2BC733DF26C8EE7E00BCE667 /* ExtraTypes.swift in Sources */,
 				2BC7338926C8EDE400BCE667 /* ltablib.c in Sources */,
 				2BC733D126C8EE7E00BCE667 /* Number.swift in Sources */,
-				2B52C5F6268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2B405EF7268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC733B326C8EDE400BCE667 /* ltm.c in Sources */,
 				2BC7338326C8EDE400BCE667 /* lmem.c in Sources */,
@@ -821,7 +806,6 @@
 				2BC733E426C8EE7E00BCE667 /* Value.swift in Sources */,
 				2B407E7D268960B8004E6F4C /* Modeler.metal in Sources */,
 				2B407E80268962E3004E6F4C /* ModelerStates.swift in Sources */,
-				2B7CFA3B26870D5400221917 /* MiscShader.swift in Sources */,
 				2BC6FB3A259EAF0E007CEC7A /* StoreManager.swift in Sources */,
 				2BC733BA26C8EDE400BCE667 /* lcode.c in Sources */,
 				2B52C5FA268805A700CAB2F2 /* SignedProject.swift in Sources */,
@@ -834,7 +818,6 @@
 				2BC733E226C8EE7E00BCE667 /* Userdata.swift in Sources */,
 				2BC733BC26C8EDE400BCE667 /* lundump.c in Sources */,
 				2BC042EE267ED31000DD85E2 /* ProjectView.swift in Sources */,
-				2B7CFA38268708D000221917 /* BaseShader.swift in Sources */,
 				2B407E7226894FF8004E6F4C /* Render.metal in Sources */,
 				2BC042F7267ED4A500DD85E2 /* EditorView.swift in Sources */,
 				2BC733A626C8EDE400BCE667 /* lparser.c in Sources */,
@@ -861,7 +844,6 @@
 				2BC733E026C8EE7E00BCE667 /* ExtraTypes.swift in Sources */,
 				2BC7338A26C8EDE400BCE667 /* ltablib.c in Sources */,
 				2BC733D226C8EE7E00BCE667 /* Number.swift in Sources */,
-				2B52C5F7268801C100CAB2F2 /* ComponentParser.swift in Sources */,
 				2B405EF8268C44F300F37BCA /* SignedData.swift in Sources */,
 				2BC733B426C8EDE400BCE667 /* ltm.c in Sources */,
 				2BC7338426C8EDE400BCE667 /* lmem.c in Sources */,

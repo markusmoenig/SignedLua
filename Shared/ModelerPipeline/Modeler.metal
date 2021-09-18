@@ -312,7 +312,7 @@ kernel void modelerCmd(constant ModelerUniform                  &mData [[ buffer
     if (mData.roleType == Modeler_GeometryAndMaterial) {
         // Geometry & Material
         
-        if (dist != newDist && newDist < 0.01) //} && dist > 0)
+        if (dist != newDist && newDist < 0.004) //} && dist > 0)
         {
             
             float4 colorAndRoughness = float4(colorTexture.read(gid));
@@ -428,6 +428,6 @@ kernel void modelerMakeCGIImage(texture2d<half, access::write>          outTextu
                                 uint2 gid                               [[thread_position_in_grid]])
 {
     half4 color = inTexture.read(gid).zyxw;
-    color.xyz = pow(color.xyz, 2.2);
+    //color.xyz = pow(color.xyz, 2.2);
     outTexture.write(color, gid);
 }

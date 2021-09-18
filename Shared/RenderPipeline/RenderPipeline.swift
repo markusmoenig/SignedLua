@@ -85,13 +85,13 @@ class RenderPipeline
     /// Restarts the path tracer
     func restart()
     {
-        needsRestart = true
         model.renderView?.isPaused = false
         if let modeler = model.modeler {
             if modeler.mainKit.currentRenderKit == nil {
                 modeler.mainKit.currentRenderKit = mainRenderKit
             }
         }
+        mainRenderKit.samples = 0
     }
     
     /// Resumes the renderer
@@ -109,9 +109,13 @@ class RenderPipeline
             startCompute()
         }
         
-        //if clear {
-        //    clearTexture(mainKit.outputTexture!)
-        //}
+        if clear {
+            var color = float4(0.25,0.25,0.25,1)
+            if let renderData = model.project.dataGroups.getGroup("Renderer") {
+                color = renderData.getFloat4("Background")
+            }
+            clearTexture(model.modeler!.mainKit.currentRenderKit!.outputTexture!, color)
+        }
         
         if started == false {
             stopCompute()
@@ -129,10 +133,10 @@ class RenderPipeline
                     model.modeler?.executeNext(kit: mainKit)
                     if mainKit.pipeline.isEmpty {
                         model.currentRenderName = "renderBSDF"
+                        needsRestart = true
                     }
-                    restart()
+                    mainRenderKit.samples = 0
                 }
-                //return
             }
         }
         
@@ -143,10 +147,10 @@ class RenderPipeline
             needsRestart = false
         } else
         if needsRestart {
-            performRestart(true, clear: false)
+            performRestart(true, clear: true)
             needsRestart = false
         }
-                        
+                                
         if let mainKit = model.modeler?.mainKit, mainKit.renderGPUBusy == false {
             
             if let renderKit = mainKit.currentRenderKit {
@@ -159,11 +163,8 @@ class RenderPipeline
                     }
                     
                     runRender(mainKit)
-                    
-                    if let renderKit = mainKit.currentRenderKit {
-                        model.modeler?.accumulate(renderKit: renderKit)
-                        renderKit.samples += 1
-                    }
+                    accumulate(renderKit: mainRenderKit)
+                    mainRenderKit.samples += 1
                 } else {
                     mainKit.installNextRenderKit()
                     if mainKit.content == .object && mainKit.currentRenderKit == nil {
@@ -200,7 +201,7 @@ class RenderPipeline
             }
         }
         
-        stopCompute()//(waitUntilCompleted: true)
+        stopCompute()//waitUntilCompleted: true)
         
         // Render a shape icon sample ? These icons don't use Lua or public modules and are just based on their single SignedCommand
         
@@ -217,7 +218,7 @@ class RenderPipeline
                 
                 runRender(iconKit)
                 
-                model.modeler?.accumulate(renderKit: renderKit)
+                accumulate(renderKit: renderKit)
                 renderKit.samples += 1
                 
                 if renderKit.samples == renderKit.maxSamples {
@@ -499,7 +500,7 @@ class RenderPipeline
                 resChanged = true
                 let texture = allocateTexture2D(width: renderSize.x, height: renderSize.y)
                 if let texture = texture {
-                    var color = float4(0,0,0,1)
+                    var color = float4(0.25,0.25,0.25,1)
                     if let renderData = model.project.dataGroups.getGroup("Renderer") {
                         color = renderData.getFloat4("Background")
                     }
@@ -524,6 +525,27 @@ class RenderPipeline
         }
 
         return resChanged
+    }
+    
+    /// Accumulates the rendered texture into the target, placed here for convenience (compute)
+    func accumulate(renderKit: RenderKit)
+    {
+        if let computeEncoder = commandBuffer?.makeComputeCommandEncoder() {
+            if let state = renderStates.getComputeState(stateName: "renderAccum") {
+            
+                computeEncoder.setComputePipelineState( state )
+                
+                var uniform = AccumUniform()
+                uniform.samples = Float(renderKit.samples)
+                computeEncoder.setBytes(&uniform, length: MemoryLayout<AccumUniform>.stride, index: 0)
+                
+                computeEncoder.setTexture(renderKit.sampleTexture!, index: 1 )
+                computeEncoder.setTexture(renderKit.outputTexture!, index: 2 )
+
+                calculateThreadGroups(state, computeEncoder, renderKit.sampleTexture!)
+            }
+            computeEncoder.endEncoding()
+        }
     }
     
     /// Updates the view once
