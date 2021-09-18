@@ -1678,6 +1678,8 @@ kernel void renderAccum(constant AccumUniform                       &accumData [
     float4 sample = sampleTexture.read(gid);
     float4 final = finalTexture.read(gid);
 
+    sample = clamp(sample, 0, 5);
+    
     float k = accumData.samples + 1;
     final = final * (1.0 - 1.0/k) + sample * (1.0/k);
 
