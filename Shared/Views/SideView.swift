@@ -12,7 +12,7 @@ struct SideView: View {
     @Environment(\.colorScheme) var deviceColorScheme   : ColorScheme
 
     enum Mode {
-        case shapes, objects, materials, settings
+        case shapes, objects, materials, camera, settings, help
     }
     
     let model                                           : Model
@@ -57,12 +57,30 @@ struct SideView: View {
                     .buttonStyle(.borderless)
                     
                     Button(action: {
+                        mode = .camera
+                    })
+                    {
+                        Image(systemName: mode == .camera ? "camera.fill" : "camera")
+                            .imageScale(.large)
+                    }
+                    .buttonStyle(.borderless)
+                    
+                    Button(action: {
                         mode = .settings
                     })
                     {
                         Image(systemName: mode == .settings ? "gearshape.fill" : "gearshape")
                             .imageScale(.large)
                         Spacer()
+                    }
+                    .buttonStyle(.borderless)
+                    
+                    Button(action: {
+                        mode = .help
+                    })
+                    {
+                        Image(systemName: mode == .help ? "questionmark.circle.fill" : "questionmark.circle")
+                            .imageScale(.large)
                     }
                     .buttonStyle(.borderless)
                     
@@ -91,6 +109,9 @@ struct SideView: View {
                             MaterialView(model: model)
                         }
                     } else
+                    if mode == .camera {
+                        DataView(model: model, data: model.project.camera.data)
+                    } else
                     if mode == .settings {
                         
                         TextureSizeView(model)
@@ -100,7 +121,7 @@ struct SideView: View {
                             .padding(.top, 4)
                     }
                     
-                    if mode != .settings {
+                    if mode != .settings && mode != .camera {
                         Divider()
                         InfoView(model: model)
                     }

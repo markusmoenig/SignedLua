@@ -36,13 +36,13 @@ class SignedPinholeCamera : Codable, Hashable {
         data = SignedData([])
         
         if type == .project {
-            data.set("position", float3(0, -0.3, -0.8), float2(-5, 5))
-            data.set("lookAt", float3(0, -0.3, 0), float2(-5, 5))
+            data.set("Position", float3(0, -0.3, -0.8), float2(-5, 5))
+            data.set("Look At", float3(0, -0.3, 0), float2(-5, 5))
         } else {
-            data.set("position", float3(0, 0, -0.8), float2(-5, 5))
-            data.set("lookAt", float3(0, 0, 0), float2(-5, 5))
+            data.set("Position", float3(0, 0, -0.8), float2(-5, 5))
+            data.set("Look At", float3(0, 0, 0), float2(-5, 5))
         }
-        data.set("fov", Float(80), float2(0, 160))
+        data.set("Fov", Float(80), float2(0, 160))
     }
     
     required init(from decoder: Decoder) throws
@@ -52,9 +52,13 @@ class SignedPinholeCamera : Codable, Hashable {
         name = try container.decode(String.self, forKey: .name)
         data = try container.decode(SignedData.self, forKey: .data)
         
-        //data.set("position", float3(0,-0.3,-0.8), float2(-5, 5))
-        //data.set("lookAt", float3(0,-0.3,0.0), float2(-5, 5))
-        //data.set("fov", Float(80), float2(0, 160))
+        data.removeEntity("position")
+        data.removeEntity("lookAt")
+        data.removeEntity("fov")
+
+        //data.set("Position", float3(0,-0.3,-0.8), float2(-5, 5))
+        //data.set("Look At", float3(0,-0.3,0.0), float2(-5, 5))
+        //data.set("Fov", Float(80), float2(0, 160))
     }
     
     func encode(to encoder: Encoder) throws
@@ -85,10 +89,10 @@ class SignedPinholeCamera : Codable, Hashable {
         position *= d + 1
         position += lookAt
         
-        data.set("position", position)
+        data.set("Position", position)
         
         lookAt.y = position.y
-        data.set("lookAt", lookAt)
+        data.set("Look At", lookAt)
         
         lastZoomDelta = delta
     }
@@ -105,10 +109,10 @@ class SignedPinholeCamera : Codable, Hashable {
         position = rotateToAPoint(p: position, o: lookAt, v: dir.0, alpha: -d.x * Float.pi)
         position = rotateToAPoint(p: position, o: lookAt, v: dir.1, alpha: d.y * Float.pi)
 
-        data.set("position", position)
+        data.set("Position", position)
         
         lookAt.y = position.y
-        data.set("lookAt", lookAt)
+        data.set("Look At", lookAt)
 
         lastDelta = delta
     }
@@ -132,23 +136,23 @@ class SignedPinholeCamera : Codable, Hashable {
             position += add
             lookAt += add
             
-            data.set("position", position)
-            data.set("lookAt", lookAt)
+            data.set("Position", position)
+            data.set("Look At", lookAt)
         }
         
         lastDelta = delta
     }
     
     func getPosition() -> float3 {        
-        return data.getFloat3("position")
+        return data.getFloat3("Position")
     }
     
     func getLookAt() -> float3 {
-        return data.getFloat3("lookAt")
+        return data.getFloat3("Look At")
     }
     
     func getFov() -> Float {
-        return data.getFloat("fov", 80)
+        return data.getFloat("Fov", 80)
     }
     
     func calculateDirXY() -> (float3, float3)
