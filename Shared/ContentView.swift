@@ -255,11 +255,8 @@ struct ContentView: View {
             modulesArrived = true
         }
         
-        .onReceive(document.model.progressChanged) { _ in
-            // todo
-            //if document.model.pro == document.model.infoProgressTotalCmds {
-            //    isBuilding = false
-            //}
+        .onReceive(document.model.modellingEnded) { _ in
+            isBuilding = false
         }
     }
     

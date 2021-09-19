@@ -146,6 +146,8 @@ class RenderPipeline
                         model.progress = .rendering
                         model.progressCurrent = 0
                         model.progressTotal = mainRenderKit.maxSamples
+                        
+                        model.modellingEnded.send()
                     }
                     mainRenderKit.samples = 0
                 }
