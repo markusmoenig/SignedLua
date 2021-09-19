@@ -22,9 +22,7 @@ class SignedBuilder {
     var vm                      : VirtualMachine!
     var context                 : SignedContext!
     var alreadyRequired         : [String] = []
-    
-    var inProgress              : Bool = false
-    
+        
     var workItem                : DispatchWorkItem? = nil
     
     var parentMaterial          : SignedCommand? = nil
@@ -508,11 +506,7 @@ class SignedBuilder {
     /// build 3D texture
     func build(code: String, kit: ModelerKit, content: ModelerKit.Content = .project, renderKits: [RenderKit], objectEntity: ObjectEntity? = nil, materialEntity: MaterialEntity? = nil) {
         
-        //guard let modeler = model.modeler else {
-        //    return
-        //}
-        
-        inProgress = true
+        model.progress = .modelling
         
         workItem = DispatchWorkItem {
             
@@ -549,8 +543,8 @@ class SignedBuilder {
                     model.infoChanged.send()
                 }
             
-                model.infoProgressProcessedCmds = 0
-                model.infoProgressTotalCmds = 0
+                model.progressCurrent = 0
+                model.progressTotal = 0
             }
                     
             self.vm = VirtualMachine()

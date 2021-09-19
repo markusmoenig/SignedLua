@@ -12,6 +12,10 @@ import MetalKit
 
 class Model: NSObject, ObservableObject {
     
+    enum SignedProgress {
+        case none, modelling, rendering
+    }
+    
     enum CodeEditorMode {
         case project
         case object
@@ -75,8 +79,8 @@ class Model: NSObject, ObservableObject {
     /// Send when the modules were downloaded successfully
     let modulesArrived                      = PassthroughSubject<Void, Never>()
     
-    /// Send when showing modeling progress
-    let modelingProgressChanged             = PassthroughSubject<String, Never>()
+    /// Send when the current  progress changed
+    let progressChanged                     = PassthroughSubject<Void, Never>()
     
     /// Reference to the underlying code editor
     var codeEditor                          : CodeEditor? = nil
@@ -104,10 +108,12 @@ class Model: NSObject, ObservableObject {
     var modulesAreAvailable                 : Bool = false
 
     /// The modeling progress
-    var infoProgressValue                   : Double = 0
-    
-    var infoProgressProcessedCmds           : Int32 = 0
-    var infoProgressTotalCmds               : Int32 = 0
+    ///
+    var progress                            : SignedProgress = .none
+
+    var progressValue                       : Double = 0    
+    var progressCurrent                     : Int32 = 0
+    var progressTotal                       : Int32 = 0
     
     /// Shows the bounding box
     var showBBox                            : Int32 = 0
@@ -127,7 +133,7 @@ class Model: NSObject, ObservableObject {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.shapeSelected.send(self.selectedShape!)
-            self.modelingProgressChanged.send("Waiting for modules...")
+            self.progressChanged.send()
         }
         
         checkForMaterials()
@@ -193,7 +199,7 @@ class Model: NSObject, ObservableObject {
             
             self.modulesAreAvailable = true
             self.modulesArrived.send()
-            self.modelingProgressChanged.send("Ready")
+            self.progressChanged.send()
             //self.infoChanged.send()
         }
     }

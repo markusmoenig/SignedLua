@@ -131,8 +131,8 @@ class ModelerPipeline
                 clear(kit)
                 kit.modelGPUBusy = false
                 if kit.role == .main {
-                    self.model.infoProgressProcessedCmds += 1
-                    self.model.builder?.context.createProgressValues()
+                    self.model.progressCurrent += 1
+                    self.model.builder?.context.sendProgressNotification()
                 }
                 return
             }
@@ -164,8 +164,8 @@ class ModelerPipeline
             commandBuffer?.addCompletedHandler { cb in
                 kit.modelGPUBusy = false
                 if kit.role == .main {
-                    self.model.infoProgressProcessedCmds += 1
-                    self.model.builder?.context.createProgressValues()
+                    self.model.progressCurrent += 1
+                    self.model.builder?.context.sendProgressNotification()
                 }
                 print("Modeling Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000)
             }

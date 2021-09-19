@@ -91,7 +91,15 @@ class RenderPipeline
                 modeler.mainKit.currentRenderKit = mainRenderKit
             }
         }
+        
         mainRenderKit.samples = 0
+        mainRenderKit.maxSamples = model.project.getMaxSamples()
+        
+        if model.progress != .modelling {
+            model.progress = .rendering
+            model.progressCurrent = 0
+            model.progressTotal = model.project.getMaxSamples()
+        }
     }
     
     /// Resumes the renderer
@@ -134,6 +142,10 @@ class RenderPipeline
                     if mainKit.pipeline.isEmpty {
                         model.currentRenderName = "renderBSDF"
                         needsRestart = true
+                        
+                        model.progress = .rendering
+                        model.progressCurrent = 0
+                        model.progressTotal = mainRenderKit.maxSamples
                     }
                     mainRenderKit.samples = 0
                 }
@@ -165,7 +177,19 @@ class RenderPipeline
                     runRender(mainKit)
                     accumulate(renderKit: mainRenderKit)
                     mainRenderKit.samples += 1
+                    
+                    if model.progress == .rendering {
+                        model.progressCurrent += 1
+                        model.progressChanged.send()
+                    }
                 } else {
+                    
+                    model.progress = .none
+                    model.progressCurrent = 0
+                    model.progressTotal = 0
+                    
+                    self.model.progressChanged.send()
+                    
                     mainKit.installNextRenderKit()
                     if mainKit.content == .object && mainKit.currentRenderKit == nil {
                         if let objectEntity = mainKit.objectEntity {
@@ -330,7 +354,7 @@ class RenderPipeline
         
         if kit.role == .main {
 
-            if model.builder.inProgress == true {
+            if model.progress == .modelling {
                 renderUniform.randomVector = float3(0.5, 0.5, 0.5)
                 renderUniform.noShadows = 1;
             } else {

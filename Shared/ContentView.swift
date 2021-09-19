@@ -129,7 +129,6 @@ struct ContentView: View {
                                 if let data = object.code {
                                     if let value = String(data: data, encoding: .utf8) {
                                         if let renderer = document.model.renderer {
-                                            renderer.mainRenderKit.maxSamples = 400
                                             document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], objectEntity: object)
                                             isBuilding = true
                                         }
@@ -142,7 +141,6 @@ struct ContentView: View {
                                 if let data = material.code {
                                     if let value = String(data: data, encoding: .utf8) {
                                         if let renderer = document.model.renderer {
-                                            renderer.mainRenderKit.maxSamples = 400
                                             document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], materialEntity: material)
                                             isBuilding = true
                                         }
@@ -153,15 +151,12 @@ struct ContentView: View {
                             if let renderer = document.model.renderer, let object = document.model.selectedObject {
                                 switch document.model.project.getObjectType(from: object.id) {
                                     case .object:
-                                        renderer.mainRenderKit.maxSamples = 400
                                         document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit])
                                         isBuilding = true
                                     case .material:
-                                        renderer.mainRenderKit.maxSamples = 400
                                         document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit])
                                         isBuilding = true
                                     default:
-                                        renderer.mainRenderKit.maxSamples = document.model.project.getMaxSamples()
                                         document.model.builder.build(code: document.model.project.main.getCode(), kit: document.model.modeler!.mainKit, renderKits: [renderer.mainRenderKit])
                                         isBuilding = true
                                 }
@@ -174,9 +169,7 @@ struct ContentView: View {
                         if let mainKit = document.model.modeler?.mainKit {
                             mainKit.pipeline = []
                         }
-                        document.model.infoProgressTotalCmds = 0
-                        document.model.infoProgressProcessedCmds = 0
-                        document.model.builder.context.createProgressValues()
+                        document.model.builder.context.sendProgressNotification()
                     }
                 }) {
                     if modulesArrived == false {
@@ -262,10 +255,11 @@ struct ContentView: View {
             modulesArrived = true
         }
         
-        .onReceive(document.model.modelingProgressChanged) { string in
-            if document.model.infoProgressProcessedCmds == document.model.infoProgressTotalCmds {
-                isBuilding = false
-            }
+        .onReceive(document.model.progressChanged) { _ in
+            // todo
+            //if document.model.pro == document.model.infoProgressTotalCmds {
+            //    isBuilding = false
+            //}
         }
     }
     
