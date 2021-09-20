@@ -118,11 +118,13 @@ class RenderPipeline
         }
         
         if clear {
-            var color = float4(0.25,0.25,0.25,1)
-            if let renderData = model.project.dataGroups.getGroup("Renderer") {
-                color = renderData.getFloat4("Background")
+            if let outputTexture = model.modeler?.mainKit.currentRenderKit?.outputTexture {
+                var color = float4(0.25,0.25,0.25,1)
+                if let renderData = model.project.dataGroups.getGroup("Renderer") {
+                    color = renderData.getFloat4("Background")
+                }
+                clearTexture(outputTexture, color)
             }
-            clearTexture(model.modeler!.mainKit.currentRenderKit!.outputTexture!, color)
         }
         
         if started == false {

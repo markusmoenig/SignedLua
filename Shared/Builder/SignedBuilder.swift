@@ -324,10 +324,7 @@ class SignedBuilder {
                             let size = self.getFloat3(name: "size", groups: cmd.allDataGroups())!
                             let rotation = self.getFloat3(name: "rotation", groups: cmd.allDataGroups())!
 
-                            let v1 = position - size / 2
-                            let v2 = position + size / 2
-
-                            let bboxString = "bbox:new( \(self.float3ToVec3(v1)), \(self.float3ToVec3(v2)), \(self.float3ToVec3(rotation)))"
+                            let bboxString = "bbox:new( \(self.float3ToVec3(position)), \(self.float3ToVec3(size)), \(self.float3ToVec3(rotation)))"
                             let cmdString = "buildObject(\(materialId), \(bboxString), config.___opts)\n"
                             _ = self.vm.eval(cmdString)
                         }
@@ -654,10 +651,7 @@ class SignedBuilder {
                 }
 
                 // Build Object
-                let v1 = position - size / 2
-                let v2 = position + size / 2
-
-                let bboxString = "bbox:new( \(self.float3ToVec3(v1)), \(self.float3ToVec3(v2)), \(self.float3ToVec3(rotation)))"
+                let bboxString = "bbox:new( \(self.float3ToVec3(position)), \(self.float3ToVec3(size)), \(self.float3ToVec3(rotation)))"
                 let objectCode = """
 
                 buildObject(0, \(bboxString), {})

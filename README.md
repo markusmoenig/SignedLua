@@ -53,7 +53,7 @@ This would subtract the shape from the content in the 3D texture, other modes ar
 
 The coordinate 0, 0, 0 is the center of the 3D texture, with positive *X* and *Y* coordinates pointing right and up and positive *Z* pointing away from the observer. 
 
-The extend of the available modeling space is the 3D texture size divided by the pixel per meter parameter. Both can be changed in the settings of the current scene. A 3D texture size of 500x500x500 and 100 pixels per meter would give a total available modeling space of 5 meters.
+The extent of the available modeling space is the 3D texture size divided by the pixel per meter parameter. Both can be changed in the settings of the current scene. A 3D texture size of 500x500x500 and 100 pixels per meter would give a total available modeling space of 5 meters.
 
 The bounding box (bbox) module helps to provide more context as it provides a lot of helper functions and members like left, right, top, bottom, front and back (all numbers) and center, size and the rotation (all vec3).
 
@@ -100,10 +100,10 @@ To instantiate an object (from either your project or an arbitrary object from t
 ```lua
 local bbox = bbox:new()
 
-local v1 = vec3(bbox.center.x, bbox.bottom, bbox.front)
-local v2 = vec3(bbox.right, bbox.top, bbox.back)
+local pos = vec3(bbox.center.x + (bbox.right - bbox.center.x) / 2, bbox.center.y, bbox.center.z)
+local size = vec3(bbox.right - bbox.center.x, bbox.size.y, bbox.size.z)
 
-local obj = command:newObject("Sphere", bbox:new(v1, v2, vec3(0, 0, 0)))
+local obj = command:newObject("Sphere", bbox:new(pos, size, vec3(0, 0, 0)))
 obj:execute(0, { radius: 1.5 })
 ```
 
@@ -111,9 +111,9 @@ This models tbhe Sphere object in the right half of the global bounding box. We 
 
 We then execute the object with the material index and the options we want to pass.
 
-The bounding box is created by passing two vec3, the first one with the left, bottom and front coordinate of the box and the second with the right, top and back coordinate. The third argument is the rotation of the bbox which is here just a 0 vector.
+The bounding box is created by passing three vec3, the first one is the position (or center) of the bbox, the second parameter is the size. The third parameter is the rotation of the bbox which is here just a 0 vector (and could be omitted).
 
-As with the modules, selecting an object will show it's source code and clicking the "build" button will build the preview of the object. Examining the source code of objects is a good way to learn more about *Signed* (and Lua if you are not yet familiar with the language).
+As with the modules, selecting an object will show it's source code and clicking the "Build" button will build the preview of the object. Examining the source code of object's is a good way to learn more about *Signed* (and Lua if you are not yet familiar with the language).
 
 ## Materials
 
