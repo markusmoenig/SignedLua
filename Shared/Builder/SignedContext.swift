@@ -11,10 +11,16 @@ class SignedContext {
     
     let model           : Model
     let kit             : ModelerKit
+    
+    var commands        : [String:SignedCommand] = [:]
         
     init(model: Model, kit: ModelerKit) {
         self.model = model
         self.kit = kit
+    }
+    
+    deinit {
+        commands = [:]
     }
     
     /// Adds the given cmd to the modeler pipeline

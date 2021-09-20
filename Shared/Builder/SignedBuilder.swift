@@ -302,6 +302,31 @@ class SignedBuilder {
                 return .value(cmd.name)
             }
             
+            // Get id
+            type["getId"] = type.createMethod([]) { cmd, args in
+                if let cmd = cmd.cmd {
+                    return .value(cmd.id.uuidString)
+                }
+                return .value("")
+            }
+            
+            // copyMaterial
+            type["copyMaterial"] = type.createMethod([String.arg]) { cmd, args in
+                
+                var material : SignedCommand? = nil
+                if args.values.isEmpty == false {
+                    let id = args.string
+                    
+                    material = self.context.commands[id]
+                }
+                
+                if let material = material {
+                    cmd.cmd!.copyMaterial(from: material.material)
+                }
+                
+                return .nothing
+            }
+            
             // Execute the command
             type["execute"] = type.createMethod([Number.arg]) { cmd, args in
                 
@@ -346,7 +371,7 @@ class SignedBuilder {
                         } else {
                             self.parentMaterial = cmd
                             _ = self.vm.eval(cmd.code)
-                            _ = self.vm.eval("buildMaterial(\(materialId))\n")
+                            _ = self.vm.eval("___material = command:newMaterial(); buildMaterial(___material); __material:execute(\(materialId)\n")
                             self.parentMaterial = nil
                         }
                     }
@@ -370,6 +395,8 @@ class SignedBuilder {
                 shape.cmd?.action = .Add
                 
                 let data = self.vm.createUserdata(shape)
+                
+                self.context.commands[shape.cmd!.id.uuidString] = shape.cmd!
                 return .value(data)
             } else {
                 return .nothing
@@ -414,6 +441,8 @@ class SignedBuilder {
                     cmd.dataGroups.addGroup("Geometry", geometryData)
                     cmd.role = .GeometryAndMaterial
                     cmd.action = .None
+                    
+                    self.context.commands[cmd.id.uuidString] = cmd
                 }
                 
                 let data = self.vm.createUserdata(cmd)
@@ -457,6 +486,8 @@ class SignedBuilder {
                 
                 cmd.cmd?.role = .MaterialOnly
                 cmd.cmd?.action = .None
+                
+                self.context.commands[cmd.cmd!.id.uuidString] = cmd.cmd!
                 
                 let data = self.vm.createUserdata(cmd)
                 return .value(data)
@@ -708,8 +739,10 @@ class SignedBuilder {
                 sphereCmd:setVec3("emission", vec3(0.4,0.4,0.4))
                 sphereCmd:execute(1)
                 
-                buildMaterial(0)
-
+                ___material = command:newMaterial()
+                buildMaterial(___material)
+                ___material:execute(0)
+                
                 """
                 
                 switch self.vm.eval(materialCode, args: []) {
@@ -724,6 +757,8 @@ class SignedBuilder {
                     }
                 }
             }
+            
+            self.vm = nil
         }
         
         if let workItem = workItem {
