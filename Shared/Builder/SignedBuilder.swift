@@ -726,32 +726,32 @@ class SignedBuilder {
                 let materialCode = """
 
                 sphereCmd = command:newShape("Sphere")
-                sphereCmd:setVec3("position", vec3(0,0.5,0))
+                sphereCmd:setVec3("position", vec3(0,0.0,0))
                 sphereCmd:setNumber("radius", 0.5)
                 sphereCmd:execute(0)
 
                 sphereCmd = command:newShape("Sphere")
-                sphereCmd:setVec3("position", vec3(0,0.5,0))
+                sphereCmd:setVec3("position", vec3(0,0.0,0))
                 sphereCmd:setNumber("radius", 0.47)
                 sphereCmd:setMode("subtract")
                 sphereCmd:execute(1)
 
                 boxCmd = command:newShape("Box")
-                boxCmd:setVec3("position", vec3(0,0.5,0))
+                boxCmd:setVec3("position", vec3(0,0.0,0))
                 boxCmd:setVec3("rotation", vec3(0,0,0))
                 boxCmd:setVec3("size", vec3(2, 0.07, 2))
                 boxCmd:setMode("subtract")
                 boxCmd:execute(1)
 
                 boxCmd = command:newShape("Box")
-                boxCmd:setVec3("position", vec3(0,0.5,0))
+                boxCmd:setVec3("position", vec3(0,0.0,0))
                 boxCmd:setVec3("rotation", vec3(0,0,0))
                 boxCmd:setVec3("size", vec3(0.07, 2, 2))
                 boxCmd:setMode("subtract")
                 boxCmd:execute(1)
 
                 sphereCmd = command:newShape("Sphere")
-                sphereCmd:setVec3("position", vec3(0,0.5,0))
+                sphereCmd:setVec3("position", vec3(0,0.0,0))
                 sphereCmd:setVec3("color", vec3(0.5,0.5,0.5))
                 sphereCmd:setNumber("roughness", 0)
                 sphereCmd:setNumber("radius", 0.44)

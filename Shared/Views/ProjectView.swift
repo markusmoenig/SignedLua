@@ -254,7 +254,7 @@ struct ProjectView: View {
                     
                     Button("Object", action: {
                         let object = SignedObject("New Object")
-                        object.code = "-- Object\n\nfunction buildObject(index, bbox, options)\n\nend\n".data(using: .utf8)
+                        object.code = "-- Object\n\nfunction buildObject(index, bbox, options)\n\nend\n\n-- Used for preview\nfunction defaultSize()\n    return vec3(1, 1, 1)\nend\n".data(using: .utf8)
                         model.project.objects.append(object)
                         selected = object.id
                         model.codeEditor?.setSession(value: object.getCode(), session: object.session)
