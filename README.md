@@ -103,11 +103,11 @@ local bbox = bbox:new()
 local pos = vec3(bbox.center.x + (bbox.right - bbox.center.x) / 2, bbox.center.y, bbox.center.z)
 local size = vec3(bbox.right - bbox.center.x, bbox.size.y, bbox.size.z)
 
-local obj = command:newObject("Sphere", bbox:new(pos, size, vec3(0, 0, 0)))
+local obj = command:newObject("Sphere", bbox:new(pos, size))
 obj:execute(0, { radius: 1.5 })
 ```
 
-This models tbhe Sphere object in the right half of the global bounding box. We create the bounding box and pass it to the newObject() function of the command class. 
+This models the Sphere object in the right half of the global bounding box. We create the bounding box and pass it to the newObject() function of the command class. 
 
 We then execute the object with the material index and the options we want to pass.
 
@@ -115,7 +115,9 @@ The bounding box is created by passing three vec3, the first one is the position
 
 As with the modules, selecting an object will show it's source code and clicking the "Build" button will build the preview of the object. Examining the source code of object's is a good way to learn more about *Signed* (and Lua if you are not yet familiar with the language).
 
-## Materials
+## Standalone Materials
+
+So far we have created shapes together with their materials. As mentioned earlier, we can stack materials by applying standalone material commands.
 
 ```lua
 local material = command:newMaterial("Gold")
@@ -124,31 +126,37 @@ material:setBlendMode("valuenoise", {
     frequency = 3;
     smoothing = 6; -- octaves
 })
-material:execute(0)
+material:execute(10)
 ```
 
-The above would load the gold material from the database and apply it to all shapes which have an material index of 0. This particular command uses a value noise to blend the gold material to the existing material, you could also use linear blending:
+The above would load the gold material from the database and apply it to all shapes which have an material index of 10. This particular command uses a value noise to blend the gold material over the existing material, you could also use linear blending:
 
 ```lua
 material:setBlendMode("linear", {
     value = 0.6;
 })
 ```
-For shapes you can also define the boolean mode via setMode like
+
+To create a a default material do not provide a material name when calling *newMaterial*.
+
+You can also copy a material from the library to your shape command:
 
 ```lua
-local sphere = command:newShape("Sphere")
-sphere:setMode("add") -- "subtract", "intersect" etc
-sphere:set("smoothing", 0.2)
-sphere:set("radius", 1.2)
-sphere:execute(1)
+local material = command:newMaterial("Gold")
+local box = command:newShape("Box")
+box:copyMaterial(material)
+...
 ```
 
-which would smoothly blend the sphere with the box. Signed has many options for modeling shapes and materials.
+Materials support the full Disney BSDF parameter set.
 
-**Modules** are an important part of Signed in that they provide a shareable way to extend the language.
+## Modules
 
-To create a wall with Signed, you can do something like
+Modules are an important part of *Signed* in that they provide a shareable way to extend the language. As with objects and materials, users can add a module to their project, develop it, test it and optionally upload it to the public database.
+
+You can use the *require* function to load modules dynamically.
+
+For example to create a wall with *Signed*, you can use the user supplied *path2d* and *wallbuilder* modles:
 
 ```lua
 require("path2d")
@@ -163,7 +171,7 @@ builder.brickSize = vec3(0.40, 0.30, 0.30) -- Adjust the brickSize and height of
 builder.height = 4.6
 builder:build((function(cmd, column, row)
     --[[ When building the wall this function is called with the modeling command and the brick
-    column and row number of the current brick. We can use the modeling command to modify any aspect of the shape on a per brick basis.
+    column and row number of the current brick. We can use the modeling command to modify any aspect of the shape or material on a per brick basis.
     Here we slightly rotate the brick randomly around the Y axis to make it look a bit less uniform, modify it's color randomly a bit and set its roughness and specular options.
     --]]
     local rotation = cmd:getVec3("rotation")
