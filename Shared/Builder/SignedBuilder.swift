@@ -340,6 +340,25 @@ class SignedBuilder {
                     cmd.materialId = materialId
 
                     if cmd.role == .GeometryAndMaterial {
+                                                
+                        if cmd.material.materialCode.isEmpty == false {
+                            self.parentMaterial = cmd
+                            _ = self.vm.eval(cmd.material.materialCode)
+                            switch self.vm.eval("local ___material = command:newMaterial(); buildMaterial(___material); return ___material.cmd:getId()\n", args: []) {
+                            case let .values(values):
+                                if values.isEmpty == false {
+                                    if let id = values.first as? String {
+                                        if let material = self.context.commands[id] {
+                                            cmd.copyMaterial(from: material.material)
+                                        }
+                                    }
+                                }
+                            case let .error(e):
+                                print(e)
+                            }
+                            self.parentMaterial = nil
+                        }
+                        
                         // Geometry
                         if cmd.code.isEmpty == true {
                             self.context.addToPipeline(cmd: cmd)
@@ -356,7 +375,7 @@ class SignedBuilder {
                     } else
                     if cmd.role == .MaterialOnly {
                         // Material
-                        if cmd.code.isEmpty == true {
+                        if cmd.material.materialCode.isEmpty == true {
                             // Merging the depth values of the calling material and the currently executing material
                             if let parentMaterial = self.parentMaterial {
                                 if let modifierData = parentMaterial.dataGroups.getGroup("Modifier") {
@@ -370,8 +389,8 @@ class SignedBuilder {
                             self.context.addToPipeline(cmd: cmd)
                         } else {
                             self.parentMaterial = cmd
-                            _ = self.vm.eval(cmd.code)
-                            _ = self.vm.eval("___material = command:newMaterial(); buildMaterial(___material); __material:execute(\(materialId)\n")
+                            _ = self.vm.eval(cmd.material.materialCode)
+                            _ = self.vm.eval("local ___material = command:newMaterial(); buildMaterial(___material); __material:execute(\(materialId)\n")
                             self.parentMaterial = nil
                         }
                     }
@@ -467,7 +486,7 @@ class SignedBuilder {
                     /// 
                     for material in self.model.project.materials {
                         if material.name == cmd.name {
-                            cmd.cmd?.code = material.getCode()
+                            cmd.cmd?.material.materialCode = material.getCode()
                             found = true
                         }
                     }
@@ -477,7 +496,7 @@ class SignedBuilder {
                         if let entity = self.model.getMaterialEntity(name: cmd.name) {
                             if let data = entity.code {
                                 if let value = String(data: data, encoding: .utf8) {
-                                    cmd.cmd?.code = value
+                                    cmd.cmd?.material.materialCode = value
                                 }
                             }
                         }
@@ -629,7 +648,7 @@ class SignedBuilder {
                     switch self.vm.eval(module.getCode(), args: []) {
                     case let .values(values):
                         if values.isEmpty == false {
-                            print(values.first!)
+                            //print(values.first!)
                         }
                     case let .error(e):
                         self.model.infoText += e + "\n"

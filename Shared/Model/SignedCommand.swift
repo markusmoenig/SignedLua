@@ -44,7 +44,7 @@ class SignedCommand : Codable, Hashable {
     var normal          : float3 = float3()
 
     var code            : String = ""
-                
+
     // To identify the editor session
     var scriptContext   = ""
     
