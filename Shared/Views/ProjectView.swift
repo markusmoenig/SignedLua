@@ -78,6 +78,7 @@ struct ProjectView: View {
 
                     // Objects
                     ForEach(model.project.objects, id: \.id) { object in
+                        HStack{
                         Button(action: {
                             selected = object.id
                             model.selectedObject = object
@@ -117,6 +118,16 @@ struct ProjectView: View {
                             }
                         }
                         .buttonStyle(PlainButtonStyle())
+                        
+                        Spacer()
+                        Image(systemName: "eye")
+                            .foregroundColor(selected == object.id ? .accentColor : .primary)
+                            .onTapGesture(perform: {
+                                if let renderer = model.renderer {
+                                    model.builder.build(code: object.getCode(), kit: model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit])
+                                }
+                            })
+                        }
                     }
                     
                     // Materials
@@ -160,6 +171,15 @@ struct ProjectView: View {
                             }
                         }
                         .buttonStyle(PlainButtonStyle())
+                        
+                        Spacer()
+                        Image(systemName: "eye")
+                            .foregroundColor(selected == material.id ? .accentColor : .primary)
+                            .onTapGesture(perform: {
+                                if let renderer = model.renderer {
+                                    model.builder.build(code: material.getCode(), kit: model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit])
+                                }
+                            })
                     }
                     
                     // Modules

@@ -557,6 +557,10 @@ class SignedBuilder {
         
         workItem = DispatchWorkItem {
             
+            DispatchQueue.main.async {
+                self.model.modellingStarted.send()
+            }
+            
             let model = self.model
             
             kit.status = .running

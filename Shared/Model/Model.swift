@@ -82,6 +82,8 @@ class Model: NSObject, ObservableObject {
     /// Send when the current  progress changed
     let progressChanged                     = PassthroughSubject<Void, Never>()
     
+    /// Send when modelling is starting
+    let modellingStarted                    = PassthroughSubject<Void, Never>()
     /// Send when modelling is finished
     let modellingEnded                      = PassthroughSubject<Void, Never>()
     

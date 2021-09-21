@@ -130,7 +130,6 @@ struct ContentView: View {
                                     if let value = String(data: data, encoding: .utf8) {
                                         if let renderer = document.model.renderer {
                                             document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], objectEntity: object)
-                                            isBuilding = true
                                         }
                                     }
                                 }
@@ -142,24 +141,13 @@ struct ContentView: View {
                                     if let value = String(data: data, encoding: .utf8) {
                                         if let renderer = document.model.renderer {
                                             document.model.builder.build(code: value, kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit, renderer.iconRenderKit], materialEntity: material)
-                                            isBuilding = true
                                         }
                                     }
                                 }
                             }
                         } else {
-                            if let renderer = document.model.renderer, let object = document.model.selectedObject {
-                                switch document.model.project.getObjectType(from: object.id) {
-                                    case .object:
-                                        document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .object, renderKits: [renderer.mainRenderKit])
-                                        isBuilding = true
-                                    case .material:
-                                        document.model.builder.build(code: object.getCode(), kit: document.model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit])
-                                        isBuilding = true
-                                    default:
-                                        document.model.builder.build(code: document.model.project.main.getCode(), kit: document.model.modeler!.mainKit, renderKits: [renderer.mainRenderKit])
-                                        isBuilding = true
-                                }
+                            if let renderer = document.model.renderer {//}, let object = document.model.selectedObject {
+                                document.model.builder.build(code: document.model.project.main.getCode(), kit: document.model.modeler!.mainKit, renderKits: [renderer.mainRenderKit])
                             }
                         }
                     } else {
@@ -253,6 +241,10 @@ struct ContentView: View {
         
         .onReceive(document.model.modulesArrived) { _ in
             modulesArrived = true
+        }
+        
+        .onReceive(document.model.modellingStarted) { _ in
+            isBuilding = true
         }
         
         .onReceive(document.model.modellingEnded) { _ in
