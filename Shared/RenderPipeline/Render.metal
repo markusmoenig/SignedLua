@@ -867,7 +867,7 @@ float3 getNormal(float3 p, texture3d<float> modelTexture, float scale = 1.0)
     return normalize(n);
 }
 
-bool insideHit(Ray ray, thread float &distance, constant ModelerUniform &mData, texture3d<float> modelTexture, float scale = 1.0) {
+bool insideHit(Ray ray, thread float &distance, constant ModelerUniform &mData, texture3d<float> modelTexture, texture3d<float, access::read_write> materialTexture3, float scale = 1.0) {
 
     float t = EPS;
     bool hit = false;
@@ -882,12 +882,14 @@ bool insideHit(Ray ray, thread float &distance, constant ModelerUniform &mData, 
     for(int i = 0; i < 260; ++i)
     {
         float3 p = ray.origin + ray.direction * t;
-        
         float d = getDistance(p, modelTexture, scale);
         
         if (abs(d) < (0.0001*t*scale)) {
-            hit = true;
-            break;
+            float transmission = getMaterialData(p, materialTexture3, scale).y;
+            if (transmission < 0.01) {
+                hit = true;
+                break;
+            }
         }
         
         t += abs(d);
@@ -902,7 +904,7 @@ bool insideHit(Ray ray, thread float &distance, constant ModelerUniform &mData, 
 }
 
 //-----------------------------------------------------------------------
-float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderUniform &renderData, constant ModelerUniform  &mData, texture3d<float> modelTexture, float scale = 1.0)
+float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderUniform &renderData, constant ModelerUniform  &mData, texture3d<float> modelTexture, texture3d<float, access::read_write> materialTexture3, float scale = 1.0)
 //-----------------------------------------------------------------------
 {
     float3 Li = float3(0.0);
@@ -978,7 +980,7 @@ float3 DirectLight(Ray ray, State state, thread DataIn &dataIn, constant RenderU
                 lightRay.direction = lightSampleRec.direction;
                 float t;
                 
-                if (insideHit(lightRay, t, mData, modelTexture, scale)) {
+                if (insideHit(lightRay, t, mData, modelTexture, materialTexture3, scale)) {
                     inShadow = true;
                 }
             }
@@ -1240,7 +1242,7 @@ kernel void renderBSDF(        constant RenderUniform               &renderData 
         // Add absoption
         throughput *= exp(-absorption * t);
 
-        radiance += DirectLight(ray, state, dataIn, renderData, mData, modelTexture, scale) * throughput;
+        radiance += DirectLight(ray, state, dataIn, renderData, mData, modelTexture, materialTexture3, scale) * throughput;
 
         bsdfSampleRec.f = DisneySample(state, -ray.direction, state.ffnormal, bsdfSampleRec.L, bsdfSampleRec.pdf, dataIn);
 
@@ -1566,7 +1568,7 @@ kernel void renderPBR(         constant RenderUniform               &renderData 
     lightRay.origin = position;
     lightRay.direction = l;
     
-    if (insideHit(lightRay, t, mData, modelTexture, scale)) {
+    if (insideHit(lightRay, t, mData, modelTexture, materialTexture3, scale)) {
         attenuation = 0;
     }
 
@@ -1590,7 +1592,7 @@ kernel void renderPBR(         constant RenderUniform               &renderData 
     refRay.origin = position;
     refRay.direction = ref;
         
-    if (insideHit(refRay, t, mData, modelTexture, scale)) {
+    if (insideHit(refRay, t, mData, modelTexture, materialTexture3, scale)) {
         indirectSpecular = getMaterialData(refRay.origin + refRay.direction * t, colorTexture, scale).xyz;
     }
 
