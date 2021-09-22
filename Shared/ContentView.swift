@@ -37,7 +37,8 @@ struct ContentView: View {
 
     /// Indicatesn that building is in progress
     @State private var isBuilding                       : Bool = false
-
+    
+    @State private var currentHelpTopic                 : HelpContentView.HelpTopic = .none
 
     #if os(macOS)
     let leftPanelWidth                      : CGFloat = 160
@@ -61,23 +62,27 @@ struct ContentView: View {
                     
                     ProjectView(document.model)
 
-                    VStack(spacing: 0) {
-                        
-                        if layout == .vertical {
-                            HSplitView {
-                                EditorView(document.model)
-                                ProgressView(model: document.model)
-                                    .frame(maxWidth: 3)
-                                PreviewView(document: document, model: document.model)
-                            }
-                        } else {
-                            VSplitView {
-                                PreviewView(document: document, model: document.model)
-                                ProgressView(model: document.model)
-                                    .frame(maxHeight: 3)
-                                EditorView(document.model)
+                    if currentHelpTopic == .none {
+                        VStack(spacing: 0) {
+                            
+                            if layout == .vertical {
+                                HSplitView {
+                                    EditorView(document.model)
+                                    ProgressView(model: document.model)
+                                        .frame(maxWidth: 3)
+                                    PreviewView(document: document, model: document.model)
+                                }
+                            } else {
+                                VSplitView {
+                                    PreviewView(document: document, model: document.model)
+                                    ProgressView(model: document.model)
+                                        .frame(maxHeight: 3)
+                                    EditorView(document.model)
+                                }
                             }
                         }
+                    } else {
+                        HelpView(model: document.model, topic: currentHelpTopic)
                     }
                 }
                 
@@ -93,19 +98,23 @@ struct ContentView: View {
                     ProjectView(document.model)
                         .frame(maxWidth: leftPanelWidth)
 
-                    VStack(spacing: 0) {
-                        
-                        if layout == .vertical {
-                            HStack(spacing: 2) {
-                                EditorView(document.model)
-                                PreviewView(document: document, model: document.model)
-                            }
-                        } else {
-                            VStack(spacing: 2) {
-                                PreviewView(document: document, model: document.model)
-                                EditorView(document.model)
+                    if currentHelpTopic == . none {
+                        VStack(spacing: 0) {
+                            
+                            if layout == .vertical {
+                                HStack(spacing: 2) {
+                                    EditorView(document.model)
+                                    PreviewView(document: document, model: document.model)
+                                }
+                            } else {
+                                VStack(spacing: 2) {
+                                    PreviewView(document: document, model: document.model)
+                                    EditorView(document.model)
+                                }
                             }
                         }
+                    } else {
+                        HelpView(model: document.model, topic: currentHelpTopic)
                     }
                 }
                 
@@ -249,6 +258,11 @@ struct ContentView: View {
         
         .onReceive(document.model.modellingEnded) { _ in
             isBuilding = false
+        }
+        
+        .onReceive(document.model.showHelpTopic) { topic in
+            document.model.currentHelpTopic = topic
+            currentHelpTopic = topic
         }
     }
     

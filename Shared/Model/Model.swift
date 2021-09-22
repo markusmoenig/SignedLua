@@ -87,6 +87,9 @@ class Model: NSObject, ObservableObject {
     /// Send when modelling is finished
     let modellingEnded                      = PassthroughSubject<Void, Never>()
     
+    /// Send when help is showh (or not)
+    let showHelpTopic                       = PassthroughSubject<HelpContentView.HelpTopic, Never>()
+    
     /// Reference to the underlying code editor
     var codeEditor                          : CodeEditor? = nil
 
@@ -125,6 +128,9 @@ class Model: NSObject, ObservableObject {
     
     /// Current renderer
     var currentRenderName                   = "renderPBR"
+    
+    /// Current help topic
+    var currentHelpTopic                    : HelpContentView.HelpTopic = .none
     
     override init() {
         project = SignedProject()

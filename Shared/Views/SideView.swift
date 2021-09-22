@@ -31,6 +31,7 @@ struct SideView: View {
                     
                     Button(action: {
                         mode = .shapes
+                        model.showHelpTopic.send(.none)
                     })
                     {
                         Image(systemName: mode == .shapes ? "cube.fill" : "cube")
@@ -40,6 +41,7 @@ struct SideView: View {
                     
                     Button(action: {
                         mode = .objects
+                        model.showHelpTopic.send(.none)
                     })
                     {
                         Image(systemName: mode == .objects ? "house.fill" : "house")
@@ -49,6 +51,7 @@ struct SideView: View {
                     
                     Button(action: {
                         mode = .materials
+                        model.showHelpTopic.send(.none)
                     })
                     {
                         Image(systemName: mode == .materials ? "paintpalette.fill" : "paintpalette")
@@ -67,6 +70,7 @@ struct SideView: View {
                     
                     Button(action: {
                         mode = .settings
+                        model.showHelpTopic.send(.none)
                     })
                     {
                         Image(systemName: mode == .settings ? "gearshape.fill" : "gearshape")
@@ -77,6 +81,10 @@ struct SideView: View {
                     
                     Button(action: {
                         mode = .help
+                        if model.currentHelpTopic == .none {
+                            model.currentHelpTopic = .introduction
+                        }
+                        model.showHelpTopic.send(model.currentHelpTopic)
                     })
                     {
                         Image(systemName: mode == .help ? "questionmark.circle.fill" : "questionmark.circle")
@@ -119,9 +127,12 @@ struct SideView: View {
                         
                         DataViews(model: model, data: getSettingsGroups(), bottomPadding: 12)
                             .padding(.top, 4)
+                    } else
+                    if mode == .help {
+                        HelpContentView(model: model)
                     }
                     
-                    if mode != .settings && mode != .camera {
+                    if mode != .settings && mode != .camera && mode != .help{
                         Divider()
                         InfoView(model: model)
                     }

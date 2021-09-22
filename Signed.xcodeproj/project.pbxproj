@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -179,6 +179,9 @@
 		2BC9944F2685A5AC00F75A54 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9944D2685A5AC00F75A54 /* Model.swift */; };
 		2BC994512685AB5400F75A54 /* SignedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC994502685AB5400F75A54 /* SignedObject.swift */; };
 		2BC994522685AB5400F75A54 /* SignedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC994502685AB5400F75A54 /* SignedObject.swift */; };
+		2BDAFC8726FAB368000ECF14 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BDAFC8626FAB368000ECF14 /* HelpView.swift */; };
+		2BDAFC8826FAB368000ECF14 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BDAFC8626FAB368000ECF14 /* HelpView.swift */; };
+		2BDAFC8B26FAC3ED000ECF14 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 2BDAFC8A26FAC3ED000ECF14 /* MarkdownUI */; };
 		2BF8593E26CE004100AC127A /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF8593D26CE004100AC127A /* InfoView.swift */; };
 		2BF8593F26CE004100AC127A /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF8593D26CE004100AC127A /* InfoView.swift */; };
 /* End PBXBuildFile section */
@@ -309,6 +312,7 @@
 		2BC838F426919A070087249A /* MaterialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialView.swift; sourceTree = "<group>"; };
 		2BC9944D2685A5AC00F75A54 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		2BC994502685AB5400F75A54 /* SignedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedObject.swift; sourceTree = "<group>"; };
+		2BDAFC8626FAB368000ECF14 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		2BF8593D26CE004100AC127A /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -324,6 +328,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BDAFC8B26FAC3ED000ECF14 /* MarkdownUI in Frameworks */,
 				2BC6FB40259EAF87007CEC7A /* StoreKit.framework in Frameworks */,
 				2B224FA025844D6000F32354 /* CloudKit.framework in Frameworks */,
 			);
@@ -481,6 +486,7 @@
 				2B7CFA302686FC0500221917 /* RenderView.swift */,
 				2B224F6B25844C1800F32354 /* CodeEditor.swift */,
 				2B4401BA26EAE11700F4371D /* ProgressView.swift */,
+				2BDAFC8626FAB368000ECF14 /* HelpView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -620,6 +626,7 @@
 			);
 			name = "Signed (macOS)";
 			packageProductDependencies = (
+				2BDAFC8A26FAC3ED000ECF14 /* MarkdownUI */,
 			);
 			productName = "Signed (macOS)";
 			productReference = 2B224F3D2584485300F32354 /* Signed.app */;
@@ -652,6 +659,7 @@
 			);
 			mainGroup = 2B224F272584485100F32354;
 			packageReferences = (
+				2BDAFC8926FAC3ED000ECF14 /* XCRemoteSwiftPackageReference "MarkdownUI" */,
 			);
 			productRefGroup = 2B224F362584485300F32354 /* Products */;
 			projectDirPath = "";
@@ -712,6 +720,7 @@
 				2BC733AB26C8EDE400BCE667 /* lctype.c in Sources */,
 				2BC7337F26C8EDE300BCE667 /* ldump.c in Sources */,
 				2BC733AF26C8EDE400BCE667 /* lutf8lib.c in Sources */,
+				2BDAFC8726FAB368000ECF14 /* HelpView.swift in Sources */,
 				2BC733E326C8EE7E00BCE667 /* Value.swift in Sources */,
 				2B407E7C268960B8004E6F4C /* Modeler.metal in Sources */,
 				2B407E7F268962E3004E6F4C /* ModelerStates.swift in Sources */,
@@ -803,6 +812,7 @@
 				2BC733AC26C8EDE400BCE667 /* lctype.c in Sources */,
 				2BC7338026C8EDE400BCE667 /* ldump.c in Sources */,
 				2BC733B026C8EDE400BCE667 /* lutf8lib.c in Sources */,
+				2BDAFC8826FAB368000ECF14 /* HelpView.swift in Sources */,
 				2BC733E426C8EE7E00BCE667 /* Value.swift in Sources */,
 				2B407E7D268960B8004E6F4C /* Modeler.metal in Sources */,
 				2B407E80268962E3004E6F4C /* ModelerStates.swift in Sources */,
@@ -1121,6 +1131,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2BDAFC8926FAC3ED000ECF14 /* XCRemoteSwiftPackageReference "MarkdownUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/MarkdownUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2BDAFC8A26FAC3ED000ECF14 /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2BDAFC8926FAC3ED000ECF14 /* XCRemoteSwiftPackageReference "MarkdownUI" */;
+			productName = MarkdownUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		2B651A3F2682C5FC002DF988 /* DataModel.xcdatamodeld */ = {
