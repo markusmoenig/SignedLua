@@ -15,6 +15,10 @@ struct ContentView: View {
     @Binding var document                               : SignedDocument
     @StateObject var storeManager                       : StoreManager
 
+    enum RenderType {
+        case pbr, bsdf
+    }
+    
     enum Layout {
         case horizontal, vertical
     }
@@ -33,7 +37,7 @@ struct ContentView: View {
 
     @State private var colorValue                       : Color = Color(.gray)
     
-    @State private var showBBox                         : Bool = false
+    @State private var renderType                       : RenderType = .pbr
 
     /// Indicatesn that building is in progress
     @State private var isBuilding                       : Bool = false
@@ -183,16 +187,23 @@ struct ContentView: View {
             }
             
             ToolbarItemGroup(placement: .automatic) {
-                Button(action: {
-                    showBBox.toggle()
-                    if showBBox {
-                        document.model.showBBox = 1
-                    } else {
-                        document.model.showBBox = 0
+                Menu {
+                    Button("PBR (Single Bounce)") {
+                        renderType = .pbr
+                        document.model.renderName = "renderPBR"
+                        document.model.currentRenderName = "renderPBR"
+                        document.model.renderer?.restart()
                     }
-                    document.model.renderer?.restart()
-                }) {
-                    Image(systemName: showBBox ? "rectangle.fill" : "rectangle")
+                    
+                    Button("Disney BSDF (Path Tracer)") {
+                        renderType = .bsdf
+                        document.model.renderName = "renderBSDF"
+                        document.model.currentRenderName = "renderBSDF"
+                        document.model.renderer?.restart()
+                    }
+                }
+                label: {
+                    Text(renderType == .pbr ? "PBR" : "BSDF")
                 }
             }
             

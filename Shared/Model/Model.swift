@@ -126,6 +126,9 @@ class Model: NSObject, ObservableObject {
     /// Shows the bounding box
     var showBBox                            : Int32 = 0
     
+    /// renderName (User setting)
+    var renderName                          = "renderPBR"
+    
     /// Current renderer
     var currentRenderName                   = "renderPBR"
     

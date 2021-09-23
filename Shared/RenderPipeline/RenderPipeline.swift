@@ -142,7 +142,7 @@ class RenderPipeline
                 if mainKit.modelGPUBusy == false {
                     model.modeler?.executeNext(kit: mainKit)
                     if mainKit.pipeline.isEmpty {
-                        model.currentRenderName = "renderBSDF"
+                        model.currentRenderName = "renderPBR"
                         needsRestart = true
                         
                         model.progress = .rendering
