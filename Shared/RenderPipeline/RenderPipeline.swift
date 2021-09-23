@@ -366,8 +366,6 @@ class RenderPipeline
                 renderUniform.noShadows = 0;
             }
             
-            renderUniform.showBBox = model.showBBox
-
             if kit.content == .project {
                 renderUniform.cameraOrigin = model.project.camera.getPosition()
                 renderUniform.cameraLookAt = model.project.camera.getLookAt()
@@ -393,10 +391,17 @@ class RenderPipeline
             renderUniform.maxDepth = 6;
             renderUniform.backgroundColor = float4(0.25, 0.25, 0.25, 1)
 
+            renderUniform.showBBox = 0
+
             if kit.content == .project {
                 if let rendererData = model.project.dataGroups.getGroup("Renderer") {
                     renderUniform.backgroundColor = rendererData.getFloat4("Background")
                     renderUniform.maxDepth = Int32(rendererData.getInt("Reflections", 6))
+                    renderUniform.showBBox = rendererData.getBool("Bounding Box", false) ? 1 : 0
+                }
+            } else {
+                if let rendererData = model.project.dataGroups.getGroup("Renderer") {
+                    renderUniform.showBBox = rendererData.getBool("Bounding Box", false) ? 1 : 0
                 }
             }
             

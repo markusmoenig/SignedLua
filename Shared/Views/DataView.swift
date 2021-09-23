@@ -211,6 +211,9 @@ struct DataEntityView: View {
     
     // For TextFields
     @State private var textFieldName        = ""
+
+    // For Bool Switches
+    @State private var boolValue            = false
     
     // For Texture Feature
     @State private var showTexturePopup     = false
@@ -257,6 +260,10 @@ struct DataEntityView: View {
             _menuOptions = State(initialValue: entity.text.components(separatedBy: ", "))
             let comp = entity.text.components(separatedBy: ", ")
             _menuText = State(initialValue: comp[Int(entity.value.x)])
+        }
+        
+        if entity.usage == .Switch {
+            _boolValue = State(initialValue: entity.value.x == 1 ? true : false)
         }
 
         // Set the mixer type name
@@ -309,7 +316,7 @@ struct DataEntityView: View {
                     }
                     .buttonStyle(.borderless)
                 }
-                if (entity.usage == .Slider || entity.usage == .Numeric) && entity.type != .Float {
+                if (entity.usage == .Slider || entity.usage == .Numeric) && (entity.type != .Float && entity.type != .Int) {
                     Button(action: {
                         isLocked.toggle()
                     })
@@ -410,6 +417,13 @@ struct DataEntityView: View {
 
                                 model.updateSelectedGroup(groupName: groupName)
                             }
+                        }
+                } else
+                if entity.usage == .Switch {
+                    Toggle("", isOn: $boolValue)
+                        .onChange(of: boolValue) { newValue in
+                            entity.value.x = newValue == true ? 1 : 0
+                            model.updateSelectedGroup(groupName: groupName)
                         }
                 } else
                 if entity.usage == .Numeric {

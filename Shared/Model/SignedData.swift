@@ -11,11 +11,11 @@ import Foundation
 class SignedDataEntity: Codable, Hashable {
     
     enum DataType: String, Codable {
-        case Int, Float, Float2, Float3, Float4, Text
+        case Int, Float, Float2, Float3, Float4, Text, Bool
     }
     
     enum UsageType: String, Codable {
-        case Numeric, Slider, Color, Menu, TextField
+        case Numeric, Slider, Color, Menu, TextField, Switch
     }
     
     enum Feature: String, Codable {
@@ -126,6 +126,18 @@ class SignedDataEntity: Codable, Hashable {
         defaultValue = value
     }
     
+    init(_ key: String,_ v: Bool,_ r: float2 = float2(0,1),_ u: UsageType = .Switch,_ f: Feature = .None,_ t: Double? = nil) {
+        self.key = key
+        type = .Bool
+        usage = u
+        feature = f
+        value = float4(v == true ? 1 : 0, 0, 0, 0)
+        range = r
+        time = t
+        
+        defaultValue = value
+    }
+    
     required init(from decoder: Decoder) throws
     {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -202,6 +214,17 @@ class SignedData: Codable, Hashable {
         for e in data {
             if e.key == key && e.type == .Int && e.time == time {
                 return Int(e.value.x)
+            }
+        }
+        // TODO: Interpolate between existing values
+        return defaultValue
+    }
+    
+    /// Get an Int key
+    func getBool(_ key: String,_ defaultValue: Bool = false,_ time: Double? = nil) -> Bool {
+        for e in data {
+            if e.key == key && e.type == .Bool && e.time == time {
+                return e.value.x == 1 ? true : false
             }
         }
         // TODO: Interpolate between existing values
