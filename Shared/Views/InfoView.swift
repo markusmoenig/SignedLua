@@ -20,7 +20,7 @@ struct InfoView: View {
                 HStack {
                     Text(getAttributedString(markdown: info))
                         .lineLimit(nil)
-                        .font(.system(size: 11))
+                        //.font(.system(size: 11))
                     Spacer()
                 }
                 .padding(.leading, 4)
@@ -29,6 +29,7 @@ struct InfoView: View {
             
         .onReceive(model.infoChanged) { _ in
             info = model.infoText
+            model.deselectSideViewIcon.send()
         }
         
         .onReceive(model.shapeSelected) { shape in

@@ -73,7 +73,16 @@ struct ShapeView: View {
             let buffer = selected
             selected = nil
             selected = buffer
-            //print("finished", cmd.name)
+        }
+        
+        .onReceive(model.deselectSideViewIcon) { _ in
+            selected = nil
+        }
+        
+        .onAppear {
+            if let shape = model.selectedShape {
+                model.shapeSelected.send(shape)
+            }
         }
     }
 }

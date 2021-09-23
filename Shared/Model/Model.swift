@@ -16,6 +16,10 @@ class Model: NSObject, ObservableObject {
         case none, modelling, rendering
     }
     
+    enum RenderType {
+        case pbr, bsdf
+    }
+    
     enum CodeEditorMode {
         case project
         case object
@@ -63,6 +67,9 @@ class Model: NSObject, ObservableObject {
     
     /// Send when an icon for  an entity has been rendered
     let iconFinished                        = PassthroughSubject<UUID, Never>()
+    
+    /// Send when the icon in the side view should be deselected
+    let deselectSideViewIcon                = PassthroughSubject<Void, Never>()
     
     /// Editing cmd changed, update the UI
     let modelChanged                        = PassthroughSubject<Void, Never>()
@@ -128,6 +135,7 @@ class Model: NSObject, ObservableObject {
     
     /// renderName (User setting)
     var renderName                          = "renderPBR"
+    var renderType                          : RenderType = .pbr
     
     /// Current renderer
     var currentRenderName                   = "renderPBR"
@@ -290,5 +298,24 @@ class Model: NSObject, ObservableObject {
         }
 
         return nil
+    }
+    
+    /// Gets the renderType for the given ModelerKit
+    func getRenderType(kit: ModelerKit) -> RenderType {
+        var type : RenderType = .pbr
+        
+        type = renderType
+        
+        return type
+    }
+    
+    /// Get the renderer name for the given ModelerKit
+    func getRenderName(kit: ModelerKit) -> String {        
+        switch getRenderType(kit: kit) {
+        case .bsdf:
+            return "renderBSDF"
+        default:
+            return "renderPBR"
+        }
     }
 }

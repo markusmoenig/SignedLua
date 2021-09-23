@@ -12,6 +12,11 @@ class SignedContext {
     let model           : Model
     let kit             : ModelerKit
     
+    var scriptStartTime : Double = 0
+    var scriptEndTime   : Double = 0
+
+    var hasErrors       = false
+    
     var commands        : [String:SignedCommand] = [:]
         
     init(model: Model, kit: ModelerKit) {

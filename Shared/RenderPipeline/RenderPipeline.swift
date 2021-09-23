@@ -93,9 +93,16 @@ class RenderPipeline
         }
         
         mainRenderKit.samples = 0
-        mainRenderKit.maxSamples = model.project.getMaxSamples()
         
-        if model.progress != .modelling {
+        let renderType = model.getRenderType(kit: model.modeler!.mainKit)
+        
+        if renderType == .pbr {
+            mainRenderKit.maxSamples = 40
+        } else {
+            mainRenderKit.maxSamples = model.project.getMaxSamples()
+        }
+        
+        if model.progress != .modelling && model.getRenderType(kit: model.modeler!.mainKit) == .bsdf {
             model.progress = .rendering
             model.progressCurrent = 0
             model.progressTotal = model.project.getMaxSamples()
@@ -142,14 +149,27 @@ class RenderPipeline
                 if mainKit.modelGPUBusy == false {
                     model.modeler?.executeNext(kit: mainKit)
                     if mainKit.pipeline.isEmpty {
-                        model.currentRenderName = "renderPBR"
+                        model.currentRenderName = model.getRenderName(kit: model.modeler!.mainKit)
                         needsRestart = true
                         
                         model.progress = .rendering
                         model.progressCurrent = 0
-                        model.progressTotal = mainRenderKit.maxSamples
-                        
+                        if model.getRenderType(kit: model.modeler!.mainKit) == .bsdf {
+                            model.progressTotal = mainRenderKit.maxSamples
+                        } else {
+                            model.progressTotal = 40
+                        }
                         model.modellingEnded.send()
+                        
+                        if let context = model.builder.context, context.hasErrors == false {
+                            let c = Date().timeIntervalSince1970
+
+                            let t = String(format: "%.02f", c - (context.scriptEndTime))
+                            model.infoText += "Modelling finished in \(t) seconds.\n"
+                            DispatchQueue.main.async {
+                                self.model.infoChanged.send()
+                            }
+                        }
                     }
                     mainRenderKit.samples = 0
                 }
@@ -175,16 +195,18 @@ class RenderPipeline
                     mainKit.renderGPUBusy = true
                     commandBuffer?.addCompletedHandler { cb in
                         mainKit.renderGPUBusy = false
-                        //print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000, renderKit.samples)
+                        print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000, renderKit.samples)
                     }
                     
                     runRender(mainKit)
                     accumulate(renderKit: mainRenderKit)
                     mainRenderKit.samples += 1
                     
-                    if model.progress == .rendering {
-                        model.progressCurrent += 1
-                        model.progressChanged.send()
+                    if model.getRenderType(kit: model.modeler!.mainKit) == .bsdf {
+                        if model.progress == .rendering {
+                            model.progressCurrent += 1
+                            model.progressChanged.send()
+                        }
                     }
                 } else {
                     

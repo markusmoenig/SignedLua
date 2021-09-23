@@ -602,6 +602,8 @@ class SignedBuilder {
             self.context = SignedContext(model: model, kit: kit)
             self.context.addToPipeline(cmd: SignedCommand("Clear", role: .GeometryAndMaterial, action: .Clear))
             
+            self.context.scriptStartTime = Date().timeIntervalSince1970
+
             // print
             self.vm.globals["_print"] = self.vm.createFunction([String.arg]) { args in
                 if args.values.isEmpty == false {
@@ -675,6 +677,7 @@ class SignedBuilder {
                 }
             case let .error(e):
                 self.model.infoText += e + "\n"
+                self.context.hasErrors = true
                 DispatchQueue.main.async {
                     self.model.infoChanged.send()
                 }
@@ -699,6 +702,7 @@ class SignedBuilder {
                     }
                 case let .error(e):
                     self.model.infoText += e + "\n"
+                    self.context.hasErrors = true
                     DispatchQueue.main.async {
                         self.model.infoChanged.send()
                     }
@@ -719,6 +723,7 @@ class SignedBuilder {
                     }
                 case let .error(e):
                     self.model.infoText += e + "\n"
+                    self.context.hasErrors = true
                     DispatchQueue.main.async {
                         self.model.infoChanged.send()
                     }
@@ -782,6 +787,16 @@ class SignedBuilder {
             }
             
             self.vm = nil
+            
+            self.context.scriptEndTime = Date().timeIntervalSince1970
+
+            if self.context.hasErrors == false {
+                let t = (self.context.scriptEndTime - self.context.scriptStartTime) * 1000
+                self.model.infoText += "Executed in \(Int(t))ms generating \(self.context.commands.count) modeling commands.\n"
+                DispatchQueue.main.async {
+                    self.model.infoChanged.send()
+                }
+            }
         }
         
         if let workItem = workItem {

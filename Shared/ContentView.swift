@@ -14,10 +14,6 @@ struct ContentView: View {
 
     @Binding var document                               : SignedDocument
     @StateObject var storeManager                       : StoreManager
-
-    enum RenderType {
-        case pbr, bsdf
-    }
     
     enum Layout {
         case horizontal, vertical
@@ -37,7 +33,7 @@ struct ContentView: View {
 
     @State private var colorValue                       : Color = Color(.gray)
     
-    @State private var renderType                       : RenderType = .pbr
+    @State private var renderType                       : Model.RenderType = .pbr
 
     /// Indicatesn that building is in progress
     @State private var isBuilding                       : Bool = false
@@ -190,6 +186,7 @@ struct ContentView: View {
                 Menu {
                     Button("PBR (Single Bounce)") {
                         renderType = .pbr
+                        document.model.renderType = .pbr
                         document.model.renderName = "renderPBR"
                         document.model.currentRenderName = "renderPBR"
                         document.model.renderer?.restart()
@@ -197,6 +194,7 @@ struct ContentView: View {
                     
                     Button("Disney BSDF (Path Tracer)") {
                         renderType = .bsdf
+                        document.model.renderType = .bsdf
                         document.model.renderName = "renderBSDF"
                         document.model.currentRenderName = "renderBSDF"
                         document.model.renderer?.restart()

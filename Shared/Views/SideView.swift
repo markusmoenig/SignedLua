@@ -34,7 +34,7 @@ struct SideView: View {
                         model.showHelpTopic.send(.none)
                     })
                     {
-                        Image(systemName: mode == .shapes ? "cube.fill" : "cube")
+                        Image(systemName: mode == .shapes ? "pyramid.fill" : "pyramid")
                             .imageScale(.large)
                     }
                     .buttonStyle(.borderless)
@@ -44,7 +44,7 @@ struct SideView: View {
                         model.showHelpTopic.send(.none)
                     })
                     {
-                        Image(systemName: mode == .objects ? "house.fill" : "house")
+                        Image(systemName: mode == .objects ? "cube.fill" : "cube")
                             .imageScale(.large)
                     }
                     .buttonStyle(.borderless)
