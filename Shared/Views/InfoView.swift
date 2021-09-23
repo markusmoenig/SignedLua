@@ -8,32 +8,51 @@
 import SwiftUI
 
 struct InfoView: View {
+    
+    enum InfoType {
+        case info, shape
+    }
 
     let model                               : Model
     
+    @State private var infoType             : InfoType = .info
     @State private var info                 : String = ""
-
+    
+    init(model: Model) {
+        self.model = model
+    }
+    
     var body: some View {
                     
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    Text(getAttributedString(markdown: info))
-                        .lineLimit(nil)
-                        //.font(.system(size: 11))
-                    Spacer()
+        VStack {
+            if infoType == .info {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        HStack {
+                            Text(getAttributedString(markdown: info))
+                                .lineLimit(nil)
+                            Spacer()
+                        }
+                        .padding(.leading, 4)
+                    }.frame(maxWidth: .infinity)
                 }
-                .padding(.leading, 4)
-            }.frame(maxWidth: .infinity)
+            } else
+            if infoType == .shape {
+                if let shape = model.selectedShape {
+                    ShapeDetailsView(model: model, shape: shape)
+                }
+            }
         }
-            
+
         .onReceive(model.infoChanged) { _ in
             info = model.infoText
+            infoType = .info
             model.deselectSideViewIcon.send()
         }
         
         .onReceive(model.shapeSelected) { shape in
-            info = getCommandMarkdown(shape: shape)
+            infoType = .shape
+            //info = getCommandMarkdown(shape: shape)
         }
     }
     

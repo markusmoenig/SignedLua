@@ -24,6 +24,8 @@
 		2B224F9A25844D0E00F32354 /* Files in Resources */ = {isa = PBXBuildFile; fileRef = 2B224F9925844D0E00F32354 /* Files */; };
 		2B224F9B25844D0E00F32354 /* Files in Resources */ = {isa = PBXBuildFile; fileRef = 2B224F9925844D0E00F32354 /* Files */; };
 		2B224FA025844D6000F32354 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B224F9F25844D6000F32354 /* CloudKit.framework */; };
+		2B29BCD326FC7B790067AB30 /* ShapeDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B29BCD226FC7B790067AB30 /* ShapeDetailsView.swift */; };
+		2B29BCD426FC7B790067AB30 /* ShapeDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B29BCD226FC7B790067AB30 /* ShapeDetailsView.swift */; };
 		2B2B3C9B26CB56BB00FFA287 /* ObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B3C9A26CB56BB00FFA287 /* ObjectView.swift */; };
 		2B2B3C9C26CB56BB00FFA287 /* ObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B3C9A26CB56BB00FFA287 /* ObjectView.swift */; };
 		2B35C8DD268AE082001A601F /* SignedCameras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B35C8DC268AE082001A601F /* SignedCameras.swift */; };
@@ -204,6 +206,7 @@
 		2B224F6C25844C1900F32354 /* Drawables.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Drawables.metal; sourceTree = "<group>"; };
 		2B224F9925844D0E00F32354 /* Files */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Files; sourceTree = "<group>"; };
 		2B224F9F25844D6000F32354 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		2B29BCD226FC7B790067AB30 /* ShapeDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeDetailsView.swift; sourceTree = "<group>"; };
 		2B2B3C9A26CB56BB00FFA287 /* ObjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectView.swift; sourceTree = "<group>"; };
 		2B35C8DC268AE082001A601F /* SignedCameras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedCameras.swift; sourceTree = "<group>"; };
 		2B37E6BF268850CE000439EF /* BrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserView.swift; sourceTree = "<group>"; };
@@ -474,6 +477,7 @@
 			children = (
 				2BC042EC267ED31000DD85E2 /* ProjectView.swift */,
 				2B62AD67268D60B1000504C0 /* ShapeView.swift */,
+				2B29BCD226FC7B790067AB30 /* ShapeDetailsView.swift */,
 				2B3CD1FE268A9D46007FCADF /* SideView.swift */,
 				2B62AD70268D7FF4000504C0 /* DataView.swift */,
 				2BF8593D26CE004100AC127A /* InfoView.swift */,
@@ -718,6 +722,7 @@
 				2B7CFA342686FD2000221917 /* Drawables.swift in Sources */,
 				2BC733A126C8EDE400BCE667 /* lbaselib.c in Sources */,
 				2BC733AB26C8EDE400BCE667 /* lctype.c in Sources */,
+				2B29BCD326FC7B790067AB30 /* ShapeDetailsView.swift in Sources */,
 				2BC7337F26C8EDE300BCE667 /* ldump.c in Sources */,
 				2BC733AF26C8EDE400BCE667 /* lutf8lib.c in Sources */,
 				2BDAFC8726FAB368000ECF14 /* HelpView.swift in Sources */,
@@ -810,6 +815,7 @@
 				2B7CFA352686FD2000221917 /* Drawables.swift in Sources */,
 				2BC733A226C8EDE400BCE667 /* lbaselib.c in Sources */,
 				2BC733AC26C8EDE400BCE667 /* lctype.c in Sources */,
+				2B29BCD426FC7B790067AB30 /* ShapeDetailsView.swift in Sources */,
 				2BC7338026C8EDE400BCE667 /* ldump.c in Sources */,
 				2BC733B026C8EDE400BCE667 /* lutf8lib.c in Sources */,
 				2BDAFC8826FAB368000ECF14 /* HelpView.swift in Sources */,

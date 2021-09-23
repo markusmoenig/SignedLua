@@ -165,7 +165,7 @@ class RenderPipeline
                             let c = Date().timeIntervalSince1970
 
                             let t = String(format: "%.02f", c - (context.scriptEndTime))
-                            model.infoText += "Modelling finished in \(t) seconds.\n"
+                            model.infoText += "Modeling finished in \(t) seconds.\n"
                             DispatchQueue.main.async {
                                 self.model.infoChanged.send()
                             }
