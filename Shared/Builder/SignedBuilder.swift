@@ -83,6 +83,17 @@ class SignedBuilder {
         }
     }
     
+    /// Sets a named Text in the given data groups
+    func setText(name: String, value: String, groups: [SignedData]) {
+        for data in groups {
+            for entity in data.data {
+                if entity.key == name && entity.type == .Text {
+                    entity.text = value
+                }
+            }
+        }
+    }
+    
     /// extracts a float3 from a table
     func extractFloat2(table: Table) -> float2 {
         var v = float2()
@@ -233,6 +244,17 @@ class SignedBuilder {
                 return .nothing
             }
             
+            // Set text
+            type["setText"] = type.createMethod([String.arg, String.arg]) { cmd, args in
+                if args.values.count == 2 {
+                    let (paramName, value) = (args.string, args.string)
+                    if let cmd = cmd.cmd {
+                        self.setText(name: paramName, value: value, groups: cmd.allDataGroups())
+                    }
+                }
+                return .nothing
+            }
+            
             // Set named vec3 data
             type["setVec3"] = type.createMethod([String.arg, Table.arg]) { cmd, args in
                 if args.values.count == 2 {
@@ -245,6 +267,7 @@ class SignedBuilder {
             }
             
             // Set Mode
+            /*
             type["setMode"] = type.createMethod([String.arg]) { cmd, args in
                 if args.values.count == 1 {
                     let modeName = args.string.lowercased()
@@ -258,7 +281,7 @@ class SignedBuilder {
                     }
                 }
                 return .nothing
-            }
+            }*/
             
             // Set Mode
             type["setBlendMode"] = type.createMethod([String.arg, Table.arg]) { cmd, args in

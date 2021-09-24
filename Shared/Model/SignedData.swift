@@ -36,7 +36,8 @@ class SignedDataEntity: Codable, Hashable {
     var range       : float2
     
     var text        : String = ""
-    
+    var about       : String = ""
+
     var subData     : SignedData? = nil
         
     private enum CodingKeys: String, CodingKey {
@@ -52,13 +53,14 @@ class SignedDataEntity: Codable, Hashable {
         case subData
     }
     
-    init(_ key: String,_ v: String,_ u: UsageType = .TextField,_ f: Feature = .None,_ t: Double? = nil) {
+    init(_ key: String,_ v: String,_ u: UsageType = .TextField,_ f: Feature = .None,_ a: String = "", _ t: Double? = nil) {
         self.key = key
         type = .Text
         usage = u
         feature = f
         text = v
         range = float2(0,0)
+        about = a
         time = t
                 
         value = float4()
@@ -78,13 +80,14 @@ class SignedDataEntity: Codable, Hashable {
         defaultValue = value
     }
     
-    init(_ key: String,_ v: Float,_ r: float2 = float2(0,1),_ u: UsageType = .Slider,_ f: Feature = .None,_ t: Double? = nil) {
+    init(_ key: String,_ v: Float,_ r: float2 = float2(0,1),_ u: UsageType = .Slider,_ f: Feature = .None,_ a: String = "", _ t: Double? = nil) {
         self.key = key
         type = .Float
         usage = u
         feature = f
         value = float4(v, 0, 0, 0)
         range = r
+        about = a
         time = t
         
         defaultValue = value
@@ -102,13 +105,14 @@ class SignedDataEntity: Codable, Hashable {
         defaultValue = value
     }
     
-    init(_ key: String,_ v: float3,_ r: float2 = float2(0,1),_ u: UsageType = .Numeric,_ f: Feature = .None,_ t: Double? = nil) {
+    init(_ key: String,_ v: float3,_ r: float2 = float2(0,1),_ u: UsageType = .Numeric,_ f: Feature = .None,_ a: String = "",_ t: Double? = nil) {
         self.key = key
         type = .Float3
         usage = u
         feature = f
         value = float4(v.x, v.y, v.z, 0)
         range = r
+        about = a
         time = t
         
         defaultValue = value
@@ -320,11 +324,11 @@ class SignedData: Codable, Hashable {
     }
     
     /// Set Text
-    func set(_ key: String,_ value: String,_ usage: SignedDataEntity.UsageType = .TextField,_ feature: SignedDataEntity.Feature = .None,_ time: Double? = nil) {
+    func set(_ key: String,_ value: String,_ usage: SignedDataEntity.UsageType = .TextField,_ feature: SignedDataEntity.Feature = .None,_ about: String = "",_ time: Double? = nil) {
         if let ex = getExisting(key, .Int, time) {
             ex.text = value
         } else {
-            data.append(SignedDataEntity(key, value, usage, feature, time))
+            data.append(SignedDataEntity(key, value, usage, feature, about, time))
         }
     }
     
@@ -338,11 +342,11 @@ class SignedData: Codable, Hashable {
     }
     
     /// Set Float
-    func set(_ key: String,_ value: Float,_ range: float2 = float2(0,1),_ usage: SignedDataEntity.UsageType = .Slider,_ feature: SignedDataEntity.Feature = .None,_ time: Double? = nil) {
+    func set(_ key: String,_ value: Float,_ range: float2 = float2(0,1),_ usage: SignedDataEntity.UsageType = .Slider,_ feature: SignedDataEntity.Feature = .None,_ a: String = "", _ time: Double? = nil) {
         if let ex = getExisting(key, .Float, time) {
             ex.value = float4(value, 0, 0, 0)
         } else {
-            data.append(SignedDataEntity(key, value, range, usage, feature, time))
+            data.append(SignedDataEntity(key, value, range, usage, feature, a, time))
         }
     }
     
@@ -356,11 +360,11 @@ class SignedData: Codable, Hashable {
     }
     
     /// Set Float3
-    func set(_ key: String,_ value: float3,_ range: float2 = float2(0,1),_ usage: SignedDataEntity.UsageType = .Numeric,_ feature: SignedDataEntity.Feature = .None,_ time: Double? = nil) {
+    func set(_ key: String,_ value: float3,_ range: float2 = float2(0,1),_ usage: SignedDataEntity.UsageType = .Numeric,_ feature: SignedDataEntity.Feature = .None,_ about: String = "", _ time: Double? = nil) {
         if let ex = getExisting(key, .Float3, time) {
             ex.value = float4(value.x, value.y, value.z, 0)
         } else {
-            data.append(SignedDataEntity(key, value, range, usage, feature, time))
+            data.append(SignedDataEntity(key, value, range, usage, feature, about, time))
         }
     }
     

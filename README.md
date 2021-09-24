@@ -40,10 +40,10 @@ The execute call models the box, the parameter for execute is the material index
 
 Different shapes support different geometry parameters, selecting the shape icon in *Signed* will show a list of the supported parameters of the shape.
 
-Use setMode() to change the boolean mode of the command:
+To change the boolean mode of the command:
 
 ```lua
-box:setMode("subtract")
+box:set("mode", "subtract")
 box:set("smoothing", 0.1)
 ```
 

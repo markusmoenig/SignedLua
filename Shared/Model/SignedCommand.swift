@@ -131,26 +131,27 @@ class SignedCommand : Codable, Hashable {
     func initDataGroups(fromConstructor: Bool = false) {
             
         addDataGroup(name: "Transform", entities: [
-            SignedDataEntity("position", float3(0,0,0), float2(-0.5, 0.5)),
-            SignedDataEntity("rotation", float3(0,0,0), float2(0, 360), .Slider),
-            SignedDataEntity("pivot", float3(0,0,0), float2(0, 360), .Slider),
+            SignedDataEntity("position", float3(0,0,0), float2(-0.5, 0.5), .Numeric, .None, "The position of the shape relative to it's center."),
+            SignedDataEntity("rotation", float3(0,0,0), float2(0, 360), .Slider, .None, "The rotation of the shape."),
+            SignedDataEntity("pivot", float3(0,0,0), float2(-0.5, 0.5), .Numeric, .None, "The pivot of the rotation."),
         ])
         
         addDataGroup(name: "Modifier", entities: [
-            SignedDataEntity("noise", Float(0), float2(0, 2)),
-            SignedDataEntity("onion", Float(0), float2(0, 1)),
+            SignedDataEntity("noise", Float(0), float2(0, 2), .Slider, .None, "Adds spherical noise to the surface of the shape."),
+            SignedDataEntity("onion", Float(0), float2(0, 1), .Slider, .None, "If > 0 defines the size of the shell of the shape with an hollow interior."),
             SignedDataEntity("depth", float2(-5, 5), float2(-5, 5)),
             SignedDataEntity("max", float3(10,10,10), float2(0, 10), .Slider),
         ])
         
         addDataGroup(name: "Boolean", entities: [
-            SignedDataEntity("smoothing", Float(0.0), float2(0, 1))
+            SignedDataEntity("mode", "add", .TextField, .None, "Boolean mode, one of **add**, **subtract** or **intersect**. **add** is default."),
+            SignedDataEntity("smoothing", Float(0.0), float2(0, 1), .Slider, .None, "Smoothing, the higher the value the smoother the boolean operation gets.")
         ])
         
         addDataGroup(name: "Repetition", entities: [
-            SignedDataEntity("distance", Float(0.1), float2(0, 5)),
-            SignedDataEntity("upperLimit", float3(0,0,0), float2(-1000, 1000)),
-            SignedDataEntity("lowerLimit", float3(0,0,0), float2(-1000, 1000)),
+            SignedDataEntity("distance", Float(0.1), float2(0, 5), .Numeric, .None, "The distance between instances."),
+            SignedDataEntity("upperLimit", float3(0,0,0), float2(-1000, 1000), .Numeric, .None, "The amount of repetitions in the positive axis directions."),
+            SignedDataEntity("lowerLimit", float3(0,0,0), float2(-1000, 1000), .Numeric, .None, "The amount of repetitions in the negative axis directions."),
         ])
     }
     

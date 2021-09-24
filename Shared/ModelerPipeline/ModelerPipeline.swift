@@ -212,6 +212,15 @@ class ModelerPipeline
             
             if let booleanData = cmd.dataGroups.getGroup("Boolean") {
                 modelerUniform.smoothing = booleanData.getFloat("smoothing", 0.1)
+                if cmd.action != .Clear {
+                    let booleanMode = booleanData.getText("mode")
+                    switch booleanMode {
+                    case "subtract":
+                        modelerUniform.actionType = SignedCommand.Action.Subtract.rawValue
+                    default:
+                        modelerUniform.actionType = SignedCommand.Action.Add.rawValue
+                    }
+                }
             }
             
             if let repetitionData = cmd.dataGroups.getGroup("Repetition") {
