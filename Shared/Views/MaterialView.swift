@@ -20,7 +20,7 @@ struct MaterialView: View {
     
     let model                               : Model
     
-    @State var selected                     : UUID? = nil
+    @State var selected                     : MaterialEntity? = nil
     
     init(model: Model) {
         self.model = model
@@ -42,8 +42,10 @@ struct MaterialView: View {
                             Image(image, scale: 1.0, label: Text(material.name!))
                                 .onTapGesture(perform: {
                                     
-                                    selected = material.id
-                                    
+                                    selected = material
+                                    model.selectedDBMaterial = material
+                                    model.dbMaterialSelected.send(material)
+
                                     if let data = material.code {
                                         if let value = String(data: data, encoding: .utf8) {
                                             model.codeEditor?.setSession(value: value, session: "__material_" + material.name!)
@@ -53,17 +55,6 @@ struct MaterialView: View {
                                             model.selectionChanged.send()
                                         }
                                     }
-                                    /*
-                                    model.selectedMaterial = material
-                                    model.editingCmd.copyMaterial(from: material.material)
-                                    model.materialSelected.send(material)
-                                    
-                                    model.editingCmd.code = material.code
-                                    //model.codeEditor?.setValue(model.editingCmd)
-                                    
-                                    model.editingCmdChanged.send(model.editingCmd)
-                                    model.renderer?.restart()
-                                    */
                                 })
                                 .contextMenu {
                                     Button("Delete") {
@@ -79,7 +70,9 @@ struct MaterialView: View {
                                 .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
                                 .onTapGesture(perform: {
                                     
-                                    selected = material.id
+                                    selected = material
+                                    model.selectedDBMaterial = material
+                                    model.dbMaterialSelected.send(material)
                                     
                                     if let data = material.code {
                                         if let value = String(data: data, encoding: .utf8) {
@@ -101,7 +94,7 @@ struct MaterialView: View {
                                 }
                         }
                         
-                        if material.id == selected {
+                        if material === selected {
                             Rectangle()
                                 .stroke(Color.accentColor, lineWidth: 2)
                                 .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
@@ -111,8 +104,8 @@ struct MaterialView: View {
                         Rectangle()
                             .fill(.black)
                             .opacity(0.2)
-                            .frame(width: CGFloat(ModelerPipeline.IconSize - (material.id == selected ? 2 : 0)), height: CGFloat(18 - (material.id == selected ? 1 : 0)))
-                            .padding(.top, CGFloat(ModelerPipeline.IconSize - (18 + (material.id == selected ? 1 : 0))))
+                            .frame(width: CGFloat(ModelerPipeline.IconSize - (material === selected ? 2 : 0)), height: CGFloat(18 - (material === selected ? 1 : 0)))
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - (18 + (material === selected ? 1 : 0))))
                         
                         Text(material.name!)
                             .padding(.top, CGFloat(ModelerPipeline.IconSize - 18))
@@ -130,12 +123,28 @@ struct MaterialView: View {
             }
         }
     
-        .onReceive(model.iconFinished) { id in
-            let buffer = selected
-            //selected = cmd
-            selected = id
-            selected = buffer
-            //print("finished", cmd.name)
+        .onReceive(model.deselectSideViewIcon) { _ in
+            selected = nil
+        }
+        
+        .onAppear {
+            selected = model.selectedDBMaterial
+            if selected == nil {
+                let request = MaterialEntity.fetchRequest()
+                
+                let managedMaterialContext = PersistenceController.shared.container.viewContext
+                let materials = try! managedMaterialContext.fetch(request)
+                
+                if materials.count > 0 {
+                    selected = materials.first
+                }
+            }
+            
+            model.selectedDBMaterial = selected
+            
+            if selected != nil {
+                model.dbMaterialSelected.send(selected!)
+            }
         }
     }
     

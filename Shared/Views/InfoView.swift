@@ -10,7 +10,7 @@ import SwiftUI
 struct InfoView: View {
     
     enum InfoType {
-        case info, shape
+        case info, shape, object, material
     }
 
     let model                               : Model
@@ -41,6 +41,16 @@ struct InfoView: View {
                 if let shape = model.selectedShape {
                     ShapeDetailsView(model: model, shape: shape)
                 }
+            } else
+            if infoType == .object {
+                if let object = model.selectedDBObject {
+                    ObjectDetailsView(model: model, object: object)
+                }
+            } else
+            if infoType == .material {
+                if let material = model.selectedDBMaterial {
+                    MaterialDetailsView(model: model, material: material)
+                }
             }
         }
 
@@ -52,7 +62,14 @@ struct InfoView: View {
         
         .onReceive(model.shapeSelected) { shape in
             infoType = .shape
-            //info = getCommandMarkdown(shape: shape)
+        }
+        
+        .onReceive(model.dbObjectSelected) { object in
+            infoType = .object
+        }
+        
+        .onReceive(model.dbMaterialSelected) { object in
+            infoType = .material
         }
     }
     

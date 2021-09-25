@@ -98,8 +98,6 @@ Important here is to note that we do not call the cmd:execute() function but the
 To instantiate an object (from either your project or an arbitrary object from the public database) use something like this:
 
 ```lua
-local bbox = bbox:new()
-
 local pos = vec3(bbox.center.x + (bbox.right - bbox.center.x) / 2, bbox.center.y, bbox.center.z)
 local size = vec3(bbox.right - bbox.center.x, bbox.size.y, bbox.size.z)
 

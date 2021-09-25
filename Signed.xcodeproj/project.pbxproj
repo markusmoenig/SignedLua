@@ -54,6 +54,10 @@
 		2B52C5FA268805A700CAB2F2 /* SignedProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B52C5F8268805A700CAB2F2 /* SignedProject.swift */; };
 		2B58F31E268FE95200DE1121 /* SignedMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58F31D268FE95200DE1121 /* SignedMaterial.swift */; };
 		2B58F31F268FE95200DE1121 /* SignedMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B58F31D268FE95200DE1121 /* SignedMaterial.swift */; };
+		2B5FA24C26FEE504008CF20E /* ObjectDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA24B26FEE504008CF20E /* ObjectDetailsView.swift */; };
+		2B5FA24D26FEE504008CF20E /* ObjectDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA24B26FEE504008CF20E /* ObjectDetailsView.swift */; };
+		2B5FA24F26FEEB56008CF20E /* MaterialDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA24E26FEEB56008CF20E /* MaterialDetailsView.swift */; };
+		2B5FA25026FEEB56008CF20E /* MaterialDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA24E26FEEB56008CF20E /* MaterialDetailsView.swift */; };
 		2B62AD68268D60B1000504C0 /* ShapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD67268D60B1000504C0 /* ShapeView.swift */; };
 		2B62AD69268D60B1000504C0 /* ShapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD67268D60B1000504C0 /* ShapeView.swift */; };
 		2B62AD71268D7FF4000504C0 /* DataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD70268D7FF4000504C0 /* DataView.swift */; };
@@ -222,6 +226,8 @@
 		2B52C5F8268805A700CAB2F2 /* SignedProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedProject.swift; sourceTree = "<group>"; };
 		2B58F31D268FE95200DE1121 /* SignedMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedMaterial.swift; sourceTree = "<group>"; };
 		2B5F1B0226DB1CC6000DA322 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
+		2B5FA24B26FEE504008CF20E /* ObjectDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectDetailsView.swift; sourceTree = "<group>"; };
+		2B5FA24E26FEEB56008CF20E /* MaterialDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialDetailsView.swift; sourceTree = "<group>"; };
 		2B62AD67268D60B1000504C0 /* ShapeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeView.swift; sourceTree = "<group>"; };
 		2B62AD70268D7FF4000504C0 /* DataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataView.swift; sourceTree = "<group>"; };
 		2B651A402682C5FC002DF988 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
@@ -483,7 +489,9 @@
 				2BF8593D26CE004100AC127A /* InfoView.swift */,
 				2B37E6BF268850CE000439EF /* BrowserView.swift */,
 				2B2B3C9A26CB56BB00FFA287 /* ObjectView.swift */,
+				2B5FA24B26FEE504008CF20E /* ObjectDetailsView.swift */,
 				2BC838F426919A070087249A /* MaterialView.swift */,
+				2B5FA24E26FEEB56008CF20E /* MaterialDetailsView.swift */,
 				2B7242DC26CB398300F265F1 /* ModuleView.swift */,
 				2BC042F5267ED4A500DD85E2 /* EditorView.swift */,
 				2B9218FC26E06E9700C9A455 /* PreviewView.swift */,
@@ -703,10 +711,12 @@
 			files = (
 				2BC7339126C8EDE400BCE667 /* lvm.c in Sources */,
 				2BC733A326C8EDE400BCE667 /* ldo.c in Sources */,
+				2B5FA24F26FEEB56008CF20E /* MaterialDetailsView.swift in Sources */,
 				2BC733B726C8EDE400BCE667 /* ltable.c in Sources */,
 				2BC7339F26C8EDE400BCE667 /* loadlib.c in Sources */,
 				2B58F31E268FE95200DE1121 /* SignedMaterial.swift in Sources */,
 				2BC7339B26C8EDE400BCE667 /* linit.c in Sources */,
+				2B5FA24C26FEE504008CF20E /* ObjectDetailsView.swift in Sources */,
 				2BC733A726C8EDE400BCE667 /* lfunc.c in Sources */,
 				2B9218FD26E06E9700C9A455 /* PreviewView.swift in Sources */,
 				2BC7339D26C8EDE400BCE667 /* lgc.c in Sources */,
@@ -796,10 +806,12 @@
 			files = (
 				2BC7339226C8EDE400BCE667 /* lvm.c in Sources */,
 				2BC733A426C8EDE400BCE667 /* ldo.c in Sources */,
+				2B5FA25026FEEB56008CF20E /* MaterialDetailsView.swift in Sources */,
 				2BC733B826C8EDE400BCE667 /* ltable.c in Sources */,
 				2BC733A026C8EDE400BCE667 /* loadlib.c in Sources */,
 				2B58F31F268FE95200DE1121 /* SignedMaterial.swift in Sources */,
 				2BC7339C26C8EDE400BCE667 /* linit.c in Sources */,
+				2B5FA24D26FEE504008CF20E /* ObjectDetailsView.swift in Sources */,
 				2BC733A826C8EDE400BCE667 /* lfunc.c in Sources */,
 				2B9218FE26E06E9700C9A455 /* PreviewView.swift in Sources */,
 				2BC7339E26C8EDE400BCE667 /* lgc.c in Sources */,

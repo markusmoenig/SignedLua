@@ -20,11 +20,11 @@ struct ObjectView: View {
     
     let model                               : Model
     
-    @State var selected                     : UUID? = nil
+    @State var selected                     : ObjectEntity? = nil
     
     init(model: Model) {
         self.model = model
-        //_selected = State(initialValue: model.selectedMaterial)
+        _selected = State(initialValue: model.selectedDBObject)
     }
 
     var body: some View {
@@ -41,7 +41,9 @@ struct ObjectView: View {
                             Image(image, scale: 1.0, label: Text(object.name!))
                                 .onTapGesture(perform: {
                                     
-                                    selected = object.id
+                                    selected = object
+                                    model.selectedDBObject = object
+                                    model.dbObjectSelected.send(object)
                                     
                                     if let data = object.code {
                                         if let value = String(data: data, encoding: .utf8) {
@@ -67,8 +69,10 @@ struct ObjectView: View {
                                 .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
                                 .onTapGesture(perform: {
                                     
-                                    selected = object.id
-                                    
+                                    selected = object
+                                    model.selectedDBObject = object
+                                    model.dbObjectSelected.send(object)
+
                                     if let data = object.code {
                                         if let value = String(data: data, encoding: .utf8) {
                                             model.codeEditor?.setSession(value: value, session: "__object_" + object.name!)
@@ -89,7 +93,7 @@ struct ObjectView: View {
                                 }
                         }
                         
-                        if object.id == selected {
+                        if object === selected {
                             Rectangle()
                                 .stroke(Color.accentColor, lineWidth: 2)
                                 .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
@@ -99,8 +103,8 @@ struct ObjectView: View {
                         Rectangle()
                             .fill(.black)
                             .opacity(0.2)
-                            .frame(width: CGFloat(ModelerPipeline.IconSize - (object.id == selected ? 2 : 0)), height: CGFloat(18 - (object.id == selected ? 1 : 0)))
-                            .padding(.top, CGFloat(ModelerPipeline.IconSize - (18 + (object.id == selected ? 1 : 0))))
+                            .frame(width: CGFloat(ModelerPipeline.IconSize - (object === selected ? 2 : 0)), height: CGFloat(18 - (object === selected ? 1 : 0)))
+                            .padding(.top, CGFloat(ModelerPipeline.IconSize - (18 + (object === selected ? 1 : 0))))
                         
                         Text(object.name!)
                             .padding(.top, CGFloat(ModelerPipeline.IconSize - 18))
@@ -119,11 +123,35 @@ struct ObjectView: View {
         }
     
         .onReceive(model.iconFinished) { id in
-            let buffer = selected
+            //let buffer = selected
             //selected = cmd
-            selected = id
-            selected = buffer
+            //selected = id
+            //selected = buffer
             //print("finished", cmd.name)
+        }
+        
+        .onReceive(model.deselectSideViewIcon) { _ in
+            selected = nil
+        }
+        
+        .onAppear {
+            selected = model.selectedDBObject
+            if selected == nil {
+                let request = ObjectEntity.fetchRequest()
+                
+                let managedObjectContext = PersistenceController.shared.container.viewContext
+                let objects = try! managedObjectContext.fetch(request)
+                
+                if objects.count > 0 {
+                    selected = objects.first
+                }
+            }
+            
+            model.selectedDBObject = selected
+            
+            if selected != nil {
+                model.dbObjectSelected.send(selected!)
+            }
         }
     }
     

@@ -41,17 +41,23 @@ class Model: NSObject, ObservableObject {
     // The builder class
     var builder                             : SignedBuilder!
     
+    /// Currently selected project object
     var selectedObject                      : SignedObject? = nil
-    var selectedCommand                     : SignedCommand? = nil
-
+    
+    /// Currently selected project material
+    var selectedMaterial                    : SignedCommand? = nil
+    
     /// The selection has changed
     let selectionChanged                    = PassthroughSubject<Void, Never>()
     
     /// Currently selected shape in the browser
     var selectedShape                       : SignedCommand? = nil
 
-    /// Currently selected shape in the browser
-    var selectedMaterial                    : SignedCommand? = nil
+    /// Currently selected object in the db
+    var selectedDBObject                    : ObjectEntity? = nil
+    
+    /// Currently selected material in the db
+    var selectedDBMaterial                  : MaterialEntity? = nil
     
     /// Send when the camera mode changed
     let cameraModeChanged                   = PassthroughSubject<ModelerKit.Content, Never>()
@@ -64,6 +70,12 @@ class Model: NSObject, ObservableObject {
     
     /// Send when a material  has been selected
     let materialSelected                    = PassthroughSubject<SignedCommand, Never>()
+    
+    /// Send when a db object has been selected
+    let dbObjectSelected                    = PassthroughSubject<ObjectEntity, Never>()
+    
+    /// Send when a db material has been selected
+    let dbMaterialSelected                  = PassthroughSubject<MaterialEntity, Never>()
     
     /// Send when an icon for  an entity has been rendered
     let iconFinished                        = PassthroughSubject<UUID, Never>()
