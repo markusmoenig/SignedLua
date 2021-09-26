@@ -40,6 +40,8 @@ struct ContentView: View {
     
     @State private var currentHelpTopic                 : HelpContentView.HelpTopic = .none
 
+    @State private var exporter                         : Bool = false
+
     #if os(macOS)
     let leftPanelWidth                      : CGFloat = 160
     #else
@@ -225,6 +227,35 @@ struct ContentView: View {
                     showSideView.toggle()
                 }) {
                     Image(systemName: "sidebar.right")
+                }
+            }
+            
+            ToolbarItemGroup(placement: .automatic) {
+                Button(action: {
+                    //exporter = true
+                    if let modeler = document.model.modeler {
+                        //modeler.polygonize(kit: modeler.mainKit)
+                        let p = ModelerPolygonise(kit: modeler.mainKit)
+                        p.processTexture()
+                    }
+                }) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+                
+                // Export Mesh
+                .fileExporter(
+                    isPresented: $exporter,
+                    document: document,
+                    contentType: .png,
+                    defaultFilename: "Image"
+                ) { result in
+                    do {
+                        let url = try result.get()
+                        
+                        print(url)
+                    } catch {
+                        // Handle failure.
+                    }
                 }
             }
 

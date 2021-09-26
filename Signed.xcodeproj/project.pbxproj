@@ -58,6 +58,8 @@
 		2B5FA24D26FEE504008CF20E /* ObjectDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA24B26FEE504008CF20E /* ObjectDetailsView.swift */; };
 		2B5FA24F26FEEB56008CF20E /* MaterialDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA24E26FEEB56008CF20E /* MaterialDetailsView.swift */; };
 		2B5FA25026FEEB56008CF20E /* MaterialDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA24E26FEEB56008CF20E /* MaterialDetailsView.swift */; };
+		2B5FA252270000A9008CF20E /* ModelerPolygonise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA251270000A9008CF20E /* ModelerPolygonise.swift */; };
+		2B5FA253270000A9008CF20E /* ModelerPolygonise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA251270000A9008CF20E /* ModelerPolygonise.swift */; };
 		2B62AD68268D60B1000504C0 /* ShapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD67268D60B1000504C0 /* ShapeView.swift */; };
 		2B62AD69268D60B1000504C0 /* ShapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD67268D60B1000504C0 /* ShapeView.swift */; };
 		2B62AD71268D7FF4000504C0 /* DataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B62AD70268D7FF4000504C0 /* DataView.swift */; };
@@ -228,6 +230,7 @@
 		2B5F1B0226DB1CC6000DA322 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
 		2B5FA24B26FEE504008CF20E /* ObjectDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectDetailsView.swift; sourceTree = "<group>"; };
 		2B5FA24E26FEEB56008CF20E /* MaterialDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialDetailsView.swift; sourceTree = "<group>"; };
+		2B5FA251270000A9008CF20E /* ModelerPolygonise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelerPolygonise.swift; sourceTree = "<group>"; };
 		2B62AD67268D60B1000504C0 /* ShapeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeView.swift; sourceTree = "<group>"; };
 		2B62AD70268D7FF4000504C0 /* DataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataView.swift; sourceTree = "<group>"; };
 		2B651A402682C5FC002DF988 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
@@ -446,6 +449,7 @@
 				2B407E7B268960B8004E6F4C /* Modeler.metal */,
 				2B407E782689602A004E6F4C /* ModelerPipeline.swift */,
 				2B407E7E268962E3004E6F4C /* ModelerStates.swift */,
+				2B5FA251270000A9008CF20E /* ModelerPolygonise.swift */,
 			);
 			path = ModelerPipeline;
 			sourceTree = "<group>";
@@ -762,6 +766,7 @@
 				2BC733BF26C8EDE400BCE667 /* lstate.c in Sources */,
 				2BC7338126C8EDE400BCE667 /* lbitlib.c in Sources */,
 				2B224F8125844C1900F32354 /* Drawables.metal in Sources */,
+				2B5FA252270000A9008CF20E /* ModelerPolygonise.swift in Sources */,
 				2B35C8DD268AE082001A601F /* SignedCameras.swift in Sources */,
 				2B224F412584485300F32354 /* SignedApp.swift in Sources */,
 				2BC733AD26C8EDE400BCE667 /* liolib.c in Sources */,
@@ -857,6 +862,7 @@
 				2BC733C026C8EDE400BCE667 /* lstate.c in Sources */,
 				2BC7338226C8EDE400BCE667 /* lbitlib.c in Sources */,
 				2B224F8225844C1900F32354 /* Drawables.metal in Sources */,
+				2B5FA253270000A9008CF20E /* ModelerPolygonise.swift in Sources */,
 				2B35C8DE268AE082001A601F /* SignedCameras.swift in Sources */,
 				2B224F422584485300F32354 /* SignedApp.swift in Sources */,
 				2BC733AE26C8EDE400BCE667 /* liolib.c in Sources */,
