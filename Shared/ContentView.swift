@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ModelIO
 
 struct ContentView: View {
     
@@ -232,11 +233,14 @@ struct ContentView: View {
             
             ToolbarItemGroup(placement: .automatic) {
                 Button(action: {
-                    //exporter = true
                     if let modeler = document.model.modeler {
                         //modeler.polygonize(kit: modeler.mainKit)
                         let p = ModelerPolygonise(kit: modeler.mainKit)
                         p.processTexture()
+                        if p.triangles.isEmpty == false {
+                            exporter = true
+                            document.model.polygoniser = p
+                        }
                     }
                 }) {
                     Image(systemName: "square.and.arrow.up")
@@ -246,13 +250,57 @@ struct ContentView: View {
                 .fileExporter(
                     isPresented: $exporter,
                     document: document,
-                    contentType: .png,
+                    contentType: .signedOBJ,
                     defaultFilename: "Image"
                 ) { result in
                     do {
                         let url = try result.get()
                         
-                        print(url)
+                        if let p = document.model.polygoniser {
+                            
+                            let objData = p.toOBJ()
+                            
+                            do {
+                                try objData.write(to: url, options: .atomic)
+                            } catch {
+                                print(error)
+                            }
+                            
+                            //if let asset = p.toMesh(device: document.model.modeler!.device) {
+                                
+                                /*
+                                func getTempURL() -> URL? {
+                                    
+                                    let directory = NSTemporaryDirectory()
+                                    let fileName = NSUUID().uuidString
+
+                                    return NSURL.fileURL(withPathComponents: [directory, fileName])
+                                }
+                                
+                                if var tempURL = getTempURL() {
+                                    tempURL.appendPathExtension(".obj")
+                                    
+                                    //let asset = MDLAsset(url: url)
+                                    
+                                    do {
+                                        try asset.export(to: tempURL)
+                                        let data = try Data(contentsOf: tempURL)
+                                        print(String(decoding: data, as: UTF8.self))
+                                    } catch {
+                                        print(error)
+                                    }
+                                }
+                                */
+                                /*
+                                print(MDLAsset.canExportFileExtension("obj"))
+                                print(url)
+                                do {
+                                    try asset.export(to: url)
+                                } catch {
+                                    print(error)
+                                }*/
+                            //}
+                        }
                     } catch {
                         // Handle failure.
                     }

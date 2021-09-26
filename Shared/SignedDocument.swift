@@ -14,6 +14,12 @@ extension UTType {
     }
 }
 
+extension UTType {
+    static var signedOBJ: UTType {
+        UTType(exportedAs: "com.Signed.obj")
+    }
+}
+
 struct SignedDocument: FileDocument {
     
     var model       = Model()
@@ -24,7 +30,7 @@ struct SignedDocument: FileDocument {
     }
 
     static var readableContentTypes: [UTType] { [.signedProject] }
-    static var writableContentTypes: [UTType] { [.signedProject, .png] }
+    static var writableContentTypes: [UTType] { [.signedProject, .png, .signedOBJ] }
 
     init(configuration: ReadConfiguration) throws {
         

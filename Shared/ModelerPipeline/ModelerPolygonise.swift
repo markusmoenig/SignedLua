@@ -7,15 +7,12 @@
 
 import MetalKit
 import Accelerate
+import ModelIO
 
 /// Based on http://paulbourke.net/geometry/polygonise/
 class ModelerPolygonise {
     
     public typealias _Float16 = UInt16
-
-    struct TRIANGLE {
-        var p               : [float3] = [float3(), float3(), float3()]
-    }
 
     struct GRIDCELL {
         var p               : [float3] = [float3(), float3(), float3(), float3(), float3(), float3(), float3(), float3()]
@@ -24,7 +21,7 @@ class ModelerPolygonise {
     
     let kit             : ModelerKit
     
-    var triangles       : [TRIANGLE] = []
+    var triangles       : [float3] = []
     
     var chunkSize       : Int = 0
     
@@ -60,15 +57,14 @@ class ModelerPolygonise {
             }
             
             let f = float16to32(&texArray, count: 50 * 50 * 50)
-            processChunk(array: f, position: float3(0, 0, 0))
+            processChunk(array: f, p: float3(0, 0, 0))
         }
     }
     
     /// Processes the given chunk of data, where position indicates the lower front left coordinate of the chunk in the 3D texture.
-    func processChunk(array: [Float], position: float3)
+    func processChunk(array: [Float], p: float3)
     {
-        //var off      = 0
-        //var stepSize = 0
+        let stepSize    : Float = 1.0 / Float(chunkSize)
         
         let slice = chunkSize * chunkSize
         
@@ -92,6 +88,16 @@ class ModelerPolygonise {
                     gridCell.val[3] = array[frontOff]
                     gridCell.val[6] = array[frontOff + chunkSize + 1]
                     gridCell.val[7] = array[frontOff + chunkSize]
+                    
+                    gridCell.p[0] = float3(p.x, p.y, p.z + stepSize)
+                    gridCell.p[1] = float3(p.x + stepSize, p.y, p.z + stepSize)
+                    gridCell.p[4] = float3(p.x + stepSize, p.y + stepSize, p.z + stepSize)
+                    gridCell.p[5] = float3(p.x + stepSize, p.y + stepSize, p.z + stepSize)
+
+                    gridCell.p[2] = float3(p.x + stepSize, p.y, p.z)
+                    gridCell.p[3] = float3(p.x, p.y, p.z)
+                    gridCell.p[6] = float3(p.x + stepSize, p.y + stepSize, p.z)
+                    gridCell.p[7] = float3(p.x, p.y + stepSize, p.z)
 
                     polygonise(grid: gridCell)
                     
@@ -166,27 +172,81 @@ class ModelerPolygonise {
         var i = 0
         
         while triTable[cubeindex][i] != -1 {
+                        
+            let x = vertlist[triTable[cubeindex][i  ]]
+            let y = vertlist[triTable[cubeindex][i+1]]
+            let z = vertlist[triTable[cubeindex][i+2]]
             
-            var triangle = TRIANGLE()
-            
-            triangle.p[0] = vertlist[triTable[cubeindex][i  ]]
-            triangle.p[1] = vertlist[triTable[cubeindex][i+1]]
-            triangle.p[2] = vertlist[triTable[cubeindex][i+2]]
-            
-            triangles.append(triangle)
-            
+            triangles.append(x)
+            triangles.append(y)
+            triangles.append(z)
+
             i += 3
         }
         
-        print(triangles.count)
-        
+        print("triangles", triangles.count / 3)
+    }
+    
+    func toMesh(device: MTLDevice) -> MDLAsset?
+    {
+        //MTKMeshBuffer *mtkMeshBufferForVertices_position          = (MTKMeshBuffer *)[metalAllocator newBuffer:lenBufferForVertices_position          type:MDLMeshBufferTypeVertex];
+
+        let allocator = MTKMeshBufferAllocator.init(device: device)
+        let vertexBuffer = allocator.newBuffer(MemoryLayout<float3>.stride * triangles.count, type: .vertex)
+
+        let vertexMap = vertexBuffer.map()
+        vertexMap.bytes.assumingMemoryBound(to: float3.self).assign(from: triangles, count: triangles.count)
+
+        //print(buffer.length)
         /*
-        for (i=0;triTable[cubeindex][i]!=-1;i+=3) {
-           triangles[ntriang].p[0] = vertlist[triTable[cubeindex][i  ]];
-           triangles[ntriang].p[1] = vertlist[triTable[cubeindex][i+1]];
-           triangles[ntriang].p[2] = vertlist[triTable[cubeindex][i+2]];
-           ntriang++;
-        }*/
+        NSData *nsData_position          = [NSData dataWithBytes:equilateralTriangleVertexData        length:lenBufferForVertices_position];*/
+        
+        //let dataPosition = Data(withBy)
+
+        let vertexDescriptor = MDLVertexDescriptor()
+        vertexDescriptor.attributes[0] = MDLVertexAttribute(name: MDLVertexAttributePosition,
+                                                            format: .float3,
+                                                            offset: 0,
+                                                            bufferIndex: 0)
+        vertexDescriptor.layouts[0] = MDLVertexBufferLayout(stride: MemoryLayout<float3>.stride)
+
+
+        let mdlMesh = MDLMesh(vertexBuffer: vertexBuffer,
+                              vertexCount: triangles.count,
+                              descriptor: vertexDescriptor,
+                              submeshes: [])
+        
+        print(mdlMesh)
+        
+        var object = MDLObject()
+        object.addChild(mdlMesh)
+        
+        let asset = MDLAsset()
+        asset.add(object)
+        return asset
+    }
+    
+    func toOBJ() -> Data {
+        var obj = ""
+        
+        func writeVertex(_ v: float3) -> String {
+            return String(format: "%.04f", v.x) + "    " +  String(format: "%.04f", v.y) + "    " +  String(format: "%.04f", v.z) + "\n"
+        }
+        
+        for o in 0..<(triangles.count / 3) {
+            
+            let index = o * 3
+            
+            let v1 = triangles[index]
+            let v2 = triangles[index+1]
+            let v3 = triangles[index+2]
+            
+            obj += "v " + writeVertex(v1)
+            obj += "v " + writeVertex(v2)
+            obj += "v " + writeVertex(v3)
+        }
+        
+        return Data(obj.utf8)
     }
     
     /// Linearly interpolate the position where an isosurface cuts an edge between two vertices, each with their own scalar value

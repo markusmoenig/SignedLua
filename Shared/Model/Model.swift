@@ -152,6 +152,8 @@ class Model: NSObject, ObservableObject {
     /// Current renderer
     var currentRenderName                   = "renderPBR"
     
+    var polygoniser                         : ModelerPolygonise? = nil
+    
     /// Current help topic
     var currentHelpTopic                    : HelpContentView.HelpTopic = .none
     
