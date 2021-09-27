@@ -57,14 +57,15 @@ class ModelerPolygonise {
             }
             
             let f = float16to32(&texArray, count: 50 * 50 * 50)
-            processChunk(array: f, p: float3(0, 0, 0))
+            processChunk(array: f, position: float3(0, 0, 0))
         }
     }
     
     /// Processes the given chunk of data, where position indicates the lower front left coordinate of the chunk in the 3D texture.
-    func processChunk(array: [Float], p: float3)
+    func processChunk(array: [Float], position: float3)
     {
         let stepSize    : Float = 1.0 / Float(chunkSize)
+        var p           = position
         
         let slice = chunkSize * chunkSize
         
@@ -72,13 +73,16 @@ class ModelerPolygonise {
 
         for z in 0..<(chunkSize-1) {
 
+            p.y = position.y
             for y in 0..<(chunkSize-1) {
                 
+                p.x = position.x
+
                 var frontOff = z * slice + y * chunkSize
                 var backOff = (z + 1) * slice + y * chunkSize
 
                 for _ in 0..<(chunkSize-1) {
-                    
+
                     gridCell.val[0] = array[backOff]
                     gridCell.val[1] = array[backOff + 1]
                     gridCell.val[4] = array[backOff + chunkSize]
@@ -91,7 +95,7 @@ class ModelerPolygonise {
                     
                     gridCell.p[0] = float3(p.x, p.y, p.z + stepSize)
                     gridCell.p[1] = float3(p.x + stepSize, p.y, p.z + stepSize)
-                    gridCell.p[4] = float3(p.x + stepSize, p.y + stepSize, p.z + stepSize)
+                    gridCell.p[4] = float3(p.x, p.y + stepSize, p.z + stepSize)
                     gridCell.p[5] = float3(p.x + stepSize, p.y + stepSize, p.z + stepSize)
 
                     gridCell.p[2] = float3(p.x + stepSize, p.y, p.z)
@@ -101,10 +105,14 @@ class ModelerPolygonise {
 
                     polygonise(grid: gridCell)
                     
+                    p.x += stepSize
+                    
                     frontOff += 1
                     backOff += 1
                 }
+                p.y += stepSize
             }
+            p.z += stepSize
         }
         
         //gridCell.val[0] = array
@@ -187,21 +195,14 @@ class ModelerPolygonise {
         print("triangles", triangles.count / 3)
     }
     
+    /// Convert the triangles to an MDLAsset
     func toMesh(device: MTLDevice) -> MDLAsset?
     {
-        //MTKMeshBuffer *mtkMeshBufferForVertices_position          = (MTKMeshBuffer *)[metalAllocator newBuffer:lenBufferForVertices_position          type:MDLMeshBufferTypeVertex];
-
         let allocator = MTKMeshBufferAllocator.init(device: device)
         let vertexBuffer = allocator.newBuffer(MemoryLayout<float3>.stride * triangles.count, type: .vertex)
 
         let vertexMap = vertexBuffer.map()
         vertexMap.bytes.assumingMemoryBound(to: float3.self).assign(from: triangles, count: triangles.count)
-
-        //print(buffer.length)
-        /*
-        NSData *nsData_position          = [NSData dataWithBytes:equilateralTriangleVertexData        length:lenBufferForVertices_position];*/
-        
-        //let dataPosition = Data(withBy)
 
         let vertexDescriptor = MDLVertexDescriptor()
         vertexDescriptor.attributes[0] = MDLVertexAttribute(name: MDLVertexAttributePosition,
@@ -216,16 +217,12 @@ class ModelerPolygonise {
                               descriptor: vertexDescriptor,
                               submeshes: [])
         
-        print(mdlMesh)
-        
-        var object = MDLObject()
-        object.addChild(mdlMesh)
-        
         let asset = MDLAsset()
-        asset.add(object)
+        asset.add(mdlMesh)
         return asset
     }
     
+    /// Convert the triangles to single file OBJ
     func toOBJ() -> Data {
         var obj = ""
         
@@ -244,6 +241,12 @@ class ModelerPolygonise {
             obj += "v " + writeVertex(v1)
             obj += "v " + writeVertex(v2)
             obj += "v " + writeVertex(v3)
+        }
+        
+        var index : Int = 1
+        for _ in 0..<(triangles.count / 3) {
+            obj += "f " + String(index) + "    " + String((index+1)) + "    "  + String(index+2) + "\n"
+            index += 3
         }
         
         return Data(obj.utf8)
