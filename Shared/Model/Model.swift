@@ -152,8 +152,13 @@ class Model: NSObject, ObservableObject {
     /// Current renderer
     var currentRenderName                   = "renderPBR"
     
+    /// Polygonization
     var polygoniser                         : ModelerPolygonise? = nil
-    
+    var objData                             : Data!
+    var mtlData                             : Data!
+
+    let polygonisationEnded                 = PassthroughSubject<Void, Never>()
+
     /// Current help topic
     var currentHelpTopic                    : HelpContentView.HelpTopic = .none
     

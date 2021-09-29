@@ -235,12 +235,13 @@ struct ContentView: View {
                 Button(action: {
                     if let modeler = document.model.modeler {
                         //modeler.polygonize(kit: modeler.mainKit)
-                        let p = ModelerPolygonise(kit: modeler.mainKit)
-                        p.processTexture()
+                        document.model.polygoniser = ModelerPolygonise(model: document.model, kit: modeler.mainKit)
+                        document.model.polygoniser?.processTexture()
+                        /*
                         if p.triangles.isEmpty == false {
                             exporter = true
                             document.model.polygoniser = p
-                        }
+                        }*/
                     }
                 }) {
                     Image(systemName: "square.and.arrow.up")
@@ -256,12 +257,10 @@ struct ContentView: View {
                     do {
                         let url = try result.get()
                         
-                        if let p = document.model.polygoniser {
-                            
-                            let objData = p.toOBJ()
-                            
+                        //if let p = document.model.polygoniser {
+                                                        
                             do {
-                                try objData.write(to: url, options: .atomic)
+                                try document.model.objData.write(to: url, options: .atomic)
                             } catch {
                                 print(error)
                             }
@@ -300,7 +299,7 @@ struct ContentView: View {
                                     print(error)
                                 }*/
                             //}
-                        }
+                        //}
                     } catch {
                         // Handle failure.
                     }
@@ -351,6 +350,10 @@ struct ContentView: View {
         .onReceive(document.model.showHelpTopic) { topic in
             document.model.currentHelpTopic = topic
             currentHelpTopic = topic
+        }
+        
+        .onReceive(document.model.polygonisationEnded) { _ in
+            exporter = true
         }
     }
     
