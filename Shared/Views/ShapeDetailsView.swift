@@ -23,6 +23,10 @@ struct ShapeDetailsView: View {
     }
         
     var body: some View {
+        
+        Text(shape.name)
+            .font(.title2)
+        
         ScrollView {
             VStack(alignment: .leading) {
                 Text("Create using")
@@ -35,7 +39,7 @@ struct ShapeDetailsView: View {
                     .font(.system(size: 12))
                     .padding(.top, 4)
                 
-                Markdown("execute with **:execute(index)** (index is an optional material index for material layering).")
+                Markdown("execute with **:execute(id)** (id is an optional material id for material layering).")
                                 
                 if let geometryData = shape.dataGroups.getGroup("Geometry") {
                     DisclosureGroup(geometryData.name, isExpanded: $geometyDetails) {

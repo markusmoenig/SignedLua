@@ -382,6 +382,8 @@ struct ProjectView: View {
                                 do {
                                     try managedObjectContext.save()
                                 } catch {}
+                                
+                                showDatabasePopover = false
                             }
                         }
                     }

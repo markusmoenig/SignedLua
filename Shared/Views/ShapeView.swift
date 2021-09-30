@@ -53,6 +53,7 @@ struct ShapeView: View {
                                 .allowsHitTesting(false)
                         }
                         
+                        /*
                         Rectangle()
                             .fill(.black)
                             .opacity(0.4)
@@ -63,6 +64,7 @@ struct ShapeView: View {
                             .padding(.top, CGFloat(ModelerPipeline.IconSize - 20))
                             .allowsHitTesting(false)
                             .foregroundColor(.white)
+                         */
                     }
                 }
             }

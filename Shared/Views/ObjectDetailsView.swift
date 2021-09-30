@@ -20,6 +20,10 @@ struct ObjectDetailsView: View {
     }
         
     var body: some View {
+        
+        Text(object.name!)
+            .font(.title2)
+
         ScrollView {
             VStack(alignment: .leading) {
                 Text("Create using")
@@ -35,7 +39,7 @@ struct ObjectDetailsView: View {
                 Text("execute with")
                     .font(.headline)
                 
-                Button(":execute(index, { *options* } )") {
+                Button(":execute(id, { *options* } )") {
                     copyToClipboard(":execute(0, { } )")
                 }
                     .background(Color.accentColor)

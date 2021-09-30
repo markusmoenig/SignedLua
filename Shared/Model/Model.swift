@@ -207,6 +207,8 @@ class Model: NSObject, ObservableObject {
             SignedCommand("Cylinder", role: .GeometryAndMaterial, action: .Add, primitive: .Cylinder, data: ["Geometry": SignedData([SignedDataEntity("height", Float(0.2), float2(0, 5), .Slider, .None, "Height of the cylinder."), SignedDataEntity("radius", Float(0.14), float2(0, 5), .Slider, .None, "Radius of the cylinder."), SignedDataEntity("rounding", Float(0), float2(0, 1), .Slider, .None, "Height of the cylinder.")])], material: SignedMaterial(albedo: float3(0.5,0.5,0.5))),
         ]
         selectedShape = shapes.first
+        
+        shapeSelected.send(selectedShape!)
     }
         
     /// Initialises the inbuilt materials

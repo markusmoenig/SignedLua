@@ -101,6 +101,7 @@ struct MaterialView: View {
                                 .allowsHitTesting(false)
                         }
                         
+                        /*
                         Rectangle()
                             .fill(.black)
                             .opacity(0.2)
@@ -111,6 +112,7 @@ struct MaterialView: View {
                             .padding(.top, CGFloat(ModelerPipeline.IconSize - 18))
                             .allowsHitTesting(false)
                             .foregroundColor(.white)
+                         */
                     }
                 }
             }

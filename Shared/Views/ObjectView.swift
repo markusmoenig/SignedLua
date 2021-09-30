@@ -99,7 +99,7 @@ struct ObjectView: View {
                                 .frame(width: CGFloat(ModelerPipeline.IconSize), height: CGFloat(ModelerPipeline.IconSize))
                                 .allowsHitTesting(false)
                         }
-                        
+                        /*
                         Rectangle()
                             .fill(.black)
                             .opacity(0.2)
@@ -110,6 +110,7 @@ struct ObjectView: View {
                             .padding(.top, CGFloat(ModelerPipeline.IconSize - 18))
                             .allowsHitTesting(false)
                             .foregroundColor(.white)
+                         */
                     }
                 }
             }
