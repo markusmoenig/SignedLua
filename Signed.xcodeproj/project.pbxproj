@@ -190,6 +190,8 @@
 		2BDAFC8726FAB368000ECF14 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BDAFC8626FAB368000ECF14 /* HelpView.swift */; };
 		2BDAFC8826FAB368000ECF14 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BDAFC8626FAB368000ECF14 /* HelpView.swift */; };
 		2BDAFC8B26FAC3ED000ECF14 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 2BDAFC8A26FAC3ED000ECF14 /* MarkdownUI */; };
+		2BE0AEA227054323004C2EBB /* ModelerPolygoniseChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE0AEA127054323004C2EBB /* ModelerPolygoniseChunk.swift */; };
+		2BE0AEA327054323004C2EBB /* ModelerPolygoniseChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE0AEA127054323004C2EBB /* ModelerPolygoniseChunk.swift */; };
 		2BF8593E26CE004100AC127A /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF8593D26CE004100AC127A /* InfoView.swift */; };
 		2BF8593F26CE004100AC127A /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF8593D26CE004100AC127A /* InfoView.swift */; };
 /* End PBXBuildFile section */
@@ -325,6 +327,7 @@
 		2BC9944D2685A5AC00F75A54 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		2BC994502685AB5400F75A54 /* SignedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedObject.swift; sourceTree = "<group>"; };
 		2BDAFC8626FAB368000ECF14 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		2BE0AEA127054323004C2EBB /* ModelerPolygoniseChunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelerPolygoniseChunk.swift; sourceTree = "<group>"; };
 		2BF8593D26CE004100AC127A /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -450,6 +453,7 @@
 				2B407E782689602A004E6F4C /* ModelerPipeline.swift */,
 				2B407E7E268962E3004E6F4C /* ModelerStates.swift */,
 				2B5FA251270000A9008CF20E /* ModelerPolygonise.swift */,
+				2BE0AEA127054323004C2EBB /* ModelerPolygoniseChunk.swift */,
 			);
 			path = ModelerPipeline;
 			sourceTree = "<group>";
@@ -728,6 +732,7 @@
 				2B62AD68268D60B1000504C0 /* ShapeView.swift in Sources */,
 				2BC733D926C8EE7E00BCE667 /* VirtualMachine.swift in Sources */,
 				2BC7338B26C8EDE400BCE667 /* loslib.c in Sources */,
+				2BE0AEA227054323004C2EBB /* ModelerPolygoniseChunk.swift in Sources */,
 				2BC733E526C8EE7E00BCE667 /* String.swift in Sources */,
 				2B651A442682C8BC002DF988 /* PersistenceController.swift in Sources */,
 				2BC838F526919A070087249A /* MaterialView.swift in Sources */,
@@ -824,6 +829,7 @@
 				2B62AD69268D60B1000504C0 /* ShapeView.swift in Sources */,
 				2BC733DA26C8EE7E00BCE667 /* VirtualMachine.swift in Sources */,
 				2BC7338C26C8EDE400BCE667 /* loslib.c in Sources */,
+				2BE0AEA327054323004C2EBB /* ModelerPolygoniseChunk.swift in Sources */,
 				2BC733E626C8EE7E00BCE667 /* String.swift in Sources */,
 				2B651A452682C8BC002DF988 /* PersistenceController.swift in Sources */,
 				2BC838F626919A070087249A /* MaterialView.swift in Sources */,
