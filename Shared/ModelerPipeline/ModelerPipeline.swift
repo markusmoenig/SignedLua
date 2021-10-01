@@ -59,14 +59,22 @@ class ModelerKit {
     // If this pass computes a material, put the pointer to it here to install the icon
     var materialEntity  : MaterialEntity? = nil
     
-    /// Installes the next available renderkit
-    func installNextRenderKit() {
+    /// Installes the next available renderkit if any, returns true if the rendered kit was a preview kit (icon)
+    func installNextRenderKit() -> Bool {
+        var wasIcon = false
         if renderKits.count > 0 {
+            if let renderKit = currentRenderKit {
+                wasIcon = renderKit.icon
+            }
             currentRenderKit = renderKits.removeFirst()
             currentRenderKit?.samples = 0
         } else {
+            if let renderKit = currentRenderKit {
+                wasIcon = renderKit.icon
+            }
             currentRenderKit = nil
         }
+        return wasIcon
     }
 }
 

@@ -20,6 +20,8 @@ class RenderKit {
     
     var samples         : Int32 = 0
     var maxSamples      : Int32
+    
+    var icon            = false
 
     func isValid() -> Bool {
         return sampleTexture != nil && outputTexture != nil
@@ -68,6 +70,7 @@ class RenderPipeline
         
         mainRenderKit = RenderKit(maxSamples: model.project.getMaxSamples())
         iconRenderKit = RenderKit(maxSamples: 50)
+        iconRenderKit.icon = true
         
         model.modeler = ModelerPipeline(model)
 
@@ -195,19 +198,19 @@ class RenderPipeline
                     mainKit.renderGPUBusy = true
                     commandBuffer?.addCompletedHandler { cb in
                         mainKit.renderGPUBusy = false
-                        print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000, renderKit.samples)
+                        print("Rendering Time:", (cb.gpuEndTime - cb.gpuStartTime) * 1000, renderKit.samples, renderKit.maxSamples)
                     }
                     
                     runRender(mainKit)
-                    accumulate(renderKit: mainRenderKit)
-                    mainRenderKit.samples += 1
+                    accumulate(renderKit: renderKit)
+                    renderKit.samples += 1
                     
-                    if model.getRenderType(kit: model.modeler!.mainKit) == .bsdf {
+                    //if model.getRenderType(kit: mainKit) == .bsdf {
                         if model.progress == .rendering {
                             model.progressCurrent += 1
                             model.progressChanged.send()
                         }
-                    }
+                    //}
                 } else {
                     
                     model.progress = .none
@@ -216,8 +219,8 @@ class RenderPipeline
                     
                     self.model.progressChanged.send()
                     
-                    mainKit.installNextRenderKit()
-                    if mainKit.content == .object && mainKit.currentRenderKit == nil {
+                    let wasIcon = mainKit.installNextRenderKit()
+                    if wasIcon && mainKit.content == .object && mainKit.currentRenderKit == nil {
                         if let objectEntity = mainKit.objectEntity {
                             if let image = model.modeler!.kitToImage(renderKit: iconRenderKit) {
                                 objectEntity.icon = model.modeler!.cgiImageToData(image: image)
@@ -232,7 +235,7 @@ class RenderPipeline
                             }
                         }
                     } else
-                    if mainKit.content == .material && mainKit.currentRenderKit == nil {
+                    if wasIcon && mainKit.content == .material && mainKit.currentRenderKit == nil {
                         if let materialEntity = mainKit.materialEntity {
                             if let image = model.modeler!.kitToImage(renderKit: iconRenderKit) {
                                 materialEntity.icon = model.modeler!.cgiImageToData(image: image)
@@ -339,6 +342,15 @@ class RenderPipeline
             var renderName = kit.renderName
             if kit.role == .main {
                 renderName = model.currentRenderName
+            }
+            
+            if kit.content == .material {
+                // For material icons always use the BSDF path tracer
+                if let renderKit = kit.currentRenderKit {
+                    if renderKit.icon == true {
+                        renderName = "renderBSDF"
+                    }
+                }
             }
             
             if let state = renderStates.getComputeState(stateName: renderName) {

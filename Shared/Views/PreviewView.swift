@@ -271,17 +271,6 @@ struct PreviewView: View {
             updateView.toggle()
         }
         
-        /*/
-        .onReceive(model.shapeSelected) { shape in
-            mode = .camera
-            mode = .shape
-        }
-        
-        .onReceive(model.materialSelected) { shape in
-            mode = .camera
-            mode = .material
-        }*/
-        
         .onReceive(model.cameraModeChanged) { mode in
             cameraMode = mode
         }

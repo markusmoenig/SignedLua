@@ -589,7 +589,7 @@ class SignedBuilder {
             kit.status = .running
             kit.content = content
             kit.renderKits = renderKits
-            kit.installNextRenderKit()
+            _ = kit.installNextRenderKit()
             kit.objectEntity = objectEntity
             kit.materialEntity = materialEntity
             

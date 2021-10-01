@@ -57,6 +57,25 @@ struct MaterialView: View {
                                     }
                                 })
                                 .contextMenu {
+                                    Button("Preview") {
+                                        if let data = material.code {
+                                            if let value = String(data: data, encoding: .utf8) {
+                                                if let renderer = model.renderer {
+                                                    model.builder.build(code: value, kit: model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit], materialEntity: material)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Button("Update Icon") {
+                                        if let data = material.code {
+                                            if let value = String(data: data, encoding: .utf8) {
+                                                if let renderer = model.renderer {
+                                                    model.builder.build(code: value, kit: model.modeler!.mainKit, content: .material, renderKits: [renderer.iconRenderKit], materialEntity: material)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Divider()
                                     Button("Delete") {
                                         managedObjectContext.delete(material)
                                         do {
@@ -85,6 +104,25 @@ struct MaterialView: View {
                                     }
                                 })
                                 .contextMenu {
+                                    Button("Preview") {
+                                        if let data = material.code {
+                                            if let value = String(data: data, encoding: .utf8) {
+                                                if let renderer = model.renderer {
+                                                    model.builder.build(code: value, kit: model.modeler!.mainKit, content: .material, renderKits: [renderer.mainRenderKit], materialEntity: material)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Button("Update Icon") {
+                                        if let data = material.code {
+                                            if let value = String(data: data, encoding: .utf8) {
+                                                if let renderer = model.renderer {
+                                                    model.builder.build(code: value, kit: model.modeler!.mainKit, content: .material, renderKits: [renderer.iconRenderKit], materialEntity: material)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Divider()
                                     Button("Delete") {
                                         managedObjectContext.delete(material)
                                         do {

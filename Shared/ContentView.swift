@@ -237,11 +237,6 @@ struct ContentView: View {
                         //modeler.polygonize(kit: modeler.mainKit)
                         document.model.polygoniser = ModelerPolygonise(model: document.model, kit: modeler.mainKit)
                         document.model.polygoniser?.processTexture()
-                        /*
-                        if p.triangles.isEmpty == false {
-                            exporter = true
-                            document.model.polygoniser = p
-                        }*/
                     }
                 }) {
                     Image(systemName: "square.and.arrow.up")
@@ -256,14 +251,16 @@ struct ContentView: View {
                 ) { result in
                     do {
                         let url = try result.get()
+                                                                                
+                        do {
+                            try document.model.objData.write(to: url, options: .atomic)
+                        } catch {
+                            print(error)
+                        }
                         
-                        //if let p = document.model.polygoniser {
-                                                        
-                            do {
-                                try document.model.objData.write(to: url, options: .atomic)
-                            } catch {
-                                print(error)
-                            }
+                        document.model.polygoniser = nil
+                        document.model.objData = nil
+                        document.model.mtlData = nil
                             
                             //if let asset = p.toMesh(device: document.model.modeler!.device) {
                                 
