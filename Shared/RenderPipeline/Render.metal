@@ -747,6 +747,7 @@ float3 getCamerayRay(float2 uv, float3 ro, float3 rd, float fov, float2 size, th
 
     float3 position = ro;
     float3 pivot = rd;
+    
     float focalDist = 0.1;
     float aperture = 0;
     

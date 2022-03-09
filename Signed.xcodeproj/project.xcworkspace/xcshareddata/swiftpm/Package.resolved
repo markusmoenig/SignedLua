@@ -38,7 +38,7 @@
         }
       },
       {
-        "package": "swift-cmark",
+        "package": "cmark",
         "repositoryURL": "https://github.com/SwiftDocOrg/swift-cmark.git",
         "state": {
           "branch": null,

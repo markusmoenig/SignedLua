@@ -327,6 +327,7 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .automatic) {
             }
         }
+        .frame(minWidth: 1240, minHeight: 800)
 
         .onReceive(document.model.updateUI) { _ in
             updateView.toggle()

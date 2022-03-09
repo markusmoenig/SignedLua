@@ -14,11 +14,15 @@ Artist driven workflows of the major 3D editing packages are great, for artists.
 
 ## How it works
 
-*Signed* executes SDF modeling and material commands into a 3D texture utilizing Disney BSDF materials. A full featured BSDF path tracer is included. The content of the 3D texture will later be able to be exported to polygons.
+*Signed* executes SDF modeling and material commands into a 3D texture utilizing Disney BSDF materials. A full featured BSDF path tracer is included. The content of the 3D texture will can be exported to OBJ.
 
 *Signed* is based on Lua, a fast and easy to learn scripting language which provides the foundation for the Signed workflow.
 
 You can create objects, materials and modules (language extensions) in your project and even share them in the public database (thus expanding the available language).
+
+## Lua
+
+Signed is based on Lua. I will not teach you Lua here but there are many resources available on the net. Lua is popular because it is fast and can be easily extended via modules. For more information please visit [Lua.org]( https://www.lua.org).
 
 ## Modeling Commands
 
@@ -185,17 +189,7 @@ end
 ))
 ```
 
-Over time many convenience modules will be added to Signed to make building complex objects and structures easier.
-
-## Sponsors
-
-Corporate sponsors for Signed are very welcome. If you company is involved in 3D, Signed would be a great project for you to sponsor.
-
-## Status
-
-Signed is currently in development. Although the basics are done, working out the APIs and UI, providing comprehensive (context) help, working out the modules and providing example projects will take some more months. I hope to provide a v1 on the AppStore within the year.
-
-The APIs and modules provided by Signed may and will change until a v1 is released.
+Over time convenience modules will be added to Signed to make building complex objects and structures easier.
 
 ## License
 
