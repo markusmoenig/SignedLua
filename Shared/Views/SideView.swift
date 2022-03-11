@@ -191,6 +191,7 @@ struct TextureSizeView: View {
                     }
                     model.project.resolution = res
                     model.project.pixelsPerMeter = ppm
+                    model.modeler?.freeKit(model.modeler!.mainKit);
                     model.modeler!.mainKit = model.modeler!.allocateKit(width: res, height: res, depth: res)
                 }
             }

@@ -345,27 +345,34 @@ class ModelerPipeline
         let modelerKit = ModelerKit()
         
         print("allocateKit", width, height, depth)
-        
+                
         //print(device.supportsFeatureSet(.macOS_GPUFamily2_v1))
         modelerKit.modelTexture = allocateTexture3D(width: width, height: height, depth: depth, format: .r16Float)
-        #if os(OSX)
-        modelerKit.colorTexture = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
-        modelerKit.materialTexture1 = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
-        modelerKit.materialTexture2 = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
-        modelerKit.materialTexture3 = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
-        modelerKit.materialTexture4 = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
-        #elseif os(iOS)
+//        #if os(OSX)
+//        modelerKit.colorTexture = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
+//        modelerKit.materialTexture1 = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
+//        modelerKit.materialTexture2 = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
+//        modelerKit.materialTexture3 = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
+//        modelerKit.materialTexture4 = allocateTexture3D(width: width, height: height, depth: depth, format: .rgba16Float)
+//        #elseif os(iOS)
         modelerKit.colorTexture = allocateTexture3D(width: width, height: height, depth: depth, format: .bgra8Unorm)
         modelerKit.materialTexture1 = allocateTexture3D(width: width, height: height, depth: depth, format: .bgra8Unorm)
         modelerKit.materialTexture2 = allocateTexture3D(width: width, height: height, depth: depth, format: .bgra8Unorm)
         modelerKit.materialTexture3 = allocateTexture3D(width: width, height: height, depth: depth, format: .bgra8Unorm)
         modelerKit.materialTexture4 = allocateTexture3D(width: width, height: height, depth: depth, format: .bgra8Unorm)
-        #endif
+//        #endif
         
         return modelerKit
     }
     
     func freeKit(_ kit: ModelerKit) {
+        kit.modelTexture?.setPurgeableState(.volatile);
+        kit.colorTexture?.setPurgeableState(.volatile);
+        kit.materialTexture1?.setPurgeableState(.volatile);
+        kit.materialTexture2?.setPurgeableState(.volatile);
+        kit.materialTexture3?.setPurgeableState(.volatile);
+        kit.materialTexture4?.setPurgeableState(.volatile);
+
         kit.modelTexture = nil
         kit.colorTexture = nil
         kit.materialTexture1 = nil
